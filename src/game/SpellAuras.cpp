@@ -2264,6 +2264,14 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                         if (Unit* caster = GetCaster())
                             caster->PlayDirectSound(12119);             // Headless Horseman - Horseman Laugh, Maniacal
                         return;
+                    case 45611:                                         // Arcane Chains (item spell)
+                        if (Unit* caster = GetCaster())
+                            if(m_target && m_target->GetEntry() == 25316)
+                            {
+                                m_target->CastSpell(caster,45625,true);
+                                ((Creature*)m_target)->ForcedDespawn();
+                            }
+                            return;
                     case 46354:                             // Blood Elf Illusion
                         if (Unit* caster = GetCaster())
                         {

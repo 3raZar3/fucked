@@ -5171,6 +5171,16 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     unitTarget->CastSpell(unitTarget, 44870, true);
                     break;
                 }
+                // Arcane Chains: Character Force Cast
+                case 45625:
+                {
+                    if(!unitTarget)
+                        return;
+
+                    unitTarget->CastSpell(m_caster, 45626, true);
+
+                    break;
+                }
                 // Goblin Weather Machine
                 case 46203:
                 {
