@@ -1152,6 +1152,13 @@ void Spell::EffectDummy(uint32 i)
                     m_caster->CastSpell(m_caster, 45088, true);
                     return;
                 }
+                case 46605:
+                {
+                    // Darkness of a Thousand Souls (EffectBasePoint[2] points at wrong spell 45656, so i has to be hacked)
+                    // Can be also moved to Spell::cast()
+                    AddTriggeredSpell(45657);
+                    return;
+                }
                 case 46606:                                 // Tillinghast's Plague Canister Dummy
                 {                                           // Works only on Proto-Drake Egg
                     if (unitTarget && unitTarget->GetEntry() == 23777 && unitTarget->isAlive())
