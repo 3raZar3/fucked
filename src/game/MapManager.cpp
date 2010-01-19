@@ -16,6 +16,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <omp.h>
 #include "MapManager.h"
 #include "InstanceSaveMgr.h"
 #include "Policies/SingletonImp.h"
@@ -237,6 +238,8 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player)
 
 void MapManager::DeleteInstance(uint32 mapid, uint32 instanceId)
 {
+    Guard guard(*this);
+
     Map *m = _createBaseMap(mapid);
     if (m && m->Instanceable())
         ((MapInstanced*)m)->DestroyInstance(instanceId);
@@ -252,18 +255,30 @@ void MapManager::RemoveBonesFromMap(uint32 mapid, uint64 guid, float x, float y)
     }
 }
 
-void
-MapManager::Update(uint32 diff)
+void MapManager::Update(uint32 diff)
 {
     i_timer.Update(diff);
-    if( !i_timer.Passed() )
+    if (!i_timer.Passed())
         return;
 
-    for(MapMapType::iterator iter=i_maps.begin(); iter != i_maps.end(); ++iter)
+    MapMapType::iterator iter = i_maps.begin();
+    std::vector<Map*> update_queue(i_maps.size());
+
+    int omp_set_num_threads(sWorld.getConfig(CONFIG_NUMTHREADS));
+
+    for (uint32 i = 0; iter != i_maps.end(); ++iter, ++i)
+        update_queue[i] = iter->second;
+/*
+    gomp in gcc <4.4 version cannot parallelise loops using random access iterators
+    so until gcc 4.4 isnt standard, we need the update_queue workaround
+*/
+    #pragma omp parallel for schedule(dynamic) private(i) shared(update_queue)
+    for (uint32 i = 0; i < i_maps.size(); ++i)
     {
-        checkAndCorrectGridStatesArray();                   // debugging code, should be deleted some day
-        iter->second->Update(i_timer.GetCurrent());
+        update_queue[i]->Update(i_timer.GetCurrent());
     }
+
+    checkAndCorrectGridStatesArray();
 
     for (TransportSet::iterator iter = m_Transports.begin(); iter != m_Transports.end(); ++iter)
         (*iter)->Update(i_timer.GetCurrent());
@@ -320,6 +335,8 @@ void MapManager::InitMaxInstanceId()
 
 uint32 MapManager::GetNumInstances()
 {
+    Guard guard(*this);
+
     uint32 ret = 0;
     for(MapMapType::iterator itr = i_maps.begin(); itr != i_maps.end(); ++itr)
     {
@@ -334,6 +351,8 @@ uint32 MapManager::GetNumInstances()
 
 uint32 MapManager::GetNumPlayersInInstances()
 {
+    Guard guard(*this);
+
     uint32 ret = 0;
     for(MapMapType::iterator itr = i_maps.begin(); itr != i_maps.end(); ++itr)
     {
