@@ -592,7 +592,7 @@ void Spell::FillTargetMap()
                                 SetTargetMap(i, m_spellInfo->EffectImplicitTargetB[i], tmpUnitMap);
                                 if (!tmpUnitMap.empty())
                                 {
-                                    for (std::list<Unit*>::const_iterator itr = tmpUnitMap.begin(); itr != tmpUnitMap.end();)
+                                    for (std::list<Unit*>::iterator itr = tmpUnitMap.begin(); itr != tmpUnitMap.end();)
                                         {
                                             if ((*itr)->GetEntry() != 7076)
                                             {
@@ -608,7 +608,7 @@ void Spell::FillTargetMap()
                                 SetTargetMap(i, m_spellInfo->EffectImplicitTargetB[i], tmpUnitMap);
                                 if (!tmpUnitMap.empty())
                                 {
-                                    for (std::list<Unit*>::const_iterator itr = tmpUnitMap.begin(); itr != tmpUnitMap.end();)
+                                    for (std::list<Unit*>::iterator itr = tmpUnitMap.begin(); itr != tmpUnitMap.end();)
                                         {
                                             if ((*itr)->GetEntry() != 10120)
                                             {
