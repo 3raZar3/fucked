@@ -3419,7 +3419,7 @@ void Spell::EffectSummonType(uint32 i)
                     else if (m_spellInfo->EffectMiscValueB[i] == 2301)
                         EffectSummonSnakes(i);
 
-                    else if
+                    else
                         EffectSummonWild(i, summon_prop->FactionId);
                     break;
                 }
