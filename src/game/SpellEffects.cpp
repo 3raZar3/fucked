@@ -1166,8 +1166,6 @@ void Spell::EffectDummy(uint32 i)
                         unitTarget->CastSpell(m_caster,43160,true);
                         unitTarget->DealDamage(unitTarget, unitTarget->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                      }
-
-                     unitTarget->CastSpell(unitTarget,spellid,false);
                      return;
                 }
                 case 48046:                                 // Use Camera
