@@ -3948,6 +3948,18 @@ void Spell::EffectSummonGuardian(uint32 i, uint32 forceFaction)
     if (!pet_entry)
         return;
 
+    // despawn all guardians with entry that we are going to summon
+    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+    {
+        GuardianPetList const& m_guardianPets = ((Player*)m_caster)->GetGuardians();
+        for(GuardianPetList::const_iterator itr = m_guardianPets.begin(); itr != m_guardianPets.end(); ++itr)
+        {
+            Creature* pGuardian = (Creature*)Unit::GetUnit((*m_caster),*itr);
+            if (pGuardian && pGuardian->GetEntry() == pet_entry)
+                pGuardian->ForcedDespawn();
+        }
+    }
+
     // in another case summon new
     uint32 level = m_caster->getLevel();
 
