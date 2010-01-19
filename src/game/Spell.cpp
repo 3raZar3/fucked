@@ -2577,6 +2577,9 @@ void Spell::cast(bool skipCheck)
                 AddPrecastSpell(23230);                     // Blood Fury - Healing Reduction
             else if(m_spellInfo->Id == 20594)               // Stoneskin
                 AddTriggeredSpell(65116);                   // Stoneskin - armor 10% for 8 sec
+
+            else if(m_spellInfo->Id == 47345)               // Create Dark Brewmaiden's Brew
+                AddPrecastSpell(47331);                     // Has Dark Brewmaiden's Brew
             break;
         }
         case SPELLFAMILY_MAGE:
