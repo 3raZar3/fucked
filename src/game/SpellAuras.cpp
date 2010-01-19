@@ -2443,6 +2443,33 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                 m_target->CastSpell(m_target, 47287, true, NULL, this);
                 return;
             }
+            // Jonathan/Josephine/Lamoff Dying (at remove)
+            case 50666:
+            case 50693:
+            case 50679:
+            {
+                if ((GetAuraDuration() > 0) && (m_removeMode == AURA_REMOVE_BY_DEFAULT))
+                    return;
+
+                switch(m_target->GetTypeId())
+                {
+                    if (!m_target)
+                        return;
+
+                    // force failed quest status for quest "Leave No One Behind"
+                    case TYPEID_PLAYER:
+                        if (((Player*)m_target)->GetQuestStatus(12512) == QUEST_STATUS_INCOMPLETE)
+                            ((Player*)m_target)->FailQuest(12512);
+                        break;
+                    // make creature bleedout when aura expire
+                    case TYPEID_UNIT:
+                        if (m_target->isAlive())
+                            m_target->DealDamage(m_target,m_target->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                        break;
+                    default: break;
+                }
+                return;
+            }
         }
 
         // Living Bomb
