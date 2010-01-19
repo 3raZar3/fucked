@@ -1252,6 +1252,27 @@ void Spell::EffectDummy(uint32 i)
                     // Quest - Borean Tundra - Summon Explosives Cart
                     unitTarget->CastSpell(unitTarget,46798,true,m_CastItem,NULL,m_originalCasterGUID);
                     break;
+                case 51330:                                 // Shoot RJR
+                {
+                    if (!m_caster || !unitTarget)
+                        return;
+
+                    switch(urand(0, 2))
+                    {
+                        case 0: m_caster->CastSpell(unitTarget,51331,true); break; // Hit Apple
+                        case 1: m_caster->CastSpell(unitTarget,51366,true); break; // Miss Apple, Hit Bird
+                        case 2: m_caster->CastSpell(unitTarget,51332,true); break; // Miss Apple (Hit Wilhelm)
+                    }
+                    return;
+                }
+                case 51369:                                 // Tickbird Signal to Fall
+                {
+                    if (!unitTarget)
+                        return;
+
+                    unitTarget->DealDamage(unitTarget, unitTarget->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                    return;
+                }
                 case 51582:                                 // Rocket Boots Engaged (Rocket Boots Xtreme and Rocket Boots Xtreme Lite)
                 {
                     if (m_caster->GetTypeId() != TYPEID_PLAYER)
