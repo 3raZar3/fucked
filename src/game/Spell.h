@@ -420,6 +420,10 @@ class Spell
         {
             return  m_spellInfo->Attributes & SPELL_ATTR_RANGED;
         }
+        bool IsAutoShotIgnoringSpell() const
+        {
+            return ((m_spellInfo->AttributesEx2 & SPELL_ATTR_EX2_UNK17) && (m_spellInfo->SpellFamilyName == 9));
+        }
         bool IsChannelActive() const { return m_caster->GetUInt32Value(UNIT_CHANNEL_SPELL) != 0; }
         bool IsMeleeAttackResetSpell() const { return !m_IsTriggeredSpell && (m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_AUTOATTACK);  }
         bool IsRangedAttackResetSpell() const { return !m_IsTriggeredSpell && IsRangedSpell() && (m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_AUTOATTACK); }
