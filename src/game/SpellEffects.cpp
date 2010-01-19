@@ -1149,6 +1149,17 @@ void Spell::EffectDummy(uint32 i)
                     m_caster->CastSpell(m_caster, 45088, true);
                     return;
                 }
+                case 46606:                                 // Tillinghast's Plague Canister Dummy
+                {                                           // Works only on Proto-Drake Egg
+                    if (unitTarget && unitTarget->GetEntry() == 23777 && unitTarget->isAlive())
+                    {                                       // Green Eggs and Whelps: Summon Plagued Proto-Whelp
+                        unitTarget->CastSpell(m_caster,43160,true);
+                        unitTarget->DealDamage(unitTarget, unitTarget->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                     }
+
+                     unitTarget->CastSpell(unitTarget,spellid,false);
+                     return;
+                }
                 case 49357:                                 // Brewfest Mount Transformation
                     if (m_caster->GetTypeId() != TYPEID_PLAYER)
                         return;
