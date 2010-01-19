@@ -5249,6 +5249,27 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     // Torture the Torturer: High Executor's Branding Iron Impact
                     unitTarget->CastSpell(unitTarget, 48614, true);
                     return;
+                // A Fall from Grace: Scarlet Raven Priest Image - Master
+                case 48762:
+                {
+                    if (!unitTarget)
+                        return;
+
+                    unitTarget->CastSpell(unitTarget,(unitTarget->getGender() == 1) ? 48761 : 48763,true);
+                    return;
+                }
+                // A Fall from Grace: Quest Completion Script
+                case 48769:
+                {
+                    if (!unitTarget)
+                        return;
+
+                    if (unitTarget->HasAura(48761))
+                        unitTarget->RemoveAurasDueToSpell(48761);
+                    if (unitTarget->HasAura(48763))
+                        unitTarget->RemoveAurasDueToSpell(48763);
+                    return;
+                }
                 // Emblazon Runeblade
                 case 51770:
                 {
