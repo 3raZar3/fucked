@@ -505,6 +505,8 @@ bool IsPositiveEffect(uint32 spellId, uint32 effIndex)
                         case 44689:                         // Relay Race Accept Hidden Debuff - DND
                             return false;
                         // some spells have unclear target modes for selection, so just make effect positive
+                        case 10252:                                         // Awaken Earthen Guardians
+                        case 10258:                                         // Awaken Vault Warder
                         case 27184:
                         case 27190:
                         case 27191:

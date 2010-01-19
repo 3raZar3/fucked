@@ -585,6 +585,49 @@ void Spell::FillTargetMap()
                         SetTargetMap(i, m_spellInfo->EffectImplicitTargetA[i], tmpUnitMap);
                         tmpUnitMap.push_back(m_caster);
                         break;
+                    case TARGET_AREAEFFECT_INSTANT:
+                        switch(m_spellInfo->Id)
+                        {
+                            case 10252:
+                                SetTargetMap(i, m_spellInfo->EffectImplicitTargetB[i], tmpUnitMap);
+                                if (!tmpUnitMap.empty())
+                                {
+                                    for (std::list<Unit*>::const_iterator itr = tmpUnitMap.begin(); itr != tmpUnitMap.end();)
+                                        {
+                                            if ((*itr)->GetEntry() != 7076)
+                                            {
+                                                itr = tmpUnitMap.erase(itr);
+                                                continue;
+                                            }
+                                            else 
+                                                ++itr;
+                                        }
+                                }
+                                break;
+                            case 10258:
+                                SetTargetMap(i, m_spellInfo->EffectImplicitTargetB[i], tmpUnitMap);
+                                if (!tmpUnitMap.empty())
+                                {
+                                    for (std::list<Unit*>::const_iterator itr = tmpUnitMap.begin(); itr != tmpUnitMap.end();)
+                                        {
+                                            if ((*itr)->GetEntry() != 10120)
+                                            {
+                                                itr = tmpUnitMap.erase(itr);
+                                                continue;
+                                            }
+                                            else 
+                                                ++itr;
+                                        }
+                                }
+                                break;
+
+                            default:
+                                SetTargetMap(i, m_spellInfo->EffectImplicitTargetA[i], tmpUnitMap);
+                                SetTargetMap(i, m_spellInfo->EffectImplicitTargetB[i], tmpUnitMap);
+                                break;
+                        }
+                        break;
+
                     default:
                         SetTargetMap(i, m_spellInfo->EffectImplicitTargetA[i], tmpUnitMap);
                         SetTargetMap(i, m_spellInfo->EffectImplicitTargetB[i], tmpUnitMap);
