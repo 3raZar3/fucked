@@ -6337,10 +6337,19 @@ void Spell::EffectLeapForward(uint32 i)
             fx = fx2;
             fy = fy2;
             fz = fz2;
-            unitTarget->UpdateGroundPositionZ(fx, fy, fz);
         }
 
-        unitTarget->NearTeleportTo(fx, fy, fz, unitTarget->GetOrientation(), unitTarget == m_caster);
+        if(unitTarget->GetTypeId() == TYPEID_PLAYER)
+        {
+            fz = m_caster->GetBaseMap()->GetHeight(fx,fy,fz,true);
+            if (fabs(fz-oz) > 4.0f)
+            {
+                fx = ox;
+                fy = oy;
+                fz = oz;
+            }
+        }  
+        unitTarget->NearTeleportTo(fx, fy, fz, unitTarget->GetOrientation(),unitTarget==m_caster);
     }
 }
 
