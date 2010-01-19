@@ -5096,6 +5096,15 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     unitTarget->CastSpell(unitTarget, 41131, true);
                     break;
                 }
+                // Sprout (Headless Horsemann spell)
+                case 42281:
+                {
+                    if (!unitTarget)
+                        return;
+
+                    unitTarget->CastSpell(unitTarget,42285,true);
+                    break;
+                }
                 // Force Cast - Portal Effect: Sunwell Isle
                 case 44876:
                 {

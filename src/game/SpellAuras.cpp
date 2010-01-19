@@ -2249,7 +2249,20 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                             m_target->CastSpell(m_target, 51581, true, NULL, this);
                         return;
                     case 43873:                             // Headless Horseman Laugh
-                        m_target->PlayDistanceSound(11965);
+                        if (m_target)
+                            m_target->PlayDistanceSound(11965);
+                        return;
+                    case 43881:
+                        if (Unit* caster = GetCaster())
+                            caster->PlayDirectSound(11975);             // Headless Horseman Laugh
+                        return;
+                    case 43894:
+                        if (Unit* caster = GetCaster())
+                            caster->PlayDirectSound(11976);             // Headless Horseman - Horseman Laugh, Low Key
+                        return;
+                    case 43885:
+                        if (Unit* caster = GetCaster())
+                            caster->PlayDirectSound(12119);             // Headless Horseman - Horseman Laugh, Maniacal
                         return;
                     case 46354:                             // Blood Elf Illusion
                         if (Unit* caster = GetCaster())

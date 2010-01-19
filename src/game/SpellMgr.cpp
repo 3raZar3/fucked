@@ -1333,6 +1333,15 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
             {
                 case SPELLFAMILY_GENERIC:                   // same family case
                 {
+                    // Headless Horseman regen spells should stack with any other spells
+                    if (spellInfo_1->Id == 42556 || spellInfo_1->Id == 42403 || spellInfo_1->Id == 43105)
+                        return false;
+
+                    // Pulsing Pumpkin visual auras (Headless Horseman event)
+                    if ((spellInfo_1->Id == 42280 && spellInfo_2->Id == 42294) ||
+                        (spellInfo_2->Id == 42280 && spellInfo_1->Id == 42294))
+                        return false;
+
                     // Thunderfury
                     if ((spellInfo_1->Id == 21992 && spellInfo_2->Id == 27648) ||
                         (spellInfo_2->Id == 21992 && spellInfo_1->Id == 27648))
