@@ -4819,6 +4819,10 @@ SpellCastResult Spell::CheckCast(bool strict)
             // Not used for summon?
             case SPELL_EFFECT_SUMMON_PHANTASM:
             {
+                //Snake Trap exception
+                if(m_spellInfo->EffectMiscValueB[i] == 2301)
+                    break;
+
                 if(m_caster->GetPetGUID())
                     return SPELL_FAILED_ALREADY_HAVE_SUMMON;
 
