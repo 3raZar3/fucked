@@ -1607,7 +1607,7 @@ void Spell::EffectDummy(uint32 i)
                 }
 
                 //Any effect which causes you to lose control of your character will supress the starfall effect.
-                if (m_caster->hasUnitState(UNIT_STAT_STUNNED | UNIT_STAT_FLEEING | UNIT_STAT_ROOT | UNIT_STAT_CONFUSED))
+                if (m_caster->hasUnitState(UNIT_STAT_NO_FREE_MOVE))
                     return;
 
                 switch(m_spellInfo->Id)
@@ -3524,8 +3524,7 @@ void Spell::EffectSummon(uint32 i)
 
     spawnCreature->GetCharmInfo()->SetPetNumber(pet_number, false);
     
-    if (m_caster->GetTypeId() == TYPEID_PLAYER)
-        spawnCreature->UpdateWalkModeForPets(((Player*)m_caster)->HasMovementFlag(MOVEMENTFLAG_WALK_MODE));
+    spawnCreature->UpdateWalkMode(m_caster);
 
     spawnCreature->AIM_Initialize();
     spawnCreature->InitPetCreateSpells();
@@ -3704,7 +3703,7 @@ void Spell::EffectDistract(uint32 /*i*/)
         return;
 
     // target must be OK to do this
-    if( unitTarget->hasUnitState(UNIT_STAT_CONFUSED | UNIT_STAT_STUNNED | UNIT_STAT_FLEEING ) )
+    if( unitTarget->hasUnitState(UNIT_STAT_CAN_NOT_REACT) )
         return;
 
     float angle = unitTarget->GetAngle(m_targets.m_destX, m_targets.m_destY);
@@ -4393,8 +4392,7 @@ void Spell::EffectSummonPet(uint32 i)
     NewSummon->SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, 1000);
     NewSummon->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
 
-    if (m_caster->GetTypeId() == TYPEID_PLAYER)
-        NewSummon->UpdateWalkModeForPets(((Player*)m_caster)->HasMovementFlag(MOVEMENTFLAG_WALK_MODE));
+    NewSummon->UpdateWalkMode(m_caster);
 
     NewSummon->GetCharmInfo()->SetPetNumber(pet_number, true);
     // this enables pet details window (Shift+P)
