@@ -23,7 +23,6 @@ EndScriptData */
 
 /* ContentData
 item_arcane_charges                 Prevent use if player is not flying (cannot cast while on ground)
-item_draenei_fishing_net(i23654)    Hacklike implements chance to spawn item or creature
 item_nether_wraith_beacon(i31742)   Summons creatures for quest Becoming a Spellfire Tailor (q10832)
 item_flying_machine(i34060,i34061)  Engineering crafted flying machines
 item_gor_dreks_ointment(i30175)     Protecting Our Own(q10488)
@@ -52,42 +51,6 @@ bool ItemUse_item_arcane_charges(Player* pPlayer, Item* pItem, const SpellCastTa
         Spell::SendCastResult(pPlayer, pSpellInfo, 1, SPELL_FAILED_NOT_ON_GROUND);
 
     return true;
-}
-
-/*#####
-# item_draenei_fishing_net
-#####*/
-
-//This is just a hack and should be removed from here.
-//Creature/Item are in fact created before spell are sucessfully casted, without any checks at all to ensure proper/expected behavior.
-bool ItemUse_item_draenei_fishing_net(Player* pPlayer, Item* pItem, const SpellCastTargets &pTargets)
-{
-    //if (targets.getGOTarget() && targets.getGOTarget()->GetTypeId() == TYPEID_GAMEOBJECT &&
-    //targets.getGOTarget()->GetGOInfo()->type == GAMEOBJECT_TYPE_SPELL_FOCUS && targets.getGOTarget()->GetEntry() == 181616)
-    //{
-    if (pPlayer->GetQuestStatus(9452) == QUEST_STATUS_INCOMPLETE)
-    {
-        if (!urand(0, 2))
-        {
-            Creature *Murloc = pPlayer->SummonCreature(17102,pPlayer->GetPositionX() ,pPlayer->GetPositionY()+20, pPlayer->GetPositionZ(), 0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,10000);
-            if (Murloc)
-                Murloc->AI()->AttackStart(pPlayer);
-        }
-        else
-        {
-            ItemPosCountVec dest;
-            uint8 msg = pPlayer->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 23614, 1);
-            if (msg == EQUIP_ERR_OK)
-            {
-                Item* item = pPlayer->StoreNewItem(dest,23614,true);
-                if (item)
-                    pPlayer->SendNewItem(item,1,false,true);
-            }else
-            pPlayer->SendEquipError(msg,NULL,NULL);
-        }
-    }
-    //}
-    return false;
 }
 
 /*#####
@@ -121,7 +84,7 @@ bool ItemUse_item_flying_machine(Player* pPlayer, Item* pItem, const SpellCastTa
             return false;
 
     debug_log("SD2: Player attempt to use item %u, but did not meet riding requirement",itemId);
-    pPlayer->SendEquipError(EQUIP_ERR_ERR_CANT_EQUIP_SKILL, pItem, NULL);
+    pPlayer->SendEquipError(EQUIP_ERR_CANT_EQUIP_SKILL, pItem, NULL);
     return true;
 }
 
@@ -161,7 +124,34 @@ bool ItemUse_item_fishing_chair(Player* pPlayer, Item* _Item, SpellCastTargets c
     pPlayer->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW,_Item,NULL);
     return true;
 }
+/*#####
+# item_petrov_cluster_bombs
+#####*/
 
+enum
+{
+    SPELL_PETROV_BOMB           = 42406,
+    AREA_ID_SHATTERED_STRAITS   = 4064,
+    ZONE_ID_HOWLING             = 495
+};
+
+bool ItemUse_item_petrov_cluster_bombs(Player* pPlayer, Item* pItem, const SpellCastTargets &pTargets)
+{
+    if (pPlayer->GetZoneId() != ZONE_ID_HOWLING)
+        return false;
+
+    if (!pPlayer->GetTransport() || pPlayer->GetAreaId() != AREA_ID_SHATTERED_STRAITS)
+    {
+        pPlayer->SendEquipError(EQUIP_ERR_NONE, pItem, NULL);
+
+        if (const SpellEntry* pSpellInfo = GetSpellStore()->LookupEntry(SPELL_PETROV_BOMB))
+            Spell::SendCastResult(pPlayer, pSpellInfo, 1, SPELL_FAILED_NOT_HERE);
+
+        return true;
+    }
+
+    return false;
+}
 
 void AddSC_item_scripts()
 {
@@ -170,11 +160,6 @@ void AddSC_item_scripts()
     newscript = new Script;
     newscript->Name = "item_arcane_charges";
     newscript->pItemUse = &ItemUse_item_arcane_charges;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "item_draenei_fishing_net";
-    newscript->pItemUse = &ItemUse_item_draenei_fishing_net;
     newscript->RegisterSelf();
 
     newscript = new Script;
@@ -196,4 +181,9 @@ void AddSC_item_scripts()
     newscript->Name = "item_fishing_chair";
     newscript->pItemUse = &ItemUse_item_fishing_chair;
     newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "item_petrov_cluster_bombs";
+    newscript->pItemUse = &ItemUse_item_petrov_cluster_bombs;
+    newscript->RegisterSelf();  
 }

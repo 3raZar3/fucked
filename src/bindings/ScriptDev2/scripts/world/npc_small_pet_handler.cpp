@@ -203,9 +203,9 @@ struct MANGOS_DLL_DECL npc_small_pet_handlerAI : public ScriptedAI
             {
                 // Change speed if owner is mounted
                 if (pPlayer->IsMounted())
-                    m_creature->SetSpeed(MOVE_RUN, 2.0f, true);
+                    m_creature->SetSpeedRate(MOVE_RUN, 2.0f, true);
                 else
-                    m_creature->SetSpeed(MOVE_RUN, 1.0f, true);
+                    m_creature->SetSpeedRate(MOVE_RUN, 1.0f, true);
 
                 // Check if owner is stopped
             	if (pPlayer->isMoving() && m_bIsIdle)

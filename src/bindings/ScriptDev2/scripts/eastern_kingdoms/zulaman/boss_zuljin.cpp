@@ -471,7 +471,7 @@ struct MANGOS_DLL_DECL boss_zuljinAI : public ScriptedAI
                     if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
                     {
                         TankGUID = m_creature->getVictim()->GetGUID();
-                        m_creature->SetSpeed(MOVE_RUN, 5.0f);
+                        m_creature->SetSpeedRate(MOVE_RUN, 5.0f);
                         AttackStart(target); // change victim
                         Claw_Rage_Timer = 0;
                         Claw_Loop_Timer = 500;
@@ -495,7 +495,7 @@ struct MANGOS_DLL_DECL boss_zuljinAI : public ScriptedAI
                                 if(Claw_Counter == 12)
                                 {
                                     Claw_Rage_Timer = 15000 + rand()%5000;
-                                    m_creature->SetSpeed(MOVE_RUN, 1.2f);
+                                    m_creature->SetSpeedRate(MOVE_RUN, 1.2f);
                                     AttackStart(Unit::GetUnit(*m_creature, TankGUID));
                                     TankGUID = 0;
                                     return;
@@ -515,7 +515,7 @@ struct MANGOS_DLL_DECL boss_zuljinAI : public ScriptedAI
                     if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
                     {
                         TankGUID = m_creature->getVictim()->GetGUID();
-                        m_creature->SetSpeed(MOVE_RUN, 5.0f);
+                        m_creature->SetSpeedRate(MOVE_RUN, 5.0f);
                         AttackStart(target); // change victim
                         Lynx_Rush_Timer = 0;
                         Claw_Counter = 0;
@@ -538,7 +538,7 @@ struct MANGOS_DLL_DECL boss_zuljinAI : public ScriptedAI
                             if(Claw_Counter == 4)
                             {
                                 Lynx_Rush_Timer = 35000 + rand()%5000;
-                                m_creature->SetSpeed(MOVE_RUN, 1.2f);
+                                m_creature->SetSpeedRate(MOVE_RUN, 1.2f);
                                 AttackStart(Unit::GetUnit(*m_creature, TankGUID));
                                 TankGUID = 0;
                             }

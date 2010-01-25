@@ -41,6 +41,7 @@ UPDATE gameobject_template SET ScriptName='go_jump_a_tron' WHERE entry=183146;
 UPDATE gameobject_template SET ScriptName='go_orb_of_command' WHERE entry=179879;
 UPDATE gameobject_template SET ScriptName='go_resonite_cask' WHERE entry=178145;
 UPDATE gameobject_template SET ScriptName='go_sacred_fire_of_life' WHERE entry=175944;
+UPDATE gameobject_template SET ScriptName='go_school_of_red_snapper' WHERE entry=181616;
 UPDATE gameobject_template SET ScriptName='go_shrine_of_the_birds' WHERE entry IN (185547,185553,185551);
 UPDATE gameobject_template SET ScriptName='go_tablet_of_madness' WHERE entry=180368;
 UPDATE gameobject_template SET ScriptName='go_tablet_of_the_seven' WHERE entry=169294;
@@ -72,11 +73,11 @@ UPDATE creature_template SET ScriptName='guard_shattrath_scryer' WHERE entry=185
 
 /* ITEM */
 UPDATE item_template SET ScriptName='item_arcane_charges' WHERE entry=34475;
-UPDATE item_template SET ScriptName='item_draenei_fishing_net' WHERE entry=23654;
 UPDATE item_template SET ScriptName='item_flying_machine' WHERE entry IN (34060,34061);
 UPDATE item_template SET ScriptName='item_gor_dreks_ointment' WHERE entry=30175;
 UPDATE item_template SET ScriptName='item_nether_wraith_beacon' WHERE entry=31742;
 UPDATE item_template SET ScriptName='item_tainted_core' WHERE entry=31088;
+UPDATE item_template SET ScriptName='item_petrov_cluster_bombs' WHERE entry=33098;
 
 /* NPC (usually creatures to be found in more than one specific zone) */
 UPDATE creature_template SET ScriptName='npc_air_force_bots' WHERE entry IN (2614, 2615, 21974, 21993, 21996, 21997, 21999, 22001, 22002, 22003, 22063, 22065, 22066, 22068, 22069, 22070, 22071, 22078, 22079, 22080, 22086, 22087, 22088, 22090, 22124, 22125, 22126);
@@ -238,6 +239,7 @@ UPDATE creature_template SET ScriptName='npc_spirit_of_olum' WHERE entry=23411;
 
 /* BLACKFATHOM DEPTHS */
 UPDATE instance_template SET script='instance_blackfathom_deeps' WHERE map=48;
+UPDATE gameobject_template SET ScriptName='go_fire_of_akumai' WHERE entry IN (21118,21119,21120,21121);
 
 /* BLACKROCK DEPTHS */
 DELETE FROM areatrigger_scripts WHERE entry=1526;
@@ -309,6 +311,7 @@ UPDATE creature_template SET ScriptName='npc_captured_sunhawk_agent' WHERE entry
 UPDATE creature_template SET ScriptName='npc_fizzcrank_fullthrottle' WHERE entry=25590;
 UPDATE creature_template SET ScriptName='npc_iruk' WHERE entry=26219;
 UPDATE creature_template SET ScriptName='npc_kara_thricestar' WHERE entry=26602;
+UPDATE creature_template SET ScriptName='npc_robot_reprogrammed' WHERE entry IN (25793,25758,25752,25792,25753);
 UPDATE creature_template SET ScriptName='npc_surristrasz' WHERE entry=24795;
 UPDATE creature_template SET ScriptName='npc_tiare' WHERE entry=30051;
 
@@ -1096,7 +1099,9 @@ UPDATE instance_template SET script='instance_pinnacle' WHERE map=575;
 
 
 /* VIOLET HOLD */
-
+UPDATE instance_template SET script='instance_violet_hold' WHERE map=608;
+UPDATE creature_template SET ScriptName='npc_door_seal' WHERE entry=30896;
+UPDATE creature_template SET ScriptName='npc_sinclari' WHERE entry=30658;
 
 /* WAILING CAVERNS */
 

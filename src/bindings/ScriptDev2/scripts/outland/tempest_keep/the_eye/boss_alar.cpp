@@ -284,7 +284,7 @@ struct MANGOS_DLL_DECL boss_alarAI : public ScriptedAI
                     DiveBombCastDelay_Timer = 4000;
                     break;
                 case 7:
-                    m_creature->SetSpeed(MOVE_RUN, DefaultMoveSpeedRate);
+                    m_creature->SetSpeedRate(MOVE_RUN, DefaultMoveSpeedRate);
                     m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, DefaultModel);
@@ -325,7 +325,7 @@ struct MANGOS_DLL_DECL boss_alarAI : public ScriptedAI
                     m_creature->getThreatManager().addThreat(Charge_target, Charge_target_threat);
                 }
                 Charge = false;
-                m_creature->SetSpeed(MOVE_RUN, DefaultMoveSpeedRate);
+                m_creature->SetSpeedRate(MOVE_RUN, DefaultMoveSpeedRate);
             }else ChargeDelay_Timer -= diff;
             return;
         }
@@ -459,7 +459,7 @@ struct MANGOS_DLL_DECL boss_alarAI : public ScriptedAI
                         m_creature->SetInFront(Charge_target);
                         Charge_target_threat = m_creature->getThreatManager().getThreat(Charge_target);
                         m_creature->getThreatManager().addThreat(Charge_target, 100000000.0f);
-                        m_creature->SetSpeed(MOVE_RUN, DefaultMoveSpeedRate*5.0f);
+                        m_creature->SetSpeedRate(MOVE_RUN, DefaultMoveSpeedRate*5.0f);
                         DoCast(Charge_target, SPELL_CHARGE);
                         ChargeDelay_Timer = 2000;
                         Charge = true;
@@ -502,7 +502,7 @@ struct MANGOS_DLL_DECL boss_alarAI : public ScriptedAI
                 if (target) DoCast(target, SPELL_DIVE_BOMB);
                 m_creature->SetFloatValue(OBJECT_FIELD_SCALE_X, DefaultSize);
                 m_creature->RemoveAurasDueToSpell(SPELL_DIVE_BOMB_VISUAL);
-                m_creature->SetSpeed(MOVE_RUN, DefaultMoveSpeedRate*2.0f);
+                m_creature->SetSpeedRate(MOVE_RUN, DefaultMoveSpeedRate*2.0f);
                 if (target)
                 {
                     CreaturePointMove(7, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
