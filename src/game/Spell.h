@@ -305,6 +305,7 @@ class Spell
         void EffectPlayerPull(uint32 i);
         void EffectDispelMechanic(uint32 i);
         void EffectSummonDeadPet(uint32 i);
+        void EffectSummonAllTotems(uint32 i);
         void EffectDestroyAllTotems(uint32 i);
         void EffectDurabilityDamage(uint32 i);
         void EffectSkill(uint32 i);
@@ -338,7 +339,6 @@ class Spell
         void cast(bool skipCheck = false);
         void finish(bool ok = true);
         void TakePower();
-        void TakeRunePower();
         void TakeReagents();
         void TakeCastItem();
 
@@ -355,7 +355,7 @@ class Spell
         SpellCastResult CheckItems();
         SpellCastResult CheckRange(bool strict);
         SpellCastResult CheckPower();
-        SpellCastResult CheckRuneCost(uint32 runeCostID);
+        SpellCastResult CheckOrTakeRunePower(bool take);
         SpellCastResult CheckCasterAuras() const;
 
         int32 CalculateDamage(uint8 i, Unit* target) { return m_caster->CalculateSpellDamage(m_spellInfo,i,m_currentBasePoints[i],target); }
