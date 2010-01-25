@@ -45,13 +45,10 @@ struct MANGOS_DLL_DECL instance_zulaman : public ScriptedInstance
     uint64 m_uiZuljinGUID;
     uint64 m_uiMalacrassGUID;
     uint64 m_uiHarrisonGUID;
+
     uint64 m_uiStrangeGongGUID;
-    
-    // drzwi
-    uint64 m_uiMassiveGateGUID; // wejscie
-    uint64 m_uiHalazziDoorGUID; // wyjscie OD halazziego
-    uint64 m_uiMalacrassEntranceGUID; // wejscie do malacrasa
-    uint64 m_uiZuljinDoorGUID; // drzwi do ZulJina
+    uint64 m_uiMassiveGateGUID;
+    uint64 m_uiMalacrassEntranceGUID;
 
     std::list<uint64> m_lEggsGUIDList;
     uint32 m_uiEggsRemainingCount_Left;
@@ -79,9 +76,7 @@ struct MANGOS_DLL_DECL instance_zulaman : public ScriptedInstance
         m_uiStrangeGongGUID = 0;
         m_uiMassiveGateGUID = 0;
         m_uiMalacrassEntranceGUID = 0;
-        m_uiHalazziDoorGUID = 0;
-        m_uiZuljinDoorGUID = 0;
-    
+
         m_lEggsGUIDList.clear();
         m_uiEggsRemainingCount_Left = 20;
         m_uiEggsRemainingCount_Right = 20;
@@ -120,16 +115,8 @@ struct MANGOS_DLL_DECL instance_zulaman : public ScriptedInstance
                 break;
             case 186305:
                 m_uiMalacrassEntranceGUID = pGo->GetGUID();
-                if (m_auiEncounter[1] == DONE && m_auiEncounter[2] == DONE && m_auiEncounter[3] == DONE && m_auiEncounter[4] == DONE)
-                    pGo->SetGoState(GO_STATE_ACTIVE);
                 break;
-            /*case 1:
-                m_uiHalazziDoorGUID = pGo->GetGUID();
-                if (m_auiEncounter[4] == DONE)
-                    pGo->SetGoState(GO_STATE_ACTIVE);
-                break;*/
         }
-
     }
 
     void SetData(uint32 uiType, uint32 uiData)
@@ -226,10 +213,9 @@ struct MANGOS_DLL_DECL instance_zulaman : public ScriptedInstance
                 break;
         }
 
-        // open Hexlord Entrance if four minor bosses slain
-        if (m_auiEncounter[1] == DONE && m_auiEncounter[2] == DONE && m_auiEncounter[3] == DONE && m_auiEncounter[4] == DONE)
+        if (m_auiEncounter[1] == DONE && m_auiEncounter[2] == DONE && m_auiEncounter[3] == DONE &&
+            m_auiEncounter[4] == DONE && m_auiEncounter[5] != IN_PROGRESS)
             DoUseDoorOrButton(m_uiMalacrassEntranceGUID);
-
 
         if (uiData == DONE || (uiType == TYPE_EVENT_RUN && uiData == IN_PROGRESS))
         {

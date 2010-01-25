@@ -16,7 +16,7 @@
 
 /* ScriptData
 SDName: Boss_Malacrass
-SD%Complete: 90
+SD%Complete: 10
 SDComment: Contain adds and adds selection
 SDCategory: Zul'Aman
 EndScriptData */
@@ -42,8 +42,6 @@ enum
     SPELL_SIPHON_SOUL           = 43501,
     SPELL_DRAIN_POWER           = 44131,
 
-	MOB_TEMP_TRIGGER        = 23920,
-	
     //for various powers he uses after using soul drain
     //Death Knight
     SPELL_DK_DEATH_AND_DECAY    = 61603,
@@ -104,99 +102,34 @@ enum
     MAX_ACTIVE_ADDS             = 4
 };
 
-#define ORIENT                  1.5696
-#define POS_Y                   921.2795
-#define POS_Z                   33.8883
-#define SAY_ADD_DIED_ONE        -1568031
-#define SAY_ADD_DIED_TWO        -1568032
-#define SAY_ADD_DIED_THREE      -1568033
-static float Pos_X[4] = {127.8827, 122.8827, 112.8827, 107.8827};
+//Adds X positions
+static float m_afAddPosX[4] = {128.279, 123.261, 112.084, 106.473};
 
-static uint32 AddEntryList[8]=
+const float ADD_POS_Y       = 921.279;
+const float ADD_POS_Z       = 33.889;
+const float ADD_ORIENT      = 1.527;
+
+struct SpawnGroup
 {
-    //Far Left
-    24240, //Alyson Antille
-    24241, //Thurg
-    //Left
-    24242, //Slither
-    24243, //Lord Raadan
-    //Right
-    24244, //Gazakroth
-    24245, //Fenstalker
-    //Far Right
-    24246, //Darkheart
-    24247  //Koragg
+    uint32 m_uiCreatureEntry;
+    uint32 m_uiCreatureEntryAlt;
 };
 
-enum AbilityTarget
+SpawnGroup m_auiSpawnEntry[] =
 {
-    ABILITY_TARGET_SELF = 0,
-    ABILITY_TARGET_VICTIM = 1,
-    ABILITY_TARGET_ENEMY = 2,
-    ABILITY_TARGET_HEAL = 3,
-    ABILITY_TARGET_BUFF = 4,
-    ABILITY_TARGET_SPECIAL = 5
+    {24240, 24241},                                         //Alyson Antille / Thurg
+    {24242, 24243},                                         //Slither / Lord Raadan
+    {24244, 24245},                                         //Gazakroth / Fenstalker
+    {24246, 24247},                                         //Darkheart / Koragg
 };
 
-struct PlayerAbilityStruct
-{
-    uint32 spell;
-    AbilityTarget target;
-    uint32 cooldown;
-};
-
-static PlayerAbilityStruct PlayerAbility[][3] =
-{
-    // 1 warrior
-    {{SPELL_WR_MORTAL_STRIKE, ABILITY_TARGET_VICTIM, 6000},
-    {SPELL_WR_WHIRLWIND, ABILITY_TARGET_SELF, 10000},
-    {SPELL_WR_SPELL_REFLECT, ABILITY_TARGET_SELF, 10000}},    
-    // 2 paladin
-    {{SPELL_PA_CONSECRATION, ABILITY_TARGET_SELF, 10000},
-    {SPELL_PA_HOLY_LIGHT, ABILITY_TARGET_HEAL, 10000},
-    {SPELL_PA_AVENGING_WRATH, ABILITY_TARGET_SELF, 10000}},
-    // 3 hunter
-    {{SPELL_HU_EXPLOSIVE_TRAP, ABILITY_TARGET_SELF, 10000},
-    {SPELL_HU_FREEZING_TRAP, ABILITY_TARGET_SELF, 10000},
-    {SPELL_HU_SNAKE_TRAP, ABILITY_TARGET_SELF, 10000}},
-    // 4 rogue
-    {{SPELL_RO_WOUND_POISON, ABILITY_TARGET_VICTIM, 3000},
-    {SPELL_RO_BLIND, ABILITY_TARGET_ENEMY, 10000},
-    {SPELL_RO_SLICE_DICE, ABILITY_TARGET_SELF, 10000}},    
-    // 5 priest
-    {{SPELL_PR_PAIN_SUPP, ABILITY_TARGET_HEAL, 10000},
-    {SPELL_PR_HEAL, ABILITY_TARGET_HEAL, 10000},
-    {SPELL_PR_PSYCHIC_SCREAM, ABILITY_TARGET_SELF, 10000}},
-    // 5* shadow priest
-    {{SPELL_PR_MIND_CONTROL, ABILITY_TARGET_ENEMY, 15000},
-    {SPELL_PR_MIND_BLAST, ABILITY_TARGET_ENEMY, 5000},
-    {SPELL_PR_SW_DEATH, ABILITY_TARGET_ENEMY, 10000}},
-    // 7 shaman
-    {{SPELL_SH_CHAIN_LIGHT, ABILITY_TARGET_ENEMY, 8000},
-    {SPELL_SH_FIRE_NOVA, ABILITY_TARGET_SELF, 10000},
-    {SPELL_SH_HEALING_WAVE, ABILITY_TARGET_HEAL, 10000}},
-    // 8 mage
-    {{SPELL_MG_FIREBALL, ABILITY_TARGET_ENEMY, 5000},
-    {SPELL_MG_FROSTBOLT, ABILITY_TARGET_ENEMY, 5000},
-    //{SPELL_MG_FROST_NOVA, ABILITY_TARGET_VICTIM, 1000},
-    {SPELL_MG_ICE_LANCE, ABILITY_TARGET_SPECIAL, 2000}},
-    // 9 warlock
-    {{SPELL_WL_CURSE_OF_DOOM, ABILITY_TARGET_ENEMY, 10000},
-    {SPELL_WL_RAIN_OF_FIRE, ABILITY_TARGET_ENEMY, 10000},
-    {SPELL_WL_UNSTABLE_AFFL, ABILITY_TARGET_ENEMY, 10000}},
-    // 11 druid
-    {{SPELL_DR_LIFEBLOOM, ABILITY_TARGET_HEAL, 10000},
-    {SPELL_DR_THORNS, ABILITY_TARGET_SELF, 10000},
-    {SPELL_DR_MOONFIRE, ABILITY_TARGET_ENEMY, 8000}}
-};
 struct MANGOS_DLL_DECL boss_malacrassAI : public ScriptedAI
 {
     boss_malacrassAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
         m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
-        SelectAddEntry();
-        for(uint8 i = 0; i < 4; ++i)
-            AddGUID[i] = 0;
+        memset(&m_auiAddGUIDs, 0, sizeof(m_auiAddGUIDs));
+        m_lAddsEntryList.clear();
         Reset();
     }
 
@@ -205,34 +138,13 @@ struct MANGOS_DLL_DECL boss_malacrassAI : public ScriptedAI
     std::list<uint32> m_lAddsEntryList;
     uint64 m_auiAddGUIDs[MAX_ACTIVE_ADDS];
 
-    uint64 AddGUID[4];
-    uint32 AddEntry[4];
-
-    uint64 PlayerGUID;
-
-    uint32 SpiritBolts_Timer;
-    bool bDrainPower;
-    uint32 DrainPower_Timer;
-    uint32 SiphonSoul_Timer;
-    uint32 PlayerAbility_Timer;
-    uint32 CheckAddState_Timer;
-
-    uint32 PlayerClass;
-
-    Unit* SoulDrainTarget;
     void Reset()
     {
+        InitializeAdds();
 
         if (!m_pInstance)
             return;
 
-        SpiritBolts_Timer = 20000;
-        bDrainPower = false;
-        DrainPower_Timer = 60000;
-        SiphonSoul_Timer = 100000;
-        PlayerAbility_Timer = 99999;
-        CheckAddState_Timer = 5000;
-		 
         m_pInstance->SetData(TYPE_MALACRASS, NOT_STARTED);
     }
 
@@ -241,8 +153,6 @@ struct MANGOS_DLL_DECL boss_malacrassAI : public ScriptedAI
         if (m_pInstance)
             m_pInstance->SetData(TYPE_MALACRASS, FAIL);
 
-		CleanAdds();
-		
         for(uint8 i = 0; i < MAX_ACTIVE_ADDS; ++i)
         {
             if (Creature* pAdd = (Creature*)Unit::GetUnit(*m_creature, m_auiAddGUIDs[i]))
@@ -250,78 +160,58 @@ struct MANGOS_DLL_DECL boss_malacrassAI : public ScriptedAI
         }
     }
 
+    void InitializeAdds()
+    {
+        //not if m_creature are dead, so avoid
+        if (!m_creature->isAlive())
+            return;
+
+        uint8 j = 0;
+
+        //it's empty, so first time
+        if (m_lAddsEntryList.empty())
+        {
+            //fill list with entries from creature array
+            for(uint8 i = 0; i < MAX_ACTIVE_ADDS; ++i)
+                m_lAddsEntryList.push_back(rand()%2 ? m_auiSpawnEntry[i].m_uiCreatureEntry : m_auiSpawnEntry[i].m_uiCreatureEntryAlt);
+
+            //summon mobs from the list
+            for(std::list<uint32>::iterator itr = m_lAddsEntryList.begin(); itr != m_lAddsEntryList.end(); ++itr)
+            {
+                if (Creature* pAdd = m_creature->SummonCreature((*itr), m_afAddPosX[j], ADD_POS_Y, ADD_POS_Z, ADD_ORIENT, TEMPSUMMON_CORPSE_DESPAWN, 0))
+                    m_auiAddGUIDs[j] = pAdd->GetGUID();
+
+                ++j;
+            }
+        }
+        else
+        {
+            for(std::list<uint32>::iterator itr = m_lAddsEntryList.begin(); itr != m_lAddsEntryList.end(); ++itr)
+            {
+                Unit* pAdd = Unit::GetUnit(*m_creature, m_auiAddGUIDs[j]);
+
+                //object already removed, not exist
+                if (!pAdd)
+                {
+                    if (Creature* pAdd = m_creature->SummonCreature((*itr), m_afAddPosX[j], ADD_POS_Y, ADD_POS_Z, ADD_ORIENT, TEMPSUMMON_CORPSE_DESPAWN, 0))
+                        m_auiAddGUIDs[j] = pAdd->GetGUID();
+                }
+                ++j;
+            }
+        }
+    }
+
     void Aggro(Unit* pWho)
     {
         m_creature->SetInCombatWithZone();
-		
-		SpawnAdds();
 
         DoScriptText(SAY_AGGRO, m_creature);
+        AddsAttack(pWho);
 
         if (!m_pInstance)
             return;
 
-        for(uint8 i = 0; i < 4; ++i)
-        {
-            Unit* Temp = Unit::GetUnit((*m_creature),AddGUID[i]);
-            if(Temp && Temp->isAlive())
-                ((Creature*)Temp)->AI()->AttackStart(m_creature->getVictim());
-            else
-            {
-                EnterEvadeMode();
-                break;
-            }
-        }
         m_pInstance->SetData(TYPE_MALACRASS, IN_PROGRESS);
-    }
-
-	void SelectAddEntry()
-        {
-        std::vector<uint32> AddList;
-
-        for(uint8 i = 0; i < 8; ++i)
-            AddList.push_back(AddEntryList[i]);
-        
-        uint8 i = 0;
-        while(AddList.size() > 4)
-            {
-            AddList.erase(AddList.begin()+rand()%2+i);
-            i++;
-        }
-
-        i=0;
-        for(std::vector<uint32>::iterator itr = AddList.begin(); itr != AddList.end(); ++itr, ++i)
-            AddEntry[i] = *itr;
-            }
-
-    void SpawnAdds()
-        {
-        for(uint8 i = 0; i < 4; ++i)
-            {
-            Creature *pCreature = ((Creature*)Unit::GetUnit((*m_creature), AddGUID[i]));
-            if(!pCreature || !pCreature->isAlive())
-                {
-                if(pCreature) pCreature->setDeathState(DEAD);
-                pCreature = m_creature->SummonCreature(AddEntry[i], Pos_X[i], POS_Y, POS_Z, ORIENT, TEMPSUMMON_DEAD_DESPAWN, 0);
-                if(pCreature) AddGUID[i] = pCreature->GetGUID();
-                }
-            else
-            {
-                pCreature->AI()->EnterEvadeMode();
-                pCreature->Relocate(Pos_X[i], POS_Y, POS_Z, ORIENT);
-                pCreature->StopMoving();
-            }
-        }
-    }
-
-    void AddDied()
-    {
-        switch(rand()%3)
-        {
-            case 0: DoScriptText(SAY_ADD_DIED_ONE, m_creature); break;
-            case 1: DoScriptText(SAY_ADD_DIED_TWO, m_creature); break;
-            case 2: DoScriptText(SAY_ADD_DIED_THREE, m_creature); break;
-    }
     }
 
     void AddsAttack(Unit* pWho)
@@ -370,138 +260,12 @@ struct MANGOS_DLL_DECL boss_malacrassAI : public ScriptedAI
         m_lAddsEntryList.clear();
     }
 
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 uiDiff)
     {
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
-        if(CheckAddState_Timer < diff)
-        {
-            for(uint8 i = 0; i < 4; ++i)
-            {
-                Unit* Temp = Unit::GetUnit((*m_creature),AddGUID[i]);
-                if(Temp && Temp->isAlive() && !Temp->getVictim())
-                    ((Creature*)Temp)->AI()->AttackStart(m_creature->getVictim());
-            }
-            CheckAddState_Timer = 5000;
-        }else CheckAddState_Timer -= diff;
-		
-        if(m_creature->GetHealth() * 10 < m_creature->GetMaxHealth() * 8 && !bDrainPower)
-            bDrainPower = true;
-        
-        if(bDrainPower)
-        {
-            if(DrainPower_Timer < diff)
-            {
-                DoScriptText(SAY_DRAIN_POWER, m_creature);
-                m_creature->CastSpell(m_creature, SPELL_DRAIN_POWER, true);                
-                DrainPower_Timer = 40000 + rand()%15000;    // must cast in 60 sec, or buff/debuff will disappear
-            }else DrainPower_Timer -= diff;
-        }
-
-        if(SpiritBolts_Timer < diff)
-        {
-            if(DrainPower_Timer < 12000)    // channel 10 sec
-                SpiritBolts_Timer = 13000;  // cast drain power first
-            else
-            {
-                m_creature->CastSpell(m_creature, SPELL_SPIRIT_BOLTS, false);
-                DoScriptText(SAY_SPIRIT_BOLTS, m_creature);
-                SpiritBolts_Timer = 40000;
-                SiphonSoul_Timer = 10000;  // ready to drain
-                PlayerAbility_Timer = 99999;
-            }
-        }else SpiritBolts_Timer -= diff;
-
-        if(SiphonSoul_Timer < diff)
-        {
-            Player* target = SelectRandomPlayer(50);
-            Unit *trigger = DoSpawnCreature(MOB_TEMP_TRIGGER, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 30000);
-            if (!target || !trigger) EnterEvadeMode();
-            else
-            {
-				DoScriptText(SAY_SOUL_SIPHON , m_creature);
-                trigger->SetUInt32Value(UNIT_FIELD_DISPLAYID, 11686);
-                trigger->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                trigger->CastSpell(target, SPELL_SIPHON_SOUL, true);
-                trigger->GetMotionMaster()->MoveChase(m_creature);
-
-                PlayerGUID = target->GetGUID();
-                PlayerAbility_Timer = 8000 + rand()%2000;
-                PlayerClass = target->getClass() - 1;
-                if(PlayerClass == 10) PlayerClass = 9; // druid
-                if(PlayerClass == 4 && target->HasSpell(15473)) PlayerClass = 5; // shadow priest
-                SiphonSoul_Timer = 99999;   // buff lasts 30 sec
-            }
-        }else SiphonSoul_Timer -= diff;
-
-        if(PlayerAbility_Timer < diff)
-        {
-            UseAbility();
-            PlayerAbility_Timer = 8000 + rand()%2000;
-        }else PlayerAbility_Timer -= diff;
-
         DoMeleeAttackIfReady();
-    }
-
-    void UseAbility()
-    {
-        uint32 random = rand()%3; 
-		
-		//random = (PlayerClass == 7 ? rand()%4 : rand()%3);
-        Unit *target = NULL;
-        switch (PlayerAbility[PlayerClass][random].target)
-        {
-        case ABILITY_TARGET_SELF:
-            target = m_creature;
-            break;
-        case ABILITY_TARGET_VICTIM:
-            target = m_creature->getVictim();
-            break;
-        case ABILITY_TARGET_HEAL:
-            target = DoSelectLowestHpFriendly(50, 0);
-            break;
-        case ABILITY_TARGET_BUFF:
-            {
-                std::list<Creature*> templist = DoFindFriendlyMissingBuff(50, PlayerAbility[PlayerClass][random].spell);
-                if(!templist.empty()) target = *(templist.begin());
-            }
-            break;
-		case ABILITY_TARGET_ENEMY:
-        default:
-            if (Unit* temp = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                target = temp;
-
-            break;
-        }
-        if (target)
-            m_creature->CastSpell(target, PlayerAbility[PlayerClass][random].spell, false);
-    }
-
-    Player* SelectRandomPlayer(float range = 0.0f, bool alive = true)
-    {
-        Map *map = m_creature->GetMap();
-        if (!map->IsDungeon()) return NULL;
-
-        Map::PlayerList const &PlayerList = map->GetPlayers();
-        if (PlayerList.isEmpty())
-            return NULL;
-        
-        std::list<Player*> temp;
-        std::list<Player*>::iterator j;
-		
-        for(Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-            if((range == 0.0f || m_creature->IsWithinDistInMap(i->getSource(), range))
-                && (!alive || i->getSource()->isAlive()))
-                    temp.push_back(i->getSource());
-
-        if (temp.size()) 
-        {
-            j = temp.begin();
-		    advance(j, rand()%temp.size());
-            return (*j);
-        }
-        return NULL;
     }
 };
 
@@ -620,7 +384,7 @@ struct MANGOS_DLL_DECL mob_thurgAI : public boss_malacrass_addAI
             if (!lTempList.empty())
             {
                 Unit* pTarget = *(lTempList.begin());
-                if (pTarget) DoCast(pTarget, SPELL_BLOODLUST);
+                DoCast(pTarget, SPELL_BLOODLUST);
             }
 
             m_uiBloodlustTimer = 12000;
@@ -739,10 +503,7 @@ struct MANGOS_DLL_DECL mob_alyson_antilleAI : public boss_malacrass_addAI
             if (!lTempList.empty())
                 pTarget = *(lTempList.begin());
             else
-            {
-                if (Unit* temp = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                    pTarget = temp;
-            }
+                pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
 
             if (pTarget)
                 DoCast(pTarget, SPELL_DISPEL_MAGIC, false);

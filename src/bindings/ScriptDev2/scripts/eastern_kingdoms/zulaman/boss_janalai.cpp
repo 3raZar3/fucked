@@ -477,7 +477,7 @@ struct MANGOS_DLL_DECL boss_janalaiAI : public ScriptedAI
                         ++m_uiBombPhase;
                         break;
                     case 1:
-                        if (m_uiBombCounter < 5)
+                        if (m_uiBombCounter < 8)
                         {
                             Throw5Bombs();
                             m_uiBombSequenzeTimer = 500;
