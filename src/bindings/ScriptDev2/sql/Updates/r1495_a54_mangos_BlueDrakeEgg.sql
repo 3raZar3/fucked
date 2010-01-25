@@ -1,0 +1,1 @@
+UPDATE gameobject_template SET scriptname = 'go_blue_drake_egg' WHERE entry = 188133;
