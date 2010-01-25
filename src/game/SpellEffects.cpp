@@ -5376,8 +5376,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
 
                     TypeContainerVisitor<MaNGOS::CreatureLastSearcher<MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck>, GridTypeMapContainer > grid_creature_searcher(searcher);
 
-                    CellLock<GridReadGuard> cell_lock(cell, p);
-                    cell_lock->Visit(cell_lock, grid_creature_searcher,*m_caster->GetMap(), *m_caster, SpellRange);
+                    cell.Visit(p, grid_creature_searcher, *m_caster->GetMap(), *m_caster, SpellRange);
 
                     // if found Ilsa alive cast Send Second Mug
                     if (pCreature)
