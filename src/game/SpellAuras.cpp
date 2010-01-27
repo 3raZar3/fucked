@@ -1085,6 +1085,10 @@ void Aura::_AddAura()
             // Enrage aura state
             if(m_spellProto->Dispel == DISPEL_ENRAGE)
                 m_target->ModifyAuraState(AURA_STATE_ENRAGE, true);
+
+            // Mechanic bleed aura state
+            if(GetAllSpellMechanicMask(m_spellProto) & (1 << (MECHANIC_BLEED-1)))
+                m_target->ModifyAuraState(AURA_STATE_MECHANIC_BLEED, true);
         }
     }
 }
@@ -1161,6 +1165,10 @@ bool Aura::_RemoveAura()
         // Enrage aura state
         if(m_spellProto->Dispel == DISPEL_ENRAGE)
             m_target->ModifyAuraState(AURA_STATE_ENRAGE, false);
+
+        // Mechanic bleed aura state
+        if(GetAllSpellMechanicMask(m_spellProto) & (1 << (MECHANIC_BLEED-1)))
+            m_target->ModifyAuraState(AURA_STATE_MECHANIC_BLEED, false);
 
         uint32 removeState = 0;
         uint64 removeFamilyFlag = m_spellProto->SpellFamilyFlags;
@@ -6646,11 +6654,25 @@ void Aura::HandleSchoolAbsorb(bool apply, bool Real)
             switch(m_spellProto->SpellFamilyName)
             {
                 case SPELLFAMILY_PRIEST:
+                {
                     // Power Word: Shield
                     if (m_spellProto->SpellFamilyFlags & UI64LIT(0x0000000000000001))
                         //+80.68% from +spell bonus
                         DoneActualBenefit = caster->SpellBaseHealingBonus(GetSpellSchoolMask(m_spellProto)) * 0.8068f;
+
+                    // Borrowed Time
+                    if (caster->HasAura(52795))
+                        DoneActualBenefit += caster->SpellBaseHealingBonus(GetSpellSchoolMask(m_spellProto)) * 0.08f;
+                    if (caster->HasAura(52797))
+                        DoneActualBenefit += caster->SpellBaseHealingBonus(GetSpellSchoolMask(m_spellProto)) * 0.16f;
+                    if (caster->HasAura(52798))
+                        DoneActualBenefit += caster->SpellBaseHealingBonus(GetSpellSchoolMask(m_spellProto)) * 0.24f;
+                    if (caster->HasAura(52799))
+                        DoneActualBenefit += caster->SpellBaseHealingBonus(GetSpellSchoolMask(m_spellProto)) * 0.32f;
+                    if (caster->HasAura(52800))
+                        DoneActualBenefit += caster->SpellBaseHealingBonus(GetSpellSchoolMask(m_spellProto)) * 0.40f;
                     break;
+                }
                 case SPELLFAMILY_MAGE:
                     // Frost Ward, Fire Ward
                     if (m_spellProto->SpellFamilyFlags & UI64LIT(0x0000000000000108))
