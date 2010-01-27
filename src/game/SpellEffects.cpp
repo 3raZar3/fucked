@@ -2265,6 +2265,20 @@ void Spell::EffectTriggerSpell(uint32 effIndex)
                 pet->CastSpell(pet, 28305, true);
             return;
         }
+        // Electrical Storm Tick
+        case 43657:
+        {
+            SpellEntry const* spell = sSpellStore.LookupEntry(triggered_spell_id);
+            Aura* aura = m_caster->GetAura(43648, 1);
+            if (aura && spell)
+            {
+                int32 basedmg = spell->EffectBasePoints[0];
+                int32 ticks = aura->GetAuraTicks();
+                int32 damage = basedmg * ticks + 1;
+                m_caster->CastCustomSpell(m_caster, triggered_spell_id, &damage, NULL, NULL, true, NULL, NULL, m_originalCasterGUID);
+            }
+            return;
+        }
     }
 
     // normal case
@@ -5295,6 +5309,19 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                         return;
 
                     unitTarget->CastSpell(unitTarget,42285,true);
+                    break;
+                }
+                // Electrical Storm
+                case 43648:
+                {
+                    if (!unitTarget)
+                        return;
+                    // lift up!
+                    unitTarget->SendMonsterMove(unitTarget->GetPositionX(), unitTarget->GetPositionY(), unitTarget->GetPositionZ()+ 20, 0, MONSTER_MOVE_LEVITATING, 1000, 0);
+                    // set cloud auround caster
+                    unitTarget->CastSpell(unitTarget, 45213, true);
+                    // set safe spot below caster
+                    unitTarget->CastSpell(unitTarget, 44007, true);
                     break;
                 }
                 // Force Cast - Portal Effect: Sunwell Isle
