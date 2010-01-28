@@ -2857,7 +2857,30 @@ SpellMissInfo Unit::SpellHitResult(Unit *pVictim, SpellEntry const *spell, bool 
 
     // Check for immune
     if (pVictim->IsImmunedToSpell(spell))
-        return SPELL_MISS_IMMUNE;
+    {
+        // Check for shattered throw
+        if (spell->Id == 64382)
+        {
+            // List auras and check thoseone that giving total immunity
+            Unit::AuraMap& Auras = pVictim->GetAuras();
+            if (!Auras.empty())
+                for(Unit::AuraMap::iterator iter = Auras.begin(), next; iter != Auras.end(); iter = next)
+                {
+                    next = iter;
+                    ++next;
+                    SpellEntry const *spell = iter->second->GetSpellProto();
+                    if(spell && spell->Mechanic == MECHANIC_IMMUNE_SHIELD)
+                    {
+                        pVictim->RemoveAurasDueToSpell(spell->Id);
+                        if(Auras.empty())
+                            break;
+                        else
+                            next = Auras.begin();
+                    }
+                }
+        }else
+            return SPELL_MISS_IMMUNE;
+    }
 
     // All positive spells can`t miss
     // TODO: client not show miss log for this spells - so need find info for this in dbc and use it!
