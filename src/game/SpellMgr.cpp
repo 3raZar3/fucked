@@ -1427,6 +1427,11 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     if (spellId_1 == 40216 && spellId_2 == 42016 )
                         return false;
 
+                    //  Moonfire and Lacarate
+                    if ((spellInfo_1->SpellIconID == 225 && spellInfo_2->SpellIconID == 2246) ||
+                        (spellInfo_2->SpellIconID == 225 && spellInfo_1->SpellIconID == 2246))
+                        return false;
+
                     break;
                 }
                 case SPELLFAMILY_ROGUE:
