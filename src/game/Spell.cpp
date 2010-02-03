@@ -4542,15 +4542,14 @@ SpellCastResult Spell::CheckCast(bool strict)
                         if (m_spellInfo->EffectImplicitTargetA[j] == TARGET_SCRIPT_COORDINATES && m_spellInfo->Effect[j] != SPELL_EFFECT_PERSISTENT_AREA_AURA)
                             AddGOTarget(goScriptTarget, j);
                     }
-                    // store explicit target for TARGET_SCRIPT
-                    else if (m_spellInfo->EffectImplicitTargetA[j] == TARGET_SCRIPT ||
-                        m_spellInfo->EffectImplicitTargetB[j] == TARGET_SCRIPT)
-                            AddGOTarget(goScriptTarget, j);
 
                     // store explicit target for TARGET_FOCUS_OR_SCRIPTED_GAMEOBJECT
-                    else if (m_spellInfo->EffectImplicitTargetA[j] == TARGET_FOCUS_OR_SCRIPTED_GAMEOBJECT ||
-                        m_spellInfo->EffectImplicitTargetB[j] == TARGET_FOCUS_OR_SCRIPTED_GAMEOBJECT)
+                    else 
+                    {
+                        if (m_spellInfo->EffectImplicitTargetA[j] == TARGET_FOCUS_OR_SCRIPTED_GAMEOBJECT ||
+                            m_spellInfo->EffectImplicitTargetB[j] == TARGET_FOCUS_OR_SCRIPTED_GAMEOBJECT)
                             AddGOTarget(goScriptTarget, j);
+                    }
                 }
                 //Missing DB Entry or targets for this spellEffect.
                 else

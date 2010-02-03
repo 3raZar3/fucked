@@ -1178,12 +1178,19 @@ void Spell::EffectDummy(uint32 i)
                 {
                     // Arcane Prisoner Rescue triggering summon and giving Q credit
                     if(m_caster->GetTypeId() == TYPEID_PLAYER)
-                    {
                         m_caster->CastSpell(m_caster, ((((Player*)m_caster)->GetTeam() == ALLIANCE) ? 45448 : 45446), true);
-                        m_caster->CastSpell(m_caster, 45456, true);
-                    }
+
                     return;
                 }
+                case 45451:
+                {
+                    // Heartstone Visual - despawn after "teleporting"
+                    if(m_caster->GetTypeId() == TYPEID_UNIT)
+                        ((Creature*)m_caster)->ForcedDespawn();
+                    
+                    return;
+                }
+
                 case 46605:
                 {
                     // Darkness of a Thousand Souls (EffectBasePoint[2] points at wrong spell 45656, so i has to be hacked)

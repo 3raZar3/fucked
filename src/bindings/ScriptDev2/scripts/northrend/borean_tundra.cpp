@@ -820,9 +820,79 @@ bool GOHello_go_tadpole_cage(Player* pPlayer, GameObject* pGo)
     return true;
 }
 
+enum PrisonBreak
+{
+    QUEST_PRISON_BREAK          = 11587,
+    SPELL_HEARTSTONE_VISUAL     = 45451,
+    SPELL_PRISON_BREAK_CREDIT   = 45456,
+
+    SAY_SUCCEDED                = -1999803,
+    SAY_FAILED                  = -1999802
+};
+
+struct MANGOS_DLL_DECL mob_arcane_prisonerAI : public ScriptedAI
+{
+    mob_arcane_prisonerAI(Creature* pCreature) : ScriptedAI(pCreature){ Reset();}
+    
+    bool bSucceded;
+    bool bEventDone;
+    uint32 m_uiEventTimer;
+
+    void Reset() 
+    {
+        // small amount of time is needed to let npc fall on the ground
+        m_uiEventTimer = 1000;
+        if (urand(0, 1) == 1)
+            bSucceded = true;
+        else bSucceded = false;
+
+        bEventDone = false;
+    }
+
+    void UpdateAI (const uint32 uiDiff)
+    {
+        if (!bEventDone && m_uiEventTimer <= uiDiff)
+        {
+            // update server with position of NPC after it fall on the ground
+            // this will prevent to spawn eventual corpse in the air (cosmetic effect)
+            float x,y,z;
+            m_creature->GetPosition(x, y, z);
+            z = m_creature->GetMap()->GetHeight(x, y, MAX_HEIGHT,false);
+            m_creature->Relocate(x, y, z+2);
+
+            if (!bSucceded)
+            {
+                DoScriptText(SAY_FAILED, m_creature, NULL);
+                m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NONE, NULL, false);
+            }
+            else
+            {
+                if (Player* pPlayer = (Player*)Unit::GetUnit((*m_creature), m_creature->GetCreatorGUID()))
+                {
+                    DoScriptText(SAY_SUCCEDED, m_creature, pPlayer);
+                    if (pPlayer->GetQuestStatus(QUEST_PRISON_BREAK) == QUEST_STATUS_INCOMPLETE)
+                        DoCast(pPlayer, SPELL_PRISON_BREAK_CREDIT, true);
+                }
+                DoCast(m_creature, SPELL_HEARTSTONE_VISUAL, false);
+            }
+            bEventDone = true;
+        }else m_uiEventTimer -= uiDiff;
+    }
+};
+
+CreatureAI* GetAI_mob_arcane_prisoner(Creature* pCreature)
+{
+    return new mob_arcane_prisonerAI(pCreature);
+}
+
 void AddSC_borean_tundra()
 {
     Script *newscript;
+
+    newscript = new Script;
+    newscript->Name = "mob_arcane_prisoner";
+    newscript->GetAI = &GetAI_mob_arcane_prisoner;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "go_blue_drake_egg";
