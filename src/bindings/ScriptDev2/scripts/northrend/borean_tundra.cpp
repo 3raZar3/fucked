@@ -111,6 +111,7 @@ EndContentData */
 
 #include "precompiled.h"
 #include "ObjectMgr.h"
+#include "escort_ai.h"
 
 /*######
 ## mob_elder
@@ -885,9 +886,117 @@ CreatureAI* GetAI_mob_arcane_prisoner(Creature* pCreature)
     return new mob_arcane_prisonerAI(pCreature);
 }
 
+enum Lurgglbr
+{
+    QUEST_ESCAPE_FROM_WINTERFIN_CAVERNS = 11570,
+
+    GO_CAGE                             = 187369,
+
+    SAY_QUEST_ACCEPTED                  = -1999801,
+    SAY_ESCORT_START                    = -1999800,
+    SAY_OUTSIDE_CAVE                    = -1999799,
+    SAY_QUEST_COMPLETE                  = -1999798
+};
+
+
+struct MANGOS_DLL_DECL npc_lurgglbrAI : public npc_escortAI
+{
+    npc_lurgglbrAI(Creature* pCreature) : npc_escortAI(pCreature){ Reset();}
+    
+
+    uint64 m_uiCageGUID;
+
+    void Reset(){}
+
+    void AttackStart(Unit* pWho)
+    {
+        // if he is not escorted - than that means that he is in cage so disable moving outside
+        // shouldn't there be function like isEscorted() ?
+        if (!HasEscortState(STATE_ESCORT_NONE) && !HasEscortState(STATE_ESCORT_PAUSED) &&
+            !HasEscortState(STATE_ESCORT_RETURNING) && !HasEscortState(STATE_ESCORT_ESCORTING))
+        {
+            if (m_creature->Attack(pWho, true))
+            {
+                m_creature->AddThreat(pWho);
+                m_creature->SetInCombatWith(pWho);
+                pWho->SetInCombatWith(m_creature);
+                SetCombatMovement(false);
+            }
+        }else
+        {
+            SetCombatMovement(true);
+            npc_escortAI::AttackStart(pWho);
+        }
+    }
+          
+    void WaypointReached(uint32 uiPointId)
+    {
+        Player* pPlayer = GetPlayerForEscort();
+        if (!pPlayer)
+            return;
+
+        switch(uiPointId)
+        {
+            case 0:
+                m_creature->SetFacingToObject(pPlayer);
+                DoScriptText(SAY_ESCORT_START, m_creature, pPlayer);
+                if (GameObject* pCage = m_creature->GetMap()->GetGameObject(m_uiCageGUID))
+                        pCage->SetGoState(GO_STATE_READY);
+                break;
+            case 13:
+                m_creature->SetFacingToObject(pPlayer);
+                DoScriptText(SAY_OUTSIDE_CAVE, m_creature, pPlayer);
+                break;
+
+            case 25:
+                m_creature->SetFacingToObject(pPlayer);
+                DoScriptText(SAY_QUEST_COMPLETE, m_creature, pPlayer);
+                pPlayer->GroupEventHappens(QUEST_ESCAPE_FROM_WINTERFIN_CAVERNS, m_creature);
+                SetEscortPaused(true);
+                break;
+
+            default: break;
+        }
+    }
+};
+
+bool QuestAccept_npc_lurgglbr(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
+{
+    if (!pPlayer || !pQuest)
+        return false;
+
+    if (pQuest->GetQuestId() == QUEST_ESCAPE_FROM_WINTERFIN_CAVERNS)
+    {
+        if (npc_lurgglbrAI* pEscortAI = dynamic_cast<npc_lurgglbrAI*>(pCreature->AI()))
+        {
+            DoScriptText(SAY_QUEST_ACCEPTED, pCreature, pPlayer);
+            pCreature->setFaction(FACTION_ESCORT_N_FRIEND_ACTIVE);
+            pEscortAI->Start(false, false, pPlayer->GetGUID(), pQuest, true);
+            if (GameObject* pCage = GetClosestGameObjectWithEntry(pCreature, GO_CAGE, INTERACTION_DISTANCE))
+            {
+                pCage->SetGoState(GO_STATE_ACTIVE);
+                ((npc_lurgglbrAI*)pCreature->AI())->m_uiCageGUID = pCage->GetGUID();
+            }
+
+        }
+    }
+    return true;
+}
+
+CreatureAI* GetAI_npc_lurgglbr(Creature* pCreature)
+{
+    return new npc_lurgglbrAI(pCreature);
+}
+
 void AddSC_borean_tundra()
 {
     Script *newscript;
+
+    newscript = new Script;
+    newscript->Name = "npc_lurgglbr";
+    newscript->GetAI = &GetAI_npc_lurgglbr;
+    newscript->pQuestAccept = &QuestAccept_npc_lurgglbr;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "mob_arcane_prisoner";
