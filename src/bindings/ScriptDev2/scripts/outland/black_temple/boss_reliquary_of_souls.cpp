@@ -79,7 +79,12 @@ EndScriptData */
 
 #define CREATURE_ENSLAVED_SOUL          23469
 
-float PositionCoords[6][2]=
+struct ReliquaryPosition
+{
+    float x,y;
+};
+
+static ReliquaryPosition Coords[]=
 {
     {450.4, 212.3},
     {542.1, 212.3},
@@ -225,8 +230,10 @@ struct MANGOS_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
     void SummonSoul()
     {
         uint32 random = urand(0, 5);
+        float x = Coords[random].x;
+        float y = Coords[random].y;
 
-        Creature* Soul = m_creature->SummonCreature(CREATURE_ENSLAVED_SOUL, PositionCoords[random][0], PositionCoords[random][1], m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45000);
+        Creature* Soul = m_creature->SummonCreature(CREATURE_ENSLAVED_SOUL, x, y, m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45000);
         Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0);
         if (target && Soul)
         {
