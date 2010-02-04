@@ -1403,6 +1403,11 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                         (spellInfo_2->Id == 8326 && spellInfo_1->Id == 20584) )
                          return false;
 
+                    // Blue Flame Shield and Blue Power Focus (more generic rule needed for all spells with dummy auras)
+                    if( (spellInfo_1->Id == 46796 && spellInfo_2->Id == 46789) ||
+                        (spellInfo_2->Id == 46796 && spellInfo_1->Id == 46789) )
+                         return false;
+
                     break;
                 }
                 case SPELLFAMILY_MAGE:

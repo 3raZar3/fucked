@@ -2669,7 +2669,7 @@ void Spell::EffectApplyAura(uint32 i)
         return;
     }
 
-    // Mixology - increase effect and duration of alchemy spells by 50%
+    // Mixology - increase effect by 30% and duration 100%
     if(caster->GetTypeId() == TYPEID_PLAYER && Aur->GetSpellProto()->SpellFamilyName == SPELLFAMILY_POTION
         && caster->HasAura(53042))
     {
