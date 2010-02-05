@@ -2884,7 +2884,7 @@ bool Player::AddTalent(uint32 spell_id, uint8 spec, bool learning)
         return false;
     }
 
-    if(!SpellMgr::IsSpellValid(spellInfo,this,false))
+    if (!SpellMgr::IsSpellValid(spellInfo,this,false))
     {
         // do character spell book cleanup (all characters)
         if(!IsInWorld() && !learning)                       // spell load case
