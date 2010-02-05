@@ -52,6 +52,7 @@ enum
     CREATURE_WORSHIPER        = 16506,
     CREATURE_FOLLOWER         = 16505,
 };
+
 struct MANGOS_DLL_DECL boss_faerlinaAI : public ScriptedAI
 {
     boss_faerlinaAI(Creature* pCreature) : ScriptedAI(pCreature)
@@ -73,12 +74,15 @@ struct MANGOS_DLL_DECL boss_faerlinaAI : public ScriptedAI
 
     void Reset()
     {
-        m_uiPoisonBoltVolleyTimer = 8000;
-        m_uiRainOfFireTimer = 16000;
-        m_uiEnrageTimer = 60000;
+        m_uiPoisonBoltVolleyTimer = 5000;
+        m_uiRainOfFireTimer = 10000;
+        m_uiEnrageTimer = 35000;
 
         for(uint8 i=0; i<4; ++i)
             m_uiWorshiperGUID[i] = 0;
+
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_FAERLINA, NOT_STARTED);
     }
 
     void Aggro(Unit* pWho)
@@ -96,12 +100,7 @@ struct MANGOS_DLL_DECL boss_faerlinaAI : public ScriptedAI
         }
 
         if (m_pInstance)
-        {
             m_pInstance->SetData(TYPE_FAERLINA, IN_PROGRESS);
-
-            if (GameObject* pFaerDoor = m_pInstance->instance->GetGameObject(m_pInstance->GetData64(GO_ARAC_FAER_WEB)))
-                pFaerDoor->SetGoState(GO_STATE_READY);
-        }
     }
 
     void SpawnAdds()
@@ -144,18 +143,7 @@ struct MANGOS_DLL_DECL boss_faerlinaAI : public ScriptedAI
         DoScriptText(SAY_DEATH, m_creature);
 
         if (m_pInstance)
-        {
             m_pInstance->SetData(TYPE_FAERLINA, DONE);
-
-            if (GameObject* pFaerGate = m_pInstance->instance->GetGameObject(m_pInstance->GetData64(GO_ARAC_FAER_DOOR)))
-                pFaerGate->SetGoState(GO_STATE_ACTIVE);
-        }
-    }
-
-    void JustReachedHome()
-    {
-        if (m_pInstance)
-            m_pInstance->SetData(TYPE_FAERLINA, FAIL);
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -173,7 +161,6 @@ struct MANGOS_DLL_DECL boss_faerlinaAI : public ScriptedAI
                 if(m_creature->HasAura(SPELL_ENRAGE))
                 {
                     m_creature->RemoveAurasDueToSpell(SPELL_ENRAGE);
-                    m_uiEnrageTimer = m_uiEnrageTimer + 30000;
                     m_uiPoisonBoltVolleyTimer = m_uiPoisonBoltVolleyTimer + 30000;
                     //m_creature->AddAura(SPELL_WIDOWS_EMBRANCE);
                 }
@@ -188,8 +175,8 @@ struct MANGOS_DLL_DECL boss_faerlinaAI : public ScriptedAI
         if (m_uiPoisonBoltVolleyTimer < uiDiff)
         {
             if(m_creature->getVictim())
-                DoCast(m_creature->getVictim(), SPELL_POSIONBOLT_VOLLEY);
-            m_uiPoisonBoltVolleyTimer = urand(12000,15000);
+                m_creature->CastSpell(m_creature->getVictim(), m_bIsRegularMode ? SPELL_POSIONBOLT_VOLLEY : H_SPELL_POSIONBOLT_VOLLEY, true);
+            m_uiPoisonBoltVolleyTimer = urand(7000,12000);
         }
         else
             m_uiPoisonBoltVolleyTimer -= uiDiff;
@@ -198,9 +185,9 @@ struct MANGOS_DLL_DECL boss_faerlinaAI : public ScriptedAI
         if (m_uiRainOfFireTimer < uiDiff)
         {
             if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                DoCast(pTarget, m_bIsRegularMode ? SPELL_RAINOFFIRE1 : SPELL_RAINOFFIRE_H);
+                m_creature->CastSpell(pTarget, m_bIsRegularMode ? SPELL_RAINOFFIRE1 : SPELL_RAINOFFIRE_H, true);
 
-            m_uiRainOfFireTimer = 16000;
+            m_uiRainOfFireTimer = 10000;
         }
         else
             m_uiRainOfFireTimer -= uiDiff;
@@ -210,7 +197,7 @@ struct MANGOS_DLL_DECL boss_faerlinaAI : public ScriptedAI
         {
             if(m_creature)
                 DoCast(m_creature, SPELL_ENRAGE);
-            m_uiEnrageTimer = urand(60000,80000);
+            m_uiEnrageTimer = urand(30000,50000);
         }
         else 
             m_uiEnrageTimer -= uiDiff;

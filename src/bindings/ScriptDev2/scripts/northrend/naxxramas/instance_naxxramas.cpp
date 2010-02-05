@@ -152,8 +152,8 @@ struct MANGOS_DLL_DECL instance_naxxramas : public ScriptedInstance
         {
             case GO_ARAC_ANUB_DOOR:
                 m_uiAnubDoorGUID = pGo->GetGUID();
-                if (m_auiEncounter[0] == IN_PROGRESS)
-                    pGo->SetGoState(GO_STATE_READY);
+                if (m_auiEncounter[0] != IN_PROGRESS)
+                    pGo->SetGoState(GO_STATE_ACTIVE);
                 break;
             case GO_ARAC_ANUB_GATE:
                 m_uiAnubGateGUID = pGo->GetGUID();
@@ -162,8 +162,8 @@ struct MANGOS_DLL_DECL instance_naxxramas : public ScriptedInstance
                 break;
             case GO_ARAC_FAER_WEB:
                 m_uiFaerWebGUID = pGo->GetGUID();
-                if (m_auiEncounter[1] == IN_PROGRESS)
-                    pGo->SetGoState(GO_STATE_READY);
+                if (m_auiEncounter[1] != IN_PROGRESS)
+                    pGo->SetGoState(GO_STATE_ACTIVE);
                 break;
             case GO_ARAC_FAER_DOOR:
                 m_uiFaerDoorGUID = pGo->GetGUID();
@@ -172,52 +172,63 @@ struct MANGOS_DLL_DECL instance_naxxramas : public ScriptedInstance
                 break;
             case GO_ARAC_MAEX_INNER_DOOR:
                 m_uiMaexInnerGUID = pGo->GetGUID();
-                if (m_auiEncounter[2] == IN_PROGRESS)
-                    pGo->SetGoState(GO_STATE_READY);
+                if (m_auiEncounter[1] == DONE)
+                    pGo->SetGoState(GO_STATE_ACTIVE);
+
                 break;
             case GO_ARAC_MAEX_OUTER_DOOR:
                 m_uiMaexOuterGUID = pGo->GetGUID();
-                if (m_auiEncounter[2] == DONE)
+                if (m_auiEncounter[1] == DONE)
                     pGo->SetGoState(GO_STATE_ACTIVE);
                 break;
 
             case GO_PLAG_NOTH_ENTRY_DOOR:
                 m_uiNothEntryDoorGUID = pGo->GetGUID();
+                if (m_auiEncounter[3] != IN_PROGRESS)
+                    pGo->SetGoState(GO_STATE_ACTIVE);
                 break;
             case GO_PLAG_NOTH_EXIT_DOOR:
                 m_uiNothExitDoorGUID = pGo->GetGUID();
                 if (m_auiEncounter[3] == DONE)
                     pGo->SetGoState(GO_STATE_ACTIVE);
                 break;
+                //Heigan not added yet, gates are open
             case GO_PLAG_HEIG_ENTRY_DOOR:
                 m_uiHeigEntryDoorGUID = pGo->GetGUID();
-                if (m_auiEncounter[3] == DONE)
+                if (m_auiEncounter[4] != IN_PROGRESS)
                     pGo->SetGoState(GO_STATE_ACTIVE);
                 break;
             case GO_PLAG_HEIG_EXIT_DOOR:
                 m_uiHeigExitDoorGUID = pGo->GetGUID();
-                if (m_auiEncounter[4] == DONE)
+                //if (m_auiEncounter[4] == DONE)
                     pGo->SetGoState(GO_STATE_ACTIVE);
                 break;
             case GO_PLAG_LOAT_DOOR:
                 m_uiLoathebDoorGUID = pGo->GetGUID();
+                 if (m_auiEncounter[5] != IN_PROGRESS)
+                    pGo->SetGoState(GO_STATE_ACTIVE);
                 break;
 
+                //Not added yet, gates are closed
             case GO_MILI_GOTH_ENTRY_GATE:
                 m_uiGothikEntryDoorGUID = pGo->GetGUID();
+                pGo->SetGoState(GO_STATE_READY);
                 break;
             case GO_MILI_GOTH_EXIT_GATE:
                 m_uiGothikExitDoorGUID = pGo->GetGUID();
                 if (m_auiEncounter[7] == DONE)
                     pGo->SetGoState(GO_STATE_ACTIVE);
+                pGo->SetGoState(GO_STATE_READY);
                 break;
             case GO_MILI_GOTH_COMBAT_GATE:
                 m_uiGothCombatGateGUID = pGo->GetGUID();
+                pGo->SetGoState(GO_STATE_READY);
                 break;
             case GO_MILI_HORSEMEN_DOOR:
                 m_uiHorsemenDoorGUID  = pGo->GetGUID();
                 if (m_auiEncounter[7] == DONE)
                     pGo->SetGoState(GO_STATE_ACTIVE);
+                pGo->SetGoState(GO_STATE_READY);
                 break;
 
             case GO_CHEST_HORSEMEN_NORM:
@@ -228,22 +239,26 @@ struct MANGOS_DLL_DECL instance_naxxramas : public ScriptedInstance
                 m_uiPathExitDoorGUID = pGo->GetGUID();
                 if (m_auiEncounter[9] == DONE)
                     pGo->SetGoState(GO_STATE_ACTIVE);
+                pGo->SetGoState(GO_STATE_READY);
                 break;
             case GO_CONS_GLUT_EXIT_DOOR:
                 m_uiGlutExitDoorGUID = pGo->GetGUID();
                 if (m_auiEncounter[11] == DONE)
                     pGo->SetGoState(GO_STATE_ACTIVE);
+                pGo->SetGoState(GO_STATE_READY);
                 break;
             case GO_CONS_THAD_DOOR:
                 m_uiThadDoorGUID = pGo->GetGUID();
                 if (m_auiEncounter[11] == DONE)
                     pGo->SetGoState(GO_STATE_ACTIVE);
+                pGo->SetGoState(GO_STATE_READY);
                 break;
 
             case GO_KELTHUZAD_WATERFALL_DOOR:
                 m_uiKelthuzadDoorGUID = pGo->GetGUID();
                 if (m_auiEncounter[13] == DONE)
                     pGo->SetGoState(GO_STATE_ACTIVE);
+                pGo->SetGoState(GO_STATE_READY);
                 break;
 
             case GO_ARAC_EYE_RAMP:
@@ -297,13 +312,15 @@ struct MANGOS_DLL_DECL instance_naxxramas : public ScriptedInstance
         {
             case TYPE_ANUB_REKHAN:
                 m_auiEncounter[0] = uiData;
-                DoUseDoorOrButton(m_uiAnubDoorGUID);
+                if (uiData == DONE || uiData == NOT_STARTED || uiData == IN_PROGRESS)
+                    DoUseDoorOrButton(m_uiAnubDoorGUID);
                 if (uiData == DONE)
                     DoUseDoorOrButton(m_uiAnubGateGUID);
                 break;
             case TYPE_FAERLINA:
                 m_auiEncounter[1] = uiData;
-                DoUseDoorOrButton(m_uiFaerWebGUID);
+                if (uiData == DONE || uiData == NOT_STARTED || uiData == IN_PROGRESS)
+                    DoUseDoorOrButton(m_uiFaerWebGUID);
                 if (uiData == DONE)
                 {
                     DoUseDoorOrButton(m_uiFaerDoorGUID);
@@ -312,7 +329,8 @@ struct MANGOS_DLL_DECL instance_naxxramas : public ScriptedInstance
                 break;
             case TYPE_MAEXXNA:
                 m_auiEncounter[2] = uiData;
-                DoUseDoorOrButton(m_uiMaexInnerGUID, uiData);
+                if (uiData == DONE || uiData == NOT_STARTED || uiData == IN_PROGRESS)
+                    DoUseDoorOrButton(m_uiMaexInnerGUID, uiData);
                 if (uiData == DONE)
                 {
                     DoUseDoorOrButton(m_uiAracEyeRampGUID);
@@ -321,11 +339,12 @@ struct MANGOS_DLL_DECL instance_naxxramas : public ScriptedInstance
                 break;
             case TYPE_NOTH:
                 m_auiEncounter[3] = uiData;
-                DoUseDoorOrButton(m_uiNothEntryDoorGUID);
+                if (uiData == DONE || uiData == NOT_STARTED || uiData == IN_PROGRESS)
+                    DoUseDoorOrButton(m_uiNothEntryDoorGUID);
                 if (uiData == DONE)
                 {
                      DoUseDoorOrButton(m_uiNothExitDoorGUID);
-                     DoUseDoorOrButton(m_uiHeigEntryDoorGUID);
+                     //DoUseDoorOrButton(m_uiHeigEntryDoorGUID);
                 }
                 break;
             case TYPE_HEIGAN:
@@ -336,7 +355,8 @@ struct MANGOS_DLL_DECL instance_naxxramas : public ScriptedInstance
                 break;
             case TYPE_LOATHEB:
                 m_auiEncounter[5] = uiData;
-                DoUseDoorOrButton(m_uiLoathebDoorGUID);
+                if (uiData == DONE || uiData == NOT_STARTED || uiData == IN_PROGRESS)
+                    DoUseDoorOrButton(m_uiLoathebDoorGUID);
                 if (uiData == DONE)
                 {
                     DoUseDoorOrButton(m_uiPlagEyeRampGUID);

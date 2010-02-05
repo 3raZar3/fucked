@@ -136,7 +136,7 @@ struct MANGOS_DLL_DECL boss_volkhanAI : public ScriptedAI
         for(uint8 i=0; i<3; ++i)
         {
             m_uiGolemsGUID[i][0] = 0;
-            Creature* pGolem = m_creature->SummonCreature(NPC_MOLTEN_GOLEM, m_creature->GetPositionX()+urand(1,4), m_creature->GetPositionY()+urand(1,4), m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
+            Creature* pGolem = m_creature->SummonCreature(NPC_MOLTEN_GOLEM, m_creature->GetPositionX()+urand(1,4), m_creature->GetPositionY()+urand(1,4), m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 300000);
             if(pGolem)
             {
                 pGolem->setFaction(14);
@@ -156,7 +156,6 @@ struct MANGOS_DLL_DECL boss_volkhanAI : public ScriptedAI
             if(pGolem && pGolem->isAlive())
             {
                 pGolem->CastSpell(pGolem, m_bIsRegularMode ? SPELL_SHATTER_N : SPELL_SHATTER_H, false);
-                pGolem->setFaction(35);
                 pGolem->SetVisibility(VISIBILITY_OFF);
             }
             m_uiGolemsGUID[i][0] = 0;

@@ -207,7 +207,7 @@ struct MANGOS_DLL_DECL boss_nadoxAI : public ScriptedAI
             if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 DoCast(pTarget, m_bIsRegularMode ? SPELL_BROOD_PLAGUE : SPELL_BROOD_PLAGUE_H);
 
-            m_uiBroodPlagueTimer = 20000;
+            m_uiBroodPlagueTimer = 10000;
         }
         else
             m_uiBroodPlagueTimer -= uiDiff;
@@ -219,7 +219,7 @@ struct MANGOS_DLL_DECL boss_nadoxAI : public ScriptedAI
                 if (Creature* pRageTarget = SelectRandomCreatureOfEntryInRange(NPC_AHNKAHAR_SWARMER, 50.0))
                     DoCast(pRageTarget, SPELL_BROOD_RAGE);
 
-                m_uiBroodRageTimer = 20000;
+                m_uiBroodRageTimer = 5000;
             }
             else
                 m_uiBroodRageTimer -= uiDiff;

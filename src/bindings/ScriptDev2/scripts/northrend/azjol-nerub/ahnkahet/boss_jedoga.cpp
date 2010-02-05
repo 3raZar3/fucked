@@ -24,7 +24,6 @@ EndScriptData */
 
 /* ToDo
 DB support for Voulounter -> nomevemnt Ai
-Despawn Volounteers at creature die or reset
 */
 
 #include "precompiled.h"
@@ -98,9 +97,9 @@ struct MANGOS_DLL_DECL boss_jedogaAI : public ScriptedAI
     {
         m_bHasTaunted         = false;
         m_bIsSacrifice        = false;
-        m_uiCycloneTimer      = 20000;
+        m_uiCycloneTimer      = 15000;
         m_uiBoltTimer         = 5000;
-        m_uiThunderTimer      = 15000;
+        m_uiThunderTimer      = 10000;
         m_uiNextSurificeTimer = 40000;
         m_uiSacrificedGUID    = 30;
 
@@ -156,7 +155,7 @@ struct MANGOS_DLL_DECL boss_jedogaAI : public ScriptedAI
     {
         for(uint8 i=0; i<15; ++i)
         {
-            if(Creature* cVolunteer = m_creature->SummonCreature(CREATURE_VOLUNTEER, m_creature->GetPositionX()+urand(2,25), m_creature->GetPositionY()+urand(2,25), m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 600000))
+            if(Creature* cVolunteer = m_creature->SummonCreature(CREATURE_VOLUNTEER, m_creature->GetPositionX()+urand(2,20), m_creature->GetPositionY()+urand(2,25), m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 600000))
             {
                 m_uiVolunteerGUID[i] = cVolunteer->GetGUID();
                 cVolunteer->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -166,7 +165,7 @@ struct MANGOS_DLL_DECL boss_jedogaAI : public ScriptedAI
 
         for(uint8 i=15; i<30; ++i)
         {
-            if(Creature* cVolunteer = m_creature->SummonCreature(CREATURE_VOLUNTEER, m_creature->GetPositionX()-urand(2,25), m_creature->GetPositionY()-urand(2,25), m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 600000))
+            if(Creature* cVolunteer = m_creature->SummonCreature(CREATURE_VOLUNTEER, m_creature->GetPositionX()-urand(2,20), m_creature->GetPositionY()-urand(2,25), m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 600000))
             {
                 m_uiVolunteerGUID[i] = cVolunteer->GetGUID();
                 cVolunteer->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -247,12 +246,15 @@ struct MANGOS_DLL_DECL boss_jedogaAI : public ScriptedAI
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             
             m_uiSacrificedGUID = urand(0,29);
-            Unit* cVolunteer = Unit::GetUnit(*m_creature, m_uiVolunteerGUID[m_uiSacrificedGUID]);
-            if(cVolunteer && cVolunteer->isAlive())
+            Creature* pVolunteer = ((Creature*)Unit::GetUnit(*m_creature, m_uiVolunteerGUID[m_uiSacrificedGUID]));
+            if(pVolunteer && pVolunteer->isAlive())
             {
-                cVolunteer->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                if(cVolunteer->HasAura(SPELL_SPHERE_VISUAL,0))
-                    cVolunteer->RemoveAurasDueToSpell(SPELL_SPHERE_VISUAL);
+                pVolunteer->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                if(pVolunteer->HasAura(SPELL_SPHERE_VISUAL,0))
+                {
+                    pVolunteer->RemoveAurasDueToSpell(SPELL_SPHERE_VISUAL);
+                    m_creature->GetMap()->CreatureRelocation(pVolunteer, m_creature->GetPositionX()+1, m_creature->GetPositionY()+1, m_creature->GetPositionZ(), m_creature->GetOrientation());
+                }
             }
 
             m_bIsSacrifice = true;
@@ -264,21 +266,21 @@ struct MANGOS_DLL_DECL boss_jedogaAI : public ScriptedAI
         {
             if(m_creature->getVictim())
                 m_creature->CastSpell(m_creature->getVictim(), m_bIsRegularMode ? SPELL_CYCLONE_STRIKE : SPELL_CYCLONE_STRIKE_H , false);
-            m_uiCycloneTimer = urand(20000,30000);
+            m_uiCycloneTimer = urand(10000,20000);
         }else m_uiCycloneTimer -= uiDiff;
 
         if(m_uiBoltTimer < uiDiff)
         {
             if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-                m_creature->CastSpell(target, m_bIsRegularMode ? SPELL_LIGHTING_BOLT : SPELL_LIGHTING_BOLT_H, false);
-            m_uiBoltTimer = urand(5000,10000);
+                m_creature->CastSpell(target, m_bIsRegularMode ? SPELL_LIGHTING_BOLT : SPELL_LIGHTING_BOLT_H, true);
+            m_uiBoltTimer = urand(3000,8000);
         }else m_uiBoltTimer -= uiDiff;
 
         if(m_uiThunderTimer < uiDiff)
         {
             if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
                 m_creature->CastSpell(target, m_bIsRegularMode ? SPELL_THUNDER_SHOCK : SPELL_THUNDER_SHOCK_H , false);
-            m_uiThunderTimer = urand(15000,25000);
+            m_uiThunderTimer = urand(8000,16000);
         }else m_uiThunderTimer -= uiDiff;
 
         DoMeleeAttackIfReady();

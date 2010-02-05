@@ -123,8 +123,6 @@ struct MANGOS_DLL_DECL boss_hadronoxAI : public ScriptedAI
         if(i == 2)
             h=2;
       
-        m_uiCrusherGUID[0] = 0;
-        m_uiCrusherGUID[1] = 0;
 
         float fSpawnY = m_creature->GetPositionX();
         float fSpawnX = m_creature->GetPositionY();
@@ -135,13 +133,12 @@ struct MANGOS_DLL_DECL boss_hadronoxAI : public ScriptedAI
 
         for(uint8 k=0; k<h; ++k)
         {
-            Creature* Trash = m_creature->SummonCreature(ID[0], fSpawnX+1, fSpawnY+1, m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
+            Creature* Trash = m_creature->SummonCreature(ID[0], fSpawnX+1, fSpawnY+1, m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
             if(Trash) 
             {
-                m_uiCrusherGUID[k] = Trash->GetGUID();
                 if(m_creature->getVictim())
                     Trash->AI()->AttackStart(m_creature->getVictim());
-                
+                m_uiCrusherGUID[k] = Trash->GetGUID();
             }
         }
 
@@ -208,7 +205,7 @@ struct MANGOS_DLL_DECL boss_hadronoxAI : public ScriptedAI
 		{
 			if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
 				m_creature->CastSpell(target, m_bIsRegularMode ? SPELL_ACID_CLOUD : H_SPELL_ACID_CLOUD, false);
-			m_uiAcidCloudTimer = 25000+rand()%10000;
+			m_uiAcidCloudTimer = urand(10000,12000);
 		}else m_uiAcidCloudTimer -= diff;
 
 		if(m_uiLeechPoisonTimer < diff)
@@ -218,7 +215,7 @@ struct MANGOS_DLL_DECL boss_hadronoxAI : public ScriptedAI
 				if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
 					m_creature->CastSpell(target, m_bIsRegularMode ? SPELL_LEECH_POISON : H_SPELL_LEECH_POISON, false);
 			}
-			m_uiLeechPoisonTimer = 10000;
+			m_uiLeechPoisonTimer = 8000;
 		}else m_uiLeechPoisonTimer -= diff;
 
         //Web Grab kicning in the air need hack this.

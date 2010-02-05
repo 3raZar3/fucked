@@ -322,6 +322,7 @@ scripts/northrend/azjol-nerub/ahnkahet/boss_jedoga.cpp \
 scripts/northrend/azjol-nerub/ahnkahet/boss_nadox.cpp \
 scripts/northrend/azjol-nerub/ahnkahet/boss_taldaram.cpp \
 scripts/northrend/azjol-nerub/ahnkahet/boss_volazj.cpp \
+scripts/northrend/azjol-nerub/ahnkahet/boss_amanitar.cpp \
 scripts/northrend/azjol-nerub/ahnkahet/ahnkahet.h \
 scripts/northrend/azjol-nerub/ahnkahet/instance_ahnkahet.cpp \
 scripts/northrend/azjol-nerub/azjol-nerub/azjol-nerub.h \

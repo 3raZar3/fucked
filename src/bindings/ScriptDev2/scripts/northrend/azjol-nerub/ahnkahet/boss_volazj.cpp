@@ -17,18 +17,17 @@
 /* ScriptData 
 SDName: Boss_Volazj
 SD%Complete: 90%
-SDComment: Clones more support neded
+SDComment: 
 SDCategory: Ahn'kahet
 SDAuthor: ScrappyDoo (c) Andeeria
 EndScriptData */
 
-/* To Do
-Visage Support in DB dmg <- mele
+/* ToDo
+Insanity need more work for better blike.
 */
 
 #include "precompiled.h"
 
-//TODO: fill in texts in database. Also need to add text for whisper.
 enum Sounds
 {
     SAY_AGGRO                       = -1619033,
@@ -47,20 +46,22 @@ enum Spells
     SPELL_BOLT                      = 57942,
     SPELL_BOLT_H                    = 59975,
     SPELL_SHIVER                    = 57949,
+    SPELL_SHIVER_DMG                = 57952,
     SPELL_SHIVER_H                  = 59978,
+    SPELL_SHIVER_DMG_H              = 59979,
 
     //Image Spells
-    SPELL_PRIEST                    = 47077, // 100%
-    SPELL_PALADIN                   = 37369, // 100%
-    SPELL_PALADIN2                  = 37369, // 100%
-    SPELL_WARLOCK                   = 46190, // 100%
-    SPELL_WARLOCK2                  = 47076, // 100%
-    SPELL_MAGE                      = 47074, // 100%
-    SPELL_ROGUE                     = 45897, // 100%
-    SPELL_WARRIOR                   = 17207, // 100%
-    SPELL_DRUID                     = 47072, // 100%
-    SPELL_SHAMAN                    = 47071, // 100%
-    SPELL_HUNTER                    = 48098, // 100%
+    SPELL_PRIEST                    = 47077,
+    SPELL_PALADIN                   = 37369,
+    SPELL_PALADIN2                  = 37369,
+    SPELL_WARLOCK                   = 46190,
+    SPELL_WARLOCK2                  = 47076,
+    SPELL_MAGE                      = 47074,
+    SPELL_ROGUE                     = 45897,
+    SPELL_WARRIOR                   = 17207,
+    SPELL_DRUID                     = 47072,
+    SPELL_SHAMAN                    = 47071,
+    SPELL_HUNTER                    = 48098,
 };
 
 enum Creatures
@@ -88,14 +89,15 @@ struct MANGOS_DLL_DECL boss_volazjAI : public ScriptedAI
     uint32 m_uiImageCastTimer;
     uint32 m_uiFlyTimer;
     uint32 m_uiBoltTimer;
+    uint32 m_uiShiverTimer;
     uint8  m_uiPhase;
-    uint8  m_uiImageCount;
 
     void Reset()
     {
         m_uiImageCastTimer  = urand(8000,16000);
-        m_uiFlyTimer        = urand(10000,15000);
-        m_uiBoltTimer       = urand(5000,10000);
+        m_uiFlyTimer        = 5000;
+        m_uiBoltTimer       = 3000;
+        m_uiShiverTimer     = 8000;
         m_uiPhase           = 1;
 
         for(uint8 i=0; i<5; ++i)
@@ -122,14 +124,15 @@ struct MANGOS_DLL_DECL boss_volazjAI : public ScriptedAI
 
     void SwitchPhase(uint8 m_uiPhaseNo)
     {
-        m_uiImageCount = 0;
+        uint8 m_uiImageCount = 0;
         DoScriptText(SAY_INSANITY, m_creature);
         std::list<HostileReference *> t_list = m_creature->getThreatManager().getThreatList();
         for(std::list<HostileReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
         {
-            Creature* cImage = m_creature->SummonCreature(CREATURE_VISAGE, m_creature->GetPositionX()+urand(2,25), m_creature->GetPositionY()+urand(2,25), m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
-            if(cImage)
+            Creature* pImage = m_creature->SummonCreature(CREATURE_VISAGE, m_creature->GetPositionX()+urand(2,15), m_creature->GetPositionY()+urand(2,15), m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
+            if(pImage)
             {
+                m_uiImageGUID[m_uiImageCount][0] = pImage->GetGUID();
                 Unit *TargetedPlayer = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());  
                 if(TargetedPlayer->GetTypeId() == TYPEID_PLAYER)
                 {
@@ -146,15 +149,14 @@ struct MANGOS_DLL_DECL boss_volazjAI : public ScriptedAI
                         case CLASS_SHAMAN:  spell = SPELL_SHAMAN; break;
                         case CLASS_HUNTER:  spell = SPELL_HUNTER; break;
                     }
-                    m_uiImageGUID[m_uiImageCount][0] = cImage->GetGUID();
+                    
                     m_uiImageGUID[m_uiImageCount][1] = spell;
-                    cImage->SetDisplayId(TargetedPlayer->GetDisplayId());
-                    cImage->AI()->AttackStart(TargetedPlayer);
-                    ++m_uiImageCount;
+                    pImage->SetDisplayId(TargetedPlayer->GetDisplayId());
+                    pImage->AI()->AttackStart(TargetedPlayer);
                 }
             }
+            ++m_uiImageCount;
         }
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         m_uiPhase = m_uiPhaseNo;
     }
 
@@ -173,36 +175,13 @@ struct MANGOS_DLL_DECL boss_volazjAI : public ScriptedAI
         {
             for(uint8 i=0; i<5; ++i)
             {
-                Unit* cImage = Unit::GetUnit((*m_creature), m_uiImageGUID[i][0]);
-				if(cImage && cImage->isAlive())
+                Unit* pImage = Unit::GetUnit((*m_creature), m_uiImageGUID[i][0]);
+				if(pImage && pImage->isAlive())
 					if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-						cImage->CastSpell(target, m_uiImageGUID[i][1], true);
+						pImage->CastSpell(target, m_uiImageGUID[i][1], true);
             }
-            m_uiImageCastTimer = urand(8000,16000);
+            m_uiImageCastTimer = 8000;
         }else m_uiImageCastTimer -= uiDiff;
-
-        if(m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE) && (m_uiPhase == 2 || m_uiPhase == 3))
-        {
-            m_creature->StopMoving();
-            m_creature->GetMotionMaster()->Clear();
-            m_creature->GetMotionMaster()->MoveIdle();
-
-            uint8 m_uiDeadImagesCount = 0;
-            for(uint8 i=0;i<m_uiImageCount+1; ++i)
-            {
-                Unit* pImage = Unit::GetUnit(*m_creature, m_uiImageGUID[i][0]);
-                if(pImage && !pImage->isAlive())
-                    ++m_uiDeadImagesCount;
-            }
-
-            if(m_uiDeadImagesCount >= m_uiImageCount) 
-            {
-                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                if(m_creature->getVictim())
-                    m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
-            }
-            return;
-        }
 
         if((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) <= 66 && m_uiPhase < 2)
             SwitchPhase(2);
@@ -221,8 +200,15 @@ struct MANGOS_DLL_DECL boss_volazjAI : public ScriptedAI
         {
             if(m_creature->getVictim())
                 m_creature->CastSpell(m_creature->getVictim(), m_bIsRegularMode ? SPELL_BOLT : SPELL_BOLT_H, false);
-            m_uiBoltTimer = urand(10000,15000);
+            m_uiBoltTimer = urand(5000,10000);
         }else m_uiBoltTimer -= uiDiff;
+
+        if(m_uiShiverTimer < uiDiff)
+        {
+            if(Unit* pPlayer = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                pPlayer->CastSpell(pPlayer, m_bIsRegularMode ? SPELL_SHIVER_DMG : SPELL_SHIVER_DMG_H, true);
+            m_uiShiverTimer = urand(8000,12000);
+        }else m_uiShiverTimer -= uiDiff;
 
         DoMeleeAttackIfReady();
     }

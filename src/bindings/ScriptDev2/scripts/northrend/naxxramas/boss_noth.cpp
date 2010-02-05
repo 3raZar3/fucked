@@ -16,9 +16,10 @@
 
 /* ScriptData
 SDName: Boss_Noth
-SD%Complete: 40
-SDComment: Missing Balcony stage
+SD%Complete: 90%
+SDComment:
 SDCategory: Naxxramas
+SDAuthot: ScrappyDoo (c) Andeeria
 EndScriptData */
 
 #include "precompiled.h"
@@ -39,38 +40,24 @@ enum
     SPELL_CRIPPLE_H                     = 54814,
     SPELL_CURSE_PLAGUEBRINGER           = 29213,
     SPELL_CURSE_PLAGUEBRINGER_H         = 54835,
+    SPELL_ENRAGE                        = 28131,
 
     SPELL_SUMMON_CHAMPION_AND_CONSTRUCT = 29240,
     SPELL_SUMMON_GUARDIAN_AND_CONSTRUCT = 29269,
 
     NPC_PLAGUED_WARRIOR                 = 16984,
-
-};
-
-uint32 m_auiSpellSummonPlaguedWarrior[]=
-{
-    29247, 29248, 29249
-};
-
-uint32 m_auiSpellSummonPlaguedChampion[]=
-{
-    29217, 29224, 29225, 29227, 29238, 29255, 29257, 29258, 29262, 29267
-};
-
-uint32 m_auiSpellSummonPlaguedGuardian[]=
-{
-    29226, 29239, 29256, 29268
+    NPC_PLAGUED_CHAMPION                = 16983,
+    NPC_PLAGUED_GUARDIAN                = 16981
 };
 
 // Teleport position of Noth on his balcony
-#define TELE_X 2631.370
-#define TELE_Y -3529.680
-#define TELE_Z 274.040
-#define TELE_O 6.277
-
-// IMPORTANT: BALCONY TELEPORT NOT ADDED YET! WILL BE ADDED SOON!
-// Dev note 26.12.2008: When is soon? :)
-// Dev note 12.10.2009: http://www.wowwiki.com/Soon
+float fBalcony[4] =
+{
+    2634.1916,
+    -3529.829,
+    274.035,
+    0.0614
+};
 
 struct MANGOS_DLL_DECL boss_nothAI : public ScriptedAI
 {
@@ -83,16 +70,27 @@ struct MANGOS_DLL_DECL boss_nothAI : public ScriptedAI
 
     ScriptedInstance* m_pInstance;
     bool m_bIsRegularMode;
+    bool m_bIsBalconyPhase;
+    float fGroundPos;
 
+    uint32 m_uiBalconyTimer;
     uint32 m_uiBlinkTimer;
     uint32 m_uiCurseTimer;
     uint32 m_uiSummonTimer;
+    uint8  m_uiPhaseCount;
 
     void Reset()
     {
+        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        m_bIsBalconyPhase = false;
+        m_uiBalconyTimer = 110000;
         m_uiBlinkTimer = 25000;
         m_uiCurseTimer = 4000;
         m_uiSummonTimer = 12000;
+        m_uiPhaseCount = 0;
+
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_NOTH, NOT_STARTED);
     }
 
     void Aggro(Unit* pWho)
@@ -127,10 +125,20 @@ struct MANGOS_DLL_DECL boss_nothAI : public ScriptedAI
             m_pInstance->SetData(TYPE_NOTH, DONE);
     }
 
-    void JustReachedHome()
+    void SummonAdds()
     {
-        if (m_pInstance)
-            m_pInstance->SetData(TYPE_NOTH, FAIL);
+        uint32 ID = NPC_PLAGUED_CHAMPION;
+        for(uint8 i=0; i<(m_bIsRegularMode ? 4 : 8); ++i)
+        {
+            if(m_uiPhaseCount == 1 && i<(m_bIsRegularMode ? 2 : 4))
+                ID = NPC_PLAGUED_GUARDIAN;
+            if(m_uiPhaseCount == 2)
+                ID = NPC_PLAGUED_GUARDIAN;
+
+            if (Creature* pUndead = m_creature->SummonCreature(ID, m_creature->GetPositionX()+urand(1,10), m_creature->GetPositionY()+urand(1,10), fGroundPos+1, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))
+                if (Unit* pPlayer = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    pUndead->AI()->AttackStart(pPlayer);
+        }
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -138,40 +146,84 @@ struct MANGOS_DLL_DECL boss_nothAI : public ScriptedAI
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
-        // Blink
-        if (m_uiBlinkTimer < uiDiff)
+        if(m_uiPhaseCount == 3)
         {
-            DoCast(m_creature->getVictim(), SPELL_CRIPPLE);
-            DoCast(m_creature, SPELL_BLINK);
+            m_creature->CastSpell(m_creature, SPELL_ENRAGE, false);
+            m_bIsBalconyPhase = false;
+            m_uiBalconyTimer = 900000;
+            ++m_uiPhaseCount;
+        }
 
-            m_uiBlinkTimer = 25000;
+        if(m_bIsBalconyPhase)
+        {
+            m_creature->StopMoving();
+            m_creature->GetMotionMaster()->Clear();
+            m_creature->GetMotionMaster()->MoveIdle();
+
+            if(m_uiBalconyTimer < uiDiff)
+            {
+                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                ++m_uiPhaseCount;
+                m_uiSummonTimer = 15000;
+                m_uiCurseTimer = 10000;
+                m_uiBlinkTimer = 5000;
+                m_creature->GetMap()->CreatureRelocation(m_creature, fBalcony[0], fBalcony[1], fGroundPos, fBalcony[3]);
+                if(m_creature->getVictim())
+                    m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
+                m_bIsBalconyPhase = false;
+                m_uiBalconyTimer = 110000;
+            }else m_uiBalconyTimer -= uiDiff;
         }
         else
-            m_uiBlinkTimer -= uiDiff;
-
-        // Curse
-        if (m_uiCurseTimer < uiDiff)
         {
-            DoCast(m_creature->getVictim(), SPELL_CURSE_PLAGUEBRINGER);
-            m_uiCurseTimer = 28000;
+            if(m_uiBalconyTimer < uiDiff)
+            {
+                fGroundPos = m_creature->GetPositionZ();
+                SummonAdds();
+                m_creature->GetMap()->CreatureRelocation(m_creature, fBalcony[0], fBalcony[1], fBalcony[2], fBalcony[3]);
+                m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                m_bIsBalconyPhase = true;
+                m_uiBalconyTimer = 70000;
+                return;
+            }else m_uiBalconyTimer -= uiDiff;
+
+            // Blink
+            if (m_uiBlinkTimer < uiDiff)
+            {
+                
+                DoCast(m_creature->getVictim(), m_bIsRegularMode ? SPELL_CRIPPLE : SPELL_CRIPPLE_H);
+                //DoCast(m_creature, SPELL_BLINK);
+                m_creature->GetMap()->CreatureRelocation(m_creature, m_creature->GetPositionX()+urand(5,15), m_creature->GetPositionY()+urand(5,15), m_creature->GetPositionZ(), 0);
+                if(Unit* pPlayer = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    m_creature->AI()->AttackStart(pPlayer);
+
+                m_uiBlinkTimer = 20000;
+            }else m_uiBlinkTimer -= uiDiff;
+
+            // Curse
+            if (m_uiCurseTimer < uiDiff)
+            {
+                for(uint8 i=0; i<(m_bIsRegularMode ? 3 : 10); ++i)
+                    if(Unit* pPlayer = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                        m_creature->CastSpell(pPlayer, m_bIsRegularMode ? SPELL_CURSE_PLAGUEBRINGER : SPELL_CURSE_PLAGUEBRINGER_H, true);
+                m_uiCurseTimer = 11000;
+            }else m_uiCurseTimer -= uiDiff;
+
+            // Summon
+            if (m_uiSummonTimer < uiDiff)
+            {
+                DoScriptText(SAY_SUMMON, m_creature);
+                for(uint8 i=0; i<(m_bIsRegularMode ? 4 : 6); ++i)
+                {
+                    Creature* pUndead = m_creature->SummonCreature(NPC_PLAGUED_WARRIOR, m_creature->GetPositionX()+urand(1,10), m_creature->GetPositionY()+urand(1,10), m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
+                    if(Unit* pPlayer = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                        pUndead->AI()->AttackStart(pPlayer);
+                }
+                m_uiSummonTimer = 21000;
+            }else m_uiSummonTimer -= uiDiff;
+
+            DoMeleeAttackIfReady();
         }
-        else
-            m_uiCurseTimer -= uiDiff;
-
-        // Summon
-        if (m_uiSummonTimer < uiDiff)
-        {
-            DoScriptText(SAY_SUMMON, m_creature);
-
-            for(uint8 i = 0; i < 6; ++i)
-                m_creature->SummonCreature(NPC_PLAGUED_WARRIOR, 2684.804, -3502.517, 261.313, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 80000);
-
-            m_uiSummonTimer = 30500;
-        }
-        else
-            m_uiSummonTimer -= uiDiff;
-
-        DoMeleeAttackIfReady();
     }
 };
 

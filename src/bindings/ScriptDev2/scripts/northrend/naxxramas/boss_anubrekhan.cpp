@@ -76,7 +76,10 @@ struct MANGOS_DLL_DECL boss_anubrekhanAI : public ScriptedAI
         m_uiLocustSwarmTimer = urand(80000, 120000);        // Random time between 80 seconds and 2 minutes for initial cast
         m_uiSummonTimer = m_uiLocustSwarmTimer + 45000;     // 45 seconds after initial locust swarm
         for(uint8 i=0; i<4; ++i)
-            m_uiGuardGUID[i] = 0;        
+            m_uiGuardGUID[i] = 0;  
+
+        if(m_pInstance)
+            m_pInstance->SetData(TYPE_ANUB_REKHAN, NOT_STARTED);
     }
 
     void KilledUnit(Unit* pVictim)
@@ -115,29 +118,13 @@ struct MANGOS_DLL_DECL boss_anubrekhanAI : public ScriptedAI
         }
 
         if(m_pInstance)
-        {
             m_pInstance->SetData(TYPE_ANUB_REKHAN, IN_PROGRESS);
-
-            if (GameObject* pAnubarDoor = m_pInstance->instance->GetGameObject(m_pInstance->GetData64(GO_ARAC_ANUB_DOOR)))
-                pAnubarDoor->SetGoState(GO_STATE_READY);
-        }
     }
 
     void JustDied(Unit* pKiller)
     {
         if(m_pInstance)
-        {
             m_pInstance->SetData(TYPE_ANUB_REKHAN, DONE);
-
-            if (GameObject* pAnubarDoor = m_pInstance->instance->GetGameObject(m_pInstance->GetData64(GO_ARAC_ANUB_GATE)))
-                pAnubarDoor->SetGoState(GO_STATE_ACTIVE);
-        }
-    }
-
-    void JustReachedHome()
-    {
-        if (m_pInstance)
-            m_pInstance->SetData(TYPE_ANUB_REKHAN, FAIL);
     }
 
     void MoveInLineOfSight(Unit* pWho)
@@ -194,7 +181,7 @@ struct MANGOS_DLL_DECL boss_anubrekhanAI : public ScriptedAI
         if (m_uiLocustSwarmTimer < uiDiff)
         {
             if(m_creature)
-                DoCast(m_creature, m_bIsRegularMode ? SPELL_LOCUSTSWARM :SPELL_LOCUSTSWARM_H);
+                DoCast(m_creature, m_bIsRegularMode ? SPELL_LOCUSTSWARM : SPELL_LOCUSTSWARM_H);
             m_uiLocustSwarmTimer = 90000;
 
             Creature* Guard = m_creature->SummonCreature(NPC_CRYPT_GUARD, m_creature->GetPositionX(), m_creature->GetPositionY()+10, m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);

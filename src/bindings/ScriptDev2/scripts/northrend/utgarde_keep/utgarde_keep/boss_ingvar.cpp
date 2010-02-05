@@ -175,7 +175,7 @@ struct MANGOS_DLL_DECL boss_ingvarAI : public ScriptedAI
 
             if (m_uiSmashTimer < uiDiff)
             {
-                DoCast(m_creature, m_bIsRegularMode ? SPELL_SMASH : SPELL_SMASH_H);
+                DoCast(m_creature, m_bIsRegularMode ? SPELL_SMASH : SPELL_SMASH_H, true);
                 m_uiSmashTimer = urand(8000, 15000);
             }
             else
@@ -184,7 +184,7 @@ struct MANGOS_DLL_DECL boss_ingvarAI : public ScriptedAI
             if (m_uiStaggeringRoarTimer < uiDiff)
             {
                 DoScriptText(EMOTE_ROAR, m_creature);
-                DoCast(m_creature, m_bIsRegularMode ? SPELL_STAGGERING_ROAR : SPELL_STAGGERING_ROAR_H);
+                DoCast(m_creature, m_bIsRegularMode ? SPELL_STAGGERING_ROAR : SPELL_STAGGERING_ROAR_H, true);
                 m_uiStaggeringRoarTimer = urand(15000, 30000);
             }
             else

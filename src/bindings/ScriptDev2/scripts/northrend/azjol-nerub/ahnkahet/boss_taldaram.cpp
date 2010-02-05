@@ -17,14 +17,10 @@
 /* ScriptData
 SDName: Boss_Taldaram
 SD%Complete: 90%
-SDComment: more difficult
+SDComment:
 SDCategory: Ahn'kahet
 SDAuthor: ScrappyDoo (c) Andeeria
 EndScriptData */
-
-/* todo
-need t be  replaced in DB on ground  position
-*/
 
 #include "precompiled.h"
 #include "ahnkahet.h"
@@ -58,6 +54,7 @@ enum Creatures
 {
     CREATURE_FLAME_ORB              = 30702 // dissapir after 10 seconds // 3 spheres  in heroic mode
 };
+
 /*######
 ## boss_taldaram
 ######*/
@@ -74,14 +71,11 @@ struct MANGOS_DLL_DECL boss_taldaramAI : public ScriptedAI
     ScriptedInstance* m_pInstance;
     bool m_bIsRegularMode;
     bool m_bIsVampiryc;
-    //bool m_bIsDamageNow;
 
     uint32 m_uiSphereTimer;
     uint32 m_uiBloothirstTimer;
     uint32 m_uiVampirycTimer;
     uint32 m_uiVanishTimer;
-    //uint64 m_uiDamageTaken;
-    //uint64 TargetGUID;
 
     void Reset()
     {
@@ -89,10 +83,6 @@ struct MANGOS_DLL_DECL boss_taldaramAI : public ScriptedAI
         m_uiBloothirstTimer = urand(15000,20000);
         m_uiVanishTimer     = urand(50000,70000);
         m_bIsVampiryc       = false;
-        //m_uiDamageTaken     = 0;
-        //m_bIsDamageNow      = false;
-        //TargetGUID          = 0;
-
 
         if(m_creature->HasAura(SPELL_VANISH))
             m_creature->RemoveAurasDueToSpell(SPELL_VANISH);
@@ -100,19 +90,18 @@ struct MANGOS_DLL_DECL boss_taldaramAI : public ScriptedAI
             m_creature->RemoveAurasDueToSpell(60342);
         m_creature->SetVisibility(VISIBILITY_ON);
 
-        if(m_pInstance)
-        {
-            if(m_pInstance->GetData(TYPE_TALDARAM) != SPECIAL)
+        if(m_pInstance && m_pInstance->GetData(TYPE_TALDARAM) != SPECIAL)
+            if(!m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                 m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        }
     }
 
     void Aggro(Unit* pWho)
     {
         DoScriptText(SAY_AGGRO, m_creature);
-        if(m_pInstance)
-            m_pInstance->SetData(TYPE_TALDARAM, IN_PROGRESS);
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+
+        if(m_pInstance && m_pInstance->GetData(TYPE_TALDARAM) == SPECIAL)
+            if(m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
     }
 
     void KilledUnit(Unit* pVictim)
@@ -133,14 +122,6 @@ struct MANGOS_DLL_DECL boss_taldaramAI : public ScriptedAI
             m_pInstance->SetData(TYPE_TALDARAM, DONE);
     }
 
-    /*
-    void DamageTaken(Unit* pDoneBy, uint32& uiDamage) 
-    {
-        if(m_bIsDamageNow)
-            m_uiDamageTaken += uiDamage;
-    }
-    */
-
     void UpdateAI(const uint32 uiDiff)
     {
         if(m_pInstance && m_pInstance->GetData(TYPE_TALDARAM) == SPECIAL)
@@ -150,19 +131,6 @@ struct MANGOS_DLL_DECL boss_taldaramAI : public ScriptedAI
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
-        //Need More Support :)
-        /*
-        if(m_uiDamageTaken > 40000)
-        {
-            //DoScriptText(SAY_AGGRO, m_creature);
-            if(Unit* Target = Unit::GetUnit(*m_creature, TargetGUID))
-                if(Target->isAlive())
-                    Target->RemoveAurasDueToSpell(m_bIsRegularMode ? SPELL_EMBRACE_OF_VAMPYR : SPELL_EMBRACE_OF_VAMPYR_H);
-            m_uiDamageTaken = 0; 
-            m_bIsDamageNow = false;
-        }
-        */
-
         if(m_bIsVampiryc)
         {
             if(m_uiVampirycTimer < uiDiff)
@@ -170,9 +138,6 @@ struct MANGOS_DLL_DECL boss_taldaramAI : public ScriptedAI
                 if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
                 {
                     m_bIsVampiryc   = false;
-                    //m_bIsDamageNow  = true;
-                    //m_uiDamageTaken = 0;
-                    //TargetGUID      = target->GetGUID();
                     m_uiVanishTimer = urand(50000,65000);
                     m_creature->RemoveAurasDueToSpell(SPELL_VANISH);
                     m_creature->SetVisibility(VISIBILITY_ON);
