@@ -303,7 +303,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleAuraModIncreaseHealth,                     //250 SPELL_AURA_MOD_INCREASE_HEALTH_2
     &Aura::HandleNULL,                                      //251 SPELL_AURA_MOD_ENEMY_DODGE
     &Aura::HandleModCombatSpeedPct,                         //252 SPELL_AURA_MOD_HASTE_ALL - used only in negative spells at the moment
-    &Aura::HandleNULL,                                      //253 SPELL_AURA_MOD_BLOCK_CRIT_CHANCE
+    &Aura::HandleNoImmediateEffect,                         //253 SPELL_AURA_MOD_BLOCK_CRIT_CHANCE             implemented in Unit::CalculateMeleeDamage
     &Aura::HandleAuraModDisarm,                             //254 SPELL_AURA_MOD_DISARM_SHIELD disarm Shield/offhand
     &Aura::HandleNoImmediateEffect,                         //255 SPELL_AURA_MOD_MECHANIC_DAMAGE_TAKEN_PERCENT    implemented in Unit::SpellDamageBonus
     &Aura::HandleNoReagentUseAura,                          //256 SPELL_AURA_NO_REAGENT_USE Use SpellClassMask for spell select
@@ -7819,14 +7819,21 @@ void Aura::PeriodicDummyTick()
                 //    return;
                 // Feeding Frenzy Rank 1
                 case 53511:
-                    if ( m_target->GetHealth() * 100 < m_target->GetMaxHealth() * 35 )
+                {
+                    Unit* victim = m_target->getVictim();
+                    if( victim && victim->GetHealth() * 100 < victim->GetMaxHealth() * 35 )
                         m_target->CastSpell(m_target, 60096, true, NULL, this);
                     return;
+                }
+                break;
                 // Feeding Frenzy Rank 2
                 case 53512:
-                    if ( m_target->GetHealth() * 100 < m_target->GetMaxHealth() * 35 )
+                {
+                    Unit* victim = m_target->getVictim();
+                    if( victim && victim->GetHealth() * 100 < victim->GetMaxHealth() * 35 )
                         m_target->CastSpell(m_target, 60097, true, NULL, this);
                     return;
+                }
                 default:
                     break;
             }
