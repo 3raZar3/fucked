@@ -173,8 +173,10 @@ uint32 Quest::XPValue( Player *pPlayer ) const
             uint32 pLevel = pPlayer->getLevel();
             uint32 qLevel = QuestLevel > 0 ? (uint32)QuestLevel : 0;
             float fullxp = 0;
-            if (qLevel >= 15)
+            if (qLevel >= 70)
                 fullxp = RewMoneyMaxLevel / 6.0f;
+            if (qLevel >= 15 && qLevel < 70)
+                fullxp = RewMoneyMaxLevel / 0.6f;
             else if (qLevel == 14)
                 fullxp = RewMoneyMaxLevel / 4.8f;
             else if (qLevel == 13)
