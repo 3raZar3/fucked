@@ -29,7 +29,6 @@ npc_kara_thricestar
 mob_overseer
 npc_surristrasz
 npc_tiare
-go_blue_drake_egg
 
 -- Overseer texts
 DELETE FROM script_texts WHERE entry BETWEEN -1999844 AND -1999842;
@@ -704,17 +703,6 @@ bool GossipSelect_npc_tiare(Player* pPlayer, Creature* pCreature, uint32 uiSende
         pPlayer->CLOSE_GOSSIP_MENU();
         pPlayer->CastSpell(pPlayer, SPELL_TELEPORT_COLDARRA, true);
     }
-    return true;
-}
-bool GOHello_go_blue_drake_egg(Player* pPlayer, GameObject* pGo)
-{
-    if (!pPlayer)
-        return false;
-
-    pGo->Use(pPlayer);
-    //pGo->SetGoState(GO_STATE_ACTIVE);
-    pGo->SetRespawnTime(240);
-
     return true;
 }
 
