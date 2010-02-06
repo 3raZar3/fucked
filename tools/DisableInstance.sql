@@ -1,5 +1,6 @@
 UPDATE areatrigger_teleport SET
 required_quest_done = 30000,
+required_quest_done_heroic = 30000,
 required_failed_text = 'Ta instancja jest w tej chwili niedostepna na Andeerii'
 WHERE target_map IN (
 574, -- Utgarde Keep
@@ -19,6 +20,8 @@ WHERE target_map IN (
 624, -- Vault of Archavon 
 631, -- Icecrown Citadel Raid
 632, -- Forge of Souls
+619, -- Ahn'Kahet
+595, -- Culling Stratholme
 533); -- Naxxramas  
 
 DELETE FROM quest_template WHERE entry = 30000;
