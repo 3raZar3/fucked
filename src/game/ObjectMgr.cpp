@@ -164,8 +164,8 @@ ObjectMgr::~ObjectMgr()
             delete[] playerInfo[race][class_].levelInfo;
 
     // free group and guild objects
-    for (GroupMap::iterator itr = mGroupMap.begin(); itr != mGroupMap.end(); ++itr)
-        delete itr->second;
+    for (GroupSet::iterator itr = mGroupSet.begin(); itr != mGroupSet.end(); ++itr)
+        delete (*itr);
 
     for (GuildMap::iterator itr = mGuildMap.begin(); itr != mGuildMap.end(); ++itr)
         delete itr->second;
@@ -180,11 +180,11 @@ ObjectMgr::~ObjectMgr()
         itr->second.Clear();
 }
 
-Group * ObjectMgr::GetGroupByLeaderLowGUID(uint32 guid) const
+Group * ObjectMgr::GetGroupByLeader(const uint64 &guid) const
 {
-    GroupMap::const_iterator itr = mGroupMap.find(guid);
-    if (itr != mGroupMap.end())
-        return itr->second;
+    for(GroupSet::const_iterator itr = mGroupSet.begin(); itr != mGroupSet.end(); ++itr)
+        if ((*itr)->GetLeaderGUID() == guid)
+            return *itr;
 
     return NULL;
 }
@@ -225,6 +225,16 @@ Guild* ObjectMgr::GetGuildByLeader(const uint64 &guid) const
     return NULL;
 }
 
+void ObjectMgr::AddGuild(Guild* guild)
+{
+    mGuildMap[guild->GetId()] = guild;
+}
+
+void ObjectMgr::RemoveGuild(uint32 Id)
+{
+    mGuildMap.erase(Id);
+}
+
 ArenaTeam* ObjectMgr::GetArenaTeamById(uint32 arenateamid) const
 {
     ArenaTeamMap::const_iterator itr = mArenaTeamMap.find(arenateamid);
@@ -250,6 +260,16 @@ ArenaTeam* ObjectMgr::GetArenaTeamByCaptain(uint64 const& guid) const
             return itr->second;
 
     return NULL;
+}
+
+void ObjectMgr::AddArenaTeam(ArenaTeam* arenaTeam)
+{
+    mArenaTeamMap[arenaTeam->GetId()] = arenaTeam;
+}
+
+void ObjectMgr::RemoveArenaTeam(uint32 Id)
+{
+    mArenaTeamMap.erase(Id);
 }
 
 CreatureInfo const* ObjectMgr::GetCreatureTemplate(uint32 id)
@@ -3109,6 +3129,8 @@ void ObjectMgr::LoadArenaTeams()
 void ObjectMgr::LoadGroups()
 {
     // -- loading groups --
+    Group *group = NULL;
+    uint64 leaderGuid = 0;
     uint32 count = 0;
     //                                                     0         1              2           3           4              5      6      7      8      9      10     11     12     13      14         15              16
     QueryResult *result = CharacterDatabase.Query("SELECT mainTank, mainAssistant, lootMethod, looterGuid, lootThreshold, icon1, icon2, icon3, icon4, icon5, icon6, icon7, icon8, isRaid, difficulty, raiddifficulty, leaderGuid FROM groups");
@@ -3131,8 +3153,9 @@ void ObjectMgr::LoadGroups()
         bar.step();
         Field *fields = result->Fetch();
         ++count;
-        uint64 leaderGuid = MAKE_NEW_GUID(fields[16].GetUInt32(),0,HIGHGUID_PLAYER);
-        Group *group = new Group;
+        leaderGuid = MAKE_NEW_GUID(fields[16].GetUInt32(),0,HIGHGUID_PLAYER);
+
+        group = new Group;
         if(!group->LoadGroupFromDB(leaderGuid, result, false))
         {
             group->Disband();
@@ -3149,6 +3172,8 @@ void ObjectMgr::LoadGroups()
 
     // -- loading members --
     count = 0;
+    group = NULL;
+    leaderGuid = 0;
     //                                        0           1          2         3
     result = CharacterDatabase.Query("SELECT memberGuid, assistant, subgroup, leaderGuid FROM group_member ORDER BY leaderGuid");
     if(!result)
@@ -3158,34 +3183,28 @@ void ObjectMgr::LoadGroups()
     }
     else
     {
-        Group* group = NULL;                                // used as cached pointer for avoid relookup group for each member
-
         barGoLink bar2( result->GetRowCount() );
         do
         {
             bar2.step();
             Field *fields = result->Fetch();
             count++;
-
-            uint32 memberGuidlow = fields[0].GetUInt32();
-            bool   assistent     = fields[1].GetBool();
-            uint8  subgroup      = fields[2].GetUInt8();
-            uint32 leaderGuidLow = fields[3].GetUInt32();
-            if(!group || GUID_LOPART(group->GetLeaderGUID()) != leaderGuidLow)
+            leaderGuid = MAKE_NEW_GUID(fields[3].GetUInt32(), 0, HIGHGUID_PLAYER);
+            if(!group || group->GetLeaderGUID() != leaderGuid)
             {
-                group = GetGroupByLeaderLowGUID(leaderGuidLow);
+                group = GetGroupByLeader(leaderGuid);
                 if(!group)
                 {
-                    sLog.outErrorDb("Incorrect entry in group_member table : no group with leader %d for member %d!", leaderGuidLow, memberGuidlow);
-                    CharacterDatabase.PExecute("DELETE FROM group_member WHERE memberGuid = '%d'", memberGuidlow);
+                    sLog.outErrorDb("Incorrect entry in group_member table : no group with leader %d for member %d!", fields[3].GetUInt32(), fields[0].GetUInt32());
+                    CharacterDatabase.PExecute("DELETE FROM group_member WHERE memberGuid = '%d'", fields[0].GetUInt32());
                     continue;
                 }
             }
 
-            if(!group->LoadMemberFromDB(memberGuidlow, subgroup, assistent))
+            if(!group->LoadMemberFromDB(fields[0].GetUInt32(), fields[2].GetUInt8(), fields[1].GetBool()))
             {
-                sLog.outErrorDb("Incorrect entry in group_member table : member %d cannot be added to player %d's group!", memberGuidlow, leaderGuidLow);
-                CharacterDatabase.PExecute("DELETE FROM group_member WHERE memberGuid = '%d'", memberGuidlow);
+                sLog.outErrorDb("Incorrect entry in group_member table : member %d cannot be added to player %d's group!", fields[0].GetUInt32(), fields[3].GetUInt32());
+                CharacterDatabase.PExecute("DELETE FROM group_member WHERE memberGuid = '%d'", fields[0].GetUInt32());
             }
         }while( result->NextRow() );
         delete result;
@@ -3193,13 +3212,13 @@ void ObjectMgr::LoadGroups()
 
     // clean groups
     // TODO: maybe delete from the DB before loading in this case
-    for (GroupMap::iterator itr = mGroupMap.begin(); itr != mGroupMap.end();)
+    for(GroupSet::iterator itr = mGroupSet.begin(); itr != mGroupSet.end();)
     {
-        if (itr->second->GetMembersCount() < 2)
+        if((*itr)->GetMembersCount() < 2)
         {
-            itr->second->Disband();
-            delete itr->second;
-            mGroupMap.erase(itr++);
+            (*itr)->Disband();
+            delete *itr;
+            mGroupSet.erase(itr++);
         }
         else
             ++itr;
@@ -3207,6 +3226,8 @@ void ObjectMgr::LoadGroups()
 
     // -- loading instances --
     count = 0;
+    group = NULL;
+    leaderGuid = 0;
     result = CharacterDatabase.Query(
         //      0           1    2         3          4           5
         "SELECT leaderGuid, map, instance, permanent, difficulty, resettime, "
@@ -3222,36 +3243,31 @@ void ObjectMgr::LoadGroups()
     }
     else
     {
-        Group* group = NULL;                                // used as cached pointer for avoid relookup group for each member
-
         barGoLink bar2( result->GetRowCount() );
         do
         {
             bar2.step();
             Field *fields = result->Fetch();
             count++;
-
-            uint32 leaderGuidLow = fields[0].GetUInt32();
-            uint32 mapId = fields[1].GetUInt32();
-            uint32 diff = fields[4].GetUInt8();
-
-            if(!group || GUID_LOPART(group->GetLeaderGUID()) != leaderGuidLow)
+            leaderGuid = MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HIGHGUID_PLAYER);
+            if(!group || group->GetLeaderGUID() != leaderGuid)
             {
-                group = GetGroupByLeaderLowGUID(leaderGuidLow);
+                group = GetGroupByLeader(leaderGuid);
                 if(!group)
                 {
-                    sLog.outErrorDb("Incorrect entry in group_instance table : no group with leader %d", leaderGuidLow);
+                    sLog.outErrorDb("Incorrect entry in group_instance table : no group with leader %d", fields[0].GetUInt32());
                     continue;
                 }
             }
 
-            MapEntry const* mapEntry = sMapStore.LookupEntry(mapId);
+            MapEntry const* mapEntry = sMapStore.LookupEntry(fields[1].GetUInt32());
             if(!mapEntry || !mapEntry->IsDungeon())
             {
-                sLog.outErrorDb("Incorrect entry in group_instance table : no dungeon map %d", mapId);
+                sLog.outErrorDb("Incorrect entry in group_instance table : no dungeon map %d", fields[1].GetUInt32());
                 continue;
             }
 
+            uint32 diff = fields[4].GetUInt8();
             if(diff >= (mapEntry->IsRaid() ? MAX_RAID_DIFFICULTY : MAX_DUNGEON_DIFFICULTY))
             {
                 sLog.outErrorDb("Wrong dungeon difficulty use in group_instance table: %d", diff + 1);
@@ -7877,7 +7893,7 @@ void ObjectMgr::LoadTrainerSpell()
 
         if(!(cInfo->npcflag & UNIT_NPC_FLAG_TRAINER))
         {
-            if (skip_trainers.find(entry) == skip_trainers.end())
+            if(skip_trainers.count(entry) == 0)
             {
                 sLog.outErrorDb("Table `npc_trainer` have data for creature (Entry: %u) without trainer flag, ignore", entry);
                 skip_trainers.insert(entry);
@@ -7900,7 +7916,7 @@ void ObjectMgr::LoadTrainerSpell()
 
         if(GetTalentSpellCost(spell))
         {
-            if (talentIds.find(spell) == talentIds.end())
+            if(talentIds.count(spell)==0)
             {
                 sLog.outErrorDb("Table `npc_trainer` has talent as learning spell %u, ignore", spell);
                 talentIds.insert(spell);
@@ -8428,7 +8444,7 @@ void ObjectMgr::CheckScripts(ScriptMapMap const& scripts,std::set<int32>& ids)
                     if(!GetMangosStringLocale (itrM->second.dataint))
                         sLog.outErrorDb( "Table `db_script_string` is missing string id %u, used in database script id %u.", itrM->second.dataint, itrMM->first);
 
-                    if (ids.find(itrM->second.dataint) != ids.end())
+                    if(ids.count(itrM->second.dataint))
                         ids.erase(itrM->second.dataint);
                 }
             }
@@ -8457,42 +8473,6 @@ void ObjectMgr::LoadDbScriptStrings()
 
     for(std::set<int32>::const_iterator itr = ids.begin(); itr != ids.end(); ++itr)
         sLog.outErrorDb( "Table `db_script_string` has unused string id  %u", *itr);
-}
-
-void ObjectMgr::AddGuild( Guild* guild )
-{
-    mGuildMap[guild->GetId()] = guild ;
-}
-
-void ObjectMgr::RemoveGuild( uint32 Id )
-{
-    mGuildMap.erase(Id);
-}
-
-void ObjectMgr::AddGroup( Group* group )
-{
-    mGroupMap[GUID_LOPART(group->GetLeaderGUID())] = group ;
-}
-
-void ObjectMgr::RemoveGroup( Group* group )
-{
-    mGroupMap.erase(GUID_LOPART(group->GetLeaderGUID()));
-}
-
-void ObjectMgr::UpdateGroup( uint32 old_guidlow, Group* group )
-{
-    mGroupMap.erase(old_guidlow);
-    AddGroup(group);
-}
-
-void ObjectMgr::AddArenaTeam( ArenaTeam* arenaTeam )
-{
-    mArenaTeamMap[arenaTeam->GetId()] = arenaTeam;
-}
-
-void ObjectMgr::RemoveArenaTeam( uint32 Id )
-{
-    mArenaTeamMap.erase(Id);
 }
 
 // Functions for scripting access

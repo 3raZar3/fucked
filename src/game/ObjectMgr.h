@@ -381,9 +381,9 @@ class ObjectMgr
 
         typedef UNORDERED_MAP<uint32, Item*> ItemMap;
 
-        typedef UNORDERED_MAP<uint32, Group*> GroupMap;
+        typedef std::set< Group * > GroupSet;
 
-        typedef UNORDERED_MAP<uint32, Guild*> GuildMap;
+        typedef UNORDERED_MAP<uint32, Guild *> GuildMap;
 
         typedef UNORDERED_MAP<uint32, ArenaTeam*> ArenaTeamMap;
 
@@ -408,10 +408,9 @@ class ObjectMgr
         void LoadGameobjectInfo();
         void AddGameobjectInfo(GameObjectInfo *goinfo);
 
-        Group * GetGroupByLeaderLowGUID(uint32 lowguid) const;
-        void AddGroup(Group* group);
-        void RemoveGroup(Group* group);
-        void UpdateGroup(uint32 old_guidlow, Group* group); // when need update leader guid as group key
+        Group * GetGroupByLeader(const uint64 &guid) const;
+        void AddGroup(Group* group) { mGroupSet.insert( group ); }
+        void RemoveGroup(Group* group) { mGroupSet.erase( group ); }
 
         Guild* GetGuildByLeader(uint64 const&guid) const;
         Guild* GetGuildById(uint32 GuildId) const;
@@ -924,7 +923,7 @@ class ObjectMgr
         typedef std::set<uint32> TavernAreaTriggerSet;
         typedef std::set<uint32> GameObjectForQuestSet;
 
-        GroupMap            mGroupMap;
+        GroupSet            mGroupSet;
         GuildMap            mGuildMap;
         ArenaTeamMap        mArenaTeamMap;
 
