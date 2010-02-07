@@ -76,7 +76,6 @@ const char MapEntryfmt[]="nxixxssssssssssssssssxixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 const char MapDifficultyEntryfmt[]="diixxxxxxxxxxxxxxxxxiix";
 const char MovieEntryfmt[]="nxx";
 const char QuestSortEntryfmt[]="nxxxxxxxxxxxxxxxxx";
-const char QuestXPLevelfmt[]="niiiiiiiiix";
 const char PvPDifficultyfmt[]="diiiii";
 const char RandomPropertiesPointsfmt[]="niiiiiiiiiiiiiii";
 const char ScalingStatDistributionfmt[]="niiiiiiiiiiiiiiiiiiiii";

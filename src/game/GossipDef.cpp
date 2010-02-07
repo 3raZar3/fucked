@@ -512,12 +512,7 @@ void PlayerMenu::SendQuestGiverQuestDetails( Quest const *pQuest, uint64 npcGUID
                 data << uint32(0);
         }
 
-        // send rewMoneyMaxLevel explicit for max player level, else send RewOrReqMoney
-        if (pSession->GetPlayer()->getLevel() >= sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL))
-            data << uint32(pQuest->GetRewMoneyMaxLevel());
-        else
-            data << uint32(pQuest->GetRewOrReqMoney());
-
+        data << uint32(pQuest->GetRewOrReqMoney());
         data << uint32(pQuest->XPValue(pSession->GetPlayer()));
     }
 
@@ -773,11 +768,7 @@ void PlayerMenu::SendQuestGiverOfferReward( Quest const* pQuest, uint64 npcGUID,
             data << uint32(0);
     }
 
-    // send rewMoneyMaxLevel explicit for max player level, else send RewOrReqMoney
-    if (pSession->GetPlayer()->getLevel() >= sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL))
-        data << uint32(pQuest->GetRewMoneyMaxLevel());
-    else
-        data << uint32(pQuest->GetRewOrReqMoney());
+    data << uint32(pQuest->GetRewOrReqMoney());             // money
     data << uint32(pQuest->XPValue(pSession->GetPlayer())); // xp
 
     // rewarded honor points. Multiply with 10 to satisfy client
