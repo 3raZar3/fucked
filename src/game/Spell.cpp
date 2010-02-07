@@ -978,17 +978,17 @@ void Spell::AddItemTarget(Item* pitem, uint32 effIndex)
 
 void Spell::DoAllEffectOnTarget(TargetInfo *target)
 {
-	if (!target)
-		return;
+    if (!target)
+        return;
 
-	Unit* unit = m_caster->GetGUID()==target->targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster,target->targetGUID);
-	if (!unit || !unit->IsInWorld())
+    Unit* unit = m_caster->GetGUID()==target->targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster,target->targetGUID);
+    if (!unit || !unit->IsInWorld())
         return;
 
     if (target->processed)                                  // Check target
         return;
 
-	target->processed = true;                               // Target checked in apply effects procedure
+    target->processed = true;                               // Target checked in apply effects procedure
 
     // Get mask of effects for target
     uint32 mask = target->effectMask;
@@ -1238,13 +1238,13 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
 void Spell::DoAllEffectOnTarget(GOTargetInfo *target)
 {
     if (!target)
-		return;
-
-	GameObject* go = m_caster->GetMap()->GetGameObject(target->targetGUID);
-	if(!go || !go->IsInWorld())
         return;
-	
-	if (target->processed)                                  // Check target
+
+    GameObject* go = m_caster->GetMap()->GetGameObject(target->targetGUID);
+    if(!go || !go->IsInWorld())
+        return;
+    
+    if (target->processed)                                  // Check target
         return;
     target->processed = true;                               // Target checked in apply effects procedure
 
