@@ -992,11 +992,6 @@ void AddSC_borean_tundra()
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name = "go_blue_drake_egg";
-    newscript->pGOHello = &GOHello_go_blue_drake_egg;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
     newscript->Name = "go_tadpole_cage";
     newscript->pGOHello = &GOHello_go_tadpole_cage;
     newscript->RegisterSelf();
