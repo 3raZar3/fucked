@@ -62,19 +62,9 @@ enum
     ITEM_HARPOON                    = 37372
 };
 
-uint64 goHarpoons[3] =
-{
-    {GO_HARPOON1},
-    {GO_HARPOON2},
-    {GO_HARPOON3}
-};
+uint64 goHarpoons[3] = {GO_HARPOON1 ,GO_HARPOON2, GO_HARPOON3};
 
-uint32 m_uiSkadiAdds[3] =
-{
-    {26692},
-    {26690},
-    {26691}
-};
+uint32 m_uiSkadiAdds[3] = {26692, 26690, 26691};
 
 /*######
 ## boss_skadi
