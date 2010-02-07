@@ -978,16 +978,20 @@ void Spell::AddItemTarget(Item* pitem, uint32 effIndex)
 
 void Spell::DoAllEffectOnTarget(TargetInfo *target)
 {
+	if (!target)
+		return;
+
+	Unit* unit = m_caster->GetGUID()==target->targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster,target->targetGUID);
+	if (!unit || !unit->IsInWorld())
+        return;
+
     if (target->processed)                                  // Check target
         return;
-    target->processed = true;                               // Target checked in apply effects procedure
+
+	target->processed = true;                               // Target checked in apply effects procedure
 
     // Get mask of effects for target
     uint32 mask = target->effectMask;
-
-    Unit* unit = m_caster->GetGUID()==target->targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster,target->targetGUID);
-    if (!unit)
-        return;
 
     // Get original caster (if exist) and calculate damage/healing from him data
     Unit *caster = m_originalCaster ? m_originalCaster : m_caster;
@@ -1233,16 +1237,19 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
 
 void Spell::DoAllEffectOnTarget(GOTargetInfo *target)
 {
-    if (target->processed)                                  // Check target
+    if (!target)
+		return;
+
+	GameObject* go = m_caster->GetMap()->GetGameObject(target->targetGUID);
+	if(!go || !go->IsInWorld())
+        return;
+	
+	if (target->processed)                                  // Check target
         return;
     target->processed = true;                               // Target checked in apply effects procedure
 
     uint32 effectMask = target->effectMask;
     if(!effectMask)
-        return;
-
-    GameObject* go = m_caster->GetMap()->GetGameObject(target->targetGUID);
-    if(!go)
         return;
 
     for(uint32 effectNumber = 0; effectNumber < 3; ++effectNumber)
@@ -2843,14 +2850,12 @@ void Spell::handle_immediate()
     if (!m_UniqueTargetInfo.empty())
         for(std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin();ihit != m_UniqueTargetInfo.end();++ihit)
         {
-            if (&(*ihit))
-                DoAllEffectOnTarget(&(*ihit));
+            DoAllEffectOnTarget(&(*ihit));
         }
     if (!m_UniqueGOTargetInfo.empty())
         for(std::list<GOTargetInfo>::iterator ihit= m_UniqueGOTargetInfo.begin();ihit != m_UniqueGOTargetInfo.end();++ihit)
         {
-            if (&(*ihit))
-                DoAllEffectOnTarget(&(*ihit));
+            DoAllEffectOnTarget(&(*ihit));
         }
 
     // spell is finished, perform some last features of the spell here
