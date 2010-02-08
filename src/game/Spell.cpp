@@ -982,7 +982,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         return;
 
     Unit* unit = m_caster->GetGUID()==target->targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster,target->targetGUID);
-    if (!unit || !unit->IsInWorld())
+    if (!unit)
         return;
 
     if (target->processed)                                  // Check target
@@ -1241,7 +1241,7 @@ void Spell::DoAllEffectOnTarget(GOTargetInfo *target)
         return;
 
     GameObject* go = m_caster->GetMap()->GetGameObject(target->targetGUID);
-    if(!go || !go->IsInWorld())
+    if(!go)
         return;
     
     if (target->processed)                                  // Check target
