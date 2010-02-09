@@ -134,7 +134,7 @@ struct MANGOS_DLL_DECL boss_volazjAI : public ScriptedAI
             {
                 m_uiImageGUID[m_uiImageCount][0] = pImage->GetGUID();
                 Unit *TargetedPlayer = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());  
-                if(TargetedPlayer->GetTypeId() == TYPEID_PLAYER)
+                if(TargetedPlayer && TargetedPlayer->GetTypeId() == TYPEID_PLAYER)
                 {
                     uint32 spell;
                     switch(TargetedPlayer->getClass())
@@ -206,7 +206,8 @@ struct MANGOS_DLL_DECL boss_volazjAI : public ScriptedAI
         if(m_uiShiverTimer < uiDiff)
         {
             if(Unit* pPlayer = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                pPlayer->CastSpell(pPlayer, m_bIsRegularMode ? SPELL_SHIVER_DMG : SPELL_SHIVER_DMG_H, true);
+                if(pPlayer->isAlive())
+                    pPlayer->CastSpell(pPlayer, m_bIsRegularMode ? SPELL_SHIVER_DMG : SPELL_SHIVER_DMG_H, true);
             m_uiShiverTimer = urand(8000,12000);
         }else m_uiShiverTimer -= uiDiff;
 
