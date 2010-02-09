@@ -7,7 +7,7 @@
 
 enum
 {
-    MAX_ENCOUNTER               = 15,
+    MAX_ENCOUNTER               = 16,
 
     TYPE_ANUB_REKHAN            = 1,
     TYPE_FAERLINA               = 2,
@@ -18,6 +18,7 @@ enum
     TYPE_LOATHEB                = 6,
 
     TYPE_RAZUVIOUS              = 7,
+    TYPE_UNDERSTUDIES           = 18,
     TYPE_GOTHIK                 = 8,
     TYPE_FOUR_HORSEMEN          = 9,
 
@@ -33,6 +34,8 @@ enum
 
     NPC_ANUB_REKHAN             = 15956,
     NPC_FAERLINA                = 15953,
+
+    NPC_RAZUVIOUS               = 16061,
 
     NPC_THADDIUS                = 15928,
     NPC_STALAGG                 = 15929,
