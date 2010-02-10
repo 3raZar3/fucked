@@ -204,6 +204,8 @@ void dump_sql()
         else if(!strcmp(spell_translation[i][0], "flag96"))
             fprintf(fSpellSql, "    `%s` INT (11) UNSIGNED DEFAULT '0' NOT NULL,\n", spell_translation[i][1]);
         else if(!strcmp(spell_translation[i][0], "char*"))
+            fprintf(fSpellSql, "    `%s` VARCHAR(255),\n", spell_translation[i][1]);
+        else if(!strcmp(spell_translation[i][0], "text"))
             fprintf(fSpellSql, "    `%s` TEXT,\n", spell_translation[i][1]);
         else
             fprintf(fSpellSql, "    ERROR: unknown column type: %s in column: %s\n", spell_translation[i][0], spell_translation[i][1]);
@@ -252,7 +254,7 @@ void dump_sql()
                 fprintf(fSpellSql, "%f", DBCSpell.getRecord(j).getFloat(i));
             else if(!strcmp(spell_translation[i][0], "flag96"))
                 fprintf(fSpellSql, "%lu", DBCSpell.getRecord(j).getUInt32(i));
-            else if(!strcmp(spell_translation[i][0], "char*"))
+            else if(!strcmp(spell_translation[i][0], "char*") || !strcmp(spell_translation[i][0], "text"))
             {
                 const char *dstr = DBCSpell.getRecord(j).getString(i);
                 uint16 otherindex = 0;

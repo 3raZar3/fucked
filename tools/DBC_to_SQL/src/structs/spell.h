@@ -25,7 +25,7 @@ char const *SPELL_DBC   = "Spell.dbc";
 char const *SPELL_SQL   = "spell_dbc.sql";
 char const *SPELL_TABLE = "dbc_spell";
 
-#define SPELL_DBC_CLIENT_BUILD  11159 // 3.3.0
+#define SPELL_DBC_CLIENT_BUILD  11159 // 3.3.0a
 
 #define SPELL_DBC_COLUMN_NUMS   240
 #define SPELL_DBC_ROWS_NUMS     73191
@@ -209,22 +209,22 @@ char const *spell_translation[SPELL_DBC_COLUMN_NUMS][2] =
     {"char*",    "Rank_15"},                                      // 173      m_nameSubtext_lang
     {"char*",    "Rank_16"},                                      // 174      m_nameSubtext_lang
     {"uint32",   "RankFlags"},                                    // 175      not used
-    {"char*",    "Description_1"},                                // 176      m_description_lang not used
-    {"char*",    "Description_2"},                                // 177      m_description_lang not used
-    {"char*",    "Description_3"},                                // 178      m_description_lang not used
-    {"char*",    "Description_4"},                                // 179      m_description_lang not used
-    {"char*",    "Description_5"},                                // 180      m_description_lang not used
-    {"char*",    "Description_6"},                                // 181      m_description_lang not used
-    {"char*",    "Description_7"},                                // 182      m_description_lang not used
-    {"char*",    "Description_8"},                                // 183      m_description_lang not used
-    {"char*",    "Description_9"},                                // 184      m_description_lang not used
-    {"char*",    "Description_10"},                               // 185      m_description_lang not used
-    {"char*",    "Description_11"},                               // 186      m_description_lang not used
-    {"char*",    "Description_12"},                               // 187      m_description_lang not used
-    {"char*",    "Description_13"},                               // 188      m_description_lang not used
-    {"char*",    "Description_14"},                               // 189      m_description_lang not used
-    {"char*",    "Description_15"},                               // 190      m_description_lang not used
-    {"char*",    "Description_16"},                               // 191      m_description_lang not used
+    {"text",     "Description_1"},                                // 176      m_description_lang not used
+    {"text",     "Description_2"},                                // 177      m_description_lang not used
+    {"text",     "Description_3"},                                // 178      m_description_lang not used
+    {"text",     "Description_4"},                                // 179      m_description_lang not used
+    {"text",     "Description_5"},                                // 180      m_description_lang not used
+    {"text",     "Description_6"},                                // 181      m_description_lang not used
+    {"text",     "Description_7"},                                // 182      m_description_lang not used
+    {"text",     "Description_8"},                                // 183      m_description_lang not used
+    {"text",     "Description_9"},                                // 184      m_description_lang not used
+    {"text",     "Description_10"},                               // 185      m_description_lang not used
+    {"text",     "Description_11"},                               // 186      m_description_lang not used
+    {"text",     "Description_12"},                               // 187      m_description_lang not used
+    {"text",     "Description_13"},                               // 188      m_description_lang not used
+    {"text",     "Description_14"},                               // 189      m_description_lang not used
+    {"text",     "Description_15"},                               // 190      m_description_lang not used
+    {"text",     "Description_16"},                               // 191      m_description_lang not used
     {"uint32",   "DescriptionFlags"},                             // 192      not used
     {"char*",    "ToolTip_1"},                                    // 193      m_auraDescription_lang not used
     {"char*",    "ToolTip_2"},                                    // 194      m_auraDescription_lang not used
