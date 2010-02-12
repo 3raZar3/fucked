@@ -184,7 +184,7 @@ void WorldSession::HandleSendMail(WorldPacket & recv_data )
             return;
         }
 
-        if (item->IsBoundAccountWide() && item->IsSoulBound() && pl->GetSession()->GetAccountId() != rc_account)
+        if (item->IsBoundAccountWide() /*&& item->IsSoulBound() */&& pl->GetSession()->GetAccountId() != rc_account)
         {
             pl->SendMailResult(0, MAIL_SEND, MAIL_ERR_EQUIP_ERROR, EQUIP_ERR_ARTEFACTS_ONLY_FOR_OWN_CHARACTERS);
             return;
@@ -747,17 +747,16 @@ void WorldSession::HandleQueryNextMailTime(WorldPacket & /*recv_data*/ )
             switch(m->messageType)
             {
                 case MAIL_AUCTION:
-                    data << uint32(2);
-                    data << uint32(2);
-                    data << uint32(m->stationery);
+                    data << uint32(m->sender);              // auction house id
+                    data << uint32(MAIL_AUCTION);           // message type
                     break;
                 default:
                     data << uint32(0);
                     data << uint32(0);
-                    data << uint32(m->stationery);
                     break;
             }
 
+            data << uint32(m->stationery);
             data << uint32(0xC6000000);                     // float unk, time or something
 
             ++count;

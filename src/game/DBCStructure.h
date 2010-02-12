@@ -1154,11 +1154,24 @@ struct PvPDifficultyEntry
     BattleGroundBracketId GetBracketId() const { return BattleGroundBracketId(bracketId); }
 };
 
+struct QuestFactionRewardEntry
+{
+    uint32      id;                                         // 0
+    int32       rewardValue[10];                            // 1-10
+};
+
 struct QuestSortEntry
 {
     uint32      id;                                         // 0        m_ID
     //char*       name[16];                                 // 1-16     m_SortName_lang
                                                             // 17 name flags
+};
+
+struct QuestXPLevel
+{
+    uint32      questLevel;                                 // 0
+    uint32      xpIndex[9];                                 // 1-9
+    //unk                                                   // 10
 };
 
 struct RandomPropertiesPointsEntry
@@ -1535,9 +1548,9 @@ struct SpellItemEnchantmentEntry
     uint32      slot;                                       // 32       m_flags
     uint32      GemID;                                      // 33       m_src_itemID
     uint32      EnchantmentCondition;                       // 34       m_condition_id
-    //uint32      requiredSkill;                            // 35       m_requiredSkillID
-    //uint32      requiredSkillValue;                       // 36       m_requiredSkillRank
-                                                            // 37       new in 3.1
+    uint32      requiredSkill;                              // 35       m_requiredSkillID
+    uint32      requiredSkillValue;                         // 36       m_requiredSkillRank
+    uint32      requiredLevel;                              // 37       m_requiredLevel
 };
 
 struct SpellItemEnchantmentConditionEntry
