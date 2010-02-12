@@ -1993,7 +1993,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
                 // Ardent Defender
 	            if (spellProto->SpellIconID == 2135 && pVictim->GetTypeId() == TYPEID_PLAYER)
 	            {
-	                int32 remainingHealth = pVictim->GetHealth() - RemainingDamage;
+	                uint32 remainingHealth = pVictim->GetHealth() - RemainingDamage;
 	                uint32 allowedHealth = pVictim->GetMaxHealth() * 0.35f;
 	                // If damage kills us
                     if (remainingHealth <= 0 && !((Player*)pVictim)->HasAura(66233))
@@ -2010,7 +2010,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
                         // else scale pct
                         ((float(defenseSkillValue) - float(baseLevelSkillValue)) / 140));
 	
-	                    int32 healAmount = pVictim->GetMaxHealth() * (*i)->GetSpellProto()->EffectBasePoints[1] *  pctFromDefense / 100;
+	                    int32 healAmount = int32(pVictim->GetMaxHealth() * (*i)->GetSpellProto()->EffectBasePoints[1] *  pctFromDefense / 100);
 	                    pVictim->CastCustomSpell(pVictim, 66235, &healAmount, NULL, NULL, true);
                         pVictim->CastSpell(pVictim, 66233, true);
 	                }
@@ -2814,9 +2814,10 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit *pVictim, SpellEntry const *spell)
         if (pVictim->HasInArc(M_PI_F,this))
         {
             int32 deflect_chance = pVictim->GetTotalAuraModifier(SPELL_AURA_DEFLECT_SPELLS)*100;
-        tmp+=deflect_chance;
-        if (roll < tmp)
+            tmp+=deflect_chance;
+            if (roll < tmp)
             return SPELL_MISS_DODGE;
+        }
         return SPELL_MISS_NONE;
     }
 
@@ -2827,8 +2828,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit *pVictim, SpellEntry const *spell)
         if (GetTypeId() == TYPEID_PLAYER && pVictim->GetTypeId() == TYPEID_PLAYER)
             canDodge = false;
         // Can`t parry
-        if (!pVictim->HasAura(19263))
-            canParry = false;
+        canParry = false;
     }
     // Check creatures flags_extra for disable parry
     if(pVictim->GetTypeId()==TYPEID_UNIT)
@@ -2965,10 +2965,11 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit *pVictim, SpellEntry const *spell)
     // cast by caster in front of victim
     if (pVictim->HasInArc(M_PI_F,this))
     {
-    int32 deflect_chance = pVictim->GetTotalAuraModifier(SPELL_AURA_DEFLECT_SPELLS)*100;
-    tmp+=deflect_chance;
-    if (rand < tmp)
-        return SPELL_MISS_DODGE;
+        int32 deflect_chance = pVictim->GetTotalAuraModifier(SPELL_AURA_DEFLECT_SPELLS)*100;
+        tmp+=deflect_chance;
+        if (rand < tmp)
+            return SPELL_MISS_DODGE;
+    }
 
     return SPELL_MISS_NONE;
 }
@@ -5857,11 +5858,12 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     Aura* DivineAegis = pVictim->GetAura(47753,0);
                     if (DivineAegis)
                         basepoints0 = DivineAegis->GetModifier()->m_amount;
-                    basepoints0 += damage * triggerAmount/100;
+                    basepoints0 += int32(damage * triggerAmount/100);
 
                     // limit absorb amount
-                    if (basepoints0 > pVictim->getLevel()*125)
-                        basepoints0 = pVictim->getLevel()*125;
+                    int32 modifier =  int32(pVictim->getLevel()*125);
+                    if (basepoints0 > modifier)
+                        basepoints0 = modifier;
                     triggered_spell_id = 47753;
                     break;
                 }

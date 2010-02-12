@@ -5463,7 +5463,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     if (!unitTarget)
                         return;
                     // lift up!
-                    unitTarget->SendMonsterMove(unitTarget->GetPositionX(), unitTarget->GetPositionY(), unitTarget->GetPositionZ()+ 20, 0, MONSTER_MOVE_LEVITATING, 1000, 0);
+                    unitTarget->SendMonsterMove(unitTarget->GetPositionX(), unitTarget->GetPositionY(), unitTarget->GetPositionZ()+ 20, 0, SPLINEFLAG_PITCH_UP, 1000, 0);
                     // set cloud auround caster
                     unitTarget->CastSpell(unitTarget, 45213, true);
                     // set safe spot below caster
