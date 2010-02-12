@@ -1946,13 +1946,8 @@ void Spell::SetTargetMap(uint32 effIndex, uint32 targetMode, UnitList& targetUni
             FillAreaTargets(targetUnitMap, m_caster->GetPositionX(), m_caster->GetPositionY(), radius, PUSH_IN_FRONT_15, SPELL_TARGETS_AOE_DAMAGE);
             break;
         case TARGET_IN_FRONT_OF_CASTER_30:
-        {
-            if (m_spellInfo->SpellFamilyName == SPELLFAMILY_GENERIC)
-                FillAreaTargets(targetUnitMap, m_caster->GetPositionX(), m_caster->GetPositionY(), radius, PUSH_IN_FRONT_30, SPELL_TARGETS_AOE_DAMAGE);
-            else
-                FillAreaTargets(targetUnitMap, m_caster->GetPositionX(), m_caster->GetPositionY(), radius, PUSH_IN_FRONT_90, SPELL_TARGETS_AOE_DAMAGE);
+            FillAreaTargets(targetUnitMap, m_caster->GetPositionX(), m_caster->GetPositionY(), radius, PUSH_IN_FRONT_30, SPELL_TARGETS_AOE_DAMAGE);
             break;
-        }
         case TARGET_DUELVSPLAYER:
         {
             Unit *target = m_targets.getUnitTarget();
@@ -2316,11 +2311,6 @@ void Spell::SetTargetMap(uint32 effIndex, uint32 targetMode, UnitList& targetUni
         {
             // add here custom effects that need default target.
             // FOR EVERY TARGET TYPE THERE IS A DIFFERENT FILL!!
-            if (m_spellInfo->SpellFamilyFlags2 & UI64LIT (0x00000020) && m_spellInfo->SpellIconID == 3217)
-            {
-                targetUnitMap.push_back(m_caster);
-                break;
-            }
             switch(m_spellInfo->Effect[effIndex])
             {
                 case SPELL_EFFECT_DUMMY:
@@ -2527,19 +2517,6 @@ void Spell::prepare(SpellCastTargets const* targets, Aura* triggeredByAura)
     if(m_caster->IsNonMeleeSpellCasted(false, true, true) && m_cast_count)
     {
         SendCastResult(SPELL_FAILED_SPELL_IN_PROGRESS);
-        finish(false);
-        return;
-    }
-
-    if(uint8 result = sObjectMgr.IsSpellDisabled(m_spellInfo->Id))
-    {
-        if(m_caster->GetTypeId() == TYPEID_PLAYER)
-        {
-            sLog.outDebug("Player %s cast a spell %u which was disabled by server administrator",   m_caster->GetName(), m_spellInfo->Id);
-            if(result == 2)
-            sLog.outChar("Player %s cast a spell %u which was disabled by server administrator and marked as CheatSpell",   m_caster->GetName(), m_spellInfo->Id);
-        }
-        SendCastResult(SPELL_FAILED_SPELL_UNAVAILABLE);
         finish(false);
         return;
     }
@@ -4165,9 +4142,7 @@ SpellCastResult Spell::CheckCast(bool strict)
         return SPELL_FAILED_CASTER_AURASTATE;
 
     // Caster aura req check if need
-    if(m_spellInfo->casterAuraSpell &&
-        sSpellStore.LookupEntry(m_spellInfo->casterAuraSpell) &&
-        !m_caster->HasAura(m_spellInfo->casterAuraSpell))
+    if(m_spellInfo->casterAuraSpell && !m_caster->HasAura(m_spellInfo->casterAuraSpell))
         return SPELL_FAILED_CASTER_AURASTATE;
     if(m_spellInfo->excludeCasterAuraSpell)
     {
@@ -4354,7 +4329,7 @@ SpellCastResult Spell::CheckCast(bool strict)
             }
             // TODO: this check can be applied and for player to prevent cheating when IsPositiveSpell will return always correct result.
             // check target for pet/charmed casts (not self targeted), self targeted cast used for area effects and etc
-            if (!explicit_target_mode && m_caster->GetTypeId() == TYPEID_UNIT && m_caster->GetCharmerOrOwnerGUID() && !IsDispelSpell(m_spellInfo))
+            if (!explicit_target_mode && m_caster->GetTypeId() == TYPEID_UNIT && m_caster->GetCharmerOrOwnerGUID())
             {
                 // check correctness positive/negative cast target (pet cast real check and cheating check)
                 if(IsPositiveSpell(m_spellInfo->Id))
@@ -4391,10 +4366,8 @@ SpellCastResult Spell::CheckCast(bool strict)
         {
             //Exclusion for Pounce:  Facing Limitation was removed in 2.0.1, but it still uses the same, old Ex-Flags
             //Exclusion for Mutilate:Facing Limitation was removed in 2.0.1 and 3.0.3, but they still use the same, old Ex-Flags
-            //Exclusion for Throw: Facing limitation was added in 3.2.x, but that shouldn't be
             if ((m_spellInfo->SpellFamilyName != SPELLFAMILY_DRUID || (m_spellInfo->SpellFamilyFlags != UI64LIT(0x0000000000020000))) &&
-                (m_spellInfo->SpellFamilyName != SPELLFAMILY_ROGUE || (m_spellInfo->SpellFamilyFlags != UI64LIT(0x0020000000000000))) &&
-                m_spellInfo->Id != 2764)
+                (m_spellInfo->SpellFamilyName != SPELLFAMILY_ROGUE || (m_spellInfo->SpellFamilyFlags != UI64LIT(0x0020000000000000))))
             {
                 SendInterrupted(2);
                 return SPELL_FAILED_NOT_BEHIND;
@@ -5206,7 +5179,7 @@ SpellCastResult Spell::CheckPetCast(Unit* target)
             if(!_target->isAlive())
                 return SPELL_FAILED_BAD_TARGETS;
 
-            if(IsPositiveSpell(m_spellInfo->Id) && !IsDispelSpell(m_spellInfo))
+            if(IsPositiveSpell(m_spellInfo->Id))
             {
                 if(m_caster->IsHostileTo(_target))
                     return SPELL_FAILED_BAD_TARGETS;
@@ -5219,7 +5192,7 @@ SpellCastResult Spell::CheckPetCast(Unit* target)
                                                             //TARGET_DUELVSPLAYER is positive AND negative
                     duelvsplayertar |= (m_spellInfo->EffectImplicitTargetA[j] == TARGET_DUELVSPLAYER);
                 }
-                if(m_caster->IsFriendlyTo(target) && !duelvsplayertar && !IsDispelSpell(m_spellInfo))
+                if(m_caster->IsFriendlyTo(target) && !duelvsplayertar)
                 {
                     return SPELL_FAILED_BAD_TARGETS;
                 }
@@ -6150,11 +6123,6 @@ bool Spell::CheckTarget( Unit* target, uint32 eff )
         if(((Player*)target)->isGameMaster() && !IsPositiveSpell(m_spellInfo->Id))
             return false;
     }
-
-    // Check Sated & Exhaustion debuffs
-    if (((m_spellInfo->Id == 2825) && (target->HasAura(57724))) ||
-        ((m_spellInfo->Id == 32182) && (target->HasAura(57723))))
-        return false;
 
     //Check targets for LOS visibility (except spells without range limitations )
     switch(m_spellInfo->Effect[eff])

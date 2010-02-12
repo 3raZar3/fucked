@@ -101,7 +101,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectDispel,                                   // 38 SPELL_EFFECT_DISPEL
     &Spell::EffectUnused,                                   // 39 SPELL_EFFECT_LANGUAGE
     &Spell::EffectDualWield,                                // 40 SPELL_EFFECT_DUAL_WIELD
-    &Spell::EffectJump,                                     // 41 SPELL_EFFECT_JUMP
+    &Spell::EffectUnused,                                   // 41 SPELL_EFFECT_JUMP
     &Spell::EffectJump,                                     // 42 SPELL_EFFECT_JUMP2
     &Spell::EffectTeleUnitsFaceCaster,                      // 43 SPELL_EFFECT_TELEPORT_UNITS_FACE_CASTER
     &Spell::EffectLearnSkill,                               // 44 SPELL_EFFECT_SKILL_STEP
@@ -560,31 +560,12 @@ void Spell::EffectSchoolDMG(uint32 effect_idx)
                         // count consumed deadly poison doses at target
                         if (poison)
                         {
-                            bool needConsume = true;
                             uint32 spellId = poison->GetId();
                             uint32 doses = poison->GetStackAmount();
                             if (doses > combo)
                                 doses = combo;
-
-                            // Master Poisoner
-                            Unit::AuraList const& auraList = ((Player*)m_caster)->GetAurasByType(SPELL_AURA_MOD_DURATION_OF_EFFECTS_BY_DISPEL);
-                            for(Unit::AuraList::const_iterator iter = auraList.begin(); iter!=auraList.end(); ++iter)
-                            {
-                                if( (*iter)->GetSpellProto()->SpellFamilyName == SPELLFAMILY_ROGUE && (*iter)->GetSpellProto()->SpellIconID == 1960)
-                                {
-                                    uint32 chance = (*iter)->GetSpellProto()->CalculateSimpleValue(2);
-
-                                    if(chance && roll_chance_i(chance))
-                                        needConsume = false;
-
-                                    break;
-                                }
-                            }
-
-                            if(needConsume)
-                                for (int i=0; i< doses; i++)
-                                    unitTarget->RemoveSingleSpellAurasFromStack(spellId);
-
+                            for (int i=0; i< doses; i++)
+                                unitTarget->RemoveSingleSpellAurasFromStack(spellId);
                             damage *= doses;
                             damage += int32(((Player*)m_caster)->GetTotalAttackPowerValue(BASE_ATTACK) * 0.09f * doses);
                         }
@@ -1774,11 +1755,6 @@ void Spell::EffectDummy(uint32 i)
                     m_caster->CastSpell(m_caster, 45182, true);
                     return;
                 }
-                case 51662:                                 // Hunger for Blood
-                {
-                    m_caster->CastSpell(m_caster, 63848, true);
-                    return;
-                }
             }
             break;
         case SPELLFAMILY_HUNTER:
@@ -2109,47 +2085,8 @@ void Spell::EffectDummy(uint32 i)
                 }
 
                 int32 bp = count * m_caster->GetMaxHealth() * m_spellInfo->DmgMultiplier[0] / 100;
-
-                // Improved Death Strike
-                Unit::AuraList const& auraMod = m_caster->GetAurasByType(SPELL_AURA_ADD_FLAT_MODIFIER);
-                for(Unit::AuraList::const_iterator iter = auraMod.begin(); iter != auraMod.end(); ++iter)
-                {
-                    if ((*iter)->GetSpellProto()->SpellIconID == 2751 && (*iter)->GetSpellProto()->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT)
-                    {
-                        bp += (*iter)->GetSpellProto()->CalculateSimpleValue(2) * bp / 100;
-                        break;
-                    }
-                }
-
                 m_caster->CastCustomSpell(m_caster, 45470, &bp, NULL, NULL, true);
                 return;
-            }
-            switch(m_spellInfo->Id)
-            {
-                // Death Grip
-                case 49560:
-                case 49576:
-                {
-                    if (!unitTarget || !m_caster)
-                        return;
-
-                    float x = m_caster->GetPositionX();
-                    float y = m_caster->GetPositionY();
-                    float z = m_caster->GetPositionZ()+1;
-                    float orientation = unitTarget->GetOrientation();
-
-                    m_caster->CastSpell(unitTarget,51399,true,NULL);
-
-                    if(unitTarget->GetTypeId() != TYPEID_PLAYER)
-                    {
-                        unitTarget->GetMap()->CreatureRelocation((Creature*)unitTarget,x,y,z,orientation);
-                        ((Creature*)unitTarget)->SendMonsterMove(x, y, z, orientation, MONSTER_MOVE_UNK12, 1);
-                    }
-                    else
-                        unitTarget->NearTeleportTo(x,y,z,orientation,false);
-
-                    return;
-                }
             }
             break;
     }
@@ -2324,9 +2261,7 @@ void Spell::EffectTriggerSpell(uint32 effIndex)
                 if( // ignore positive and passive auras
                     !iter->second->IsPositive() && !iter->second->IsPassive() &&
                     // ignore physical auras
-                    (GetSpellSchoolMask(iter->second->GetSpellProto()) & SPELL_SCHOOL_MASK_NORMAL)==0 &&
-                    // ignore deserter
-                    iter->second->GetSpellProto()->Id != 26013 )
+                    (GetSpellSchoolMask(iter->second->GetSpellProto()) & SPELL_SCHOOL_MASK_NORMAL)==0 )
                 {
                     m_caster->RemoveAurasDueToSpell(iter->second->GetSpellProto()->Id);
                     iter = Auras.begin();
@@ -4784,27 +4719,6 @@ void Spell::EffectWeaponDmg(uint32 i)
     int32 spell_bonus = 0;                                  // bonus specific for spell
     switch(m_spellInfo->SpellFamilyName)
     {
-        case SPELLFAMILY_DRUID:
-        {
-            // Rend and Tear ( on Maul / Shred )
-            if (m_spellInfo->SpellFamilyFlags & UI64LIT(0x0000000000008800))
-            {
-                if(unitTarget && unitTarget->HasAuraState(AURA_STATE_MECHANIC_BLEED))
-                {
-                    Unit::AuraList const& aura = m_caster->GetAurasByType(SPELL_AURA_DUMMY);
-                    for(Unit::AuraList::const_iterator itr = aura.begin(); itr != aura.end(); ++itr)
-                    {
-                        if ((*itr)->GetSpellProto()->SpellIconID == 2859 && (*itr)->GetEffIndex() == 0)
-                        {
-                            totalDamagePercentMod += (totalDamagePercentMod * (*itr)->GetModifier()->m_amount) / 100;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            break;
-        }
         case SPELLFAMILY_WARRIOR:
         {
             // Devastate bonus and sunder armor refresh
@@ -5076,7 +4990,7 @@ void Spell::EffectHealMaxHealth(uint32 /*i*/)
     m_healing += heal;
 }
 
-void Spell::EffectInterruptCast(uint32 i)
+void Spell::EffectInterruptCast(uint32 /*i*/)
 {
     if(!unitTarget)
         return;
@@ -5085,16 +4999,16 @@ void Spell::EffectInterruptCast(uint32 i)
 
     // TODO: not all spells that used this effect apply cooldown at school spells
     // also exist case: apply cooldown to interrupted cast only and to all spells
-    for (uint32 it = CURRENT_FIRST_NON_MELEE_SPELL; it < CURRENT_MAX_SPELL; ++it)
+    for (uint32 i = CURRENT_FIRST_NON_MELEE_SPELL; i < CURRENT_MAX_SPELL; ++i)
     {
-        if (Spell* spell = unitTarget->GetCurrentSpell(CurrentSpellTypes(it)))
+        if (Spell* spell = unitTarget->GetCurrentSpell(CurrentSpellTypes(i)))
         {
             SpellEntry const* curSpellInfo = spell->m_spellInfo;
             // check if we can interrupt spell
             if ((curSpellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_INTERRUPT) && curSpellInfo->PreventionType == SPELL_PREVENTION_TYPE_SILENCE )
             {
-                unitTarget->ProhibitSpellSchool(GetSpellSchoolMask(curSpellInfo), unitTarget->CalculateSpellDuration(m_spellInfo, i, unitTarget));
-                unitTarget->InterruptSpell(CurrentSpellTypes(it),false);
+                unitTarget->ProhibitSpellSchool(GetSpellSchoolMask(curSpellInfo), GetSpellDuration(m_spellInfo));
+                unitTarget->InterruptSpell(CurrentSpellTypes(i),false);
             }
         }
     }
@@ -5199,38 +5113,6 @@ void Spell::EffectScriptEffect(uint32 effIndex)
         {
             switch(m_spellInfo->Id)
             {
-                case 6962:
-                {
-                    if(m_caster->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
-                    Player* plr = ((Player*)m_caster);
-                    if(plr && plr->GetLastPetNumber())
-                    {
-                        PetType NewPetType = (plr->getClass()==CLASS_HUNTER) ? HUNTER_PET : SUMMON_PET;
-                        if (Pet* NewPet = new Pet(NewPetType))
-                        {
-                            if(NewPet->LoadPetFromDB(plr, 0, plr->GetLastPetNumber(), true))
-                            {
-                                NewPet->SetHealth(NewPet->GetMaxHealth());
-                                NewPet->SetPower(NewPet->getPowerType(),NewPet->GetMaxPower(NewPet->getPowerType()));
-
-                                switch (NewPet->GetEntry())
-                                {
-                                    case 11859:
-                                    case    89:
-                                        NewPet->SetEntry(416);
-                                        break;
-                                    default:
-                                        break;
-                                }
-                            }
-                            else
-                                delete NewPet;
-                        }
-                    }
-                    return;
-                }
                 // Bending Shinbone
                 case 8856:
                 {
@@ -6502,16 +6384,7 @@ void Spell::EffectSummonObject(uint32 i)
     }
     // Summon in random point all other units if location present
     else
-    {
-        if(m_spellInfo->Id == 48018)
-        {
-            x = m_caster->GetPositionX();
-            y = m_caster->GetPositionY();
-            z = m_caster->GetPositionZ();
-        }
-        else
-            m_caster->GetClosePoint(x, y, z, DEFAULT_WORLD_OBJECT_SIZE);
-    }
+        m_caster->GetClosePoint(x, y, z, DEFAULT_WORLD_OBJECT_SIZE);
 
     Map *map = m_caster->GetMap();
     if(!pGameObj->Create(sObjectMgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT), go_id, map,
@@ -7246,8 +7119,6 @@ void Spell::EffectSpiritHeal(uint32 /*i*/)
 
     ((Player*)unitTarget)->ResurrectPlayer(1.0f);
     ((Player*)unitTarget)->SpawnCorpseBones();
-
-    ((Player*)unitTarget)->CastSpell(unitTarget, 6962, true);
 }
 
 // remove insignia spell effect

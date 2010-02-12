@@ -712,9 +712,6 @@ bool Item::CanBeTraded(bool mail) const
     if (m_lootGenerated)
         return false;
 
-    if(!mail && IsBoundAccountWide()) // Dirty hack, because trade window is closing
-        return false;
-
     if ((!mail || !IsBoundAccountWide()) && IsSoulBound())
         return false;
 
@@ -757,10 +754,6 @@ bool Item::IsBoundByEnchant() const
 bool Item::IsFitToSpellRequirements(SpellEntry const* spellInfo) const
 {
     ItemPrototype const* proto = GetProto();
-
-    //Lava Lash
-    if (spellInfo->Id==60103 && spellInfo->EquippedItemClass==ITEM_CLASS_WEAPON)
-         return true;
 
     if (spellInfo->EquippedItemClass != -1)                 // -1 == any item class
     {

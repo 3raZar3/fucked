@@ -1488,8 +1488,6 @@ void Unit::CalculateMeleeDamage(Unit *pVictim, uint32 damage, CalcDamageInfo *da
                 damageInfo->blocked_amount = damageInfo->damage;
                 damageInfo->procEx |= PROC_EX_FULL_BLOCK;
             }
-            else
-                damageInfo->procEx|=PROC_EX_NORMAL_HIT;     // Partial blocks can still cause attacker procs
             damageInfo->damage      -= damageInfo->blocked_amount;
             damageInfo->cleanDamage += damageInfo->blocked_amount;
             break;
@@ -2491,7 +2489,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst (const Unit *pVictim, WeaponAttack
             dodge_chance -= GetTotalAuraModifier(SPELL_AURA_MOD_EXPERTISE)*25;
 
         // Modify dodge chance by attacker SPELL_AURA_MOD_COMBAT_RESULT_CHANCE
-        dodge_chance+= GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_COMBAT_RESULT_CHANCE, VICTIMSTATE_DODGE)*100;
+        dodge_chance+= GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_COMBAT_RESULT_CHANCE, VICTIMSTATE_DODGE);
 
         tmp = dodge_chance;
         if (   (tmp > 0)                                        // check if unit _can_ dodge
@@ -2646,9 +2644,6 @@ uint32 Unit::CalculateDamage (WeaponAttackType attType, bool normalized)
 float Unit::CalculateLevelPenalty(SpellEntry const* spellProto) const
 {
     if(spellProto->spellLevel <= 0)
-        return 1.0f;
-
-    if (sSpellMgr.IsHighestRankOfSpell(spellProto->Id))
         return 1.0f;
 
     float LvlPenalty = 0.0f;
@@ -4232,6 +4227,24 @@ void Unit::RemoveSingleAuraDueToSpellByDispel(uint32 spellId, uint64 casterGUID,
         if (triggeredSpell)
             caster->CastSpell(caster, triggeredSpell, true);
         return;
+    }
+    // Vampiric touch (first dummy aura)
+    else if (spellEntry->SpellFamilyName == SPELLFAMILY_PRIEST && spellEntry->SpellFamilyFlags & UI64LIT(0x0000040000000000))
+    {
+        if (Aura *dot = GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_PRIEST, UI64LIT(0x0000040000000000), 0x00000000, casterGUID))
+        {
+            if(Unit* caster = dot->GetCaster())
+            {
+                int32 bp0 = dot->GetModifier()->m_amount;
+                bp0 = 8 * caster->SpellDamageBonus(this, spellEntry, bp0, DOT, 1);
+
+                // Remove spell auras from stack
+                RemoveSingleSpellAurasByCasterSpell(spellId, casterGUID, AURA_REMOVE_BY_DISPEL);
+
+                CastCustomSpell(this, 64085, &bp0, NULL, NULL, true, NULL, NULL, casterGUID);
+                return;
+            }
+        }
     }
 
     RemoveSingleSpellAurasByCasterSpell(spellId, casterGUID, AURA_REMOVE_BY_DISPEL);
@@ -5845,18 +5858,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                 // Divine Aegis
                 case 2820:
                 {
-                    if(!pVictim || !pVictim->isAlive())
-                        return false;
-
-                    // find Divine Aegis on the target and get absorb amount
-                    Aura* DivineAegis = pVictim->GetAura(47753,0);
-                    if (DivineAegis)
-                        basepoints0 = DivineAegis->GetModifier()->m_amount;
-                    basepoints0 += damage * triggerAmount/100;
-
-                    // limit absorb amount
-                    if (basepoints0 > pVictim->getLevel()*125)
-                        basepoints0 = pVictim->getLevel()*125;
+                    basepoints0 = damage * triggerAmount/100;
                     triggered_spell_id = 47753;
                     break;
                 }
@@ -6943,13 +6945,6 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                 triggered_spell_id = 61607;
                 break;
             }
-            // Unholy Blight
-            if (dummySpell->Id == 49194)
-            {
-                basepoints0 = triggerAmount * damage / 1000;
-                triggered_spell_id = 50536;
-                break;
-            }
             // Vendetta
             if (dummySpell->SpellFamilyFlags & UI64LIT(0x0000000000010000))
             {
@@ -7579,12 +7574,6 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, Aura* triggeredB
                 RemoveAurasDueToSpell(37658);
                 trigger_spell_id = 37661;
                 target = pVictim;
-            }
-            // Unyielding Knights
-            else if (auraSpellInfo->Id == 38164)
-            {
-                if (pVictim->GetEntry()!=19457)
-                    return false;
             }
             // Bonus Healing (Crystal Spire of Karabor mace)
             else if (auraSpellInfo->Id == 40971)
@@ -9012,22 +9001,6 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
         }
     }
 
-    // custom scripted mod from dummy
-    AuraList const& mDummy = owner->GetAurasByType(SPELL_AURA_DUMMY);
-    for(AuraList::const_iterator i = mDummy.begin(); i != mDummy.end(); ++i)
-    {
-        SpellEntry const *spell = (*i)->GetSpellProto();
-        //Fire and Brimstone
-        if (spell->SpellFamilyName == SPELLFAMILY_WARLOCK && spell->SpellIconID == 3173)
-        {
-            if (pVictim->HasAuraState(AURA_STATE_CONFLAGRATE) && (spellProto->SpellFamilyName == SPELLFAMILY_WARLOCK && spellProto->SpellFamilyFlags & UI64LIT(0x0002004000000000)))
-            {
-                DoneTotalMod *= ((*i)->GetModifier()->m_amount+100.0f) / 100.0f;
-                break;
-            }
-        }
-    }
-
     // Custom scripted damage
     switch(spellProto->SpellFamilyName)
     {
@@ -9267,7 +9240,7 @@ int32 Unit::SpellBaseDamageBonus(SpellSchoolMask schoolMask)
         }
 
     }
-    return DoneAdvertisedBenefit > 0 ? DoneAdvertisedBenefit : 0;
+    return DoneAdvertisedBenefit;
 }
 
 int32 Unit::SpellBaseDamageBonusForVictim(SpellSchoolMask schoolMask, Unit *pVictim)
@@ -9291,7 +9264,7 @@ int32 Unit::SpellBaseDamageBonusForVictim(SpellSchoolMask schoolMask, Unit *pVic
             TakenAdvertisedBenefit += (*i)->GetModifier()->m_amount;
     }
 
-    return TakenAdvertisedBenefit > 0 ? TakenAdvertisedBenefit : 0;
+    return TakenAdvertisedBenefit;
 }
 
 bool Unit::isSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType)
@@ -9406,26 +9379,6 @@ bool Unit::isSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
             break;
         }
         case SPELL_DAMAGE_CLASS_MELEE:
-            // Rend and Tear crit chance with Ferocious Bite on bleeding target
-            if (spellProto->SpellFamilyName == SPELLFAMILY_DRUID)
-            {
-                if(spellProto->SpellFamilyFlags & UI64LIT(0x0000000000800000))
-                {
-                    if(pVictim->HasAuraState(AURA_STATE_MECHANIC_BLEED))
-                    {
-                        Unit::AuraList const& aura = GetAurasByType(SPELL_AURA_DUMMY);
-                        for(Unit::AuraList::const_iterator itr = aura.begin(); itr != aura.end(); ++itr)
-                        {
-                            if ((*itr)->GetSpellProto()->SpellIconID == 2859 && (*itr)->GetEffIndex() == 1)
-                            {
-                                crit_chance += (*itr)->GetModifier()->m_amount;
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-            // do not use break here
         case SPELL_DAMAGE_CLASS_RANGED:
         {
             if (pVictim)
@@ -9703,20 +9656,6 @@ uint32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, uint
     for(AuraList::const_iterator i = mHealingGet.begin(); i != mHealingGet.end(); ++i)
         if ((*i)->isAffectedOnSpell(spellProto))
             TakenTotalMod *= ((*i)->GetModifier()->m_amount + 100.0f) / 100.0f;
-
-    //Nourish 20% of heal increase if target is afected by Druids HOTs
-    if(spellProto->SpellFamilyFlags & UI64LIT(0x0200000000000000))
-    {
-        Unit::AuraList const& RejorRegr = pVictim->GetAurasByType(SPELL_AURA_PERIODIC_HEAL);
-        for(Unit::AuraList::const_iterator i = RejorRegr.begin(); i != RejorRegr.end(); ++i)
-        {
-            if((*i)->GetSpellProto()->SpellFamilyName == SPELLFAMILY_DRUID)
-            {
-                TakenTotalMod *= 1.2f;
-                break;
-            }
-        }
-    }
 
     heal = (heal + TakenTotal) * TakenTotalMod;
 
@@ -10825,7 +10764,7 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
             if (IsMounted()) // Use on mount auras
                 main_speed_mod  = GetMaxPositiveAuraModifier(SPELL_AURA_MOD_INCREASE_FLIGHT_SPEED);
             else             // Use not mount (shapeshift for example) auras (should stack)
-                main_speed_mod  = GetTotalAuraModifier(SPELL_AURA_MOD_SPEED_FLIGHT) + GetTotalAuraModifier(SPELL_AURA_MOD_SPEED_MOUNTED);
+                main_speed_mod  = GetTotalAuraModifier(SPELL_AURA_MOD_SPEED_FLIGHT);
             stack_bonus     = GetTotalAuraMultiplier(SPELL_AURA_MOD_FLIGHT_SPEED_ALWAYS);
             non_stack_bonus = (100.0 + GetMaxPositiveAuraModifier(SPELL_AURA_MOD_FLIGHT_SPEED_NOT_STACK))/100.0f;
             break;
