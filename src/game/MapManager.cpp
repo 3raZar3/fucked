@@ -16,7 +16,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <omp.h>
 #include "MapManager.h"
 #include "InstanceSaveMgr.h"
 #include "Policies/SingletonImp.h"
@@ -30,6 +29,7 @@
 #include "CellImpl.h"
 #include "Corpse.h"
 #include "ObjectMgr.h"
+#include "Config/ConfigEnv.h"
 
 #define CLASS_LOCK MaNGOS::ClassLevelLockable<MapManager, ACE_Thread_Mutex>
 INSTANTIATE_SINGLETON_2(MapManager, CLASS_LOCK);
@@ -66,6 +66,10 @@ MapManager::Initialize()
         }
         i_GridStateErrorCount = 0;
     }
+    int num_threads(sWorld.getConfig(CONFIG_NUMTHREADS));
+    // Start mtmaps if needed.
+    if(num_threads > 0 && m_updater.activate(num_threads) == -1)
+        abort();
 
     InitMaxInstanceId();
 }
@@ -258,25 +262,21 @@ void MapManager::RemoveBonesFromMap(uint32 mapid, uint64 guid, float x, float y)
 void MapManager::Update(uint32 diff)
 {
     i_timer.Update(diff);
-    if (!i_timer.Passed())
+    if( !i_timer.Passed() )
         return;
 
-    MapMapType::iterator iter = i_maps.begin();
-    std::vector<Map*> update_queue(i_maps.size());
-
-    int omp_set_num_threads(sWorld.getConfig(CONFIG_NUMTHREADS));
-
-    for (uint32 i = 0; iter != i_maps.end(); ++iter, ++i)
-        update_queue[i] = iter->second;
-/*
-    gomp in gcc <4.4 version cannot parallelise loops using random access iterators
-    so until gcc 4.4 isnt standard, we need the update_queue workaround
-*/
-    #pragma omp parallel for schedule(dynamic) private(i) shared(update_queue)
-    for (uint32 i = 0; i < i_maps.size(); ++i)
+    for(MapMapType::iterator iter=i_maps.begin(); iter != i_maps.end(); ++iter)
     {
-        update_queue[i]->Update(i_timer.GetCurrent());
+        if (m_updater.activated())
+		    m_updater.schedule_update(*iter->second, i_timer.GetCurrent());
+	    else
+		{
+		    iter->second->Update(i_timer.GetCurrent());
+		}
     }
+
+    if (m_updater.activated())
+		m_updater.wait();
 
     checkAndCorrectGridStatesArray();
 
@@ -319,6 +319,8 @@ void MapManager::UnloadAll()
         delete i_maps.begin()->second;
         i_maps.erase(i_maps.begin());
     }
+    if (m_updater.activated())
+        m_updater.deactivate();
 }
 
 void MapManager::InitMaxInstanceId()

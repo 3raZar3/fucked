@@ -133,7 +133,6 @@ class MANGOS_DLL_DECL ObjectAccessor : public MaNGOS::Singleton<ObjectAccessor, 
         // TODO: This methods will need lock in MT environment
         static void LinkMap(Map* map)   { ACE_Guard<ACE_Thread_Mutex> guard(m_Lock); i_mapList.push_back(map); }
         static void DelinkMap(Map* map) { ACE_Guard<ACE_Thread_Mutex> guard(m_Lock); i_mapList.remove(map); }
-
     private:
         static ACE_Thread_Mutex  m_Lock;
         // TODO: This methods will need lock in MT environment
