@@ -124,8 +124,7 @@ struct MANGOS_DLL_DECL boss_loathebAI : public ScriptedAI
 
         if(m_uiDeatchBloomTimer < uiDiff)
         {
-            if(m_creature->getVictim())
-                m_creature->CastSpell(m_creature->getVictim(), m_bIsRegularMode ? SPELL_DEATHBLOOM : SPELL_DEATHBLOOM_H, false);
+            DoCast(m_creature->getVictim(), m_bIsRegularMode ? SPELL_DEATHBLOOM : SPELL_DEATHBLOOM_H);
             m_uiDeatchBloomTimer = (m_bIsRegularMode ? 30000 : 20000);
             m_uiBloomTimer = 6000;
             m_bIsBloom = true;
@@ -133,8 +132,7 @@ struct MANGOS_DLL_DECL boss_loathebAI : public ScriptedAI
 
         if(m_uiDoomTimer < uiDiff)
         {
-            if(m_creature->getVictim())
-                m_creature->CastSpell(m_creature->getVictim(), m_bIsRegularMode ? SPELL_DOOM : SPELL_DOOM_H, false);
+            DoCast(m_creature->getVictim(), m_bIsRegularMode ? SPELL_DOOM : SPELL_DOOM_H);
             m_uiDoomTimer = 30000;
             if(m_uiEnrageTimer < uiDiff)
                 m_uiDoomTimer = 15000;
@@ -147,9 +145,9 @@ struct MANGOS_DLL_DECL boss_loathebAI : public ScriptedAI
                 if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
                 {
                     Creature* pSummonedSpores = m_creature->SummonCreature(CREATURE_SPORE, pTarget->GetPositionX()+1, pTarget->GetPositionY()+1, pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN,80000);
-                    if (pSummonedSpores)
+                    if (pSummonedSpores && pSummonedSpores->AI())
                     {
-                            pSummonedSpores->AddThreat(pTarget);
+                        if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
                             pSummonedSpores->AI()->AttackStart(pTarget);
                     }
                 }

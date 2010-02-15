@@ -84,8 +84,8 @@ enum Spells
     SPELL_SHADOW_BOLT_VOLLEY        = 45031,
 };
 
-#define    DRAGON_REALM_Z                  53.079
-#define    DEMON_REALM_Z                   -74.558
+#define    DRAGON_REALM_Z                  53.079f
+#define    DEMON_REALM_Z                   -74.558f
 #define    GO_FAILED                       "You are unable to use this currently."
 
 uint32 WildMagic[]= { 44978, 45001, 45002, 45004, 45006, 45010 };
@@ -314,8 +314,7 @@ struct MANGOS_DLL_DECL boss_kalecgosAI : public ScriptedAI
             if (urand(0, 2) == 0 && bSathrospawnd)
                 DoScriptText(SAY_EVIL_SPELL1, m_creature);
 
-            if (m_creature->getVictim())
-                DoCast(m_creature->getVictim(), SPELL_ARCANE_BUFFET);
+            DoCastSpellIfCan(m_creature->getVictim(), SPELL_ARCANE_BUFFET);
             m_uiArcaneBuffetTimer = 8000;
         }else m_uiArcaneBuffetTimer -= uiDiff;
 
@@ -324,8 +323,7 @@ struct MANGOS_DLL_DECL boss_kalecgosAI : public ScriptedAI
             if (urand(0, 2) == 0 && bSathrospawnd)
                 DoScriptText(SAY_EVIL_SPELL2, m_creature);
 
-            if (m_creature->getVictim())
-                DoCast(m_creature->getVictim(), SPELL_FROST_BREATH);
+            DoCastSpellIfCan(m_creature->getVictim(), SPELL_FROST_BREATH);
             m_uiFrostBreathTimer = 25000;
         }else m_uiFrostBreathTimer -= uiDiff;
 
@@ -626,7 +624,7 @@ struct MANGOS_DLL_DECL boss_sathrovarrAI : public ScriptedAI
         if (m_uiCurseOfBoundlessAgonyTimer < uiDiff)
         {
             if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                DoCast(pTarget, SPELL_CURSE_OF_BOUNDLESS_AGONY);
+                DoCastSpellIfCan(pTarget, SPELL_CURSE_OF_BOUNDLESS_AGONY);
             m_uiCurseOfBoundlessAgonyTimer = 20000;
         }else m_uiCurseOfBoundlessAgonyTimer -= uiDiff;
 

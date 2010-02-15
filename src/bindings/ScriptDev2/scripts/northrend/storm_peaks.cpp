@@ -45,7 +45,7 @@ enum
     POINT_ID                            = 1
 };
 
-float CaveEntrance[3] = {7833.33,-99.26,881.51};
+float CaveEntrance[3] = {7833.33f, -99.26f, 881.51f};
 
 #define GOSSIP_ITEM_MECHAGNOME "I'm not a laborer. I'm here to free you from  servitude in the mines"
 
@@ -118,11 +118,11 @@ struct MANGOS_DLL_DECL mob_captive_mechagnomeAI : public ScriptedAI
                     {
                         // case walking out of cavern
                         case 0:        
-                            float x,y,z,o;
+                            float x, y, z, o;
                             o = m_creature->GetOrientation();
                             ((o >= M_PI)? o -= M_PI : o += M_PI);
-                            m_creature->GetNearPoint(m_creature,x,y,z,m_creature->GetObjectSize(),INTERACTION_DISTANCE,o);
-                            m_creature->GetMotionMaster()->MovePoint(POINT_ID,x,y,z);
+                            m_creature->GetNearPoint(m_creature, x, y, z, m_creature->GetObjectSize(), INTERACTION_DISTANCE, o);
+                            m_creature->GetMotionMaster()->MovePoint(POINT_ID, x, y, z);
                             break;
                         // case returning to work
                         case 1:

@@ -115,7 +115,7 @@ struct MANGOS_DLL_DECL mob_unkor_the_ruthlessAI : public ScriptedAI
         {
             if (!UnkorUnfriendly_Timer)
             {
-                //DoCast(m_creature,SPELL_QUID9889);        //not using spell for now
+                //DoCastSpellIfCan(m_creature,SPELL_QUID9889);        //not using spell for now
                 DoNice();
             }
             else
@@ -132,7 +132,7 @@ struct MANGOS_DLL_DECL mob_unkor_the_ruthlessAI : public ScriptedAI
 
         if (Pulverize_Timer < diff)
         {
-            DoCast(m_creature,SPELL_PULVERIZE);
+            DoCastSpellIfCan(m_creature,SPELL_PULVERIZE);
             Pulverize_Timer = 9000;
         }else Pulverize_Timer -= diff;
 
@@ -260,8 +260,8 @@ enum
     NPC_CABAL_SKIRMISHER    = 21661
 };
 
-static float m_afAmbushB1[]= {-2895.525879, 5336.431641, -11.800};
-static float m_afAmbushB2[]= {-2890.604980, 5331.938965, -11.282};
+static float m_afAmbushB1[]= {-2895.525879f, 5336.431641f, -11.800f};
+static float m_afAmbushB2[]= {-2890.604980f, 5331.938965f, -11.282f};
 
 struct MANGOS_DLL_DECL npc_akunoAI : public npc_escortAI
 {
@@ -315,7 +315,7 @@ struct MANGOS_DLL_DECL npc_akunoAI : public npc_escortAI
 
         if (m_uiChainLightningTimer < uiDiff)
         {
-            DoCast(m_creature->getVictim(), SPELL_CHAIN_LIGHTNING);
+            DoCastSpellIfCan(m_creature->getVictim(), SPELL_CHAIN_LIGHTNING);
             m_uiChainLightningTimer = urand(7000, 14000);
         }
         else
@@ -395,19 +395,19 @@ struct MANGOS_DLL_DECL npc_floonAI : public ScriptedAI
 
         if (m_uiSilence_Timer < uiDiff)
         {
-            DoCast(m_creature->getVictim(),SPELL_SILENCE);
+            DoCastSpellIfCan(m_creature->getVictim(),SPELL_SILENCE);
             m_uiSilence_Timer = 30000;
         }else m_uiSilence_Timer -= uiDiff;
 
         if (m_uiFrostNova_Timer < uiDiff)
         {
-            DoCast(m_creature,SPELL_FROST_NOVA);
+            DoCastSpellIfCan(m_creature,SPELL_FROST_NOVA);
             m_uiFrostNova_Timer = 20000;
         }else m_uiFrostNova_Timer -= uiDiff;
 
         if (m_uiFrostbolt_Timer < uiDiff)
         {
-            DoCast(m_creature->getVictim(),SPELL_FROSTBOLT);
+            DoCastSpellIfCan(m_creature->getVictim(),SPELL_FROSTBOLT);
             m_uiFrostbolt_Timer = 5000;
         }else m_uiFrostbolt_Timer -= uiDiff;
 
@@ -495,10 +495,7 @@ enum Skywing
 };
 
 //Luanga the Imprisoner spawn point
-#define Luanga_X                -3507.16
-#define Luanga_Y                4084.08
-#define Luanga_Z                93.9535
-#define Luanga_O                2.51317
+float LuangaSpawn[4] = {-3507.16f, 4084.08f, 93.9535f, 2.51317f};
 
 
 struct MANGOS_DLL_DECL npc_skywingAI : public npc_escortAI
@@ -527,7 +524,7 @@ struct MANGOS_DLL_DECL npc_skywingAI : public npc_escortAI
                 DoScriptText(EMOTE_JUMP,m_creature);
                 break;
             case 81:
-                if (Creature* Luanga = m_creature->SummonCreature(NPC_LUANGA,Luanga_X,Luanga_Y,Luanga_Z,Luanga_O,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000))
+                if (Creature* Luanga = m_creature->SummonCreature(NPC_LUANGA, LuangaSpawn[0], LuangaSpawn[1], LuangaSpawn[2], LuangaSpawn[3], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000))
                 {
                     LuangaGUID = Luanga->GetGUID();
                     LuangaAlive = true;

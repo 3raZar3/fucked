@@ -151,8 +151,8 @@ struct MANGOS_DLL_DECL boss_ormorokAI : public ScriptedAI
 
         if (m_uiTrampleTimer < diff)
         {
-			DoCast(m_creature, m_bIsRegularMode ? SPELL_TRAMPLE_N : SPELL_TRAMPLE_H, true);
-            m_uiTrampleTimer = 10000;
+            DoCastSpellIfCan(m_creature, m_bIsRegularMode ? SPELL_TRAMPLE_N : SPELL_TRAMPLE_H);
+            m_uiTrampleTimer = urand(10000, 35000);
         }else m_uiTrampleTimer -= diff;
 
         if (m_uiReflectionTimer < diff)

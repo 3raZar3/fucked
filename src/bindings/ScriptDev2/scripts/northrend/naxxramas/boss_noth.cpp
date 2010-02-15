@@ -51,13 +51,7 @@ enum
 };
 
 // Teleport position of Noth on his balcony
-float fBalcony[4] =
-{
-    2634.1916,
-    -3529.829,
-    274.035,
-    0.0614
-};
+float fBalcony[4] = {2634.1916f, -3529.829f, 274.035f, 0.0614f};
 
 struct MANGOS_DLL_DECL boss_nothAI : public ScriptedAI
 {
@@ -205,7 +199,7 @@ struct MANGOS_DLL_DECL boss_nothAI : public ScriptedAI
             {
                 for(uint8 i=0; i<(m_bIsRegularMode ? 3 : 10); ++i)
                     if(Unit* pPlayer = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                        m_creature->CastSpell(pPlayer, m_bIsRegularMode ? SPELL_CURSE_PLAGUEBRINGER : SPELL_CURSE_PLAGUEBRINGER_H, true);
+                        DoCast(pPlayer, (m_bIsRegularMode ? SPELL_CURSE_PLAGUEBRINGER : SPELL_CURSE_PLAGUEBRINGER_H));
                 m_uiCurseTimer = 11000;
             }else m_uiCurseTimer -= uiDiff;
 
@@ -217,7 +211,8 @@ struct MANGOS_DLL_DECL boss_nothAI : public ScriptedAI
                 {
                     Creature* pUndead = m_creature->SummonCreature(NPC_PLAGUED_WARRIOR, m_creature->GetPositionX()+urand(1,10), m_creature->GetPositionY()+urand(1,10), m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
                     if(Unit* pPlayer = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                        pUndead->AI()->AttackStart(pPlayer);
+                        if (pUndead && pUndead->AI())
+                            pUndead->AI()->AttackStart(pPlayer);
                 }
                 m_uiSummonTimer = 21000;
             }else m_uiSummonTimer -= uiDiff;

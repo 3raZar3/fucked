@@ -38,12 +38,12 @@ enum
 
 float Coord[6][4] = 
 {
-    {902.65,-131.26,-49.74,5.94},// Antagonist1
-    {902.85,-134.45,-49.74,0.49},// Antagonist2
-    {904.72,-137.24,-49.75,1.34},// Antagonist3
-    {905.53,-128.06,-49.74,5.04},// Coren noncombat event movement point1
-    {909.47,-137.38,-49.74,1.01},// Coren noncombat event movement point2
-    {898.79,-140.91,-49.75,0.48} // Ursula and Ilsa spawn point
+    {902.65f, -131.26f, -49.74f, 5.94f},// Antagonist1
+    {902.85f, -134.45f, -49.74f, 0.49f},// Antagonist2
+    {904.72f, -137.24f, -49.75f, 1.34f},// Antagonist3
+    {905.53f, -128.06f, -49.74f, 5.04f},// Coren noncombat event movement point1
+    {909.47f, -137.38f, -49.74f, 1.01f},// Coren noncombat event movement point2
+    {898.79f, -140.91f, -49.75f, 0.48f} // Ursula and Ilsa spawn point
 };
 
 struct MANGOS_DLL_DECL boss_coren_direbrewAI : public npc_escortAI
@@ -212,15 +212,15 @@ struct MANGOS_DLL_DECL boss_coren_direbrewAI : public npc_escortAI
                 // Coren Walking in fornt of Antagonists
                 if (Walk_Timer < uiDiff)
                 {
-                    m_creature->SetMonsterMoveFlags(MONSTER_MOVE_WALK);
+                    m_creature->SetSplineFlags(SPLINEFLAG_WALKMODE);
                     switch(Walk)
                     {
                         case 0:
-                            m_creature->SendMonsterMove(Coord[3][0],Coord[3][1],Coord[3][2],0,MONSTER_MOVE_WALK,6000);
+                            m_creature->SendMonsterMove(Coord[3][0],Coord[3][1],Coord[3][2],0,SPLINEFLAG_WALKMODE,6000);
                             Walk = 1;
                             break;
                         case 1:
-                            m_creature->SendMonsterMove(Coord[4][0],Coord[4][1],Coord[4][2],0,MONSTER_MOVE_WALK,6000);
+                            m_creature->SendMonsterMove(Coord[4][0],Coord[4][1],Coord[4][2],0,SPLINEFLAG_WALKMODE,6000);
                             Walk = 0;
                             break;
                     }

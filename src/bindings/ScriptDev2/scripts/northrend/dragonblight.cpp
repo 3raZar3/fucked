@@ -196,7 +196,7 @@ struct MANGOS_DLL_DECL npc_abbot_to_escortAI : public npc_escortAI
 ######*/
 #define GOSSIP_ITEM_ABBOT_1     "Your eminence, may I have a word in private?"
 #define GOSSIP_ITEM_ABBOT_2     "I am ready, your grace. <kiss the ring>"
-float Abbot[] = {2827.27,-447.32,119.62,1.68};
+float Abbot[] = {2827.27f, -447.32f, 119.62f, 1.68f};
 
 bool GossipHello_npc_abbot_landgren(Player* pPlayer, Creature* pCreature)
 {

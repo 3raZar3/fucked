@@ -479,8 +479,8 @@ enum
 
 float OlgaWaypoints[2][4] = 
 {
-    {0, -91.81,-3532.70,7.71},  
-    {1, -87.23,-3544.23,7.71}
+    {0.0f, -91.81f, -3532.70f, 7.71f},  
+    {1.0f, -87.23f, -3544.23f, 7.71f}
 };
 
 #define GOSSIP_ITEM_OLGA_1 "I'd like to buy Jack a drink. Perhaps something... extra strong."

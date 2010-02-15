@@ -44,18 +44,18 @@ enum Shrines
 float SummonPosition[10][4] =
 {
     // tags next to coordinates indicates "box" from where add will be 
-    {-769.22,-164.50,-25.87,3.12}, // Left -2
-    {-867.86,-164.40,-25.87,6.24}, // Right-2
-    {-767.30,-154.32,-25.88,3.08}, // Left -3
-    {-866.54,-174.97,-25.86,0.05}, // Right-1    
-    {-869.19,-153.27,-25.88,6.23}, // Right-3
-    {-769.33,-174.18,-25.87,3.20}, // Left -1
+    {-769.22f, -164.50f, -25.87f, 3.12f},  // Left -2
+    {-867.86f, -164.40f, -25.87f, 6.24f},  // Right-2
+    {-767.30f, -154.32f, -25.88f, 3.08f},  // Left -3
+    {-866.54f, -174.97f, -25.86f, 0.05f},  // Right-1    
+    {-869.19f, -153.27f, -25.88f, 6.23f},  // Right-3
+    {-769.33f, -174.18f, -25.87f, 3.20f},  // Left -1
     
     // in order to not make any explicits in summon part doubled 4 rows to summort m_uiAddsToSummon == 10
-    {-867.86,-164.40,-25.87,6.24}, // Right-2
-    {-869.19,-153.27,-25.88,6.23}, // Right-3
-    {-769.33,-174.18,-25.87,3.20}, // Left -1
-    {-769.22,-164.50,-25.87,3.12}  // Left -2
+    {-867.86f, -164.40f, -25.87f, 6.24f},  // Right-2
+    {-869.19f, -153.27f, -25.88f, 6.23f},  // Right-3
+    {-769.33f, -174.18f, -25.87f, 3.20f},  // Left -1
+    {-769.22f, -164.50f, -25.87f, 3.12f}   // Left -2
 };
 
 bool GOHello_go_shrine(Player* pPlayer, GameObject* pGo)

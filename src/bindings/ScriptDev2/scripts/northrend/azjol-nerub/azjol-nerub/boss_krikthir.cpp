@@ -122,9 +122,9 @@ struct MANGOS_DLL_DECL boss_krikthirAI : public ScriptedAI
 
         switch (i)
         {
-            case 0: ID[0] = MOB_SILTHIK; ID[1] = MOB_SKIRMISHER; ID[2] = MOB_SHADOWCASTER; fSpawnX = 546.393; fSpawnY = 665.541; break;
-            case 1: ID[0] = MOB_GASHRA; ID[1] = MOB_WARRIOR; ID[2] = MOB_SKIRMISHER; fSpawnX = 529.4408; fSpawnY = 660.663; break;
-            case 2: ID[0] = MOB_NARJIL; ID[1] = MOB_SHADOWCASTER; ID[2] = MOB_WARRIOR; fSpawnX = 508.576; fSpawnY = 668.013; break;
+            case 0: ID[0] = MOB_SILTHIK; ID[1] = MOB_SKIRMISHER; ID[2] = MOB_SHADOWCASTER; fSpawnX = 546.393f; fSpawnY = 665.541f; break;
+            case 1: ID[0] = MOB_GASHRA; ID[1] = MOB_WARRIOR; ID[2] = MOB_SKIRMISHER; fSpawnX = 529.4408f; fSpawnY = 660.663f; break;
+            case 2: ID[0] = MOB_NARJIL; ID[1] = MOB_SHADOWCASTER; ID[2] = MOB_WARRIOR; fSpawnX = 508.576f; fSpawnY = 668.013f; break;
         }
 
         Creature* pMiniBoss = m_creature->SummonCreature(ID[0], fSpawnX, fSpawnY, m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);

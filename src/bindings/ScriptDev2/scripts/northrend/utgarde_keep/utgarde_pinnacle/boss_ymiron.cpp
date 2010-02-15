@@ -78,10 +78,10 @@ enum Creatures
 
 float BoatCorrds[4][2] =
 {
-    {380.319,-334.941},
-    {380.919,-314.122},
-    {404.683,-314.437},
-    {403.023,-335.461},
+    {380.319f, -334.941f},
+    {380.919f, -314.122f},
+    {404.683f, -314.437f},
+    {403.023f, -335.461f}
 };
 
 /*######
@@ -250,7 +250,7 @@ struct MANGOS_DLL_DECL boss_ymironAI : public ScriptedAI
             m_bIsBjorn = false;
         } else m_uiAbilityBJORNTimer -= uiDiff;
 
-        if((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < (100-((m_bIsRegularMode ? 33 : 20) * m_uiHealthAmountModifier)))
+        if(float(m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < float(100-((m_bIsRegularMode ? 33 : 20) * m_uiHealthAmountModifier)))
         {
             if(Creature* pSpirit = (Creature*)Unit::GetUnit(*m_creature, m_uiOrbGUID))
             {

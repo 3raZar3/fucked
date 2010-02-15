@@ -42,12 +42,12 @@ EndScriptData */
 
 float waypoint[6][3] = 
 {
-    {340.15, 58.65, 17.71},
-    {388.09, 31.54, 20.18},
-    {388.18, -32.85, 20.18},
-    {340.29, -60.19, 17.72},
-    {331, 0.01, 39},
-    {331, 0.01, -2.39}
+    {340.15f, 58.65f, 17.71f},
+    {388.09f, 31.54f, 20.18f},
+    {388.18f, -32.85f, 20.18f},
+    {340.29f, -60.19f, 17.72f},
+    {331.0f, 0.01f, 39.0f},
+    {331.0f, 0.01f, -2.39f}
 };
 
 struct MANGOS_DLL_DECL boss_alarAI : public ScriptedAI
@@ -113,7 +113,7 @@ struct MANGOS_DLL_DECL boss_alarAI : public ScriptedAI
         m_creature->SetFloatValue(OBJECT_FIELD_SCALE_X, DefaultSize);
         m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, DefaultModel);
         m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, true);
-        m_creature->RemoveMonsterMoveFlag(MONSTER_MOVE_WALK);
+        m_creature->RemoveSplineFlag(SPLINEFLAG_WALKMODE);
 
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -235,7 +235,7 @@ struct MANGOS_DLL_DECL boss_alarAI : public ScriptedAI
     {
         Moving = true;
         m_creature->GetMotionMaster()->Clear();
-        m_creature->AddMonsterMoveFlag(MONSTER_MOVE_FLY);
+        m_creature->AddSplineFlag(SPLINEFLAG_FLYING);
         m_creature->GetMotionMaster()->MovePoint(id, X, Y, Z);
     }
 
@@ -255,7 +255,7 @@ struct MANGOS_DLL_DECL boss_alarAI : public ScriptedAI
         if (MovementInform_id >= 0)
         {
             Moving = false;
-            m_creature->RemoveMonsterMoveFlag(MONSTER_MOVE_FLY);
+            m_creature->RemoveSplineFlag(SPLINEFLAG_FLYING);
             switch (MovementInform_id)
             {
                 case 0:

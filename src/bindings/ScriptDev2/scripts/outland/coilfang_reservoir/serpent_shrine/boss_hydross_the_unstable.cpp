@@ -188,7 +188,7 @@ struct MANGOS_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
                         case 5: uiMarkSpell = SPELL_MARK_OF_CORRUPTION6; break;
                     }
 
-                    DoCast(m_creature->getVictim(), uiMarkSpell);
+                    DoCastSpellIfCan(m_creature->getVictim(), uiMarkSpell);
 
                     if (m_uiMarkOfCorruption_Count < 5)
                         ++m_uiMarkOfCorruption_Count;
@@ -201,7 +201,7 @@ struct MANGOS_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
             if (m_uiVileSludge_Timer < uiDiff)
             {
                 if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pTarget, SPELL_VILE_SLUDGE);
+                    DoCastSpellIfCan(pTarget, SPELL_VILE_SLUDGE);
 
                 m_uiVileSludge_Timer = 15000;
             }else m_uiVileSludge_Timer -= uiDiff;
@@ -254,7 +254,7 @@ struct MANGOS_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
                         case 5: uiMarkSpell = SPELL_MARK_OF_HYDROSS6; break;
                     }
 
-                    DoCast(m_creature->getVictim(), uiMarkSpell);
+                    DoCastSpellIfCan(m_creature->getVictim(), uiMarkSpell);
 
                     if (m_uiMarkOfHydross_Count < 5)
                         ++m_uiMarkOfHydross_Count;
@@ -267,7 +267,7 @@ struct MANGOS_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
             if (m_uiWaterTomb_Timer < uiDiff)
             {
                 if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pTarget, SPELL_WATER_TOMB);
+                    DoCastSpellIfCan(pTarget, SPELL_WATER_TOMB);
 
                 m_uiWaterTomb_Timer = 7000;
             }else m_uiWaterTomb_Timer -= uiDiff;
@@ -304,7 +304,7 @@ struct MANGOS_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
         //EnrageTimer
         if (m_uiEnrageTimer < uiDiff)
         {
-            DoCast(m_creature, SPELL_ENRAGE);
+            DoCastSpellIfCan(m_creature, SPELL_ENRAGE);
             m_uiEnrageTimer = 60000;
         }else m_uiEnrageTimer -= uiDiff;
 

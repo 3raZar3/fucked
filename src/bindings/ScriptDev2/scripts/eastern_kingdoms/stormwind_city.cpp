@@ -167,10 +167,7 @@ enum
     CORBET_WP_32          = -1999869
 };
 
-#define CORBETT_SPAWN_X     -8774.32
-#define CORBETT_SPAWN_Y     716.87
-#define CORBETT_SPAWN_Z     99.53
-#define CORBETT_SPAWN_O     3.99
+float CorbettSpawn[4] = {-8774.32f, 716.87f, 99.53f, 3.99f};
 
 struct MANGOS_DLL_DECL npc_corbett_schneiderAI : public npc_escortAI
 {
@@ -325,7 +322,7 @@ bool ChooseReward_npc_rema_schneider(Player* pPlayer, Creature* pCreature, const
 
     if (pPlayer && pQuest->GetQuestId() == QUEST_HARLAN_RESUPPLY)
     {
-        if (Creature* pCorbett = pCreature->SummonCreature(NPC_CORBETT,CORBETT_SPAWN_X,CORBETT_SPAWN_Y,CORBETT_SPAWN_Z,CORBETT_SPAWN_O,TEMPSUMMON_CORPSE_DESPAWN,0))
+        if (Creature* pCorbett = pCreature->SummonCreature(NPC_CORBETT, CorbettSpawn[0], CorbettSpawn[1], CorbettSpawn[2], CorbettSpawn[3], TEMPSUMMON_CORPSE_DESPAWN, 0))
             if (npc_corbett_schneiderAI* pEscortAI = dynamic_cast<npc_corbett_schneiderAI*>(pCorbett->AI()))
                 pEscortAI->Start(false, false, pPlayer->GetGUID());
     }

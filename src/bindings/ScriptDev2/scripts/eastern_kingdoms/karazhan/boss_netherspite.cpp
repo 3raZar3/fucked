@@ -73,17 +73,17 @@ UPDATE `creature_template` SET `faction_A` = 35, `faction_H` = 35, `flags` = 335
 //Portal Fixed Positions
 float BasicCoords[3][3] =
 {
-    {-11137.846680, -1685.607422, 278.239258}, // red
-    {-11094.493164, -1591.969238, 279.949188}, // blue
-    {-11195.353516, -1613.237183, 278.237258}  // green
+    {-11137.846680f, -1685.607422f, 278.239258f}, // red
+    {-11094.493164f, -1591.969238f, 279.949188f}, // blue
+    {-11195.353516f, -1613.237183f, 278.237258f}  // green
 };
  
 //Portal Random Positions
 float RandomedCoords[3][3] =
 {
-    {-11094.493164, -1591.969238, 279.949188},
-    {-11195.353516, -1613.237183, 278.237258},
-    {-11137.846680, -1685.607422, 278.239258}
+    {-11094.493164f, -1591.969238f, 279.949188f},
+    {-11195.353516f, -1613.237183f, 278.237258f},
+    {-11137.846680f, -1685.607422f, 278.239258f}
 };
  
  
@@ -172,7 +172,7 @@ struct MANGOS_DLL_DECL boss_netherspiteAI : public ScriptedAI {
         Beam_periodictimer = 1000;
         ExhaustCheck_timer = 2000;
         PLRonRedBeam = false;
-        degrad10 = 0.174;
+        degrad10 = 0.174f;
         voidZones_counter = 0;
                 
                 bReset = true;

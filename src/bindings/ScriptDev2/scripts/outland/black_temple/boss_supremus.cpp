@@ -80,8 +80,8 @@ struct MANGOS_DLL_DECL molten_flameAI : public ScriptedAI
 
         m_creature->AddThreat(target, 50000000.0f);
         m_creature->GetMotionMaster()->MoveChase(target);
-        DoCast(m_creature, SPELL_DEMON_FIRE, true);
-        // DoCast(m_creature, SPELL_MOLTEN_FLAME, true); // This spell damages self, so disabled for now
+        DoCastSpellIfCan(m_creature, SPELL_DEMON_FIRE, CAST_TRIGGERED);
+        // DoCastSpellIfCan(m_creature, SPELL_MOLTEN_FLAME, CAST_TRIGGERED); // This spell damages self, so disabled for now
         TargetLocked = true;
     }
 
@@ -154,7 +154,7 @@ struct MANGOS_DLL_DECL npc_volcanoAI : public ScriptedAI
 
         if (GeyserTimer < diff)
         {
-            DoCast(m_creature, SPELL_VOLCANIC_GEYSER);
+            DoCastSpellIfCan(m_creature, SPELL_VOLCANIC_GEYSER);
             GeyserTimer = 18000;
         }else GeyserTimer -= diff;
     }
@@ -269,7 +269,7 @@ struct MANGOS_DLL_DECL boss_supremusAI : public ScriptedAI
         if (!m_creature->HasAura(SPELL_BERSERK, 0))
         {
             if (BerserkTimer < diff)
-                DoCast(m_creature, SPELL_BERSERK);
+                DoCastSpellIfCan(m_creature, SPELL_BERSERK);
             else BerserkTimer -= diff;
         }
 
@@ -302,7 +302,7 @@ struct MANGOS_DLL_DECL boss_supremusAI : public ScriptedAI
                 Unit* target = CalculateHurtfulStrikeTarget();
                 if (target)
                 {
-                    DoCast(target, SPELL_HURTFUL_STRIKE);
+                    DoCastSpellIfCan(target, SPELL_HURTFUL_STRIKE);
                     HurtfulStrikeTimer = 5000;
                 }
             }else HurtfulStrikeTimer -= diff;
@@ -331,7 +331,7 @@ struct MANGOS_DLL_DECL boss_supremusAI : public ScriptedAI
                 if (target)
                 {
 					DoScriptText(EMOTE_GROUND_CRACK, m_creature);
-					DoCast(target, SPELL_VOLCANIC_ERUPTION);
+                        DoCastSpellIfCan(target, SPELL_VOLCANIC_ERUPTION);
                     SummonVolcanoTimer = 15000;
                 }
             }else SummonVolcanoTimer -= diff;

@@ -70,16 +70,16 @@ enum
 
 float Position [10][3] =
 {
-    {-33.5, 243.3, -93.6},
-    {-61.5, 296.6, -89.8},
-    {-70.3, 259.7, -91.8},
-    {142.7, 254.0, -102.2},
-    {140.5, 219.8, -102.4},
-    {92.2, 261.9, -101.5},
-    {100.3, 268.6, -102.2},
-    {123.8, 271.9, -102.4},
-    {141.3, 255.1, -102.2},
-    {142.4, 199.7, -93.2}
+    {-33.5f, 243.3f, -93.6f},
+    {-61.5f, 296.6f, -89.8f},
+    {-70.3f, 259.7f, -91.8f},
+    {142.7f, 254.0f, -102.2f},
+    {140.5f, 219.8f, -102.4f},
+    {92.2f, 261.9f, -101.5f},
+    {100.3f, 268.6f, -102.2f},
+    {123.8f, 271.9f, -102.4f},
+    {141.3f, 255.1f, -102.2f},
+    {142.4f, 199.7f, -93.2f}
 };
 
 struct MANGOS_DLL_DECL npc_disciple_of_naralexAI : public npc_escortAI
@@ -93,13 +93,13 @@ struct MANGOS_DLL_DECL npc_disciple_of_naralexAI : public npc_escortAI
 	ScriptedInstance* m_pInstance;
     Unit* EventStarter;
 
-    int32 Event_Timer;
-    int32 Sleep_Timer;
-    int32 Potion_Timer;
-    int32 Cleansing_Timer;
+    uint32 Event_Timer;
+    uint32 Sleep_Timer;
+    uint32 Potion_Timer;
+    uint32 Cleansing_Timer;
 
-    int32 Point;
-    int8 Subevent_Phase;
+    uint32 Point;
+    uint8 Subevent_Phase;
 
     bool Yelled;
 
@@ -343,8 +343,8 @@ struct MANGOS_DLL_DECL npc_disciple_of_naralexAI : public npc_escortAI
                     Subevent_Phase = 11;
                     break;
                 case 11:
-                    m_creature->SendMonsterMove(Position[9][0],Position[9][1],Position[9][2],0,MONSTER_MOVE_FLY,5000);
-                    Naralex->SendMonsterMove(Position[9][0],Position[9][1],Position[9][2],0,MONSTER_MOVE_FLY,5000);
+                    m_creature->SendMonsterMove(Position[9][0], Position[9][1], Position[9][2], 0, SPLINEFLAG_FLYING, 5000);
+                    Naralex->SendMonsterMove(Position[9][0], Position[9][1], Position[9][2], 0, SPLINEFLAG_FLYING, 5000);
                     Event_Timer = 5000;
                     Subevent_Phase = 12;
                     break;

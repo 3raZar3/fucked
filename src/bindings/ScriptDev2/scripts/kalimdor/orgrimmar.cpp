@@ -62,7 +62,7 @@ struct MANGOS_DLL_DECL npc_eitriggAI : public ScriptedAI
     npc_eitriggAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
 
     bool bCanEmote;
-    int32 m_uiEmote_Delay;
+    uint32 m_uiEmote_Delay;
 
     void Reset()
     {
@@ -309,13 +309,13 @@ struct MANGOS_DLL_DECL npc_thrall_warchiefAI : public ScriptedAI
 
         if (ChainLightning_Timer < diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_CHAIN_LIGHTNING);
+            DoCastSpellIfCan(m_creature->getVictim(),SPELL_CHAIN_LIGHTNING);
             ChainLightning_Timer = 9000;
         }else ChainLightning_Timer -= diff;
 
         if (Shock_Timer < diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_SHOCK);
+            DoCastSpellIfCan(m_creature->getVictim(),SPELL_SHOCK);
             Shock_Timer = 15000;
         }else Shock_Timer -= diff;
 

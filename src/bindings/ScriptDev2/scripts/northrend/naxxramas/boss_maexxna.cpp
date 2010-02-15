@@ -179,8 +179,7 @@ struct MANGOS_DLL_DECL boss_maexxnaAI : public ScriptedAI
         // Web Spray
         if (m_uiWebSprayTimer < uiDiff)
         {
-            if(m_creature->getVictim())
-                m_creature->CastSpell(m_creature->getVictim(), m_bIsRegularMode ? SPELL_WEBSPRAY : H_SPELL_WEBSPRAY, false);
+            DoCast(m_creature->getVictim(), m_bIsRegularMode ? SPELL_WEBSPRAY : H_SPELL_WEBSPRAY);
             m_uiWebSprayTimer = 41000;
         }
         else
@@ -189,8 +188,7 @@ struct MANGOS_DLL_DECL boss_maexxnaAI : public ScriptedAI
         // Poison Shock
         if (m_uiPoisonShockTimer < uiDiff)
         {
-            if(m_creature->getVictim())
-                m_creature->CastSpell(m_creature->getVictim(), m_bIsRegularMode ? SPELL_POISONSHOCK : H_SPELL_POISONSHOCK, false);
+            DoCast(m_creature->getVictim(), m_bIsRegularMode ? SPELL_POISONSHOCK : H_SPELL_POISONSHOCK);
             m_uiPoisonShockTimer = 10000;
         }
         else
@@ -199,8 +197,7 @@ struct MANGOS_DLL_DECL boss_maexxnaAI : public ScriptedAI
         // Necrotic Poison
         if (m_uiNecroticPoisonTimer < uiDiff)
         {
-            if(m_creature->getVictim())
-                m_creature->CastSpell(m_creature->getVictim(), m_bIsRegularMode ? SPELL_NECROTICPOISON : H_SPELL_NECROTICPOISON, false);
+            DoCast(m_creature->getVictim(), m_bIsRegularMode ? SPELL_NECROTICPOISON : H_SPELL_NECROTICPOISON);
             m_uiNecroticPoisonTimer = 30000;
         }
         else
@@ -212,7 +209,7 @@ struct MANGOS_DLL_DECL boss_maexxnaAI : public ScriptedAI
             for(uint8 i=0; i<8; ++i)
             {
                 Creature* pSpiderling = m_creature->SummonCreature(CREATURE_SPIRDERLING, m_creature->GetPositionX()+urand(2,6), m_creature->GetPositionY()+urand(2,6), m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
-                if(pSpiderling)
+                if(pSpiderling && pSpiderling->AI())
                 {
                     if(Unit* pPlayer = SelectUnit(SELECT_TARGET_RANDOM,0))
                         pSpiderling->AI()->AttackStart(pPlayer);
@@ -231,8 +228,7 @@ struct MANGOS_DLL_DECL boss_maexxnaAI : public ScriptedAI
         //Enrage if not already enraged and below 30%
         if (!m_bEnraged && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 30)
         {
-            if(m_creature)
-                DoCast(m_creature, m_bIsRegularMode ? SPELL_FRENZY : H_SPELL_FRENZY);
+            DoCast(m_creature, m_bIsRegularMode ? SPELL_FRENZY : H_SPELL_FRENZY);
             m_bEnraged = true;
         }
 

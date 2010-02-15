@@ -148,7 +148,7 @@ extern uint32 GetSkillLevel(Player* pPlayer,uint32 skill);
 // d - Flags
 // e - Data
 // f - Location Name
-#define SEND_POI(a, b, c, d, e, f)      PlayerTalkClass->SendPointOfInterest(a, b, c, d, e, f)
+#define SEND_POI(a, b, c, d, e, f)      PlayerTalkClass->SendPointOfInterest(float(a), float(b), c, d, e, f)
 
 // Closes the Menu
 #define CLOSE_GOSSIP_MENU()        PlayerTalkClass->CloseGossip()

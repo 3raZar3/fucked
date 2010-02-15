@@ -377,19 +377,19 @@ struct MANGOS_DLL_DECL boss_felmystAI : public ScriptedAI
                 switch(m_uiMaxFogCount)
                 {
                     case 0: 
-                        m_fPosX = 1463.829;
-                        m_fPosY = 611.512;
-                        m_fPosZ = 21.57;
+                        m_fPosX = 1463.829f;
+                        m_fPosY = 611.512f;
+                        m_fPosZ = 21.57f;
                         break;
                     case 1:
-                        m_fPosX = 1471.506;
-                        m_fPosY = 591.810;
-                        m_fPosZ = 22.206;
+                        m_fPosX = 1471.506f;
+                        m_fPosY = 591.810f;
+                        m_fPosZ = 22.206f;
                         break;
                     case 2:
-                        m_fPosX = 1502.767;
-                        m_fPosY = 599.811;
-                        m_fPosZ = 26.612; 
+                        m_fPosX = 1502.767f;
+                        m_fPosY = 599.811f;
+                        m_fPosZ = 26.612f; 
                         m_uiLandPhaseTimer = 25000;
                         break;
                 }

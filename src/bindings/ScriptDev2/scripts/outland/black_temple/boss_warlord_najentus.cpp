@@ -117,7 +117,7 @@ struct MANGOS_DLL_DECL boss_najentusAI : public ScriptedAI
                 if (m_creature->HasAura(SPELL_TIDAL_SHIELD, 0))
                     m_creature->RemoveAurasDueToSpell(SPELL_TIDAL_SHIELD);
 
-                DoCast(m_creature->getVictim(), SPELL_TIDAL_BURST);
+                DoCastSpellIfCan(m_creature->getVictim(), SPELL_TIDAL_BURST);
             }
         }
     }
@@ -146,7 +146,7 @@ struct MANGOS_DLL_DECL boss_najentusAI : public ScriptedAI
                 m_creature->InterruptNonMeleeSpells(false);
 
             DoScriptText(SAY_ENRAGE2, m_creature);
-            DoCast(m_creature, SPELL_BERSERK);
+            DoCastSpellIfCan(m_creature, SPELL_BERSERK);
             m_uiEnrageTimer = MINUTE*8*IN_MILISECONDS;
         }else m_uiEnrageTimer -= diff;
 
@@ -168,7 +168,7 @@ struct MANGOS_DLL_DECL boss_najentusAI : public ScriptedAI
                 if (!target)
                     target = m_creature->getVictim();
 
-                DoCast(target, SPELL_NEEDLE_SPINE);
+                DoCastSpellIfCan(target, SPELL_NEEDLE_SPINE);
                 DoCast(target, SPELL_NEEDLE_AOE);
             }
 
@@ -190,7 +190,7 @@ struct MANGOS_DLL_DECL boss_najentusAI : public ScriptedAI
 
             if (target && (target->GetTypeId() == TYPEID_PLAYER))
             {
-                DoCast(target, SPELL_IMPALING_SPINE);
+                DoCastSpellIfCan(target, SPELL_IMPALING_SPINE);
                 m_uiImpalingSpineTimer = 20000;
 
                 DoScriptText(urand(0, 1) ? SAY_NEEDLE1 : SAY_NEEDLE2, m_creature);
@@ -200,7 +200,7 @@ struct MANGOS_DLL_DECL boss_najentusAI : public ScriptedAI
         if (m_uiTidalShieldTimer < diff)
         {
             m_creature->InterruptNonMeleeSpells(false);
-            DoCast(m_creature, SPELL_TIDAL_SHIELD, true);
+            DoCastSpellIfCan(m_creature, SPELL_TIDAL_SHIELD, CAST_TRIGGERED);
 
             m_creature->GetMotionMaster()->Clear(false);
             m_creature->GetMotionMaster()->MoveIdle();

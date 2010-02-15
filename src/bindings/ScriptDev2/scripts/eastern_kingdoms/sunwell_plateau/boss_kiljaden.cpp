@@ -183,10 +183,10 @@ enum creature_ids
  
 float OrbSpawn [4][2] =
 {
-    {1853.300,588.653},
-    {1698.900,627.870},
-    {1781.502,659.254},
-    {1853.300,588.653},
+    {1853.300f, 588.653f}, 
+    {1698.900f, 627.870f}, 
+    {1781.502f, 659.254f}, 
+    {1853.300f, 588.653f} 
 };
 
 float DragonSpawnCoord[4][2] =
@@ -529,7 +529,9 @@ struct MANGOS_DLL_DECL boss_kiljadenAI : public Scripted_NoMovementAI
         if((m_uiKalecgosTimer < diff) && !m_bIsKalecgosSpawned)
         {
             DoPlaySoundToSet(m_creature, SAY_KALECGOS_JOIN);
-            if(Creature* cKalecgos = m_creature->SummonCreature(ID_KALECGOS, m_creature->GetPositionX()-25, m_creature->GetPositionY()-25, m_creature->GetPositionZ(), 0.686, TEMPSUMMON_TIMED_DESPAWN, 600000))
+            float x, y, z;
+            m_creature->GetClosePoint(x, y, z, m_creature->GetObjectSize(), 15.0f, urand(0, 6));
+            if(Creature* cKalecgos = m_creature->SummonCreature(ID_KALECGOS, x, y, z, 0.686f, TEMPSUMMON_TIMED_DESPAWN, 600000))
             {
                 m_uiKalecgosGUID = cKalecgos->GetGUID();
                 cKalecgos->setFaction(35);
@@ -1105,12 +1107,18 @@ struct MANGOS_DLL_DECL mob_kiljaeden_controllerAI : public Scripted_NoMovementAI
 
         if(!m_bIsProhetSpawned)
         {
-            Creature* Velen = m_creature->SummonCreature(ID_VELEN, m_creature->GetPositionX()+15, m_creature->GetPositionY()+15, m_creature->GetPositionZ(), 3.874, TEMPSUMMON_TIMED_DESPAWN, 360000);
-            Velen->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            Velen->setFaction(35);
-            Creature* Liadrin = m_creature->SummonCreature(ID_LIADRIN, m_creature->GetPositionX()+20, m_creature->GetPositionY()+17, m_creature->GetPositionZ(), 3.874, TEMPSUMMON_TIMED_DESPAWN, 360000);
-            Liadrin->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            Liadrin->setFaction(35);
+            float x, y, z;
+            m_creature->GetClosePoint(x, y, z, m_creature->GetObjectSize(), 15.0f, urand(0, 6));
+            if (Creature* Velen = m_creature->SummonCreature(ID_VELEN, x, y, z, 3.874f, TEMPSUMMON_TIMED_DESPAWN, 360000))
+            {
+                Velen->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                Velen->setFaction(35);
+            }
+            if (Creature* Liadrin = m_creature->SummonCreature(ID_LIADRIN, x, y, z, 3.874f, TEMPSUMMON_TIMED_DESPAWN, 360000))
+            {
+                Liadrin->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                Liadrin->setFaction(35);
+            }
             m_bIsProhetSpawned = true;
         }
 

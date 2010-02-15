@@ -68,10 +68,10 @@ enum
 
 float fCoord[4][4] =
 {
-    {296.498169,-346.462433,90.547546,0},
-    {299.563782,-343.736572,90.559288,3.93},
-    {293.811676,-343.331238,90.529503,5.340091},
-    {296.490417,-349.221039,90.5550446,1.578029},
+    {296.498169f, -346.462433f, 90.547546f, 0.0f}, 
+    {299.563782f, -343.736572f, 90.559288f, 3.93f}, 
+    {293.811676f, -343.331238f, 90.529503f, 5.340091f}, 
+    {296.490417f, -349.221039f, 90.5550446f, 1.578029f} 
 };
 
 /*######
@@ -162,8 +162,8 @@ struct MANGOS_DLL_DECL boss_svalaAI : public ScriptedAI
 
     void Aggro(Unit* pWho)
     {
-        if (m_creature->HasMonsterMoveFlag(MONSTER_MOVE_SPLINE))
-            m_creature->RemoveMonsterMoveFlag(MONSTER_MOVE_SPLINE);
+        if (m_creature->HasSplineFlag(SPLINEFLAG_FLYING))
+            m_creature->RemoveSplineFlag(SPLINEFLAG_FLYING);
 
         DoScriptText(SAY_AGGRO, m_creature);
     }
@@ -218,7 +218,7 @@ struct MANGOS_DLL_DECL boss_svalaAI : public ScriptedAI
         float fX, fZ, fY;
         m_creature->GetRespawnCoord(fX, fY, fZ);
 
-        m_creature->AddMonsterMoveFlag(MONSTER_MOVE_SPLINE);
+        m_creature->AddSplineFlag(SPLINEFLAG_FLYING);
 
         m_creature->SendMonsterMoveWithSpeed(fX, fY, fZ + 5.0f, m_uiIntroTimer);
         m_creature->GetMap()->CreatureRelocation(m_creature, fX, fY, fZ + 5.0f, m_creature->GetOrientation());

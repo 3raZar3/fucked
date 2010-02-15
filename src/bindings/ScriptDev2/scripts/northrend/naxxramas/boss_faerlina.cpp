@@ -174,9 +174,8 @@ struct MANGOS_DLL_DECL boss_faerlinaAI : public ScriptedAI
         // Poison Bolt Volley
         if (m_uiPoisonBoltVolleyTimer < uiDiff)
         {
-            if(m_creature->getVictim())
-                m_creature->CastSpell(m_creature->getVictim(), m_bIsRegularMode ? SPELL_POSIONBOLT_VOLLEY : H_SPELL_POSIONBOLT_VOLLEY, true);
-            m_uiPoisonBoltVolleyTimer = urand(7000,12000);
+            DoCastSpellIfCan(m_creature->getVictim(), SPELL_POSIONBOLT_VOLLEY);
+            m_uiPoisonBoltVolleyTimer = urand(7000, 12000);
         }
         else
             m_uiPoisonBoltVolleyTimer -= uiDiff;
@@ -185,7 +184,7 @@ struct MANGOS_DLL_DECL boss_faerlinaAI : public ScriptedAI
         if (m_uiRainOfFireTimer < uiDiff)
         {
             if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                m_creature->CastSpell(pTarget, m_bIsRegularMode ? SPELL_RAINOFFIRE1 : SPELL_RAINOFFIRE_H, true);
+                DoCast(pTarget, m_bIsRegularMode ? SPELL_RAINOFFIRE1 : SPELL_RAINOFFIRE_H);
 
             m_uiRainOfFireTimer = 10000;
         }
@@ -195,8 +194,7 @@ struct MANGOS_DLL_DECL boss_faerlinaAI : public ScriptedAI
         //Enrage_Timer
         if (m_uiEnrageTimer < uiDiff)
         {
-            if(m_creature)
-                DoCast(m_creature, SPELL_ENRAGE);
+            DoCastSpellIfCan(m_creature, SPELL_ENRAGE);
             m_uiEnrageTimer = urand(30000,50000);
         }
         else 

@@ -58,8 +58,8 @@ uint32 m_uiUndeadList[3] =
 
 float  fAddsPos[2][3] = 
 {
-    {2692.4526, -3420.8408, 267.688},
-    {2689.0485, -3300.6027, 267.683}
+    {2692.4526f, -3420.8408f, 267.688f},
+    {2689.0485f, -3300.6027f, 267.683f}
 };
 
 struct MANGOS_DLL_DECL boss_gothikAI : public ScriptedAI

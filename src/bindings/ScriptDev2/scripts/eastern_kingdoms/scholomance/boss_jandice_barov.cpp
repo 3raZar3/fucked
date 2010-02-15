@@ -82,7 +82,7 @@ struct MANGOS_DLL_DECL boss_jandicebarovAI : public ScriptedAI
         //m_uiCurseOfBlood_Timer
         if (m_uiCurseOfBlood_Timer < uiDiff)
         {
-            DoCast(m_creature->getVictim(),SPELL_CURSEOFBLOOD);
+            DoCast(m_creature->getVictim(), SPELL_CURSEOFBLOOD);
             m_uiCurseOfBlood_Timer = 30000;
         }else m_uiCurseOfBlood_Timer -= uiDiff;
 
@@ -113,7 +113,7 @@ struct MANGOS_DLL_DECL mob_illusionofjandicebarovAI : public ScriptedAI
         //Cleave_Timer
         if (Cleave_Timer < uiDiff)
         {
-            DoCast(m_creature->getVictim(),SPELL_CLEAVE);
+            DoCastSpellIfCan(m_creature->getVictim(),SPELL_CLEAVE);
             Cleave_Timer = urand(5000, 8000);
         }else Cleave_Timer -= uiDiff;
 

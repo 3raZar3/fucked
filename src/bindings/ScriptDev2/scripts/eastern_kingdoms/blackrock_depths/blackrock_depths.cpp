@@ -66,7 +66,7 @@ enum
     SAY_MACHINE                 = -1799999
 };
 
-float MachineLoc[] = {437.1,-1.96379,-70.7342};
+float MachineLoc[4] = {437.1f, -1.96379f, -70.7342f, 0.0f};
 
 bool GOHello_go_mole_console(Player* pPlayer, GameObject* pGo)
 {
@@ -92,7 +92,7 @@ bool GOHello_go_mole_console(Player* pPlayer, GameObject* pGo)
         pPlayer->CastSpell(pPlayer,49846,true);
     }
 
-    Creature* bunny = pGo->SummonCreature(MOB_MOLE_BUNNY,MachineLoc[0],MachineLoc[1],MachineLoc[2],0,TEMPSUMMON_TIMED_DESPAWN,30000);
+    Creature* bunny = pGo->SummonCreature(MOB_MOLE_BUNNY, MachineLoc[0], MachineLoc[1], MachineLoc[2], MachineLoc[3], TEMPSUMMON_TIMED_DESPAWN,30000);
     if (bunny)
     {
         bunny->CastSpell(bunny,SPELL_RUBLE,true);
@@ -195,7 +195,7 @@ bool AreaTrigger_at_ring_of_law(Player* pPlayer, AreaTriggerEntry *at)
             return false;
 
         pInstance->SetData(TYPE_RING_OF_LAW,IN_PROGRESS);
-        pPlayer->SummonCreature(NPC_GRIMSTONE,625.559,-205.618,-52.735,2.609,TEMPSUMMON_DEAD_DESPAWN,0);
+        pPlayer->SummonCreature(NPC_GRIMSTONE,625.559f, -205.618f, -52.735f, 2.609f, TEMPSUMMON_DEAD_DESPAWN, 0);
 
         return false;
     }
@@ -259,7 +259,7 @@ struct MANGOS_DLL_DECL npc_grimstoneAI : public npc_escortAI
     //TODO: move them to center
     void SummonRingMob()
     {
-        if (Creature* tmp = m_creature->SummonCreature(RingMob[MobSpawnId],608.960,-235.322,-53.907,1.857,TEMPSUMMON_DEAD_DESPAWN,0))
+        if (Creature* tmp = m_creature->SummonCreature(RingMob[MobSpawnId], 608.960f, -235.322f, -53.907f, 1.857f, TEMPSUMMON_DEAD_DESPAWN,0))
             RingMobGUID[MobCount] = tmp->GetGUID();
 
         ++MobCount;
@@ -271,7 +271,7 @@ struct MANGOS_DLL_DECL npc_grimstoneAI : public npc_escortAI
     //TODO: move them to center
     void SummonRingBoss()
     {
-        if (Creature* tmp = m_creature->SummonCreature(RingBoss[rand()%6],644.300,-175.989,-53.739,3.418,TEMPSUMMON_DEAD_DESPAWN,0))
+        if (Creature* tmp = m_creature->SummonCreature(RingBoss[rand()%6], 644.300f, -175.989f, -53.739f, 3.418f, TEMPSUMMON_DEAD_DESPAWN,0))
             RingBossGUID = tmp->GetGUID();
 
         MobDeath_Timer = 2500;
@@ -464,7 +464,7 @@ struct MANGOS_DLL_DECL mob_phalanxAI : public ScriptedAI
         //ThunderClap_Timer
         if (ThunderClap_Timer < diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_THUNDERCLAP);
+            DoCastSpellIfCan(m_creature->getVictim(),SPELL_THUNDERCLAP);
             ThunderClap_Timer = 10000;
         }else ThunderClap_Timer -= diff;
 
@@ -473,7 +473,7 @@ struct MANGOS_DLL_DECL mob_phalanxAI : public ScriptedAI
         {
             if (FireballVolley_Timer < diff)
             {
-                DoCast(m_creature->getVictim(),SPELL_FIREBALLVOLLEY);
+                DoCastSpellIfCan(m_creature->getVictim(),SPELL_FIREBALLVOLLEY);
                 FireballVolley_Timer = 15000;
             }else FireballVolley_Timer -= diff;
         }
@@ -481,7 +481,7 @@ struct MANGOS_DLL_DECL mob_phalanxAI : public ScriptedAI
         //MightyBlow_Timer
         if (MightyBlow_Timer < diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_MIGHTYBLOW);
+            DoCastSpellIfCan(m_creature->getVictim(),SPELL_MIGHTYBLOW);
             MightyBlow_Timer = 10000;
         }else MightyBlow_Timer -= diff;
 

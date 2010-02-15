@@ -113,7 +113,7 @@ struct MANGOS_DLL_DECL boss_brutallusAI : public ScriptedAI
         DoScriptText(YELL_AGGRO, m_creature);
 	    DoPlaySoundToSet(m_creature, 12463);
 
-        Creature* Madrigosa = m_creature->SummonCreature(CREATURE_MADRIGOSA, 1465.831, 647.065, m_creature->GetPositionZ(), 4.729, TEMPSUMMON_TIMED_DESPAWN, 42000);
+        Creature* Madrigosa = m_creature->SummonCreature(CREATURE_MADRIGOSA, 1465.831f, 647.065f, m_creature->GetPositionZ(), 4.729f, TEMPSUMMON_TIMED_DESPAWN, 42000);
     }
 
     void KilledUnit(Unit* pVictim)
@@ -237,7 +237,7 @@ struct MANGOS_DLL_DECL boss_brutallusAI : public ScriptedAI
         if (m_uiSlashTimer < uiDiff)
         {
             if (Unit* pTarget = m_creature->getVictim())
-                DoCast(pTarget,SPELL_METEOR_SLASH);
+                DoCast(pTarget, SPELL_METEOR_SLASH);
             m_uiSlashTimer = 11000;
         }else m_uiSlashTimer -= uiDiff;
 
@@ -245,7 +245,7 @@ struct MANGOS_DLL_DECL boss_brutallusAI : public ScriptedAI
         {
             if (Unit* pTarget = m_creature->getVictim())
             {
-                DoCast(pTarget,SPELL_STOMP);
+                DoCastSpellIfCan(pTarget,SPELL_STOMP);
 
                 if (pTarget->HasAura(SPELL_BURN_AURA,0))
                    pTarget->RemoveAurasDueToSpell(SPELL_BURN_AURA);
@@ -257,10 +257,11 @@ struct MANGOS_DLL_DECL boss_brutallusAI : public ScriptedAI
 
         if (m_uiBurnTimer < uiDiff)
         {
-            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+            if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
             {
-                DoCast(target,SPELL_BURN);
-                target->CastSpell(target,SPELL_BURN_AURA, true);
+                //so we get owner, in case unit was pet/totem/etc
+                if (Player* pPlayer = pTarget->GetCharmerOrOwnerPlayerOrPlayerItself())
+                    DoCastSpellIfCan(pPlayer, SPELL_BURN);
             }
             m_uiBurnTimer = 60000;
         }
@@ -269,7 +270,7 @@ struct MANGOS_DLL_DECL boss_brutallusAI : public ScriptedAI
         if (m_uiBerserkTimer < uiDiff)
         {
             DoScriptText(YELL_BERSERK, m_creature);
-            DoCast(m_creature,SPELL_BERSERK);
+            DoCastSpellIfCan(m_creature,SPELL_BERSERK);
             m_uiBerserkTimer = 20000;
         }
         else

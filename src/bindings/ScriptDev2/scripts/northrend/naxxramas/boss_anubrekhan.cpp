@@ -169,7 +169,7 @@ struct MANGOS_DLL_DECL boss_anubrekhanAI : public ScriptedAI
             if (!m_creature->HasAura(SPELL_LOCUSTSWARM) || !m_creature->HasAura(SPELL_LOCUSTSWARM_H))
             {
                 if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-                    DoCast(target, m_bIsRegularMode ? SPELL_IMPALE : SPELL_IMPALE_H);
+                    DoCastSpellIfCan(target, m_bIsRegularMode ? SPELL_IMPALE : SPELL_IMPALE_H);
             }
 
             m_uiImpaleTimer = 15000;
@@ -180,8 +180,7 @@ struct MANGOS_DLL_DECL boss_anubrekhanAI : public ScriptedAI
         // Locust Swarm
         if (m_uiLocustSwarmTimer < uiDiff)
         {
-            if(m_creature)
-                DoCast(m_creature, m_bIsRegularMode ? SPELL_LOCUSTSWARM : SPELL_LOCUSTSWARM_H);
+            DoCastSpellIfCan(m_creature, m_bIsRegularMode ? SPELL_LOCUSTSWARM :SPELL_LOCUSTSWARM_H);
             m_uiLocustSwarmTimer = 90000;
 
             Creature* Guard = m_creature->SummonCreature(NPC_CRYPT_GUARD, m_creature->GetPositionX(), m_creature->GetPositionY()+10, m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
@@ -200,7 +199,7 @@ struct MANGOS_DLL_DECL boss_anubrekhanAI : public ScriptedAI
         // Summon
         /*if (m_uiSummonTimer < uiDiff)
         {
-            DoCast(m_creature, SPELL_SUMMONGUARD);
+            DoCastSpellIfCan(m_creature, SPELL_SUMMONGUARD);
             Summon_Timer = 45000;
         }
         else
