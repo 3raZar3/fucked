@@ -2268,6 +2268,20 @@ void Aura::TriggerSpell()
                 target->CastCustomSpell(target, trigger_spell_id, &mana, NULL, NULL, true, NULL, this);
                 return;
             }
+			// Penance effects
+            case 47758:
+            case 47757:
+            case 53001:
+            case 52986:
+            case 53002:
+            case 52987:
+            case 53003:
+            case 52988:
+            {
+                if (Unit* caster = GetCaster())
+                    caster->CastSpell(target, triggeredSpellInfo, true, NULL, this, casterGUID);
+                return;
+            }
         }
     }
 
