@@ -3558,10 +3558,10 @@ void Spell::EffectApplyAreaAura(uint32 i)
     if (!unitTarget->isAlive())
         return;
 
-    // return if effect is not stacking
-    if (m_spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AREA_AURA_RAID)
+    // reapply Flametongue Totem aura (prevent to stack at spec switch)
+    if (m_spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AREA_AURA_RAID && m_spellInfo->SpellFamilyFlags & (0x0000000002000000))
         if (unitTarget->HasAura(m_spellInfo->Id))
-            return;
+            unitTarget->RemoveAurasDueToSpell(m_spellInfo->Id);
 
     AreaAura* Aur = new AreaAura(m_spellInfo, i, &m_currentBasePoints[i], unitTarget, m_caster, m_CastItem);
     unitTarget->AddAura(Aur);
