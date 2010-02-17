@@ -23,7 +23,7 @@ SDCategory: Drak'Tharon Keep
 EndScriptData */
 
 #include "precompiled.h"
-#include "drak_tharon_keep.h"
+#include "instance_draktharon_keep.h"
 
 enum
 {
