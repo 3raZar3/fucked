@@ -28,7 +28,7 @@ char const *SPELL_TABLE = "dbc_spell";
 #define SPELL_DBC_CLIENT_BUILD  11159 // 3.3.0a
 
 #define SPELL_DBC_COLUMN_NUMS   240
-#define SPELL_DBC_ROWS_NUMS     73191
+#define SPELL_DBC_ROWS_NUMS     74446
 
 // Spell.dbc struct: MaNGOS 9310
 char const *spell_translation[SPELL_DBC_COLUMN_NUMS][2] =
