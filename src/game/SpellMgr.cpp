@@ -1346,6 +1346,10 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     if (spellInfo_1->Id == 42556 || spellInfo_1->Id == 42403 || spellInfo_1->Id == 43105)
                         return false;
 
+                    // Ymiron - channel spirit to ymiron should stack with everything
+                    if (spellInfo_1->Id == 48316 || spellInfo_2->Id == 48316)
+                        return false;
+
                     // Pulsing Pumpkin visual auras (Headless Horseman event)
                     if ((spellInfo_1->Id == 42280 && spellInfo_2->Id == 42294) ||
                         (spellInfo_2->Id == 42280 && spellInfo_1->Id == 42294))
