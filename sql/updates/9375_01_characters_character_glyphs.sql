@@ -1,5 +1,6 @@
 ALTER TABLE character_db_version CHANGE COLUMN required_9374_01_characters_character_glyphs required_9375_01_characters_character_glyphs bit;
 
+RENAME TABLE `character_glyphs` TO `character_glyphs_old`; 
 DROP TABLE IF EXISTS `character_glyphs`;
 CREATE TABLE `character_glyphs` (
   `guid` INT(11) UNSIGNED NOT NULL,
