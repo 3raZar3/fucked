@@ -1749,7 +1749,7 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     if (!pEnchant)
                         return;
 
-                    for (int s=0;s<3;s++)
+                    for (int s = 0; s < 3; ++s)
                     {
                         if (pEnchant->type[s]!=ITEM_ENCHANTMENT_TYPE_COMBAT_SPELL)
                             continue;
@@ -2207,7 +2207,7 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
     }
 
     // Script based implementation. Must be used only for not good for implementation in core spell effects
-    // So called only for not proccessed cases
+    // So called only for not processed cases
     if (gameObjTarget)
         Script->EffectDummyGameObj(m_caster, m_spellInfo->Id, eff_idx, gameObjTarget);
     else if (unitTarget && unitTarget->GetTypeId()==TYPEID_UNIT)
