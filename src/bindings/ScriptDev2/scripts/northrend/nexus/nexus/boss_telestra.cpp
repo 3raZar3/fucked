@@ -90,7 +90,7 @@ struct MANGOS_DLL_DECL boss_telestraAI : public ScriptedAI
     uint32 m_uiIceNovaTimer;
     uint32 m_uiGravityWellTimer;
 
-    std::list<Creature*> lAddsList;
+    std::list<unit64> lAddsList;
 
     void Reset()
     {
@@ -98,8 +98,8 @@ struct MANGOS_DLL_DECL boss_telestraAI : public ScriptedAI
         {
             for(std::list<Creature*>::iterator itr = lAddsList.begin(); itr != lAddsList.end(); ++itr)
             {
-                if((*itr) && (*itr)->isAlive())
-                    (*itr)->ForcedDespawn();
+                if(Creature* pCreature = (Creature*)Unit::GetUnit((*m_creature), *itr))
+                    pCreature->ForcedDespawn();
             }
             lAddsList.clear();
         }
@@ -204,7 +204,7 @@ struct MANGOS_DLL_DECL boss_telestraAI : public ScriptedAI
                 pSummoned->AI()->AttackStart(pTarget);
 
         // store creature in list
-        lAddsList.push_back(pSummoned);
+        lAddsList.push_back(pSummoned->GetGUID());
     }
 
     void UpdateAI(const uint32 uiDiff)
