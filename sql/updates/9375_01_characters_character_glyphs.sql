@@ -19,3 +19,4 @@ INSERT INTO `character_glyphs` SELECT `guid`, `spec`, 4, `glyph5` FROM `characte
 INSERT INTO `character_glyphs` SELECT `guid`, `spec`, 5, `glyph6` FROM `character_glyphs_old`;
  
 DELETE FROM character_glyphs WHERE glyph = 0;
+DROP TABLE IF EXISTS `character_glyphs_old`;
