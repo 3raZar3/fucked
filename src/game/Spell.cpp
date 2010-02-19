@@ -583,7 +583,7 @@ void Spell::FillTargetMap()
                         switch(m_spellInfo->Id)
                         {
                             case 10252:
-                                SetTargetMap(i, m_spellInfo->EffectImplicitTargetB[i], tmpUnitMap);
+                                SetTargetMap(SpellEffectIndex(i), m_spellInfo->EffectImplicitTargetB[i], tmpUnitMap);
                                 if (!tmpUnitMap.empty())
                                 {
                                     for (std::list<Unit*>::iterator itr = tmpUnitMap.begin(); itr != tmpUnitMap.end();)
@@ -599,7 +599,7 @@ void Spell::FillTargetMap()
                                 }
                                 break;
                             case 10258:
-                                SetTargetMap(i, m_spellInfo->EffectImplicitTargetB[i], tmpUnitMap);
+                                SetTargetMap(SpellEffectIndex(i), m_spellInfo->EffectImplicitTargetB[i], tmpUnitMap);
                                 if (!tmpUnitMap.empty())
                                 {
                                     for (std::list<Unit*>::iterator itr = tmpUnitMap.begin(); itr != tmpUnitMap.end();)
@@ -623,8 +623,8 @@ void Spell::FillTargetMap()
                         break;
 
                     default:
-                        SetTargetMap(i, m_spellInfo->EffectImplicitTargetA[i], tmpUnitMap);
-                        SetTargetMap(i, m_spellInfo->EffectImplicitTargetB[i], tmpUnitMap);
+                        SetTargetMap(SpellEffectIndex(i), m_spellInfo->EffectImplicitTargetA[i], tmpUnitMap);
+                        SetTargetMap(SpellEffectIndex(i), m_spellInfo->EffectImplicitTargetB[i], tmpUnitMap);
                         break;
                 }
                 break;

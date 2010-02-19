@@ -2390,7 +2390,7 @@ void Spell::EffectTriggerSpell(SpellEffectIndex effIndex)
         case 43657:
         {
             SpellEntry const* spell = sSpellStore.LookupEntry(triggered_spell_id);
-            Aura* aura = m_caster->GetAura(43648, 1);
+            Aura* aura = m_caster->GetAura(43648, effIndex);
             if (aura && spell)
             {
                 int32 basedmg = spell->EffectBasePoints[0];
@@ -3562,7 +3562,7 @@ void Spell::EffectApplyAreaAura(SpellEffectIndex eff_idx)
         return;
 
     // reapply Flametongue Totem aura (prevent to stack at spec switch)
-    if (m_spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AREA_AURA_RAID && m_spellInfo->SpellFamilyFlags & (0x0000000002000000))
+    if (m_spellInfo->Effect[eff_idx] == SPELL_EFFECT_APPLY_AREA_AURA_RAID && m_spellInfo->SpellFamilyFlags & (0x0000000002000000))
         if (unitTarget->HasAura(m_spellInfo->Id))
             unitTarget->RemoveAurasDueToSpell(m_spellInfo->Id);
 
@@ -3597,8 +3597,8 @@ void Spell::EffectSummonType(SpellEffectIndex eff_idx)
                         DoSummonTotem(eff_idx);
 
                     // Snake trap exception
-                    else if (m_spellInfo->EffectMiscValueB[i] == 2301)
-                        EffectSummonSnakes(i);
+                    else if (m_spellInfo->EffectMiscValueB[eff_idx] == 2301)
+                        EffectSummonSnakes(eff_idx);
 
                     else
                         DoSummonWild(eff_idx, summon_prop->FactionId);
@@ -3674,7 +3674,7 @@ void Spell::EffectSummonType(SpellEffectIndex eff_idx)
 // Used only for snake trap
 void Spell::EffectSummonSnakes(SpellEffectIndex eff_idx)
 {
-    uint32 creature_entry = m_spellInfo->EffectMiscValue[i];
+    uint32 creature_entry = m_spellInfo->EffectMiscValue[eff_idx];
     if (!creature_entry || !m_caster)
         return;
 
@@ -4316,10 +4316,10 @@ void Spell::EffectEnchantItemPerm(SpellEffectIndex eff_idx)
     // Enchanting a vellum requires special handling, as it creates a new item
     // instead of modifying an existing one.
     ItemPrototype const* targetProto = itemTarget->GetProto();
-    if(targetProto->IsVellum() && m_spellInfo->EffectItemType[effect_idx])
+    if(targetProto->IsVellum() && m_spellInfo->EffectItemType[eff_idx])
     {
         unitTarget = m_caster;
-        DoCreateItem(effect_idx,m_spellInfo->EffectItemType[effect_idx]);
+        DoCreateItem(eff_idx,m_spellInfo->EffectItemType[eff_idx]);
         // Vellum target case: Target becomes additional reagent, new scroll item created instead in Spell::EffectEnchantItemPerm()
         // cannot already delete in TakeReagents() unfortunately
         p_caster->DestroyItemCount(targetProto->ItemId, 1, true);
@@ -5498,7 +5498,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     if (!unitTarget)
                         return;
                     // lift up!
-                    unitTarget->SendMonsterMove(unitTarget->GetPositionX(), unitTarget->GetPositionY(), unitTarget->GetPositionZ()+ 20, 0, SPLINEFLAG_PITCH_UP, 1000, 0);
+                    unitTarget->SendMonsterMove(unitTarget->GetPositionX(), unitTarget->GetPositionY(), unitTarget->GetPositionZ()+ 20, SPLINETYPE_NORMAL, SPLINEFLAG_PITCH_UP, 1000, 0);
                     // set cloud auround caster
                     unitTarget->CastSpell(unitTarget, 45213, true);
                     // set safe spot below caster
