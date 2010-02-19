@@ -5614,6 +5614,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                         unitTarget->RemoveAurasDueToSpell(48763);
                     return;
                 }
+                // Avenging Spirits (summon Avenging Spirit Summoners)
                 case 48590:
                 {
                     if (!unitTarget)
@@ -5622,7 +5623,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     unitTarget->CastSpell(unitTarget, 48586, true);
                     unitTarget->CastSpell(unitTarget, 48587, true);
                     unitTarget->CastSpell(unitTarget, 48588, true);
-                    unitTraget->CastSpell(unitTarget, 48589, true);
+                    unitTarget->CastSpell(unitTarget, 48589, true);
                     return;
                 }
                 // Emblazon Runeblade
