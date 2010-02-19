@@ -1,35 +1,40 @@
-/* Copyright (C) 2006 - 2010 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- * This program is free software licensed under GPL version 2
- * Please see the included DOCS/LICENSE.TXT for more information */
- 
-#ifndef DEF_DRAKTHARON_KEEP_H
-#define DEF_DRAKTHARON_KEEP_H
+/*
+* Copyright (C) 2008-2010 Trinity <http://www.trinitycore.org/>
+*
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+*/
 
-enum
+#ifndef DEF_DRAK_THARON_H
+#define DEF_DRAK_THARON_H
+enum Data
 {
-    MAX_ENCOUNTER               = 5,
-    
-    // boss GUIDs
-    DATA_TROLLGORE              = 1,
-    DATA_NOVOS                  = 2,
-    DATA_DREK                   = 3,
-    DATA_THARONJA               = 4,
-
-    // boss Encounters
-    TYPE_TROLLGORE              = 5,
-    TYPE_NOVOS                  = 6,
-    TYPE_DREK                   = 7,
-    TYPE_THARONJA               = 8,
-
-    // helper Encounters
-    TYPE_CRYSTAL_EVENT          = 9,
-
-    SPELL_BEAM_CHANNELING       = 52106,
-    NPC_CRYSTAL_CHANNEL_TARGET  = 26712,
-    GO_RITUAL_CRYSTAL_SW        = 189299,
-    GO_RITUAL_CRYSTAL_NE        = 189300,
-    GO_RITUAL_CRYSTAL_NW        = 189301,
-    GO_RITUAL_CRYSTAL_SE        = 189302,
-    CRYSTAL_NUMBER              = 4
+    DATA_TROLLGORE_EVENT,
+    DATA_NOVOS_EVENT,
+    DATA_DRED_EVENT,
+    DATA_THARON_JA_EVENT,
+    DATA_KING_DRED_ACHIEV
+};
+enum Data64
+{
+    DATA_TROLLGORE,
+    DATA_NOVOS,
+    DATA_DRED,
+    DATA_THARON_JA,
+    DATA_NOVOS_CRYSTAL_1,
+    DATA_NOVOS_CRYSTAL_2,
+    DATA_NOVOS_CRYSTAL_3,
+    DATA_NOVOS_CRYSTAL_4
 };
 #endif

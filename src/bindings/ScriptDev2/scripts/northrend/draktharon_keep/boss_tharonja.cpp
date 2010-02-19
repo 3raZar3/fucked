@@ -1,97 +1,265 @@
-/* Copyright (C) 2006 - 2010 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- */
+/*
+* Copyright (C) 2008-2010 Trinity <http://www.trinitycore.org/>
+*
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+*/
 
-/* ScriptData
-SDName: Boss_Tharonja
-SD%Complete: 20%
-SDAuthor: Aramil
+/* Script Data Start
+SDName: Boss Tharon'ja
+SDAuthor: Tartalo modified by Aramil for MaNGOS
+SD%Complete: 100
 SDComment:
-SDCategory: Drak'Tharon Keep
-EndScriptData */
+SDCategory:
+Script Data End */
+
+/*** SQL START ***
+update creature_template set scriptname = 'boss_tharon_ja' where entry = '';
+*** SQL END ***/
 
 #include "precompiled.h"
 #include "instance_draktharon_keep.h"
 
-enum
+enum Spells
 {
-    SAY_AGGRO                       = -1600012,
-    SAY_KILL_1                      = -1600013,
-    SAY_KILL_2                      = -1600014,
-    SAY_FLESH_1                     = -1600015,
-    SAY_FLESH_2                     = -1600016,
-    SAY_SKELETON_1                  = -1600017,
-    SAY_SKELETON_2                  = -1600018,
-    SAY_DEATH                       = -1600019
+    //skeletal spells (phase 1)
+    SPELL_CURSE_OF_LIFE                                    = 49527,
+    H_SPELL_CURSE_OF_LIFE                                  = 59972,
+    SPELL_RAIN_OF_FIRE                                     = 49518,
+    H_SPELL_RAIN_OF_FIRE                                   = 59971,
+    SPELL_SHADOW_VOLLEY                                    = 49528,
+    H_SPELL_SHADOW_VOLLEY                                  = 59973,
+    SPELL_DECAY_FLESH                                      = 49356, //casted at end of phase 1, starts phase 2
+    //flesh spells (phase 2)
+    SPELL_GIFT_OF_THARON_JA                                = 52509,
+    SPELL_EYE_BEAM                                         = 49544,
+    H_SPELL_EYE_BEAM                                       = 59965,
+    SPELL_LIGHTNING_BREATH                                 = 49537,
+    H_SPELL_LIGHTNING_BREATH                               = 59963,
+    SPELL_POISON_CLOUD                                     = 49548,
+    H_SPELL_POISON_CLOUD                                   = 59969,
+    SPELL_RETURN_FLESH                                     = 53463 //Channeled spell ending phase two and returning to phase 1. This ability will stun the party for 6 seconds.
+};
+/* not needed
+enum PlayerSkills
+{
+    //Players' skills during Phase2
+    SPELL_PLAYER_PHASE2_SLAYING_STRIKE                     = 50799,
+    SPELL_PLAYER_PHASE2_TAUNT                              = 49613,
+    SPELL_PLAYER_PHASE2_BONE_ARMOR                         = 49609,
+    SPELL_PLAYER_PHASE2_TOUCH_OF_LIFE                      = 49617
+};
+*/
+//not in db
+enum Yells
+{
+    SAY_AGGRO                                              = -1600011,
+    SAY_KILL_1                                             = -1600012,
+    SAY_KILL_2                                             = -1600013,
+    SAY_FLESH_1                                            = -1600014,
+    SAY_FLESH_2                                            = -1600015,
+    SAY_SKELETON_1                                         = -1600016,
+    SAY_SKELETON_2                                         = -1600017,
+    SAY_DEATH                                              = -1600018
+};
+enum Models
+{
+    MODEL_FLESH                                            = 27073,
+    MODEL_SKELETON                                         = 27511
+};
+enum CombatPhase
+{
+    SKELETAL,
+    GOING_FLESH,
+    FLESH,
+    GOING_SKELETAL
 };
 
-/*######
-## boss_tharonja
-######*/
-
-struct MANGOS_DLL_DECL boss_tharonjaAI : public ScriptedAI
+struct MANGOS_DLL_DECL boss_tharon_jaAI : public ScriptedAI
 {
-    boss_tharonjaAI(Creature* pCreature) : ScriptedAI(pCreature)
+    boss_tharon_jaAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
         m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
         m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
         Reset();
     }
 
+    uint32 uiPhaseTimer;
+    uint32 uiCurseOfLifeTimer;
+    uint32 uiRainOfFireTimer;
+    uint32 uiShadowVolleyTimer;
+    uint32 uiEyeBeamTimer;
+    uint32 uiLightningBreathTimer;
+    uint32 uiPoisonCloudTimer;
+    
+    CombatPhase Phase;
+
+	bool m_bIsRegularMode;
+
     ScriptedInstance* m_pInstance;
-    bool m_bIsRegularMode;
 
     void Reset()
     {
+        uiPhaseTimer = 20000;
+        uiCurseOfLifeTimer = 1000;
+        uiRainOfFireTimer = urand(14000,18000);
+        uiShadowVolleyTimer = urand(8000,10000);
+        Phase = SKELETAL;
+        m_creature->SetDisplayId(m_creature->GetNativeDisplayId());
+        if (m_pInstance)
+            m_pInstance->SetData(DATA_THARON_JA_EVENT, NOT_STARTED);
     }
-
-    void Aggro(Unit* pWho)
+    
+    void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
-    }
 
-    void KilledUnit(Unit* pVictim)
-    {
-        DoScriptText(urand(0, 1) ? SAY_KILL_1 : SAY_KILL_2, m_creature);
+        if (m_pInstance)
+            m_pInstance->SetData(DATA_THARON_JA_EVENT, IN_PROGRESS);
     }
-
-    void JustDied(Unit* pKiller)
+    
+    void UpdateAI(const uint32 diff)
     {
-        DoScriptText(SAY_DEATH, m_creature);
-    }
-
-    void UpdateAI(const uint32 uiDiff)
-    {
+        //Return since we have no target
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
-        DoMeleeAttackIfReady();
+        switch (Phase)
+        {
+            case SKELETAL:
+                if (uiCurseOfLifeTimer < diff)
+                {
+                    if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1))
+						DoCast(target, m_bIsRegularMode ? SPELL_CURSE_OF_LIFE : H_SPELL_CURSE_OF_LIFE);
+                    uiCurseOfLifeTimer = urand(10000,15000);
+                } else uiCurseOfLifeTimer -= diff;
+                
+                if (uiShadowVolleyTimer < diff)
+                {
+					DoCast(m_creature->getVictim(),m_bIsRegularMode ? SPELL_SHADOW_VOLLEY : H_SPELL_SHADOW_VOLLEY);
+                    uiShadowVolleyTimer = urand(8000,10000);
+                } else uiShadowVolleyTimer -= diff;
+                
+                if (uiRainOfFireTimer < diff)
+                {
+					DoCast(m_creature, m_bIsRegularMode ? SPELL_RAIN_OF_FIRE : H_SPELL_RAIN_OF_FIRE);
+                    uiRainOfFireTimer = urand(14000,18000);
+                } else uiRainOfFireTimer -= diff;
+                
+                if (uiPhaseTimer < diff)
+                {
+					DoCast(m_creature->getVictim(), SPELL_DECAY_FLESH);
+                    Phase = GOING_FLESH;
+                    uiPhaseTimer = 6000;
+                } else uiPhaseTimer -= diff;
+
+                DoMeleeAttackIfReady();
+                break;
+            case GOING_FLESH:
+                if (uiPhaseTimer < diff)
+                {
+                    DoScriptText(urand(SAY_FLESH_1,SAY_FLESH_2),m_creature);
+                    m_creature->SetDisplayId(MODEL_FLESH);
+                    Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1);
+                        if (target)
+                        {
+							/* target->AddAura(SPELL_GIFT_OF_THARON_JA); */
+                            target->SetDisplayId(MODEL_SKELETON);
+                        }
+                    uiPhaseTimer = 20000;
+                    uiLightningBreathTimer = urand(3000,4000);
+                    uiEyeBeamTimer = urand(4000,8000);
+                    uiPoisonCloudTimer = urand(6000,7000);
+                    Phase = FLESH;
+                } else uiPhaseTimer -= diff;
+                break;
+            case FLESH:
+                if (uiLightningBreathTimer < diff)
+                {
+                    if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1))
+						DoCast(target, m_bIsRegularMode ? SPELL_LIGHTNING_BREATH : H_SPELL_LIGHTNING_BREATH);
+                    uiLightningBreathTimer = urand(6000,7000);
+                } else uiLightningBreathTimer -= diff;
+
+                if (uiEyeBeamTimer < diff)
+                {
+                    if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1))
+						DoCast(target, m_bIsRegularMode ? SPELL_EYE_BEAM : H_SPELL_EYE_BEAM);
+                    uiEyeBeamTimer = urand(4000,6000);
+                } else uiEyeBeamTimer -= diff;
+
+                if (uiPoisonCloudTimer < diff)
+                {
+					DoCast(m_creature, m_bIsRegularMode ? SPELL_POISON_CLOUD : H_SPELL_POISON_CLOUD);
+                    uiPoisonCloudTimer = urand(10000,12000);
+                } else uiPoisonCloudTimer -= diff;
+                
+                if (uiPhaseTimer < diff)
+                {
+                    DoCast(m_creature, SPELL_RETURN_FLESH);
+                    Phase = GOING_SKELETAL;
+                    uiPhaseTimer = 6000;
+                } else uiPhaseTimer -= diff;
+                DoMeleeAttackIfReady();
+                break;
+            case GOING_SKELETAL:
+                if (uiPhaseTimer < diff)
+                {
+                    DoScriptText(urand(SAY_SKELETON_1,SAY_SKELETON_2), m_creature);
+                    m_creature->DeMorph();
+                    Phase = SKELETAL;
+                    uiPhaseTimer = 20000;
+                    uiCurseOfLifeTimer = 1000;
+                    uiRainOfFireTimer = urand(14000,18000);
+                    uiShadowVolleyTimer = urand(8000,10000);
+                    Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1);
+                        if (target && target->GetTypeId() == TYPEID_PLAYER)
+                        {
+                            /*if (target->HasAura(SPELL_GIFT_OF_THARON_JA))
+                                target->RemoveAura(SPELL_GIFT_OF_THARON_JA); */
+                            target->DeMorph();
+                        }
+                } else uiPhaseTimer -= diff;
+                break;
+        }
+    }
+
+    void KilledUnit(Unit *victim)
+    {
+        DoScriptText(urand(SAY_KILL_1,SAY_KILL_2),m_creature);
+    }
+
+    void JustDied(Unit* killer)
+    {
+        DoScriptText(SAY_DEATH,m_creature);
+
+        if (m_pInstance)
+            m_pInstance->SetData(DATA_THARON_JA_EVENT, DONE);
     }
 };
 
-CreatureAI* GetAI_boss_tharonja(Creature* pCreature)
+CreatureAI* GetAI_boss_tharon_ja(Creature* pCreature)
 {
-    return new boss_tharonjaAI(pCreature);
+    return new boss_tharon_jaAI (pCreature);
 }
 
-void AddSC_boss_tharonja()
+void AddSC_boss_tharon_ja()
 {
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name = "boss_tharonja";
-    newscript->GetAI = &GetAI_boss_tharonja;
+    newscript->Name = "boss_tharon_ja";
+    newscript->GetAI = &GetAI_boss_tharon_ja;
     newscript->RegisterSelf();
 }

@@ -273,6 +273,7 @@ extern void AddSC_boss_krikthir();
 extern void AddSC_instance_azjol_nerub();
 extern void AddSC_boss_novos();                             //draktharon_keep
 extern void AddSC_boss_tharonja();
+extern void AddSC_boss_dred();
 extern void AddSC_boss_trollgore();
 extern void AddSC_instance_draktharon_keep();
 extern void AddSC_boss_colossus();                          //gundrak
@@ -691,6 +692,7 @@ void AddScripts()
     AddSC_boss_novos();                                     //draktharon_keep
     AddSC_boss_tharonja();
     AddSC_boss_trollgore();
+	AddSC_boss_dred();
 	AddSC_instance_draktharon_keep();
     AddSC_boss_colossus();                                  //gundrak
     AddSC_boss_galdarah();
