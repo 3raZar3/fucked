@@ -99,8 +99,8 @@ struct MANGOS_DLL_DECL boss_telestraAI : public ScriptedAI
             for(std::list<uint64>::iterator itr = lAddsList.begin(); itr != lAddsList.end(); ++itr)
             {
                 if(Creature* pAdd = (Creature*)Unit::GetUnit((*m_creature),*itr))
-                    if (Add->isAlive())
-                        Add->ForcedDespawn();
+                    if (pAdd->isAlive())
+                        pAdd->ForcedDespawn();
             }
             lAddsList.clear();
         }
