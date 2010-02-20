@@ -144,9 +144,9 @@ void WorldSession::HandleMoveWorldportAckOpcode()
         {
             if (mapDiff->resetTime)
             {
-                if (uint32 timeReset = sInstanceSaveMgr.GetResetTimeFor(mEntry->MapID,diff))
+                if (time_t timeReset = sInstanceSaveMgr.GetResetTimeFor(mEntry->MapID,diff))
                 {
-                    uint32 timeleft = timeReset - time(NULL);
+                    uint32 timeleft = uint32(timeReset - time(NULL));
                     GetPlayer()->SendInstanceResetWarning(mEntry->MapID, diff, timeleft);
                 }
             }
@@ -442,6 +442,17 @@ void WorldSession::HandleSetActiveMoverOpcode(WorldPacket &recv_data)
 
     uint64 guid;
     recv_data >> guid;
+
+    if(!guid)
+    {
+        sLog.outError("HandleSetActiveMoverOpcode: called with NULL guid");
+        return;
+    }
+    if(!_player)
+    {
+        sLog.outError("HandleSetActiveMoverOpcode: called with NULL _player");
+        return;
+    }
 
     if(_player->m_mover->GetGUID() != guid)
     {

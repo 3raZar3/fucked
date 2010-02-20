@@ -47,7 +47,7 @@ enum
 class MANGOS_DLL_DECL KazrogalMark : public Aura
 {
     public:
-        KazrogalMark(SpellEntry *spellInfo, uint32 eff, int32 *bp, Unit *target, Unit *caster) : Aura(spellInfo, eff, bp, target, caster, NULL)
+        KazrogalMark(SpellEntry *spellInfo, SpellEffectIndex eff, int32 *bp, Unit *target, Unit *caster) : Aura(spellInfo, eff, bp, target, caster, NULL)
             {}
 };
 
@@ -126,12 +126,12 @@ struct MANGOS_DLL_DECL boss_kazrogalAI : public ScriptedAI
                 Unit *target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
                 if (target && target->GetTypeId() == TYPEID_PLAYER && target->getPowerType() == POWER_MANA)
                 {
-                    for(uint32 i=0 ;i<3; ++i)
+                    for(uint32 i=0; i < MAX_EFFECT_INDEX; ++i)
                     {
-                        uint8 eff = spellInfo->Effect[i];
-                        if (eff>=TOTAL_SPELL_EFFECTS)
+                        uint8 eff = spellInfo->Effect[SpellEffectIndex(i)];
+                        if (eff >= TOTAL_SPELL_EFFECTS)
                             continue;
-                        target->AddAura(new KazrogalMark(spellInfo, i, NULL, target, target));
+                        target->AddAura(new KazrogalMark(spellInfo, SpellEffectIndex(i), NULL, target, target));
                     }    
                 }
             }

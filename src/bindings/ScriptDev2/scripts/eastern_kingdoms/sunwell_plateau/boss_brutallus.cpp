@@ -247,8 +247,8 @@ struct MANGOS_DLL_DECL boss_brutallusAI : public ScriptedAI
             {
                 DoCastSpellIfCan(pTarget,SPELL_STOMP);
 
-                if (pTarget->HasAura(SPELL_BURN_AURA,0))
-                   pTarget->RemoveAurasDueToSpell(SPELL_BURN_AURA);
+                if (pTarget->HasAura(SPELL_BURN_AURA, EFFECT_INDEX_0))
+                    pTarget->RemoveAurasDueToSpell(SPELL_BURN_AURA);
             }
             m_uiStompTimer = 30000;
         }
@@ -269,9 +269,11 @@ struct MANGOS_DLL_DECL boss_brutallusAI : public ScriptedAI
 
         if (m_uiBerserkTimer < uiDiff)
         {
+            if (DoCastSpellIfCan(m_creature,SPELL_BERSERK) == CAST_OK)
+            {
             DoScriptText(YELL_BERSERK, m_creature);
-            DoCastSpellIfCan(m_creature,SPELL_BERSERK);
             m_uiBerserkTimer = 20000;
+        }
         }
         else
             m_uiBerserkTimer -= uiDiff;

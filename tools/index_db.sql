@@ -128,10 +128,10 @@ ALTER TABLE `character_tutorial` ADD KEY `acc_key` (`account`);
 
 ALTER TABLE `corpse` DROP PRIMARY KEY;
 ALTER TABLE `corpse` ADD PRIMARY KEY  (`guid`);
-ALTER TABLE `corpse` DROP KEY `idx_type`;
-ALTER TABLE `corpse` ADD KEY `idx_type` (`corpse_type`);
 ALTER TABLE `corpse` DROP KEY `instance`;
 ALTER TABLE `corpse` ADD KEY `instance` (`instance`);
+ALTER TABLE `corpse` DROP KEY `idx_type`;
+ALTER TABLE `corpse` ADD KEY `idx_type` (`corpse_type`);
 
 ALTER TABLE `groups` DROP PRIMARY KEY;
 ALTER TABLE `groups` ADD PRIMARY KEY  (`leaderGuid`);

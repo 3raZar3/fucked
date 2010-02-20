@@ -26,6 +26,7 @@ extern void AddSC_guards();
 extern void AddSC_item_scripts();
 extern void AddSC_npc_professions();
 extern void AddSC_npcs_special();
+extern void AddSC_spell_scripts();
 extern void AddSC_npc_small_pet_handler();
 
 //eastern kingdoms
@@ -273,7 +274,6 @@ extern void AddSC_boss_krikthir();
 extern void AddSC_instance_azjol_nerub();
 extern void AddSC_boss_novos();                             //draktharon_keep
 extern void AddSC_boss_tharonja();
-extern void AddSC_boss_dred();
 extern void AddSC_boss_trollgore();
 extern void AddSC_instance_draktharon_keep();
 extern void AddSC_boss_colossus();                          //gundrak
@@ -444,6 +444,7 @@ void AddScripts()
     AddSC_item_scripts();
     AddSC_npc_professions();
     AddSC_npcs_special();
+    AddSC_spell_scripts();
 	AddSC_npc_small_pet_handler();
 
     //eastern kingdoms
@@ -692,7 +693,6 @@ void AddScripts()
     AddSC_boss_novos();                                     //draktharon_keep
     AddSC_boss_tharonja();
     AddSC_boss_trollgore();
-	AddSC_boss_dred();
 	AddSC_instance_draktharon_keep();
     AddSC_boss_colossus();                                  //gundrak
     AddSC_boss_galdarah();

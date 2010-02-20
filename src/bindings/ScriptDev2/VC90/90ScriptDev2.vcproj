@@ -1715,10 +1715,6 @@
 					Name="draktharon_keep"
 					>
 					<File
-						RelativePath="..\scripts\northrend\draktharon_keep\boss_dred.cpp"
-						>
-					</File>
-					<File
 						RelativePath="..\scripts\northrend\draktharon_keep\boss_novos.cpp"
 						>
 					</File>
@@ -2693,6 +2689,10 @@
 				</File>
 				<File
 					RelativePath="..\scripts\world\npcs_special.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\world\spell_scripts.cpp"
 					>
 				</File>
 			</Filter>

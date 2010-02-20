@@ -94,7 +94,7 @@ uint32 WildMagic[]= { 44978, 45001, 45002, 45004, 45006, 45010 };
 class MANGOS_DLL_DECL WildMagicA : public Aura
 {
     public:
-        WildMagicA(SpellEntry* spellInfo, uint32 eff, int32 *bp, Unit* target, Unit* caster) : Aura(spellInfo, eff, bp, target, caster, NULL)
+        WildMagicA(SpellEntry* spellInfo, SpellEffectIndex eff, int32 *bp, Unit* target, Unit* caster) : Aura(spellInfo, eff, bp, target, caster, NULL)
             {}
 };
 
@@ -197,12 +197,12 @@ struct MANGOS_DLL_DECL boss_kalecgosAI : public ScriptedAI
         {
                 if (pTarget && pTarget->IsWithinDistInMap(m_creature, 50))
                 {
-                    for(uint32 i=0 ;i<3; ++i)
+                    for(uint8 i=0 ;i< MAX_EFFECT_INDEX; ++i)
                     {
-                        uint8 eff = pSpellInfo->Effect[i];
-                        if (eff>=TOTAL_SPELL_EFFECTS)
+                        uint8 eff = pSpellInfo->Effect[SpellEffectIndex(i)];
+                        if (eff >= TOTAL_SPELL_EFFECTS)
                             continue;
-                        pTarget->AddAura(new WildMagicA(pSpellInfo, i, NULL, pTarget, pTarget));
+                        pTarget->AddAura(new WildMagicA(pSpellInfo, SpellEffectIndex(i), NULL, pTarget, pTarget));
                     }
                     m_uiWildMagicTimer = 19000;
                 }else m_uiWildMagicTimer = 1000;
@@ -311,21 +311,27 @@ struct MANGOS_DLL_DECL boss_kalecgosAI : public ScriptedAI
         //Simple Spelss
         if (m_uiArcaneBuffetTimer < uiDiff)
         {
-            if (urand(0, 2) == 0 && bSathrospawnd)
-                DoScriptText(SAY_EVIL_SPELL1, m_creature);
+            if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_ARCANE_BUFFET) == CAST_OK)
+            {
 
-            DoCastSpellIfCan(m_creature->getVictim(), SPELL_ARCANE_BUFFET);
-            m_uiArcaneBuffetTimer = 8000;
-        }else m_uiArcaneBuffetTimer -= uiDiff;
+                m_uiArcaneBuffetTimer = 20000;
+            }
+        }
+        else
+            m_uiArcaneBuffetTimer -= uiDiff;
 
         if (m_uiFrostBreathTimer < uiDiff)
         {
-            if (urand(0, 2) == 0 && bSathrospawnd)
+            if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_FROST_BREATH) == CAST_OK)
+            {
+                if (!urand(0, 1))
                 DoScriptText(SAY_EVIL_SPELL2, m_creature);
 
-            DoCastSpellIfCan(m_creature->getVictim(), SPELL_FROST_BREATH);
             m_uiFrostBreathTimer = 25000;
-        }else m_uiFrostBreathTimer -= uiDiff;
+            }
+        }
+        else
+            m_uiFrostBreathTimer -= uiDiff;
 
         if (m_uiTailLashTimer < uiDiff)
         {

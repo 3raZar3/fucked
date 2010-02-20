@@ -216,11 +216,11 @@ struct MANGOS_DLL_DECL boss_coren_direbrewAI : public npc_escortAI
                     switch(Walk)
                     {
                         case 0:
-                            m_creature->SendMonsterMove(Coord[3][0],Coord[3][1],Coord[3][2],0,SPLINEFLAG_WALKMODE,6000);
+                            m_creature->SendMonsterMove(Coord[3][0],Coord[3][1],Coord[3][2],SPLINETYPE_NORMAL,SPLINEFLAG_WALKMODE,6000);
                             Walk = 1;
                             break;
                         case 1:
-                            m_creature->SendMonsterMove(Coord[4][0],Coord[4][1],Coord[4][2],0,SPLINEFLAG_WALKMODE,6000);
+                            m_creature->SendMonsterMove(Coord[4][0],Coord[4][1],Coord[4][2],SPLINETYPE_NORMAL,SPLINEFLAG_WALKMODE,6000);
                             Walk = 0;
                             break;
                     }

@@ -54,7 +54,7 @@ EndScriptData */
 class MANGOS_DLL_DECL Bloodboil : public Aura
 {
     public:
-        Bloodboil(SpellEntry *spellInfo, uint32 eff, int32 *bp, Unit *target, Unit *caster) : Aura(spellInfo, eff, bp, target, caster, NULL)
+        Bloodboil(SpellEntry *spellInfo, SpellEffectIndex effIndex, int32 *bp, Unit *target, Unit *caster) : Aura(spellInfo, effIndex, bp, target, caster, NULL)
             {}
 };
 
@@ -168,13 +168,13 @@ struct MANGOS_DLL_DECL boss_gurtogg_bloodboilAI : public ScriptedAI
             {
                 Unit* target = *itr;
                 if (!target) return;
-                for(uint32 i = 0;i<3; ++i)
+                for(uint8 i = 0; i< MAX_EFFECT_INDEX; ++i)
                 {
-                    uint8 eff = spellInfo->Effect[i];
-                    if (eff>=TOTAL_SPELL_EFFECTS)
+                    uint8 eff = spellInfo->Effect[SpellEffectIndex(i)];
+                    if (eff >= TOTAL_SPELL_EFFECTS)
                         continue;
 
-                    target->AddAura(new Bloodboil(spellInfo, i, NULL, target, target));
+                    target->AddAura(new Bloodboil(spellInfo, SpellEffectIndex(i), NULL, target, target));
                 }
             }
     }
@@ -212,12 +212,12 @@ struct MANGOS_DLL_DECL boss_gurtogg_bloodboilAI : public ScriptedAI
             FelAcidTimer = 25000;
         }else FelAcidTimer -= diff;
 
-        if (!m_creature->HasAura(SPELL_BERSERK, 0))
+        if (!m_creature->HasAura(SPELL_BERSERK, EFFECT_INDEX_0))
         {
             if (EnrageTimer < diff)
             {
-                DoCastSpellIfCan(m_creature, SPELL_BERSERK);
-                DoScriptText(urand(0, 1) ? SAY_ENRAGE1 : SAY_ENRAGE2, m_creature);
+                if (DoCastSpellIfCan(m_creature, SPELL_BERSERK) == CAST_OK)
+                    DoScriptText(urand(0, 1) ? SAY_ENRAGE1 : SAY_ENRAGE2, m_creature);
             }else EnrageTimer -= diff;
         }
 

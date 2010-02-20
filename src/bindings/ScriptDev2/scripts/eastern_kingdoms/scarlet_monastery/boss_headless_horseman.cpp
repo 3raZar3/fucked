@@ -357,7 +357,7 @@ struct MANGOS_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
                         pEntered = true; 
                         break;
                     default:
-                        m_creature->SendMonsterMove(FlightPoint[point_id][0], FlightPoint[point_id][1], FlightPoint[point_id][2], 0, SPLINEFLAG_WALKMODE,999);
+                        m_creature->SendMonsterMove(FlightPoint[point_id][0], FlightPoint[point_id][1], FlightPoint[point_id][2], SPLINETYPE_NORMAL, SPLINEFLAG_WALKMODE,999);
                         ++point_id;
                         break;
                 }

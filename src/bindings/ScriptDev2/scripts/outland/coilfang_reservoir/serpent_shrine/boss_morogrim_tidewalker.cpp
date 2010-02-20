@@ -330,7 +330,7 @@ struct MANGOS_DLL_DECL mob_tidewalker_lurkerAI : public ScriptedAI
 
         if (m_uiCarnivorousBite_Timer < uiDiff)
         {
-			if (m_creature->getVictim()->GetAura(SPELL_CRAVANIOUS_BITE,0))
+			if (m_creature->getVictim()->HasAura(SPELL_CRAVANIOUS_BITE))
 				return;
 
 			m_creature->CastSpell(m_creature->getVictim(),SPELL_CRAVANIOUS_BITE,false);
