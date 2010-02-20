@@ -1,28 +1,5 @@
 START TRANSACTION; /* Transaction is used due to the destructive nature of these queries, if anything fails the transaction should abort, and the updates should be applied manually. */
 
-CREATE TABLE `character_glyphs` (
-  `guid` int(11) unsigned NOT NULL,
-  `spec` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `glyph1` int(11) unsigned NOT NULL DEFAULT '0',
-  `glyph2` int(11) unsigned DEFAULT '0',
-  `glyph3` int(11) unsigned DEFAULT '0',
-  `glyph4` int(11) unsigned DEFAULT '0',
-  `glyph5` int(11) unsigned DEFAULT '0',
-  `glyph6` int(11) unsigned DEFAULT '0',
-  PRIMARY KEY (`guid`,`spec`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- Get glyphs from correct field in data blob and insert into character_glyphs as spec = 0
-INSERT INTO `character_glyphs` 
-SELECT `guid`, 0,
-(CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(`data`, ' ', 1319),  ' ', -1) AS UNSIGNED)) AS `glyph1`,
-(CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(`data`, ' ', 1320),  ' ', -1) AS UNSIGNED)) AS `glyph2`,
-(CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(`data`, ' ', 1321),  ' ', -1) AS UNSIGNED)) AS `glyph3`,
-(CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(`data`, ' ', 1322),  ' ', -1) AS UNSIGNED)) AS `glyph4`,
-(CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(`data`, ' ', 1323),  ' ', -1) AS UNSIGNED)) AS `glyph5`,
-(CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(`data`, ' ', 1324),  ' ', -1) AS UNSIGNED)) AS `glyph6` 
-FROM `characters`;
-
 CREATE TABLE `character_talent` (
   `guid` int(11) unsigned NOT NULL,
   `spell` int(11) unsigned NOT NULL,
@@ -38,21 +15,5 @@ DELETE FROM `character_spell` WHERE `spell` IN (12505,12522,12523,12524,12525,12
 
 /* Machiavelli & Nonox - Some missed talents: */
 DELETE FROM `character_spell` WHERE `spell` IN (3674,5420,9800,19263,20927,20928,20929,20930,24905,27174,27179,31904,32699,32700,33072,33891,34123,48359,48824,48825,48826,48827,48951,48952,50170,50171,50172,50306,50536,51373,51374,51375,51376,51378,51379,52881,53640,55265,55270,55271,57019,57224,62795,63668,63669,63670,63671,63672,64299,65139);
-
-ALTER TABLE `characters` ADD `speccount` tinyint(3) unsigned NOT NULL default 1 AFTER `arenaPoints`;
-ALTER TABLE `characters` ADD `activespec` tinyint(3) unsigned NOT NULL default 0 AFTER `speccount`;
-
-ALTER TABLE `character_action` RENAME `character_action_old`;
-CREATE TABLE `character_action` (
-  `guid` int(11) unsigned NOT NULL default '0',
-  `spec` tinyint(3) unsigned NOT NULL default '0',
-  `button` tinyint(3) unsigned NOT NULL default '0',
-  `action` int(11) unsigned NOT NULL default '0',
-  `type` tinyint(3) unsigned NOT NULL default '0',
-  PRIMARY KEY  (`guid`,`spec`,`button`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
-INSERT INTO `character_action` (`guid`,`button`,`action`,`type`) SELECT `guid`,`button`,`action`,`type` FROM `character_action_old`;
-DROP TABLE `character_action_old`;
-
 
 COMMIT;

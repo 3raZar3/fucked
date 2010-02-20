@@ -343,8 +343,8 @@ struct MANGOS_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
             if (!plr)
                 continue;
 
-            if (std::find(SpectralRealmList.begin(),SpectralRealmList.end(),plr->GetGUID())!=SpectralRealmList.end() &&
-                !plr->HasAura(SPELL_SPECTRAL_REALM, 0))
+            if (std::find(SpectralRealmList.begin(), SpectralRealmList.end(), plr->GetGUID())!=SpectralRealmList.end() &&
+                !plr->HasAura(SPELL_SPECTRAL_REALM))
             {
                 EjectPlayer(plr);
             }

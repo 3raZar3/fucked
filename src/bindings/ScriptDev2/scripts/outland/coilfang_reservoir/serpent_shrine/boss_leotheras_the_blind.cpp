@@ -92,7 +92,7 @@ enum
 class MANGOS_DLL_DECL InsidiousAura : public Aura
 {
 public:
-	InsidiousAura (SpellEntry *spell, uint32 eff, int32 *bp, Unit *target, Unit *caster) : Aura(spell, eff, bp, target, caster, NULL)
+	InsidiousAura (SpellEntry *spell, SpellEffectIndex effIndex, int32 *bp, Unit *target, Unit *caster) : Aura(spell, effIndex, bp, target, caster, NULL)
 	{}
 };
 
@@ -117,7 +117,7 @@ struct MANGOS_DLL_DECL mob_inner_demonAI : public ScriptedAI
 	void JustDied(Unit *victim)
     {
 		Unit* pUnit = Unit::GetUnit((*m_creature),victimGUID);
-		if (pUnit && pUnit->HasAura(SPELL_INSIDIOUS_WHISPER,0))
+		if (pUnit && pUnit->HasAura(SPELL_INSIDIOUS_WHISPER))
 			pUnit->RemoveAurasDueToSpell(SPELL_INSIDIOUS_WHISPER);
 	}
 
@@ -154,7 +154,7 @@ struct MANGOS_DLL_DECL mob_inner_demonAI : public ScriptedAI
 		}else Link_Timer -= diff;
 
 
-		if(!m_creature->HasAura(AURA_DEMONIC_ALIGNMENT, 0))
+		if(!m_creature->HasAura(AURA_DEMONIC_ALIGNMENT))
 			DoCast(m_creature, AURA_DEMONIC_ALIGNMENT,true);
 
 		if(ShadowBolt_Timer < diff)
@@ -276,7 +276,7 @@ struct MANGOS_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
 
 	void MoveInLineOfSight(Unit *who)
     {
-		if(m_creature->HasAura(AURA_BANISH, 0))
+		if(m_creature->HasAura(AURA_BANISH))
 			return;
 
 		if( !m_creature->getVictim() && who->isTargetableForAttack() && ( m_creature->IsHostileTo( who )) && who->isInAccessablePlaceFor(m_creature) )
@@ -312,7 +312,7 @@ struct MANGOS_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
 	void CheckBanish()
     {
 		// channelers == 0 remove banish aura
-		if(channelers == 0 && m_creature->HasAura(AURA_BANISH, 0))
+		if(channelers == 0 && m_creature->HasAura(AURA_BANISH))
 		{	
 			// removing banish aura
 			m_creature->RemoveAurasDueToSpell(AURA_BANISH);
@@ -335,7 +335,7 @@ struct MANGOS_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
         }
 			
     }
-		else if (channelers != 0 && !m_creature->HasAura(AURA_BANISH, 0))
+		else if (channelers != 0 && !m_creature->HasAura(AURA_BANISH))
 		{
 			// channelers != 0 apply banish aura
 			// removing Leotheras banish immune to apply AURA_BANISH
@@ -477,7 +477,7 @@ struct MANGOS_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-		if (m_creature->HasAura(AURA_BANISH, 0))
+		if (m_creature->HasAura(AURA_BANISH))
 			return;
 
 		m_creature->LoadEquipment(m_creature->GetEquipmentId());
@@ -487,13 +487,13 @@ struct MANGOS_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
     void UpdateAI (const uint32 diff)
     {
         //Return since we have no target
-		if (m_creature->HasAura(AURA_BANISH, 0) || !m_creature->SelectHostileTarget() || !m_creature->getVictim())
+		if (m_creature->HasAura(AURA_BANISH) || !m_creature->SelectHostileTarget() || !m_creature->getVictim())
 		{
 			CheckBanish();
 			return;
         }
 
-		if (m_creature->HasAura(SPELL_WHIRLWIND, 0))
+		if (m_creature->HasAura(SPELL_WHIRLWIND))
 			if (Whirlwind_Timer < diff)
         {
 				Unit *newTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
@@ -507,7 +507,7 @@ struct MANGOS_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
 			}else Whirlwind_Timer -= diff;
 
 		// reseting after changing forms and after ending whirlwind
-		if (NeedThreatReset && !m_creature->HasAura(SPELL_WHIRLWIND, 0))
+		if (NeedThreatReset && !m_creature->HasAura(SPELL_WHIRLWIND))
 		{	
 			// and reseting attack timer to 0
 			m_creature->setAttackTimer(BASE_ATTACK, 0);
@@ -535,7 +535,7 @@ struct MANGOS_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
         if (!DemonForm)
         {
             //Whirlwind_Timer
-			if (!m_creature->HasAura(SPELL_WHIRLWIND, 0))
+			if (!m_creature->HasAura(SPELL_WHIRLWIND))
 			{
 				if (Whirlwind_Timer < diff)
 				{
@@ -616,11 +616,11 @@ struct MANGOS_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
 							((ScriptedAI *)demon->AI())->AttackStart( (*itr) );
 							((mob_inner_demonAI *)demon->AI())->victimGUID = (*itr)->GetGUID();
 
-							for (int i=0; i<3; i++)
+							for (int i = 0; i < MAX_EFFECT_INDEX; i++)
 							{
-								if (!spell->Effect[i])
+								if (!spell->Effect[SpellEffectIndex(i)])
 									continue;
-								(*itr)->AddAura(new InsidiousAura(spell, i, NULL, (*itr), (*itr)));
+								(*itr)->AddAura(new InsidiousAura(spell,SpellEffectIndex(i), NULL, (*itr), (*itr)));
 							}
 							if (InnderDemon_Count > 4) InnderDemon_Count = 0;
 							//Safe storing of creatures

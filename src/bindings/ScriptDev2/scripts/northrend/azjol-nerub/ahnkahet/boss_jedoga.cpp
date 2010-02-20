@@ -111,7 +111,7 @@ struct MANGOS_DLL_DECL boss_jedogaAI : public ScriptedAI
         if(m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
-        if(m_creature->HasAura(SPELL_GIFT,0))
+        if(m_creature->HasAura(SPELL_GIFT))
             m_creature->RemoveAurasDueToSpell(SPELL_GIFT);
     }
 
@@ -250,7 +250,7 @@ struct MANGOS_DLL_DECL boss_jedogaAI : public ScriptedAI
             if(pVolunteer && pVolunteer->isAlive())
             {
                 pVolunteer->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                if(pVolunteer->HasAura(SPELL_SPHERE_VISUAL,0))
+                if(pVolunteer->HasAura(SPELL_SPHERE_VISUAL))
                 {
                     pVolunteer->RemoveAurasDueToSpell(SPELL_SPHERE_VISUAL);
                     m_creature->GetMap()->CreatureRelocation(pVolunteer, m_creature->GetPositionX()+1, m_creature->GetPositionY()+1, m_creature->GetPositionZ(), m_creature->GetOrientation());

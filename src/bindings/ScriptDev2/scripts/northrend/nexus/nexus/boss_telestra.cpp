@@ -90,16 +90,17 @@ struct MANGOS_DLL_DECL boss_telestraAI : public ScriptedAI
     uint32 m_uiIceNovaTimer;
     uint32 m_uiGravityWellTimer;
 
-    std::list<unit64> lAddsList;
+    std::list<uint64> lAddsList;
 
     void Reset()
     {
         if (!lAddsList.empty())
         {
-            for(std::list<Creature*>::iterator itr = lAddsList.begin(); itr != lAddsList.end(); ++itr)
+            for(std::list<uint64>::iterator itr = lAddsList.begin(); itr != lAddsList.end(); ++itr)
             {
-                if(Creature* pCreature = (Creature*)Unit::GetUnit((*m_creature), *itr))
-                    pCreature->ForcedDespawn();
+                if(Creature* pAdd = (Creature*)Unit::GetUnit((*m_creature),*itr))
+                    if (Add->isAlive())
+                        Add->ForcedDespawn();
             }
             lAddsList.clear();
         }
@@ -238,7 +239,7 @@ struct MANGOS_DLL_DECL boss_telestraAI : public ScriptedAI
 
                     if (m_uiPhase == PHASE_1 && m_creature->GetHealth()*100 < m_creature->GetMaxHealth()*50)
                     {
-                        if (DoCastSpellIfCan(m_creature, SPELL_SUMMON_CLONES, CAST_INTURRUPT_PREVIOUS) == CAST_OK)
+                        if (DoCastSpellIfCan(m_creature, SPELL_SUMMON_CLONES, CAST_INTERRUPT_PREVIOUS) == CAST_OK)
                         {
                             DoScriptText(urand(0, 1) ? SAY_SPLIT_1 : SAY_SPLIT_2, m_creature);
                             m_uiPhase = PHASE_2;
@@ -247,7 +248,7 @@ struct MANGOS_DLL_DECL boss_telestraAI : public ScriptedAI
 
                     if (m_uiPhase == PHASE_3 && !m_bIsRegularMode && m_creature->GetHealth()*100 < m_creature->GetMaxHealth()*15)
                     {
-                        if (DoCastSpellIfCan(m_creature, SPELL_SUMMON_CLONES, CAST_INTURRUPT_PREVIOUS) == CAST_OK)
+                        if (DoCastSpellIfCan(m_creature, SPELL_SUMMON_CLONES, CAST_INTERRUPT_PREVIOUS) == CAST_OK)
                         {
                             DoScriptText(urand(0, 1) ? SAY_SPLIT_1 : SAY_SPLIT_2, m_creature);
                             m_uiPhase = PHASE_2;

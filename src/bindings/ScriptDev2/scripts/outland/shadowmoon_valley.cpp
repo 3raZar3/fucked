@@ -90,7 +90,7 @@ struct MANGOS_DLL_DECL mob_mature_netherwing_drakeAI : public ScriptedAI
         {
             float x,y,z;
             pCaster->GetNearPoint(pCaster, x, y, z, 2.0f, 2.0f, (6.28 - (pCaster->GetOrientation())) );
-            m_creature->SendMonsterMove(x, y, z, 0, SPLINEFLAG_FLYING, m_uiFlightTimer,0);
+            m_creature->SendMonsterMove(x, y, z, SPLINETYPE_FACINGTARGET, SPLINEFLAG_FLYING, m_uiFlightTimer,0);
             uiPlayerGUID = pCaster->GetGUID();
             bIsFlying = true;
         }
@@ -119,7 +119,7 @@ struct MANGOS_DLL_DECL mob_mature_netherwing_drakeAI : public ScriptedAI
 
                  float x, y, z;
                  m_creature->GetRespawnCoord(x, y, z);
-                 m_creature->SendMonsterMove(x, y, z, 0, SPLINEFLAG_FLYING, 5000, 0);
+                 m_creature->SendMonsterMove(x, y, z, SPLINETYPE_FACINGTARGET, SPLINEFLAG_FLYING, 5000, 0);
                  bIsEating = false;
                  Reset();
             }else m_uiEatTimer -= uiDiff;

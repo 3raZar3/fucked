@@ -2669,6 +2669,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\scripts\world\spell_scripts.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\scripts\world\npc_small_pet_handler.cpp"
 					>
 				</File>

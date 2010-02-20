@@ -144,7 +144,7 @@ struct MANGOS_DLL_DECL boss_alythessAI : public ScriptedAI
 
     void DamageDeal(Unit* pDoneTo, uint32& uiDamage) 
     {
-        if(pDoneTo->HasAura(SPELL_DARK_TOUCHED,0))
+        if(pDoneTo->HasAura(SPELL_DARK_TOUCHED))
             pDoneTo->RemoveAurasDueToSpell(SPELL_DARK_TOUCHED,0);
     }
 
@@ -367,7 +367,7 @@ struct MANGOS_DLL_DECL boss_sacrolashAI : public ScriptedAI
 
     void DamageDeal(Unit* pDoneTo, uint32& uiDamage) 
     {
-        if(pDoneTo->HasAura(SPELL_FLAME_TOUCHED,0))
+        if(pDoneTo->HasAura(SPELL_FLAME_TOUCHED))
             pDoneTo->RemoveAurasDueToSpell(SPELL_FLAME_TOUCHED,0);
     }
 

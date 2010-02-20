@@ -37,9 +37,9 @@ INSTANTIATE_CLASS_MUTEX(MapManager, ACE_Thread_Mutex);
 
 extern GridState* si_GridStates[];                          // debugging code, should be deleted some day
 
-MapManager::MapManager() : i_gridCleanUpDelay(sWorld.getConfig(CONFIG_INTERVAL_GRIDCLEAN))
+MapManager::MapManager() : i_gridCleanUpDelay(sWorld.getConfig(CONFIG_UINT32_INTERVAL_GRIDCLEAN))
 {
-    i_timer.SetInterval(sWorld.getConfig(CONFIG_INTERVAL_MAPUPDATE));
+    i_timer.SetInterval(sWorld.getConfig(CONFIG_UINT32_INTERVAL_MAPUPDATE));
 }
 
 MapManager::~MapManager()
@@ -170,7 +170,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player)
         if (entry->map_type == MAP_RAID)
         {
             // GMs can avoid raid limitations
-            if(!player->isGameMaster() && !sWorld.getConfig(CONFIG_INSTANCE_IGNORE_RAID))
+            if(!player->isGameMaster() && !sWorld.getConfig(CONFIG_BOOL_INSTANCE_IGNORE_RAID))
             {
                 // can only enter in a raid group
                 Group* group = player->GetGroup();
@@ -271,7 +271,7 @@ void MapManager::Update(uint32 diff)
 		    m_updater.schedule_update(*iter->second, i_timer.GetCurrent());
 	    else
 		{
-		    iter->second->Update(i_timer.GetCurrent());
+        iter->second->Update((uint32)i_timer.GetCurrent());
 		}
     }
 
@@ -286,10 +286,10 @@ void MapManager::Update(uint32 diff)
     i_timer.SetCurrent(0);
 }
 
-void MapManager::DoDelayedMovesAndRemoves()
+void MapManager::RemoveAllObjectsInRemoveList()
 {
     for(MapMapType::iterator iter=i_maps.begin(); iter != i_maps.end(); ++iter)
-        iter->second->DoDelayedMovesAndRemoves();
+        iter->second->RemoveAllObjectsInRemoveList();
 }
 
 bool MapManager::ExistMapAndVMap(uint32 mapid, float x,float y)

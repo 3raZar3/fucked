@@ -693,7 +693,7 @@ struct MANGOS_DLL_DECL mob_shield_generator_channelAI : public ScriptedAI
 		if(m_pInstance)
 		{
 			Creature* vashj = ((Creature*)Unit::GetUnit((*m_creature), m_pInstance->GetData64(DATA_LADYVASHJ)));
-			if( vashj && !vashj->GetAura(SPELL_MAGIC_BARRIER,0))
+			if( vashj && !vashj->HasAura(SPELL_MAGIC_BARRIER))
 				m_creature->CastSpell(vashj,SPELL_MAGIC_BARRIER,true);
 		}
 	}
