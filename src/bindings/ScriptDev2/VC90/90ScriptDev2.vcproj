@@ -2046,18 +2046,18 @@
 				<Filter
 					Name="violet_hold"
 					>
-					<File
+						<File
 						RelativePath="..\scripts\northrend\violet_hold\instance_violet_hold.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\scripts\northrend\violet_hold\violet_hold.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\scripts\northrend\violet_hold\violet_hold.h"
-						>
-					</File>
+							RelativePath="..\scripts\northrend\violet_hold\violet_hold.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\northrend\violet_hold\violet_hold.h"
+							>
+						</File>
 				</Filter>
 				<Filter
 					Name="icecrown_citadel"
@@ -2113,7 +2113,7 @@
 							RelativePath="..\scripts\northrend\icecrown_citadel\icecrown_citadel\gunship_battle.cpp"
 							>
 						</File>
-					</Filter>
+				</Filter>
 					<Filter
 						Name="frozen_halls"
 						>
@@ -2132,8 +2132,8 @@
 								RelativePath="..\scripts\northrend\icecrown_citadel\frozen_halls\pit_of_saron\boss_scourgelord_tyrannus.cpp"
 								>
 							</File>
-						</Filter>
-						<Filter
+			</Filter>
+			<Filter
 							Name="halls_of_reflection"
 							>
 							<File

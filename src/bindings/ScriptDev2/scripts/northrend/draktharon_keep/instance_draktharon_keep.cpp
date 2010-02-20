@@ -1,6 +1,4 @@
-/*
- * Copyright (C) 2008-2010 Trinity <http://www.trinitycore.org/>
- *
+/* Copyright (C) 2006 - 2010 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -8,192 +6,200 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
+/* ScriptData
+SDName: Instance_Draktharon_Keep
+SD%Complete: 20%
+SDComment:
+SDCategory: Utgarde Keep
+EndScriptData */
 
 #include "precompiled.h"
 #include "instance_draktharon_keep.h"
 
-#define MAX_ENCOUNTER     4
+/* m_auiEncounters:
+1 - TYPE_TROLLGORE
+2 - TYPE_NOVOS
+3 - TYPE_DREK
+4 - TYPE_THARONJA
 
-/* Drak'Tharon Keep encounters:
-0 - Trollgore
-1 - Novos
-2 - King Dred
-3 - Tharon Ja
+helper encounters:
+5 - TYPE_CRYSTAL_EVENT - related to 4 Ritual Crystals around boss_novos
 */
 
-enum Creatures
+struct MANGOS_DLL_DECL instance_draktharon_keep : public ScriptedInstance
 {
-    NPC_TROLLGORE                                          = 26630,
-    NPC_NOVOS                                              = 26631,
-    NPC_KING_DRED                                          = 27483,
-    NPC_THARON_JA                                          = 26632
-};
-enum GameObjects
-{
-    GO_NOVOS_CRYSTAL_1                                     = 189299,
-    GO_NOVOS_CRYSTAL_2                                     = 189300,
-    GO_NOVOS_CRYSTAL_3                                     = 189301,
-    GO_NOVOS_CRYSTAL_4                                     = 189302
-};
+    instance_draktharon_keep(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 
-struct MANGOS_DLL_DECL instance_drak_tharon : public ScriptedInstance
-{
-    instance_drak_tharon(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
+    uint32 m_auiEncounter[MAX_ENCOUNTER];
+    uint32 CrystalCounter;
+    std::string strInstData;
 
-    uint8 uiDredAchievCounter;
+    uint64 m_uiTrollgoreGUID;
+    uint64 m_uiNovosGUID;
+    uint64 m_uiDrekGUID;
+	uint64 m_uiTharonjaGUID;
 
-    uint64 uiTrollgore;
-    uint64 uiNovos;
-    uint64 uiDred;
-    uint64 uiTharonJa;
-
-    uint64 uiNovosCrystal1;
-    uint64 uiNovosCrystal2;
-    uint64 uiNovosCrystal3;
-    uint64 uiNovosCrystal4;
-
-    uint8 m_auiEncounter[MAX_ENCOUNTER];
-
-    std::string str_data;
+    uint64 m_uiRitualCrystalGUID[CRYSTAL_NUMBER];
 
     void Initialize()
     {
-        uiTrollgore = 0;
-        uiNovos = 0;
-        uiDred = 0;
-        uiTharonJa = 0;
-        uiNovosCrystal1 = 0;
-        uiNovosCrystal2 = 0;
-        uiNovosCrystal3 = 0;
-        uiNovosCrystal4 = 0;
-        uiDredAchievCounter = 0;
-    }
+        memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
-    bool IsEncounterInProgress() const
-    {
-        for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-            if (m_auiEncounter[i] == IN_PROGRESS) return true;
-
-        return false;
-    }
-
-    void OnGameObjectCreate(GameObject* pGo, bool add)
-    {
-        switch(pGo->GetEntry())
+        m_uiTrollgoreGUID = 0;
+        m_uiNovosGUID = 0;
+        m_uiDrekGUID = 0;
+		m_uiTharonjaGUID = 0;
+        CrystalCounter = 0;
+        for (uint8 i = 0; i < CRYSTAL_NUMBER; ++i)
         {
-            case GO_NOVOS_CRYSTAL_1:
-                uiNovosCrystal1 = pGo->GetGUID();
-                break;
-            case GO_NOVOS_CRYSTAL_2:
-                uiNovosCrystal2 = pGo->GetGUID();
-                break;
-            case GO_NOVOS_CRYSTAL_3:
-                uiNovosCrystal3 = pGo->GetGUID();
-                break;
-            case GO_NOVOS_CRYSTAL_4:
-                uiNovosCrystal4 = pGo->GetGUID();
-                break;
+            m_uiRitualCrystalGUID[i] = 0;
         }
+            
     }
 
-    void OnCreatureCreate(Creature* pCreature, bool add)
+    void OnCreatureCreate(Creature* pCreature)
     {
         switch(pCreature->GetEntry())
         {
-            case NPC_TROLLGORE:
-                uiTrollgore = pCreature->GetGUID();
-                break;
-            case NPC_NOVOS:
-                uiNovos = pCreature->GetGUID();
-                break;
-            case NPC_KING_DRED:
-                uiDred = pCreature->GetGUID();
-                break;
-            case NPC_THARON_JA:
-                uiTharonJa = pCreature->GetGUID();
-                break;
+            case 26630: m_uiTrollgoreGUID = pCreature->GetGUID(); break;
+            case 26631: m_uiNovosGUID = pCreature->GetGUID(); break;
+            case 27483: m_uiDrekGUID = pCreature->GetGUID(); break;
+			case 26632: m_uiTharonjaGUID = pCreature->GetGUID(); break;
         }
     }
 
-    uint64 GetData64(uint32 identifier)
+    void OnObjectCreate(GameObject* pGo)
     {
-        switch(identifier)
+        switch(pGo->GetEntry())
         {
-            case DATA_TROLLGORE:          return uiTrollgore;
-            case DATA_NOVOS:              return uiNovos;
-            case DATA_DRED:               return uiDred;
-            case DATA_THARON_JA:          return uiTharonJa;
-            case DATA_NOVOS_CRYSTAL_1:    return uiNovosCrystal1;
-            case DATA_NOVOS_CRYSTAL_2:    return uiNovosCrystal2;
-            case DATA_NOVOS_CRYSTAL_3:    return uiNovosCrystal3;
-            case DATA_NOVOS_CRYSTAL_4:    return uiNovosCrystal4;
+            case GO_RITUAL_CRYSTAL_SW:
+            case GO_RITUAL_CRYSTAL_SE:
+            case GO_RITUAL_CRYSTAL_NW:
+            case GO_RITUAL_CRYSTAL_NE:
+                for (uint8 i = 0; i < CRYSTAL_NUMBER; ++i)
+                {
+                    if (m_uiRitualCrystalGUID[i] == 0)
+                    {
+                        m_uiRitualCrystalGUID[i] = pGo->GetGUID();
+                        break;
+                    }
+                }
         }
+    }
 
+    uint64 GetData64(uint32 uiData)
+    {
+        switch(uiData)
+        {
+            case DATA_TROLLGORE:
+                return m_uiTrollgoreGUID;
+            case DATA_NOVOS:
+                return m_uiNovosGUID;
+            case DATA_DREK:
+                return m_uiDrekGUID;
+            case DATA_THARONJA:
+                return m_uiTharonjaGUID;
+        }
         return 0;
     }
 
-    void SetData(uint32 type, uint32 data)
+    uint32 GetData(uint32 uiData)
     {
-        switch(type)
+        switch(uiData)
         {
-            case DATA_TROLLGORE_EVENT:
-                m_auiEncounter[0] = data;
-                break;
-            case DATA_NOVOS_EVENT:
-                m_auiEncounter[1] = data;
-                break;
-            case DATA_DRED_EVENT:
-                m_auiEncounter[2] = data;
-                break;
-            case DATA_THARON_JA_EVENT:
-                m_auiEncounter[3] = data;
-                break;
+            case TYPE_TROLLGORE:        return m_auiEncounter[0];
+            case TYPE_NOVOS:            return m_auiEncounter[1];
+            case TYPE_DREK:             return m_auiEncounter[2];
+            case TYPE_THARONJA:         return m_auiEncounter[3];
+            case TYPE_CRYSTAL_EVENT:    return m_auiEncounter[4];        
+        }
+        return 0;
+    }
 
-            case DATA_KING_DRED_ACHIEV:
-                uiDredAchievCounter = data;
+    void SetData(uint32 uiType, uint32 uiData)
+    {
+        switch(uiType)
+        {
+            case TYPE_TROLLGORE:
+                m_auiEncounter[0] = uiData;
                 break;
+            case TYPE_NOVOS:
+                m_auiEncounter[1] = uiData;
+                break;
+            case TYPE_DREK:
+                m_auiEncounter[2] = uiData;
+                break;
+            case TYPE_THARONJA:
+                m_auiEncounter[3] = uiData;
+                break;
+            case TYPE_CRYSTAL_EVENT:
+                if (uiData == NOT_STARTED)
+                {
+                    CrystalCounter = 0;
+                    for (uint8 i = 0; i < CRYSTAL_NUMBER; ++i)
+                    {
+                        if (GameObject* pGo = instance->GetGameObject(m_uiRitualCrystalGUID[i]))
+                        {
+                            pGo->SetGoState(GO_STATE_ACTIVE);
+                            if (Creature* pCreature = GetClosestCreatureWithEntry(pGo, NPC_CRYSTAL_CHANNEL_TARGET, INTERACTION_DISTANCE))
+                                pCreature->InterruptNonMeleeSpells(false);
+                        }
+                    }
+                }
+                if (uiData == IN_PROGRESS)
+                {
+                    for (uint8 i = 0; i < CRYSTAL_NUMBER; ++i)
+                    {
+                        if (GameObject* pGo = instance->GetGameObject(m_uiRitualCrystalGUID[i]))
+                            if (Creature* pCreature = GetClosestCreatureWithEntry(pGo, NPC_CRYSTAL_CHANNEL_TARGET, INTERACTION_DISTANCE))
+                                pCreature->CastSpell(pCreature, SPELL_BEAM_CHANNELING, false);
+                    }
+                }
+                if (uiData == SPECIAL)
+                {
+                    ++ CrystalCounter;
+                    for (uint8 i = 0; i < CRYSTAL_NUMBER; ++i)
+                    {
+                        GameObject* pGo = instance->GetGameObject(m_uiRitualCrystalGUID[i]);
+                        if (pGo && pGo->GetGoState() == GO_STATE_ACTIVE)
+                        {
+                            pGo->SetGoState(GO_STATE_READY);
+                            if (Creature* pCreature = GetClosestCreatureWithEntry(pGo, NPC_CRYSTAL_CHANNEL_TARGET, INTERACTION_DISTANCE))
+                                pCreature->InterruptNonMeleeSpells(false);
+                            break;
+                        }
+                    }
+                }
+                if (CrystalCounter >= CRYSTAL_NUMBER)
+                    uiData = DONE;
+                m_auiEncounter[4] = uiData;
         }
 
-        if (data == DONE)
+        if (uiData == DONE)
         {
+            OUT_SAVE_INST_DATA;
+
+            std::ostringstream saveStream;
+            saveStream << m_auiEncounter[0] << " " << m_auiEncounter[1] << " " << m_auiEncounter[2] << " " << m_auiEncounter[3];
+
+            strInstData = saveStream.str();
+
             SaveToDB();
+            OUT_SAVE_INST_DATA_COMPLETE;
         }
     }
 
-    uint32 GetData(uint32 type)
+    const char* Save()
     {
-        switch (type)
-        {
-            case DATA_TROLLGORE_EVENT:    return m_auiEncounter[0];
-            case DATA_NOVOS_EVENT:        return m_auiEncounter[1];
-            case DATA_DRED_EVENT:         return m_auiEncounter[2];
-            case DATA_THARON_JA_EVENT:    return m_auiEncounter[3];
-            case DATA_KING_DRED_ACHIEV:   return uiDredAchievCounter;
-        }
-        return 0;
-    }
-
-    std::string GetSaveData()
-    {
-        OUT_SAVE_INST_DATA;
-
-        std::string str_data;
-
-        std::ostringstream saveStream;
-        saveStream << "D K " << m_auiEncounter[0] << " " << m_auiEncounter[1] << " "
-            << m_auiEncounter[2] << " " << m_auiEncounter[3];
-
-        str_data = saveStream.str();
-
-        OUT_SAVE_INST_DATA_COMPLETE;
-        return str_data;
+        return strInstData.c_str();
     }
 
     void Load(const char* in)
@@ -206,38 +212,29 @@ struct MANGOS_DLL_DECL instance_drak_tharon : public ScriptedInstance
 
         OUT_LOAD_INST_DATA(in);
 
-        char dataHead1, dataHead2;
-        uint16 data0,data1,data2,data3;
-
         std::istringstream loadStream(in);
-        loadStream >> dataHead1 >> dataHead2 >> data0 >> data1 >> data2 >> data3;
+        loadStream >> m_auiEncounter[0] >> m_auiEncounter[1] >> m_auiEncounter[2] >> m_auiEncounter[3];
 
-        if (dataHead1 == 'D' && dataHead2 == 'K')
+        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
         {
-            m_auiEncounter[0] = data0;
-            m_auiEncounter[1] = data1;
-            m_auiEncounter[2] = data2;
-            m_auiEncounter[3] = data3;
-
-            for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                if (m_auiEncounter[i] == IN_PROGRESS)
-                    m_auiEncounter[i] = NOT_STARTED;
-        } else OUT_LOAD_INST_DATA_FAIL;
+            if (m_auiEncounter[i] == IN_PROGRESS)
+                m_auiEncounter[i] = NOT_STARTED;
+        }
 
         OUT_LOAD_INST_DATA_COMPLETE;
     }
 };
 
-InstanceData* GetInstanceData_instance_drak_tharon(Map* pMap)
+InstanceData* GetInstanceData_instance_draktharon_keep(Map* pMap)
 {
-    return new instance_drak_tharon(pMap);
+    return new instance_draktharon_keep(pMap);
 }
 
-void AddSC_instance_drak_tharon()
+void AddSC_instance_draktharon_keep()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name = "instance_drak_tharon";
-    newscript->GetInstanceData = &GetInstanceData_instance_drak_tharon;
+    newscript->Name = "instance_draktharon_keep";
+    newscript->GetInstanceData = GetInstanceData_instance_draktharon_keep;
     newscript->RegisterSelf();
 }

@@ -1,6 +1,5 @@
 DELETE FROM `creature_loot_template` WHERE `item` IN (40752);
 DELETE FROM `creature_loot_template` WHERE `item` IN (40753);
-DELETE FROM `creature_loot_template` WHERE `item` IN (47241);
 
 INSERT INTO creature_loot_template
 (entry, item, ChanceOrQuestChance, groupid, mincountOrRef, maxcount, lootcondition, condition_value1, condition_value2)
@@ -28,6 +27,7 @@ VALUES
 -- Utgarde keep
 ('30748', '40752', '100', '5', '1', '1', '0', '0', '0'),
 ('31679', '40752', '100', '5', '1', '1', '0', '0', '0'),
+('31656', '40752', '100', '5', '1', '1', '0', '0', '0'),
 ('31673', '40752', '100', '5', '1', '1', '0', '0', '0'),
 -- Haals Of lighting
 ('31533', '40752', '100', '5', '1', '1', '0', '0', '0'),
