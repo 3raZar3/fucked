@@ -281,7 +281,7 @@ struct MANGOS_DLL_DECL boss_netherspiteAI : public ScriptedAI {
                                 if((BossAngle - degrad10) < PlrAngle    // is in range?
                                 &&  PlrAngle < (BossAngle + degrad10)   // is in range?
                                 &&  PlrDist < BossDist                                  // is in range?
-                                && !plr->HasAura(spell_exhaustion,0)    // hasn't yet the spell?
+                                && !plr->HasAura(spell_exhaustion)    // hasn't yet the spell?
                                 &&  plr->isAlive())     {                                       // is alive?
                                         uCandidate = plr;                                       // ok, take him as candidate
                                         if(beamerID==2) // red beam
@@ -678,7 +678,7 @@ struct MANGOS_DLL_DECL boss_netherspiteAI : public ScriptedAI {
         //check for possible targets of dominance exhaustion
         for(int i=0;i<10;i++) {
             if(ExhaustCandsDOM[i] != NULL) {
-                if(!ExhaustCandsDOM[i]->HasAura(SPELL_DOMINANCE_PLR,0)) {
+                if(!ExhaustCandsDOM[i]->HasAura(SPELL_DOMINANCE_PLR)) {
                     ExhaustCandsDOM[i]->CastSpell(ExhaustCandsDOM[i],SPELL_EXHAUSTION_DOM,true);
                     ExhaustCandsDOM[i] = NULL;
                 }
@@ -690,7 +690,7 @@ struct MANGOS_DLL_DECL boss_netherspiteAI : public ScriptedAI {
         //check for possible targets of serenity exhaustion
         for(int i=0;i<10;i++) {
             if(ExhaustCandsSER[i] != NULL) {
-                if(!ExhaustCandsSER[i]->HasAura(SPELL_SERENITY_PLR,0)) {
+                if(!ExhaustCandsSER[i]->HasAura(SPELL_SERENITY_PLR)) {
                     ExhaustCandsSER[i]->CastSpell(ExhaustCandsSER[i],SPELL_EXHAUSTION_SER,true);
                     ExhaustCandsSER[i] = NULL;
                 }
@@ -702,7 +702,7 @@ struct MANGOS_DLL_DECL boss_netherspiteAI : public ScriptedAI {
         //check for possible targets of perseverence exhaustion
         for(int i=0;i<10;i++) {
             if(ExhaustCandsPER[i] != NULL) {
-                if(!ExhaustCandsPER[i]->HasAura(SPELL_PERSEVERENCE_PLR,0)) {
+                if(!ExhaustCandsPER[i]->HasAura(SPELL_PERSEVERENCE_PLR)) {
                     for(int j=0;j<10;j++) {
                         if(PERMaxHealth[j] == ExhaustCandsPER[i]) {
                             PERMaxHealth[j] = NULL;
@@ -1072,7 +1072,7 @@ struct MANGOS_DLL_DECL boss_netherspiteAI : public ScriptedAI {
  
         if(BanishPhase) {
             if(BanishPhase_timer < diff) {
-                m_creature->RemoveAura(SPELL_BANISH_VISUAL,0);
+                m_creature->RemoveAurasDueToSpell(SPELL_BANISH_VISUAL);
                 PortalPhase = true;
                 BanishPhase = false;
                 PortalsSpawned = false;

@@ -317,11 +317,11 @@ struct MANGOS_DLL_DECL boss_kiljadenAI : public Scripted_NoMovementAI
         if(!m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
-        if(!m_creature->HasAura(AURA_SUNWELL_RADIANCE, 0))
+        if(!m_creature->HasAura(AURA_SUNWELL_RADIANCE))
             m_creature->CastSpell(m_creature, AURA_SUNWELL_RADIANCE, true);
 
-        if(m_creature->HasAura(SPELL_SACRIFICE_OF_ANVEENA, 0))
-            m_creature->RemoveAurasDueToSpell(SPELL_SACRIFICE_OF_ANVEENA,0);
+        if(m_creature->HasAura(SPELL_SACRIFICE_OF_ANVEENA))
+            m_creature->RemoveAurasDueToSpell(SPELL_SACRIFICE_OF_ANVEENA);
 
         if(pInstance)
         {
@@ -390,7 +390,7 @@ struct MANGOS_DLL_DECL boss_kiljadenAI : public Scripted_NoMovementAI
     {
         if(!pDoneTo)
             return;
-        if(pDoneTo->HasAura(AURA_BLUESHIELD,0))
+        if(pDoneTo->HasAura(AURA_BLUESHIELD))
             uiDamage = uiDamage * 0.05;
     }
 
@@ -824,7 +824,7 @@ struct MANGOS_DLL_DECL mob_deceiverAI : public ScriptedAI
         }else m_uiBoltTimer -= diff;
 
         if((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) <= 20)
-            if(!m_creature->HasAura(SPELL_SHADOWINFUSION,0))
+            if(!m_creature->HasAura(SPELL_SHADOWINFUSION))
                 m_creature->CastSpell(m_creature, SPELL_SHADOWINFUSION, true);
 
         if(m_uiPortalTimer < diff)
@@ -875,7 +875,7 @@ struct MANGOS_DLL_DECL mob_orbAI : public Scripted_NoMovementAI
 
     void DamageDeal(Unit* pDoneTo, uint32& uiDamage) 
     {
-        if(pDoneTo->HasAura(AURA_BLUESHIELD,0))
+        if(pDoneTo->HasAura(AURA_BLUESHIELD))
             uiDamage = uiDamage * 0.05;
     }
 
@@ -924,7 +924,7 @@ struct MANGOS_DLL_DECL mob_armagedonAI : public Scripted_NoMovementAI
 
     void DamageDeal(Unit* pDoneTo, uint32& uiDamage) 
     {
-        if(pDoneTo->HasAura(AURA_BLUESHIELD,0))
+        if(pDoneTo->HasAura(AURA_BLUESHIELD))
             uiDamage = uiDamage * 0.05;
     }
 
@@ -974,7 +974,7 @@ struct MANGOS_DLL_DECL mob_shadowspikeAI : public Scripted_NoMovementAI
 
     void DamageDeal(Unit* pDoneTo, uint32& uiDamage) 
     {
-        if(pDoneTo->HasAura(AURA_BLUESHIELD,0))
+        if(pDoneTo->HasAura(AURA_BLUESHIELD))
             uiDamage = uiDamage * 0.05;
     }
 

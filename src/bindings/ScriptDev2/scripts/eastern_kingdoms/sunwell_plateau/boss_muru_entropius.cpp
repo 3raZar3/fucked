@@ -130,7 +130,7 @@ struct MANGOS_DLL_DECL boss_muruAI : public ScriptedAI
         if(m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
-        if(!m_creature->HasAura(AURA_SUNWELL_RADIANCE, 0))
+        if(!m_creature->HasAura(AURA_SUNWELL_RADIANCE))
             m_creature->CastSpell(m_creature, AURA_SUNWELL_RADIANCE, true);
 
         if(pInstance)
@@ -322,7 +322,7 @@ struct MANGOS_DLL_DECL dark_fiendAI : public ScriptedAI
     void Reset() 
     {
         m_creature->SetDisplayId(25206);
-        if(!m_creature->HasAura(DARK_FIEND_AURA,0))
+        if(!m_creature->HasAura(DARK_FIEND_AURA))
             m_creature->CastSpell(m_creature, DARK_FIEND_AURA, true);
         Reached = false;
     }
