@@ -5653,6 +5653,15 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     unitTarget->CastSpell(unitTarget, damage, false);
                     break;
                 }
+                // Clear Gift of Tharonja
+                case 53242:
+                {
+                    if (!unitTarget || !unitTarget->HasAura(52509))
+                        return;
+
+                    unitTarget->RemoveAurasDueToSpell(52509);
+                    return;
+                }
                 // Winged Steed of the Ebon Blade
                 case 54729:
                 {
