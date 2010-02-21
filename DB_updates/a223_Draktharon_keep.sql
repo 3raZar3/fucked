@@ -15,7 +15,8 @@ scale = 0.1,
 flags_extra = 130,
 faction_A = 35,
 faction_H = 35,
-unit_flags = unit_flags|2|33554432
+unit_flags = unit_flags|2|33554432,
+ScriptName = 'npc_novos_summon_target'
 WHERE entry = 27583;
 
 --  Crystal Handler
