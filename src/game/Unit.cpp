@@ -2022,9 +2022,11 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
                 // Ardent Defender
 	            if (spellProto->SpellIconID == 2135 && pVictim->GetTypeId() == TYPEID_PLAYER)
 	            {
-	                uint32 remainingHealth = pVictim->GetHealth() - RemainingDamage;
-	                uint32 allowedHealth = pVictim->GetMaxHealth() * 0.35f;
-	                // If damage kills us
+                    // count HP after this attack
+	                int32 remainingHealth = int32(pVictim->GetHealth()) - RemainingDamage;
+                    // count how much HP required to turn on absorb effect
+	                int32 allowedHealth = int32(pVictim->GetMaxHealth() * 0.35f);
+	                // If current processed attack would kill us
                     if (remainingHealth <= 0 && !((Player*)pVictim)->HasAura(66233))
 	                {
 	                    // Cast healing spell, completely avoid damage
@@ -2039,20 +2041,19 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
                         // else scale pct
                         ((float(defenseSkillValue) - float(baseLevelSkillValue)) / 140));
 	
-	                    int32 healAmount = int32(pVictim->GetMaxHealth() * (*i)->GetSpellProto()->EffectBasePoints[1] *  pctFromDefense / 100);
+	                    int32 healAmount = int32(pVictim->GetMaxHealth() * (*i)->GetSpellProto()->EffectBasePoints[EFFECT_INDEX_1] *  pctFromDefense / 100);
 	                    pVictim->CastCustomSpell(pVictim, 66235, &healAmount, NULL, NULL, true);
                         pVictim->CastSpell(pVictim, 66233, true);
 	                }
 	                else if (remainingHealth < allowedHealth)
 	                {
 	                    // Reduce damage that brings us under 35% (or full damage if we are already under 35%) by x%
-	                    uint32 damageToReduce = (pVictim->GetHealth() < allowedHealth)
+	                    int32 damageToReduce = (int32(pVictim->GetHealth()) < allowedHealth)
 	                        ? RemainingDamage
 	                        : allowedHealth - remainingHealth;
 	                    RemainingDamage -= damageToReduce * currentAbsorb / 100;
 	                }
-	                continue;
-	
+	                continue;	
                 }
 	            break;
             }
