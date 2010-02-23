@@ -16,7 +16,7 @@
 
 /* ScriptData
 SDName: Boss_Tharonja
-SD%Complete: 20%
+SD%Complete: 90%
 SDAuthor:
 SDComment:
 SDCategory: Drak'Tharon Keep

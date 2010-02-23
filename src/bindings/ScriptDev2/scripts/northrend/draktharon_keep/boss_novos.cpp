@@ -84,6 +84,7 @@ struct MANGOS_DLL_DECL boss_novosAI : public ScriptedAI
     uint32 m_uiMisery_Timer;
     uint32 m_uiArcane_Timer;
     uint32 m_uiBlizzard_Timer;
+	uint32 m_uiSummon_H_Timer;
 
     void Reset()
     {
@@ -92,6 +93,7 @@ struct MANGOS_DLL_DECL boss_novosAI : public ScriptedAI
         m_uiMisery_Timer = 10000;
         m_uiArcane_Timer = 25000;
         m_uiBlizzard_Timer = 30000;
+		m_uiSummon_H_Timer = 30000;
 
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         if (!m_pInstance)
@@ -179,12 +181,12 @@ struct MANGOS_DLL_DECL boss_novosAI : public ScriptedAI
                 m_uiBlizzard_Timer = urand(25000, 35000);
             }else m_uiBlizzard_Timer -= uiDiff;
             
-            // has to be handled in core first
-            /*if(!m_bIsRegularMode && m_uiSummon_H_Timer <= uiDiff)
+
+            if(!m_bIsRegularMode && m_uiSummon_H_Timer <= uiDiff)
             {
                 DoCast(m_creature, SPELL_SUMMON);
                 m_uiSummon_H_Timer = urand(30000, 35000);
-            }else m_uiSummon_H_Timer -= uiDiff;*/
+            }else m_uiSummon_H_Timer -= uiDiff;
         }
         DoMeleeAttackIfReady();
     }
@@ -264,7 +266,7 @@ struct MANGOS_DLL_DECL npc_novos_summon_targetAI : public ScriptedAI
                 else
                 {
                     // summon random summon
-                    if (urand(0, 100) < 80)
+                    if (m_pInstance->GetData(TYPE_CRYSTAL_EVENT) != DONE && urand(0, 100) < 80)
                     {
                         switch(urand(0, 2))
                         {
