@@ -20,6 +20,7 @@
     \ingroup world
 */
 
+#include <omp.h>
 #include "Common.h"
 #include "Database/DatabaseEnv.h"
 #include "Config/ConfigEnv.h"
