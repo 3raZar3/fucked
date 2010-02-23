@@ -109,7 +109,7 @@ MapManager::_createBaseMap(uint32 id)
 
     if( m == NULL )
     {
-
+        Guard guard(*this);
         const MapEntry* entry = sMapStore.LookupEntry(id);
         if (entry && entry->Instanceable())
         {
