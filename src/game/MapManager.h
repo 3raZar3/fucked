@@ -25,6 +25,7 @@
 #include "Common.h"
 #include "Map.h"
 #include "GridStates.h"
+#include "MapUpdater.h"
 
 class Transport;
 

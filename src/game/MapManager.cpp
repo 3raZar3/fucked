@@ -66,7 +66,7 @@ MapManager::Initialize()
         }
         i_GridStateErrorCount = 0;
     }
-	int num_threads(sWorld.getConfig(CONFIG_UINT32_NUMTHREADS));
+    int num_threads(sWorld.getConfig(CONFIG_UINT32_NUMTHREADS));
     // Start mtmaps if needed.
     if(num_threads > 0 && m_updater.activate(num_threads) == -1)
         abort();
@@ -271,9 +271,9 @@ void MapManager::Update(uint32 diff)
         else
             iter->second->Update(i_timer.GetCurrent());
     }
-	
+    
     if (m_updater.activated())
-	m_updater.wait();
+    m_updater.wait();
 
     checkAndCorrectGridStatesArray();
 
@@ -316,7 +316,7 @@ void MapManager::UnloadAll()
         delete i_maps.begin()->second;
         i_maps.erase(i_maps.begin());
     }
-	if (m_updater.activated())
+    if (m_updater.activated())
         m_updater.deactivate();
 }
 
@@ -335,7 +335,7 @@ void MapManager::InitMaxInstanceId()
 uint32 MapManager::GetNumInstances()
 {
     Guard guard(*this);
-	
+    
     uint32 ret = 0;
     for(MapMapType::iterator itr = i_maps.begin(); itr != i_maps.end(); ++itr)
     {

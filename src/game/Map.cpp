@@ -3564,7 +3564,7 @@ WorldObject* Map::GetWorldObject(uint64 guid)
 void Map::SendObjectUpdates()
 {
     UpdateDataMapType update_players;
-	for(std::set<Object*>::const_iterator it = i_objectsToClientUpdate.begin();it!= i_objectsToClientUpdate.end();++it)
+    for(std::set<Object*>::const_iterator it = i_objectsToClientUpdate.begin();it!= i_objectsToClientUpdate.end();++it)
         (*it)->BuildUpdateData(update_players);
 
     i_objectsToClientUpdate.clear();
