@@ -20,7 +20,6 @@
     \ingroup world
 */
 
-#include <omp.h>
 #include "Common.h"
 #include "Database/DatabaseEnv.h"
 #include "Config/ConfigEnv.h"
@@ -520,7 +519,6 @@ void World::LoadConfigSettings(bool reload)
     setConfig(CONFIG_BOOL_ADDON_CHANNEL, "AddonChannel", true);
     setConfig(CONFIG_BOOL_GRID_UNLOAD, "GridUnload", true);
     setConfigPos(CONFIG_UINT32_INTERVAL_SAVE, "PlayerSaveInterval", 15 * MINUTE * IN_MILISECONDS);
-    setConfig(CONFIG_NUMTHREADS, "MapUpdate.Threads", 1);
 
     setConfigMin(CONFIG_UINT32_INTERVAL_GRIDCLEAN, "GridCleanUpDelay", 5 * MINUTE * IN_MILISECONDS, MIN_GRID_DELAY);
     if(reload)
