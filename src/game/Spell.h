@@ -22,6 +22,10 @@
 #include "GridDefines.h"
 #include "SharedDefines.h"
 #include "DBCEnums.h"
+#include "../../dep/tbb/include/tbb/concurrent_vector.h"
+#include <memory>
+
+#define MAX_SPELL_ID	100000
 
 class WorldSession;
 class Unit;
@@ -553,9 +557,11 @@ class Spell
             SpellMissInfo reflectResult:8;
             uint8  effectMask:8;
             bool   processed:1;
+			bool   deleted:1;
         };
-        std::list<TargetInfo> m_UniqueTargetInfo;
+        tbb::concurrent_vector<TargetInfo> m_UniqueTargetInfo;
         uint8 m_needAliveTargetMask;                        // Mask req. alive targets
+        bool m_destroyed;
 
         struct GOTargetInfo
         {
@@ -563,6 +569,7 @@ class Spell
             uint64 timeDelay;
             uint8  effectMask:8;
             bool   processed:1;
+			bool   deleted:1;
         };
         std::list<GOTargetInfo> m_UniqueGOTargetInfo;
 
@@ -570,8 +577,10 @@ class Spell
         {
             Item  *item;
             uint8 effectMask;
+			bool   processed:1;
+            bool   deleted:1;
         };
-        std::list<ItemTargetInfo> m_UniqueItemInfo;
+        tbb::concurrent_vector<ItemTargetInfo> m_UniqueItemInfo;
 
         void AddUnitTarget(Unit* target, SpellEffectIndex effIndex);
         void AddUnitTarget(uint64 unitGUID, SpellEffectIndex effIndex);
