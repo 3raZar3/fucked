@@ -280,7 +280,7 @@ struct MANGOS_DLL_DECL npc_novos_summon_targetAI : public ScriptedAI
                     }
                     else
                     {
-                        if (Creature* pNovos = (Creature*)Unit::GetUnit((*m_creature), m_pInstance->GetData64(DATA_NOVOS))
+                        if (Creature* pNovos = (Creature*)Unit::GetUnit((*m_creature), m_pInstance->GetData64(DATA_NOVOS)))
                             DoScriptText(SAY_ADDS, pNovos);
                         DoCastSpellIfCan(m_creature, SPELL_SUMMON_CRISTAL_HANDLER);
                     }
