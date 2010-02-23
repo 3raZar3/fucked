@@ -1,3 +1,4 @@
+################### Novos the Summoner #############################
 -- Crystal Channel Target
 UPDATE creature_template SET 
 InhabitType = 4,
@@ -19,59 +20,139 @@ unit_flags = unit_flags|2|33554432,
 ScriptName = 'npc_novos_summon_target'
 WHERE entry = 27583;
 
---  Crystal Handler
-UPDATE `creature_template` SET `minlevel` = '75',
+--  Crystal Handler (N)
+UPDATE `creature_template` SET 
+`minlevel` = '75',
 `maxlevel` = '75',
-`minhealth` = '21700',
+`minhealth` = '21000',
 `maxhealth` = '22000',
 `minmana` = '7800',
 `maxmana` = '8100',
-`faction_A` = '35',
-`faction_H` = '35',
+`faction_A` = '21',
+`faction_H` = '21',
 `mindmg` = '450',
 `maxdmg` = '600',
 `AIName` = 'EventAI',
-`dmg_multiplier` = '2' WHERE `entry` =26627;
+`dmg_multiplier` = '2' 
+WHERE `entry` = 26627;
 
--- Risen Shadowcaster
-UPDATE `creature_template` SET `minlevel` = '75',
+--  Crystal Handler (H)
+UPDATE `creature_template` SET 
+`minlevel` = '80',
+`maxlevel` = '81',
+`minhealth` = '42000',
+`maxhealth` = '42000',
+`minmana` = '8000',
+`maxmana` = '9000',
+`faction_A` = '21',
+`faction_H` = '21',
+`mindmg` = '450',
+`maxdmg` = '600',
+`dmg_multiplier` = '3' 
+WHERE `entry` = 31344;
+
+-- Risen Shadowcaster (N)
+UPDATE `creature_template` SET 
+`minlevel` = '75',
 `maxlevel` = '75',
-`minhealth` = '1645',
-`maxhealth` = '1645',
+`minhealth` = '1600',
+`maxhealth` = '1700',
 `minmana` = '7800',
-`maxmana` = '7800',
-`faction_A` = '16',
-`faction_H` = '16',
+`maxmana` = '7900',
+`faction_A` = '21',
+`faction_H` = '21',
 `mindmg` = '450',
 `maxdmg` = '600',
 `AIName` = 'EventAI',
-`dmg_multiplier` = '2' WHERE `entry` =27600;
+`dmg_multiplier` = '2' 
+WHERE `entry` = 27600;
 
--- Fetid Troll Corpse
-UPDATE `creature_template` SET `minlevel` = '75',
+-- Risen Shadowcaster (H)
+UPDATE `creature_template` SET 
+`minlevel` = '75',
+`maxlevel` = '75',
+`minhealth` = '3100',
+`maxhealth` = '3200',
+`minmana` = '8900',
+`maxmana` = '9000',
+`faction_A` = '21',
+`faction_H` = '21',
+`mindmg` = '450',
+`maxdmg` = '600',
+`dmg_multiplier` = '3' 
+WHERE `entry` = 31356;
+
+-- Fetid Troll Corpse (N)
+UPDATE `creature_template` SET 
+`minlevel` = '75',
 `maxlevel` = '75',
 `minhealth` = '2050',
 `maxhealth` = '2100',
-`minmana` = '0',
-`maxmana` = '0',
-`faction_A` = '16',
-`faction_H` = '16',
+`faction_A` = '21',
+`faction_H` = '21',
 `mindmg` = '550',
 `maxdmg` = '700',
-`dmg_multiplier` = '2' WHERE `entry` =27598;
+`dmg_multiplier` = '2'
+WHERE `entry` = 27598;
 
--- Hulking Corpse
-UPDATE `creature_template` SET `minlevel` = '75',
+-- Fetid Troll Corpse (H)
+UPDATE `creature_template` SET 
+`minlevel` = '80',
+`maxlevel` = '80',
+`minhealth` = '3700',
+`maxhealth` = '3800',
+`faction_A` = '21',
+`faction_H` = '21',
+`mindmg` = '550',
+`maxdmg` = '700',
+`dmg_multiplier` = '3'
+WHERE `entry` = 31873;
+
+-- Hulking Corpse (N)
+UPDATE `creature_template` SET 
+`minlevel` = '75',
 `maxlevel` = '75',
 `minhealth` = '12500',
 `maxhealth` = '13000',
-`minmana` = '0',
-`maxmana` = '0',
-`faction_A` = '16',
-`faction_H` = '16',
+`faction_A` = '21',
+`faction_H` = '21',
 `mindmg` = '550',
 `maxdmg` = '700',
-`dmg_multiplier` = '2' WHERE `entry` =27597;
+`dmg_multiplier` = '2' 
+WHERE `entry` = 27597;
+
+-- Hulking Corpse (H)
+UPDATE `creature_template` SET 
+`minlevel` = '80',
+`maxlevel` = '81',
+`minhealth` = '26000',
+`maxhealth` = '26100',
+`faction_A` = '21',
+`faction_H` = '21',
+`mindmg` = '550',
+`maxdmg` = '700',
+`dmg_multiplier` = '3' 
+WHERE `entry` = 31348;
+
+-- Rotted Troll Corpse (N & H)
+UPDATE creature_template SET 
+faction_A = 21,
+faction_H = 21,
+minlevel = 80,
+maxlevel = 80,
+minhealth = 3700,
+maxhealth = 3800,
+mindmg = 150,
+maxdmg = 250,
+attackpower = 150,
+dmg_multiplier = 2
+WHERE entry IN (32786,32787);
+
+-- Novos the Summoner (N & H)
+UPDATE creature_template SET
+faction_A = 21,
+faction_H = 21
+WHERE entry in (31350, 26631);
 
 -- Delete all Crystal Target creature addon befor replacing triggers
 DELETE FROM creature_addon WHERE guid IN (SELECT guid FROM creature WHERE id = 26712);
@@ -84,7 +165,12 @@ INSERT INTO creature VALUES
 ('127500','26712','600','3','1','15468','0','-365.410','-724.865','33','3.14159','86400','0','0','4050','0','0','0'),
 ('127501','26712','600','3','1','15468','0','-392.286','-751.087','33','3.14159','86400','0','0','4050','0','0','0'),
 -- Novos Summon Target
-('127502','27583','600','1','1','0','0','-379.329','-813.393','62.2485','0','86400','2','0','1','0','0','1');
+('127502','27583','600','3','1','0','0','-379.329','-813.393','62.2485','0','86400','2','0','1','0','0','1');
+-- Novos the Summoner - disable random movement
+UPDATE creature SET 
+MovementType = '0',
+SpawnDist = '0'
+WHERE id = 26631;
 
 -- Delete crystals from crystal handler loot_template. Since 3.0.3 they are not neccessary
 DELETE FROM creature_loot_template WHERE item = 38555;
@@ -94,9 +180,9 @@ UPDATE gameobject SET animprogress = 100 WHERE id IN (189299,189300,189301,18930
 
 /* Boss damage */
 UPDATE `creature_template` SET `dmg_multiplier` = '3' WHERE `entry` = 26630;
--- Novos The Summoner
-UPDATE `creature_template` SET `dmg_multiplier` = '3' WHERE `entry` = 26631;
+-- King Dred
 UPDATE `creature_template` SET `dmg_multiplier` = '3' WHERE `entry` = 27483;
+-- Prophet Tharonja
 UPDATE `creature_template` SET `dmg_multiplier` = '3' WHERE `entry` = 26632;
 
 UPDATE creature_template SET AIName = 'EventAI' WHERE entry IN (26627,27600);
@@ -125,3 +211,19 @@ INSERT INTO `creature_ai_scripts` VALUES
 DELETE FROM spell_script_target WHERE entry = 52106;
 INSERT INTO spell_script_target VALUES
 (52106,1,26631);
+
+################### Prophet Tharon'Ja ##############################
+-- The Prophet Tharon'ja (normal)
+UPDATE creature_template SET
+faction_a = 14,
+faction_h = 14,
+minlevel = 82,
+maxlevel = 82,
+attackpower = 726,
+dmgmultiplier = 13,
+mindmg = 463,
+maxdmg = 640,
+minhealth = 275000,
+maxhealth = 276000
+WHERE entry = 26632;
+

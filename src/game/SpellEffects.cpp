@@ -5838,7 +5838,20 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                         unitTarget->CastSpell(unitTarget, 59314, true);
 
                     return;
-                }                                           // random spell learn instead placeholder
+                }
+                case 59910:                                 // Summon Minions
+                {
+                    if (!unitTarget)
+                        return;
+                                                            // Summon Fetid Troll (1-5)
+                    unitTarget->CastSpell(unitTarget, 59935, true);
+                    unitTarget->CastSpell(unitTarget, 59938, true);
+                    unitTarget->CastSpell(unitTarget, 59939, true);
+                    unitTarget->CastSpell(unitTarget, 59940, true);
+                    unitTarget->CastSpell(unitTarget, 59943, true);
+                    return;
+                }
+                                                            // random spell learn instead placeholder
                 case 60893:                                 // Northrend Alchemy Research
                 case 61177:                                 // Northrend Inscription Research
                 case 61288:                                 // Minor Inscription Research

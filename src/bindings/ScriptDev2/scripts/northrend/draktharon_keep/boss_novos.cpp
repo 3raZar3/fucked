@@ -49,7 +49,7 @@ enum
     SPELL_MISERY_H                          = 59856,
     SPELL_ARCANE_H                          = 59909,
     SPELL_BLIZZARD_H                        = 59854,
-    SPELL_SUMMON                            = 59910,
+    SPELL_SUMMON_TROLL_CORPSE               = 59910,
 
     SPELL_SUMMON_RISEN_SHADOWCASTER         = 49105,
     SPELL_SUMMON_SUMMON_FETID_TROLL_CORPSE  = 49103,
@@ -84,7 +84,7 @@ struct MANGOS_DLL_DECL boss_novosAI : public ScriptedAI
     uint32 m_uiMisery_Timer;
     uint32 m_uiArcane_Timer;
     uint32 m_uiBlizzard_Timer;
-	uint32 m_uiSummon_H_Timer;
+	uint32 m_uiSummonTrollCorpse_Timer;
 
     void Reset()
     {
@@ -93,7 +93,7 @@ struct MANGOS_DLL_DECL boss_novosAI : public ScriptedAI
         m_uiMisery_Timer = 10000;
         m_uiArcane_Timer = 25000;
         m_uiBlizzard_Timer = 30000;
-		m_uiSummon_H_Timer = 30000;
+		m_uiSummonTrollCorpse_Timer = 30000;
 
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         if (!m_pInstance)
@@ -106,7 +106,7 @@ struct MANGOS_DLL_DECL boss_novosAI : public ScriptedAI
     void Aggro(Unit* pWho)
     {
         DoScriptText(SAY_AGGRO, m_creature);
-        DoCast(m_creature, SPELL_FIELD, false);
+        DoCastSpellIfCan(m_creature, SPELL_FIELD);
 
         if (!m_pInstance)
             return;
@@ -153,40 +153,43 @@ struct MANGOS_DLL_DECL boss_novosAI : public ScriptedAI
         else
         {
             // phase 2
-            Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1);
-            if(!target)
-                target = m_creature->getVictim();
+            Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1);
+            if(!pTarget)
+                pTarget = m_creature->getVictim();
                 
             if (m_uiFrostbolt_Timer <= uiDiff)
             {
-                DoCast(target, m_bIsRegularMode ? SPELL_FROSTBOLT : SPELL_FROSTBOLT_H);
+                DoCastSpellIfCan(pTarget, m_bIsRegularMode ? SPELL_FROSTBOLT : SPELL_FROSTBOLT_H);
                 m_uiFrostbolt_Timer = urand(5000, 15000);
             }else m_uiFrostbolt_Timer -= uiDiff;
             
             if (m_uiMisery_Timer <= uiDiff)
             {
-                DoCast(target, m_bIsRegularMode ? SPELL_MISERY : SPELL_MISERY_H);
+                DoCastSpellIfCan(pTarget, m_bIsRegularMode ? SPELL_MISERY : SPELL_MISERY_H);
                 m_uiMisery_Timer = urand(15000, 35000);
             }else m_uiMisery_Timer -= uiDiff;
             
             if (m_uiArcane_Timer <= uiDiff)
             {
-                DoCast(m_creature->getVictim(), m_bIsRegularMode ? SPELL_ARCANE : SPELL_ARCANE_H);
+                DoCastSpellIfCan(m_creature->getVictim(), m_bIsRegularMode ? SPELL_ARCANE : SPELL_ARCANE_H);
                 m_uiArcane_Timer = urand(5000, 20000);
             }else m_uiArcane_Timer -= uiDiff;
             
             if (m_uiBlizzard_Timer <= uiDiff)
             {
-                DoCast(target, m_bIsRegularMode ? SPELL_ARCANE : SPELL_ARCANE_H);
+                DoCastSpellIfCan(pTarget, m_bIsRegularMode ? SPELL_ARCANE : SPELL_ARCANE_H);
                 m_uiBlizzard_Timer = urand(25000, 35000);
             }else m_uiBlizzard_Timer -= uiDiff;
             
 
-            if(!m_bIsRegularMode && m_uiSummon_H_Timer <= uiDiff)
+            if(!m_bIsRegularMode)
             {
-                DoCast(m_creature, SPELL_SUMMON);
-                m_uiSummon_H_Timer = urand(30000, 35000);
-            }else m_uiSummon_H_Timer -= uiDiff;
+                if (m_uiSummonTrollCorpse_Timer <= uiDiff)
+                {
+                    DoCastSpellIfCan(m_creature, SPELL_SUMMON_TROLL_CORPSE);
+                    m_uiSummonTrollCorpse_Timer = urand(30000, 35000);
+                }else m_uiSummonTrollCorpse_Timer -= uiDiff;
+            }
         }
         DoMeleeAttackIfReady();
     }
@@ -263,23 +266,23 @@ struct MANGOS_DLL_DECL npc_novos_summon_targetAI : public ScriptedAI
                 // cleanup mess event not on progress
                 if (m_pInstance->GetData(TYPE_NOVOS) != IN_PROGRESS)
                     CleanupAdds();
-                else
+                else if (m_pInstance->GetData(TYPE_CRYSTAL_EVENT) != DONE)
                 {
                     // summon random summon
-                    if (m_pInstance->GetData(TYPE_CRYSTAL_EVENT) != DONE && urand(0, 100) < 80)
+                    if (urand(0, 100) < 87)
                     {
                         switch(urand(0, 2))
                         {
-                            case 0: DoCast(m_creature, SPELL_SUMMON_RISEN_SHADOWCASTER, false); break;
-                            case 1: DoCast(m_creature, SPELL_SUMMON_SUMMON_FETID_TROLL_CORPSE, false); break;
-                            case 2: DoCast(m_creature, SPELL_SUMMON_HULKING_CORPSE, false); break;
+                            case 0: DoCastSpellIfCan(m_creature, SPELL_SUMMON_RISEN_SHADOWCASTER); break;
+                            case 1: DoCastSpellIfCan(m_creature, SPELL_SUMMON_SUMMON_FETID_TROLL_CORPSE); break;
+                            case 2: DoCastSpellIfCan(m_creature, SPELL_SUMMON_HULKING_CORPSE); break;
                         }
                     }
-                    else if (m_pInstance->GetData(TYPE_CRYSTAL_EVENT) != DONE)
+                    else
                     {
-                        if (Creature* pNovos = (Creature*)Unit::GetUnit((*m_creature), m_pInstance->GetData64(DATA_NOVOS)))
+                        if (Creature* pNovos = (Creature*)Unit::GetUnit((*m_creature), m_pInstance->GetData64(DATA_NOVOS))
                             DoScriptText(SAY_ADDS, pNovos);
-                        DoCast(m_creature, SPELL_SUMMON_CRISTAL_HANDLER, false);
+                        DoCastSpellIfCan(m_creature, SPELL_SUMMON_CRISTAL_HANDLER);
                     }
                 }
             }
