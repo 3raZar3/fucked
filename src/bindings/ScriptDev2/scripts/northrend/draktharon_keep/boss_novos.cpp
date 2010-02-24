@@ -16,9 +16,9 @@
 
 /* ScriptData
 SDName: Boss_Novos
-SD%Complete: 80%
-SDAuthor: Aramil
-SDComment: Incorect changing Phase. Change to second phase after 4th spawn of special NPC.
+SD%Complete:
+SDAuthor:
+SDComment:
 SDCategory: Drak'Tharon Keep
 EndScriptData */
 

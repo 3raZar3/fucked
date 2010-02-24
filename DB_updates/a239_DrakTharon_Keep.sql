@@ -227,3 +227,44 @@ minhealth = 275000,
 maxhealth = 276000
 WHERE entry = 26632;
 
+###################   Trollgore   ####################################
+DELETE FROM spell_script_target WHERE entry IN (49555,59807,49405);
+INSERT INTO spell_script_target VALUES
+-- Corpse Explosion focused on Draktaron Invider "A"
+(49555,1,27754),
+(59807,1,27754),
+-- Taunt Invider Trigger focused on Trollgore
+(49405,1,26630); 
+
+-- Draktaron Invider "C"
+UPDATE creature_template SET
+unit_flags = unit_flags|2|33554432
+WHERE entry = 27754;
+
+-- Trollgore Summon Target (hax)
+DELETE FROM creature_template WHERE entry = 40003;
+INSERT INTO `creature_template` VALUES 
+('40003','0','0','0','0','0','169','0','11686','0','Trollgore Summon Target','','','0','1','1','1','1','0','0','0','35','35','0','1','0.1','1','0','0','0','0','1','2000','0','1','33554434','0','0','0','0','0','0','0','0','0','10','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','','0','4','1','1','0','0','0','0','0','0','0','0','1','0','0','130','');
+-- Trollgore Summon Target
+DELETE FROM creature WHERE id = 40003;
+INSERT INTO `creature` VALUES
+('9000875','40003','600','3','1','0','0','-262.336','-660.278','26.5184','3.13495','25','0','0','1','0','0','0');
+
+-- Trollgore at the foot of the steps
+DELETE FROM creature_where guid = 127422;
+INSERT INTO creature VALUES
+('127422','26630','600','3','1','0','0','-294.981','-659.024','10.9238','3.14124','3600','5','0','431392','0','0','0');
+
+UPDATE creature_template SET AIName = 'EventAI' WHERE entry IN (27709);
+
+DELETE FROM creature_ai_scripts WHERE creature_id IN (27709);
+INSERT INTO creature_ai_scripts VALUES
+(2770901, 27709,6,0,100,6, 0,0,0,0, 11,49458,0,17, 0,0,0,0, 0,0,0,0, 'Drakthar Invader - summon own corpse'),
+(2770902, 27709,11,0,100,6, 0,0,0,0, 11,49405,0,0, 0,0,0,0, 0,0,0,0, 'Drakthar Invader - summon own corpse');
+
+-- Drakari Invader "C"
+DELETE FROM creature_template_addon WHERE entry = 27754;
+INSERT INTO creature_template_addon VALUES
+(27754,0,7,1,0,0,NULL);
+
+
