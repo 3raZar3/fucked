@@ -5719,6 +5719,45 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     unitTarget->CastSpell(unitTarget, 48589, true);
                     return;
                 }
+                // Consume (normal mode Trollgore - Drak'Tharok Keep)
+                case 49380:
+                {
+                    if (!unitTarget)
+                        return;
+
+                    // if Trollgore does not have 5 stacks of Cunsume apply one more
+                    Aura* aur = m_caster->GetAura(49381, eff_idx);
+                    if (!aur || aur->GetStackAmount() < 5)
+                        m_caster->CastSpell(m_caster, 49381, true);
+
+                    // Corpse Explode (prepare corpse to explode)
+                    m_caster->CastSpell(unitTarget, 49555, false);
+                    return;
+                }
+                // Taunt Invider Trigger (Trollgore - Drak'Tharon Keep)
+                case 49405:
+                {
+                    if (!unitTarget)
+                        return;
+                    //cast back Trollgore -> Taunt Invider 
+                    unitTarget->CastSpell(m_caster, 49406, true);
+                    return;
+                }
+                // Consume (heroic mode Trollgore - Drak'Tharok Keep)
+                case 59803:
+                {
+                    if (!unitTarget)
+                        return;
+
+                    // if Trollgore does not have 5 stacks of Cunsume apply one more
+                    Aura* aur = m_caster->GetAura(59805, eff_idx);
+                    if (!aur || aur->GetStackAmount() < 5)
+                        m_caster->CastSpell(m_caster, 59805, true);
+
+                    // Corpse Explode (prepare corpse to explode)
+                    m_caster->CastSpell(unitTarget, 59807, false);
+                    return;
+                }
                 case 51770:                                 // Emblazon Runeblade
                 {
                     Unit* caster = GetAffectiveCaster();
