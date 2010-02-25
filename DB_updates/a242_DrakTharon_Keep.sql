@@ -1,3 +1,9 @@
+################### not related trash  #############################
+
+-- Drakkari dead guardians realy dead
+UPDATE creature SET 
+DeathState = 1 WHERE id = 26620 AND guid IN (SELECT guid FROM creature_addon WHERE bytes1 = 7);
+
 ################### Novos the Summoner #############################
 -- Crystal Channel Target
 UPDATE creature_template SET 
@@ -213,19 +219,37 @@ INSERT INTO spell_script_target VALUES
 (52106,1,26631);
 
 ################### Prophet Tharon'Ja ##############################
--- The Prophet Tharon'ja (normal)
+-- Tharon'ja spawn
+DELETE FROM `creature` WHERE id = 26632;
+INSERT INTO `creature` VALUES ('9000047','26632','600','3','1','0','0','-237.689','-675.933','131.865','1.60904','286400','0','0','512278','4169','0','0');
+
+-- The Prophet Tharon'ja (N)
 UPDATE creature_template SET
-faction_a = 14,
-faction_h = 14,
-minlevel = 82,
-maxlevel = 82,
+faction_a = 21,
+faction_h = 21,
+minlevel = 71,
+maxlevel = 75,
 attackpower = 726,
-dmgmultiplier = 13,
+dmg_multiplier = 7,
 mindmg = 463,
 maxdmg = 640,
 minhealth = 275000,
 maxhealth = 276000
 WHERE entry = 26632;
+
+-- The Prophet Tharon'ja (H)
+UPDATE creature_template SET
+faction_a = 21,
+faction_h = 21,
+minlevel = 82,
+maxlevel = 82,
+attackpower = 726,
+dmg_multiplier = 13,
+mindmg = 463,
+maxdmg = 640,
+minhealth = 510000,
+maxhealth = 520000
+WHERE entry = 31360;
 
 ###################   Trollgore   ####################################
 DELETE FROM spell_script_target WHERE entry IN (49555,59807,49405);
@@ -274,6 +298,3 @@ UPDATE creature_template SET ScriptName = 'boss_dred' WHERE entry = 27483;
 DELETE FROM script_texts WHERE entry = -1999797;
 INSERT INTO script_texts (`entry`, `content_default`, `type`, `comment`) VALUES
 (-1999797,'%s rises his talon menacingly!',3,'RAID_EMOTE_RISE_TALOON');
-
-
-

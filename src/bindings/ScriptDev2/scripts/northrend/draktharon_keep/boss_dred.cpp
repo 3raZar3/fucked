@@ -107,7 +107,6 @@ struct MANGOS_DLL_DECL boss_dredAI : public ScriptedAI
         if (FearsomeRoarTimer <= uiDiff)
         {
             DoCastSpellIfCan(m_creature, m_bIsRegularMode ? SPELL_FEARSOME_ROAR : H_SPELL_FEARSOME_ROAR);
-            DoScriptText(RAID_EMOTE_RISE_TALOON, m_creature);
             FearsomeRoarTimer = urand(16000, 18000);
         } else FearsomeRoarTimer -=uiDiff;
 
@@ -120,7 +119,10 @@ struct MANGOS_DLL_DECL boss_dredAI : public ScriptedAI
         if (RaptorCallTimer <= uiDiff)
         {
             if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+            {
+                DoScriptText(RAID_EMOTE_RISE_TALOON, m_creature);
                 DoCastSpellIfCan(pTarget, SPELL_RAPTOR_CALL);
+            }
             RaptorCallTimer = urand(20000, 25000);
         } else RaptorCallTimer -= uiDiff;
 
