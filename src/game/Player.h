@@ -127,7 +127,7 @@ struct SpellModifier
 };
 
 typedef UNORDERED_MAP<uint32, PlayerTalent*> PlayerTalentMap;
-typedef UNORDERED_MAP<uint32, PlayerSpell*> PlayerSpellMap;
+typedef UNORDERED_MAP<uint32, PlayerSpell> PlayerSpellMap;
 typedef std::list<SpellModifier*> SpellModList;
 
 struct SpellCooldown
