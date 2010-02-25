@@ -2244,6 +2244,28 @@ void Aura::TriggerSpell()
 
                 break;
             }
+            // Earthen Power (from Earthbind Totem Passive)
+            case 6474:
+            {
+                Unit *owner = target->GetOwner();
+
+                if (!owner)
+                    break;
+
+                Unit::AuraList const& dummyAuras = owner->GetAurasByType(SPELL_AURA_DUMMY);
+                for(Unit::AuraList::const_iterator itr = dummyAuras.begin(); itr != dummyAuras.end(); ++itr)
+                {
+                    if ((*itr)->GetSpellProto()->SpellIconID == 2289 && (*itr)->GetSpellProto()->SpellFamilyName == SPELLFAMILY_SHAMAN)
+                    {
+                        if (!roll_chance_i((*itr)->GetModifier()->m_amount))
+                            break;
+
+                        target->CastSpell(target, 59566, true, NULL, this);
+                        break;
+                    }
+                 }
+                break;
+             }
             // Mana Tide
             case 16191:
             {
@@ -2254,6 +2276,24 @@ void Aura::TriggerSpell()
             case 33525:
                 target->CastSpell(target, trigger_spell_id, true, NULL, this, casterGUID);
                 return;
+            // Penance
+            case 47758: // Hurt effect - Rank 1
+            case 53001: // Hurt effect - Rank 2
+            case 53002: // Hurt effect - Rank 3
+            case 53003: // Hurt effect - Rank 4
+            case 47757: // Heal effect - Rank 1
+            case 52986: // Heal effect - Rank 2
+            case 52987: // Heal effect - Rank 3
+            case 52988: // Heal effect - Rank 4
+            {
+                Unit* caster = GetCaster();
+                if (!target->isAlive())
+                {
+                    caster->RemoveAurasDueToSpell(auraId);
+                    return;
+                }
+                break;
+            }
             // Beacon of Light
             case 53563:
                 // original caster must be target (beacon)
@@ -2832,6 +2872,17 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
         }
         case SPELLFAMILY_PRIEST:
         {
+            // Penance
+            if (m_spellProto->SpellIconID == 225)
+            {
+                Unit* caster = GetCaster();
+                if (!caster || caster->GetTypeId() != TYPEID_PLAYER)
+                    return;
+
+                if (apply && m_target)
+                    ((Player*)caster)->SetSelection(m_target->GetGUID());
+                return;
+            }
             // Pain and Suffering
             if( m_spellProto->SpellIconID == 2874 && m_target->GetTypeId()==TYPEID_PLAYER )
             {
@@ -4398,10 +4449,6 @@ void Aura::HandleAuraModRoot(bool apply, bool Real)
             }
         }
     }
-
-    // Heroic Fury (remove Intercept cooldown)
-    if( apply && GetId() == 60970 && m_target->GetTypeId() == TYPEID_PLAYER )
-        ((Player*)m_target)->RemoveSpellCooldown(20252,true);
 }
 
 void Aura::HandleAuraModSilence(bool apply, bool Real)
@@ -4514,13 +4561,16 @@ void Aura::HandleModTaunt(bool apply, bool Real)
 /*********************************************************/
 /***                  MODIFY SPEED                     ***/
 /*********************************************************/
-void Aura::HandleAuraModIncreaseSpeed(bool /*apply*/, bool Real)
+void Aura::HandleAuraModIncreaseSpeed(bool apply, bool Real)
 {
     // all applied/removed only at real aura add/remove
     if(!Real)
         return;
 
     m_target->UpdateSpeed(MOVE_RUN, true);
+
+    if (apply && GetSpellProto()->Id == 58875)
+        m_target->CastSpell(m_target, 58876, true);
 }
 
 void Aura::HandleAuraModIncreaseMountedSpeed(bool apply, bool Real)
@@ -4673,6 +4723,9 @@ void Aura::HandleModMechanicImmunity(bool apply, bool /*Real*/)
             }
         }
     }
+    // Heroic Fury (remove Intercept cooldown)
+    if(apply && GetId() == 60970 && m_target->GetTypeId() == TYPEID_PLAYER)
+        ((Player*)m_target)->RemoveSpellCooldown(20252, true);
 }
 
 void Aura::HandleModMechanicImmunityMask(bool apply, bool /*Real*/)
@@ -4961,6 +5014,20 @@ void Aura::HandleAuraPeriodicDummy(bool apply, bool Real)
 void Aura::HandlePeriodicHeal(bool apply, bool /*Real*/)
 {
     m_isPeriodic = apply;
+
+	// Gift of the Naaru
+	if ((m_spellProto->SpellFamilyFlags2 & UI64LIT(0x80000000)) && m_spellProto->SpellVisual[0] == 7625)
+	{
+		Unit *caster = GetCaster();
+		if (!caster)
+			return;
+
+		int32 ap = int32 (0.22f * caster->GetTotalAttackPowerValue(BASE_ATTACK));
+		int32 holy = caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellProto))
+				   + caster->SpellBaseDamageBonusForVictim(GetSpellSchoolMask(m_spellProto), m_target);
+		holy = int32(holy * 377 / 1000);
+		m_modifier.m_amount += ap > holy ? ap : holy;
+	}
 }
 
 void Aura::HandlePeriodicDamage(bool apply, bool Real)
