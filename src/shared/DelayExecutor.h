@@ -1,4 +1,4 @@
-﻿#ifndef _M_DELAY_EXECUTOR_H
+#ifndef _M_DELAY_EXECUTOR_H
 #define    _M_DELAY_EXECUTOR_H
 
 #include <ace/Task.h>

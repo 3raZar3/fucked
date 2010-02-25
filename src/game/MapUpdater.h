@@ -1,4 +1,4 @@
-﻿#ifndef _MAP_UPDATER_H_INCLUDED
+#ifndef _MAP_UPDATER_H_INCLUDED
 #define _MAP_UPDATER_H_INCLUDED
 
 

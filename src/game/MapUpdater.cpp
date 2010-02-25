@@ -1,4 +1,4 @@
-﻿#include "MapUpdater.h"
+#include "MapUpdater.h"
 
 #include "DelayExecutor.h"
 #include "Map.h"
