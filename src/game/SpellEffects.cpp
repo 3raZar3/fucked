@@ -1159,6 +1159,23 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     return;
                 }
                 */
+                case 43882:                                 // Scourging Crystal Controller Dummy
+                {
+                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
+                        return;
+
+                    // see spell dummy 50133
+                    unitTarget->RemoveAurasDueToSpell(43874);
+                    return;
+                }
+                case 44454:                                 // Tasty Reef Fish
+                {
+                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
+                        return;
+
+                    m_caster->CastSpell(unitTarget, 44455, true, m_CastItem);
+                    return;
+                }
                 case 44875:                                 // Complete Raptor Capture
                 {
                     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
@@ -1339,6 +1356,22 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     }
                     return;
                 }
+                case 50133:                                 // Scourging Crystal Controller
+                {
+                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
+                        return;
+
+                    if (unitTarget->HasAura(43874))
+                    {
+                        // someone else is already channeling target
+                        if (unitTarget->HasAura(43878))
+                            return;
+
+                        m_caster->CastSpell(unitTarget, 43878, true, m_CastItem);
+                    }
+
+                    return;
+                }
                 case 50243:                                 // Teach Language
                 {
                     if (m_caster->GetTypeId() != TYPEID_PLAYER)
@@ -1475,6 +1508,16 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                             if(BattleGround *bg = pPlayer->GetBattleGround())
                                 bg->EventPlayerDroppedFlag(pPlayer);
                     }
+                    return;
+                }
+                case 55818:                                 // Hurl Boulder
+                {
+                    // unclear how many summon min/max random, best guess below
+                    uint32 random = urand(3,5);
+
+                    for(uint32 i = 0; i < random; ++i)
+                        m_caster->CastSpell(m_caster, 55528, true);
+
                     return;
                 }
                 case 58418:                                 // Portal to Orgrimmar
@@ -2397,7 +2440,7 @@ void Spell::EffectTriggerSpell(SpellEffectIndex effIndex)
             for (PlayerSpellMap::const_iterator itr = sp_list.begin(); itr != sp_list.end(); ++itr)
             {
                 // only highest rank is shown in spell book, so simply check if shown in spell book
-                if (!itr->second->active || itr->second->disabled || itr->second->state == PLAYERSPELL_REMOVED)
+                if (!itr->second.active || itr->second.disabled || itr->second.state == PLAYERSPELL_REMOVED)
                     continue;
 
                 SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->first);
@@ -5397,7 +5440,6 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     }
                     return;
                 }
-
                 case 8856:                                  // Bending Shinbone
                 {
                     if(!itemTarget && m_caster->GetTypeId()!=TYPEID_PLAYER)
@@ -5574,17 +5616,15 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     unitTarget->CastSpell(unitTarget, 41131, true);
                     break;
                 }
-                // Sprout (Headless Horsemann spell)
-                case 42281:
+                case 42281:                                 // Sprout (Headless Horsemann spell)
                 {
                     if (!unitTarget)
                         return;
 
-                    unitTarget->CastSpell(unitTarget,42285,true);
-                    break;
+                    unitTarget->CastSpell(unitTarget, 42285, true);
+                    return;
                 }
-                // Electrical Storm
-                case 43648:
+                case 43648:                                 // Electrical Storm
                 {
                     if (!unitTarget)
                         return;
@@ -5594,7 +5634,40 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     unitTarget->CastSpell(unitTarget, 45213, true);
                     // set safe spot below caster
                     unitTarget->CastSpell(unitTarget, 44007, true);
-                    break;
+                    return;
+                }
+                case 44455:                                 // Character Script Effect Reverse Cast
+                {
+                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
+                        return;
+
+                    Creature* pTarget = (Creature*)unitTarget;
+
+                    if (const SpellEntry *pSpell = sSpellStore.LookupEntry(m_spellInfo->CalculateSimpleValue(eff_idx)))
+                    {
+                        // if we used item at least once...
+                        if (pTarget->isTemporarySummon() && pTarget->GetEntry() == pSpell->EffectMiscValue[eff_idx])
+                        {
+                            TemporarySummon* pSummon = (TemporarySummon*)pTarget;
+
+                            // can only affect "own" summoned
+                            if (pSummon->GetSummonerGUID() == m_caster->GetGUID())
+                            {
+                                if (pTarget->hasUnitState(UNIT_STAT_ROAMING | UNIT_STAT_ROAMING_MOVE))
+                                    pTarget->GetMotionMaster()->MovementExpired();
+
+                                pTarget->GetMotionMaster()->MovePoint(0, m_caster->GetPositionX(), m_caster->GetPositionY(), m_caster->GetPositionZ());
+                            }
+
+                            return;
+                        }
+
+                        // or if we are first time used item
+                        m_caster->CastSpell(pTarget, pSpell, true);
+                        pTarget->ForcedDespawn();
+                    }
+
+                    return;
                 }
                 case 44876:                                 // Force Cast - Portal Effect: Sunwell Isle
                 {
@@ -5604,8 +5677,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     unitTarget->CastSpell(unitTarget, 44870, true);
                     break;
                 }
-                // Arcane Chains: Character Force Cast
-                case 45625:
+                case 45625:                                 // Arcane Chains: Character Force Cast
                 {
                     if(!unitTarget)
                         return;
@@ -5614,6 +5686,39 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
 
                     break;
                 }
+                /* Spell 51912 that trigger this need correction before this can work.
+                   Some additional research also seem to be needed + adjustment, this is mostly place holder for spells used.
+                case 45668:                                 // Ultra-Advanced Proto-Typical Shortening Blaster
+                {
+                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
+                        return;
+
+                    if (roll_chance_i(50))                  // chance unknown, using 50
+                        return;
+
+                    static uint32 const spellPlayer[5] =
+                    {
+                        {45674},                            // Bigger!
+                        {45675},                            // Shrunk
+                        {45678},                            // Yellow
+                        {45682},                            // Ghost
+                        {45684}                             // Polymorph
+                    };
+
+                    static uint32 const spellTarget[5] =
+                    {
+                        {45673},                            // Bigger!
+                        {45672},                            // Shrunk
+                        {45677},                            // Yellow
+                        {45681},                            // Ghost
+                        {45683}                             // Polymorph
+                    };
+
+                    m_caster->CastSpell(m_caster, spellPlayer[urand(0,4)], true);
+                    unitTarget->CastSpell(unitTarget, spellTarget[urand(0,4)], true);
+
+                    return;
+                }*/
                 case 46203:                                 // Goblin Weather Machine
                 {
                     if(!unitTarget)
