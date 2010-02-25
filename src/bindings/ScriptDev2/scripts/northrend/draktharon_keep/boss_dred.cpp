@@ -18,37 +18,36 @@
 SDName: Boss dred
 SDAuthor: Manuel
 SD%Complete: 100 %
-SDComment: MAYBE need more improve the "Raptor Call".
+SDComment:
 SDCategory:
 Script Data End */
 
 #include "precompiled.h"
 #include "instance_draktharon_keep.h"
 
-enum eSpells
+enum
 {
-    SPELL_BELLOWING_ROAR                                   = 22686, // fears the group, can be resisted/dispelled
-    SPELL_GRIEVOUS_BITE                                    = 48920,
-    SPELL_MANGLING_SLASH                                   = 48873, //casted on the current tank, adds debuf
-    SPELL_FEARSOME_ROAR                                    = 48849,
-    H_SPELL_FEARSOME_ROAR                                  = 59422, //Not stacking, debuff
-    SPELL_PIERCING_SLASH                                   = 48878, //debuff -->Armor reduced by 75%
-    SPELL_RAPTOR_CALL                                      = 59416, //dummy
-    SPELL_GUT_RIP                                          = 49710,
-    SPELL_REND                                             = 13738
-};
+    RAID_EMOTE_RISE_TALOON                      = -1999797,
 
-enum Creatures
-{
-    NPC_RAPTOR_1                                           = 26641,
-    NPC_RAPTOR_2                                           = 26628
+    SPELL_BELLOWING_ROAR                        = 22686, // fears the group, can be resisted/dispelled
+    SPELL_GRIEVOUS_BITE                         = 48920,
+    SPELL_MANGLING_SLASH                        = 48873, //casted on the current tank, adds debuf
+    SPELL_FEARSOME_ROAR                         = 48849,
+    H_SPELL_FEARSOME_ROAR                       = 59422, //Not stacking, debuff
+    SPELL_PIERCING_SLASH                        = 48878, //debuff -->Armor reduced by 75%
+    SPELL_RAPTOR_CALL                           = 59416, //dummy
+    SPELL_GUT_RIP                               = 49710,
+    SPELL_REND                                  = 13738,
+
+    NPC_DRAKKARI_GUTRIPPER                      = 26641,
+    NPC_DRAKKARI_SCYTHECLAW                     = 26628
 };
 
 struct MANGOS_DLL_DECL boss_dredAI : public ScriptedAI
 {
     boss_dredAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
         m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
         Reset();
     }
@@ -59,87 +58,79 @@ struct MANGOS_DLL_DECL boss_dredAI : public ScriptedAI
     uint32 FearsomeRoarTimer;
     uint32 PiercingSlashTimer;
     uint32 RaptorCallTimer;
-	bool m_bIsRegularMode;
-    ScriptedInstance* pInstance;
+    bool m_bIsRegularMode;
+    ScriptedInstance* m_pInstance;
 
     void Reset()
     {
-        if (pInstance)
-        {
-            pInstance->SetData(TYPE_DREK,NOT_STARTED);
-        }
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_DREK,NOT_STARTED);
 
         BellowingRoarTimer = 33000;
         GrievousBiteTimer  = 20000;
         ManglingSlashTimer = 18500;
-        FearsomeRoarTimer  = urand(10000,20000);
+        FearsomeRoarTimer  = urand(10000, 20000);
         PiercingSlashTimer = 17000;
-        RaptorCallTimer    = urand(20000,25000);
+        RaptorCallTimer    = urand(20000, 25000);
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* pWho)
     {
-        if (pInstance)
-            pInstance->SetData(TYPE_DREK,IN_PROGRESS);
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_DREK, IN_PROGRESS);
     }
 
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 uiDiff)
     {
         //Return since we have no target
          if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
-        if (BellowingRoarTimer < diff)
+        if (BellowingRoarTimer <= uiDiff)
         {
-            DoCast(m_creature, SPELL_BELLOWING_ROAR, false);
+            DoCastSpellIfCan(m_creature, SPELL_BELLOWING_ROAR);
             BellowingRoarTimer = 40000;
-        } else BellowingRoarTimer -=diff;
+        } else BellowingRoarTimer -= uiDiff;
 
-        if (GrievousBiteTimer < diff)
+        if (GrievousBiteTimer <= uiDiff)
         {
-			DoCast(m_creature->getVictim(),SPELL_GRIEVOUS_BITE ,false);
+            DoCastSpellIfCan(m_creature->getVictim(), SPELL_GRIEVOUS_BITE);
             GrievousBiteTimer = 20000;
-        } else GrievousBiteTimer -=diff;
+        } else GrievousBiteTimer -= uiDiff;
 
-        if (ManglingSlashTimer < diff)
+        if (ManglingSlashTimer <= uiDiff)
         {
-            DoCast(m_creature->getVictim(),SPELL_MANGLING_SLASH,false);
+            DoCastSpellIfCan(m_creature->getVictim(), SPELL_MANGLING_SLASH);
             ManglingSlashTimer = 20000;
-        } else ManglingSlashTimer -=diff;
+        } else ManglingSlashTimer -= uiDiff;
 
-        if (FearsomeRoarTimer < diff)
+        if (FearsomeRoarTimer <= uiDiff)
         {
-			DoCast(m_creature, m_bIsRegularMode ? SPELL_FEARSOME_ROAR : H_SPELL_FEARSOME_ROAR);
-            FearsomeRoarTimer = urand(16,18)*1000;
-        } else FearsomeRoarTimer -=diff;
+            DoCastSpellIfCan(m_creature, m_bIsRegularMode ? SPELL_FEARSOME_ROAR : H_SPELL_FEARSOME_ROAR);
+            DoScriptText(RAID_EMOTE_RISE_TALOON, m_creature);
+            FearsomeRoarTimer = urand(16000, 18000);
+        } else FearsomeRoarTimer -=uiDiff;
 
-        if (PiercingSlashTimer < diff)
+        if (PiercingSlashTimer <= uiDiff)
         {
-            DoCast(m_creature->getVictim(),SPELL_PIERCING_SLASH,false);
+            DoCastSpellIfCan(m_creature->getVictim(), SPELL_PIERCING_SLASH);
             PiercingSlashTimer = 20000;
-        } else PiercingSlashTimer -=diff;
+        } else PiercingSlashTimer -= uiDiff;
 
-        if (RaptorCallTimer < diff)
+        if (RaptorCallTimer <= uiDiff)
         {
-            DoCast(m_creature->getVictim(), SPELL_RAPTOR_CALL,false);
-
-            float x,y,z;
-
-            m_creature->GetClosePoint(x,y,z,m_creature->GetObjectSize()/3,10.0f);
-            m_creature->SummonCreature(urand(NPC_RAPTOR_1,NPC_RAPTOR_2),x,y,z,0,TEMPSUMMON_DEAD_DESPAWN,1000);
-
-            RaptorCallTimer = urand(20000,25000);
-        } else RaptorCallTimer -=diff;
+            if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                DoCastSpellIfCan(pTarget, SPELL_RAPTOR_CALL);
+            RaptorCallTimer = urand(20000, 25000);
+        } else RaptorCallTimer -= uiDiff;
 
         DoMeleeAttackIfReady();
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* pKiller)
     {
-        if (pInstance)
-        {
-            pInstance->SetData(TYPE_DREK,DONE);
-        }
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_DREK, DONE);
     }
 };
 
@@ -148,83 +139,51 @@ CreatureAI* GetAI_boss_dred(Creature* pCreature)
     return new boss_dredAI (pCreature);
 }
 
-struct MANGOS_DLL_DECL npc_drakkari_gutripperAI : public ScriptedAI
+bool EffectDummyCreature_boss_dred(Unit* pCaster, uint32 uiSpellId, SpellEffectIndex uiEffIndex, Creature* pCreatureTarget)
 {
-    npc_drakkari_gutripperAI(Creature* pCreature) : ScriptedAI(pCreature)
+    // select random raptor
+    if (uiSpellId == SPELL_RAPTOR_CALL && uiEffIndex == EFFECT_INDEX_0)
     {
-        pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
-        m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
-        Reset();
-    }
-
-    ScriptedInstance* pInstance;
-
-    uint32 GutRipTimer;
-	bool m_bIsRegularMode;
-    void Reset()
-    {
-        GutRipTimer = urand(10000,15000);
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        //Return since we have no target
-        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
-            return;
-
-        if (GutRipTimer < diff)
+        // initialize list where nearby raptors will be stored
+        std::list<Creature*>lRaptors;
+        std::list<Creature*>lTemp;
+        // lookup for NPC_DRAKKARI_GUTRIPPER
+        GetCreatureListWithEntryInGrid(lTemp, pCaster, NPC_DRAKKARI_GUTRIPPER, 100.0f);
+        if (!lTemp.empty())
         {
-            DoCast(m_creature->getVictim(), SPELL_GUT_RIP,false);
-            GutRipTimer = urand(10000,15000);
-        }else GutRipTimer -=diff;
+            // sore only those matching conditions
+            for (std::list<Creature*>::iterator itr = lTemp.begin(); itr != lTemp.end(); ++itr)
+                if ((*itr) && (*itr)->isAlive() && pCaster->isInAccessablePlaceFor(*itr))
+                    lRaptors.push_back(*itr);
 
-        DoMeleeAttackIfReady();
-    }
-};
-
-CreatureAI* GetAI_npc_drakkari_gutripper(Creature* pCreature)
-{
-    return new npc_drakkari_gutripperAI (pCreature);
-}
-
-struct MANGOS_DLL_DECL npc_drakkari_scytheclawAI : public ScriptedAI
-{
-    npc_drakkari_scytheclawAI(Creature* pCreature) : ScriptedAI(pCreature)
-    {
-        pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
-        m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
-        Reset();
-    }
-
-    ScriptedInstance* pInstance;
-
-    uint32 RendTimer;
-	bool m_bIsRegularMode;
-    void Reset()
-    {
-        RendTimer = urand(10000,15000);
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        //Return since we have no target
-        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
-            return;
-
-        if (RendTimer < diff)
+            // drop temp list before next type of mobs will be processed in the same list
+            lTemp.clear();
+        }
+        GetCreatureListWithEntryInGrid(lTemp, pCaster, NPC_DRAKKARI_SCYTHECLAW, 100.0f);
+        if (!lTemp.empty())
         {
-            DoCast(m_creature->getVictim(), SPELL_REND,false);
-            RendTimer = urand(10000,15000);
-        }else RendTimer -=diff;
+            for (std::list<Creature*>::iterator itr = lTemp.begin(); itr != lTemp.end(); ++itr)
+                if ((*itr) && (*itr)->isAlive() && pCaster->isInAccessablePlaceFor(*itr))
+                    lRaptors.push_back(*itr);
+            lTemp.clear();
+        }
 
-        DoMeleeAttackIfReady();
+        if (lRaptors.empty())
+            return false;
+
+        std::list<Creature*>::iterator itr = lRaptors.begin();
+        // select random raptor
+        advance(itr, rand() % lRaptors.size());
+
+        Unit* pTarget = pCaster->getVictim();
+        // if everything OK - make raptor attack current target
+        if (pTarget && (*itr))
+            (*itr)->AI()->AttackStart(pTarget);
+ 
+        //always return true when we are handling this spell and effect
+        return true;
     }
-
-};
-
-CreatureAI* GetAI_npc_drakkari_scytheclaw(Creature* pCreature)
-{
-    return new npc_drakkari_scytheclawAI (pCreature);
+    return false;
 }
 
 void AddSC_boss_dred()
@@ -232,17 +191,8 @@ void AddSC_boss_dred()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name = "npc_drakkari_gutripper";
-    newscript->GetAI = &GetAI_npc_drakkari_gutripper;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "npc_drakkari_scytheclaw";
-    newscript->GetAI = &GetAI_npc_drakkari_scytheclaw;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
     newscript->Name = "boss_dred";
     newscript->GetAI = &GetAI_boss_dred;
+    newscript->pEffectDummyCreature = &EffectDummyCreature_boss_dred;
     newscript->RegisterSelf();
 }

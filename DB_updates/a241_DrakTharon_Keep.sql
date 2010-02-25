@@ -267,4 +267,13 @@ DELETE FROM creature_template_addon WHERE entry = 27754;
 INSERT INTO creature_template_addon VALUES
 (27754,0,7,1,0,0,NULL);
 
+######################### King Dred  #################################
+
+UPDATE creature_template SET ScriptName = 'boss_dred' WHERE entry = 27483;
+
+DELETE FROM script_texts WHERE entry = -1999797;
+INSERT INTO script_texts (`entry`, `content_default`, `type`, `comment`) VALUES
+(-1999797,'%s rises his talon menacingly!',3,'RAID_EMOTE_RISE_TALOON');
+
+
 
