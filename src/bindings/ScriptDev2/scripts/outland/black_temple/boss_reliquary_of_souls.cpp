@@ -326,7 +326,7 @@ struct MANGOS_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
                 {
                     if (EssenceSuffering)
                     {
-                        if (EssenceSuffering->GetHealth() < (EssenceSuffering->GetMaxHealth()*0.1))
+                        if (EssenceSuffering->GetHealthPercent() < 10.0f)
                         {
                             DoScriptText(SUFF_SAY_RECAP, EssenceSuffering);
                             MergeThreatList(EssenceSuffering);
@@ -429,7 +429,7 @@ struct MANGOS_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
 
                 if (!EndingPhase && EssenceDesire)
                 {
-                    if (EssenceDesire->GetHealth() < (EssenceDesire->GetMaxHealth()*0.1))
+                    if (EssenceDesire->GetHealthPercent() < 10.0f)
                     {
                         MergeThreatList(EssenceDesire);
                         EssenceDesire->GetMotionMaster()->MoveFollow(m_creature,0.0f,0.0f);
@@ -635,7 +635,7 @@ struct MANGOS_DLL_DECL boss_essence_of_sufferingAI : public ScriptedAI
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
-        if (m_creature->GetHealth() <= (m_creature->GetMaxHealth()*0.1))
+        if (m_creature->GetHealthPercent() <= 10.0f)
         {
             if (StatAuraGUID)
             {
@@ -646,7 +646,7 @@ struct MANGOS_DLL_DECL boss_essence_of_sufferingAI : public ScriptedAI
             }
         }
 
-        if (m_creature->GetHealth() <= (m_creature->GetMaxHealth()*0.1))
+        if (m_creature->GetHealthPercent() <= 10.0f)
         {
             if (m_creature->getVictim())
                 m_creature->DeleteThreatList();             // Delete our threatlist if below 10% as we should no longer attack.
@@ -765,7 +765,7 @@ struct MANGOS_DLL_DECL boss_essence_of_desireAI : public ScriptedAI
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
-        if (m_creature->GetHealth() <= (m_creature->GetMaxHealth()*0.1))
+        if (m_creature->GetHealthPercent() <= 10.0f)
         {
             if (m_creature->getVictim())
                 m_creature->DeleteThreatList();             // Delete our threatlist if below 10% as we should no longer attack.

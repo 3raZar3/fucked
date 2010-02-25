@@ -192,7 +192,7 @@ struct MANGOS_DLL_DECL boss_volkhanAI : public ScriptedAI
         }
 
         // Health check
-        if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < (100-(20*m_uiHealthAmountModifier)))
+        if (!m_bCanShatter && m_creature->GetHealthPercent() < float(100 - 20*m_uiHealthAmountModifier))
         {
             SummonGolems();
             ++m_uiHealthAmountModifier;

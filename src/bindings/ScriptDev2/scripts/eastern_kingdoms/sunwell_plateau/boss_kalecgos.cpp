@@ -249,7 +249,7 @@ struct MANGOS_DLL_DECL boss_kalecgosAI : public ScriptedAI
         }
 
         /* Banish at 1% hp working */
-        if (((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) <= 1) && !bBanished)
+        if (!bBanished && (m_creature->GetHealthPercent() < 1.0f))
         {
             if (m_pInstance)
                 m_pInstance->SetData(DATA_KALECGOS_EVENT, DONE);
@@ -259,7 +259,7 @@ struct MANGOS_DLL_DECL boss_kalecgosAI : public ScriptedAI
 
         //Mising VMAPS workarroud, ANTY BUG :D
         if (Unit* pSpectral = Unit::GetUnit(*m_creature, m_uiNormalGUID))
-            if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) > 1)
+            if (m_creature->GetHealthPercent() > 1.0f)
                 if (!m_creature->IsInRange(pSpectral, 0.0f, 50.0f, true))
                 {
                     m_creature->GetMap()->CreatureRelocation(m_creature, m_creature->GetPositionX(), m_creature->GetPositionY(), DRAGON_REALM_Z, m_creature->GetOrientation());
@@ -293,7 +293,7 @@ struct MANGOS_DLL_DECL boss_kalecgosAI : public ScriptedAI
                 bEnraged = true;
             }
 
-            if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 10)
+        if (m_creature->GetHealthPercent() < 10.0f)
             {
                 if (m_pInstance) 
                     m_pInstance->SetData(DATA_SATHROVARR_EVENT,SPECIAL);
@@ -539,7 +539,7 @@ struct MANGOS_DLL_DECL boss_sathrovarrAI : public ScriptedAI
 
         if (!bBanished)
             if (Unit* pSpectral = Unit::GetUnit(*m_creature, m_uiSpectralGUID))
-                if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) > 1)
+                if (m_creature->GetHealthPercent() > 1.0f)
                     if (!m_creature->IsInRange(pSpectral, 0.0f, 50.0f, true))
                     {
                         m_creature->GetMap()->CreatureRelocation(m_creature, m_creature->GetPositionX(), m_creature->GetPositionY(), DEMON_REALM_Z, m_creature->GetOrientation());
@@ -577,7 +577,7 @@ struct MANGOS_DLL_DECL boss_sathrovarrAI : public ScriptedAI
             }
 
         // Banish at 1% hp working
-        if (((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 1) && !bBanished)
+        if (!bBanished && m_creature->GetHealthPercent() < 1.0f)
         {
             //Stop  Kalecgos portal creation if not bBanished
             if (m_pInstance && m_pInstance->GetData(DATA_KALECGOS_EVENT) != DONE)
@@ -600,7 +600,7 @@ struct MANGOS_DLL_DECL boss_sathrovarrAI : public ScriptedAI
                 bEnraged = true;
             }
 
-            if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 10)
+            if (m_creature->GetHealthPercent() < 10.0f)
             {
                 if (m_pInstance) 
                     m_pInstance->SetData(DATA_SATHROVARR_EVENT,SPECIAL);
@@ -725,14 +725,14 @@ struct MANGOS_DLL_DECL boss_kalecAI : public ScriptedAI
                 m_uiYellSequence++;
                 break;
             case 1:
-                if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 50) 
+                if (m_creature->GetHealthPercent() < 50.0f) 
                 {
                     DoScriptText(SAY_GOOD_NEAR_DEATH, m_creature);
                     m_uiYellSequence++;
                 }
                 break;
             case 2:
-                if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 10) 
+                if (m_creature->GetHealthPercent() < 10.0f) 
                 {
                     DoScriptText(SAY_GOOD_NEAR_DEATH2, m_creature);
                     m_uiYellSequence++;

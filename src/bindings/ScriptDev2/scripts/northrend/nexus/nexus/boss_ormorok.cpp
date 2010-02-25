@@ -143,7 +143,7 @@ struct MANGOS_DLL_DECL boss_ormorokAI : public ScriptedAI
                 m_uiCrystalSpikesTimer = 200;
             }else m_uiCrystalSpikesTimer -= diff;
 
-        if (!m_bIsFrenzy && (m_creature->GetHealth() < m_creature->GetMaxHealth() * 0.25))
+        if (!m_bIsFrenzy && (m_creature->GetHealthPercent() < 25.0f))
         {
 			DoCast(m_creature, m_bIsRegularMode ? SPELL_FRENZY_N : SPELL_FRENZY_H);
             m_bIsFrenzy = true;
