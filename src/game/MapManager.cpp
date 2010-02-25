@@ -115,6 +115,7 @@ MapManager::_createBaseMap(uint32 id)
     if( m == NULL )
     {
         Guard guard(*this);
+
         const MapEntry* entry = sMapStore.LookupEntry(id);
         if (entry && entry->Instanceable())
         {
@@ -271,9 +272,9 @@ void MapManager::Update(uint32 diff)
         else
             iter->second->Update(i_timer.GetCurrent());
     }
-    
+
     if (m_updater.activated())
-    m_updater.wait();
+        m_updater.wait();
 
     checkAndCorrectGridStatesArray();
 
@@ -316,6 +317,7 @@ void MapManager::UnloadAll()
         delete i_maps.begin()->second;
         i_maps.erase(i_maps.begin());
     }
+
     if (m_updater.activated())
         m_updater.deactivate();
 }
@@ -335,7 +337,7 @@ void MapManager::InitMaxInstanceId()
 uint32 MapManager::GetNumInstances()
 {
     Guard guard(*this);
-    
+
     uint32 ret = 0;
     for(MapMapType::iterator itr = i_maps.begin(); itr != i_maps.end(); ++itr)
     {

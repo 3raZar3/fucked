@@ -22,10 +22,11 @@
 #include "GridDefines.h"
 #include "SharedDefines.h"
 #include "DBCEnums.h"
+
 #include "../../dep/tbb/include/tbb/concurrent_vector.h"
 #include <memory>
 
-#define MAX_SPELL_ID    100000
+#define MAX_SPELL_ID	100000
 
 class WorldSession;
 class Unit;

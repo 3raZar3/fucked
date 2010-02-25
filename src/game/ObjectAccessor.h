@@ -58,6 +58,7 @@ class HashMapHolder
 
         static void Remove(T* o)
         {
+            Guard guard(i_lock);
             m_objectMap.erase(o->GetGUID());
         }
 
@@ -71,7 +72,6 @@ class HashMapHolder
         static MapType& GetContainer() { return m_objectMap; }
 
         static LockType* GetLock() { return &i_lock; }
-        
     private:
 
         //Non instanceable only static

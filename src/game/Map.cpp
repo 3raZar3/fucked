@@ -3568,7 +3568,6 @@ void Map::SendObjectUpdates()
         (*it)->BuildUpdateData(update_players);
 
     i_objectsToClientUpdate.clear();
-
     WorldPacket packet;                                     // here we allocate a std::vector with a size of 0x10000
     for(UpdateDataMapType::iterator iter = update_players.begin(); iter != update_players.end(); ++iter)
     {

@@ -859,11 +859,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\game\MapUpdater.cpp"
+				RelativePath="..\..\src\game\MapUpdater.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\game\MapUpdater.h"
+				RelativePath="..\..\src\game\MapUpdater.cpp"
 				>
 			</File>
 			<File
