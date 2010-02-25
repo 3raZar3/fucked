@@ -4432,9 +4432,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                         target_friendly = m_caster->IsFriendlyTo(target);
                     }
 
-                    // Penance negative target hack
-                    if (m_spellInfo->SpellFamilyFlags & UI64LIT(0x0001000000000000) && m_spellInfo->EffectImplicitTargetA[k] == TARGET_SINGLE_ENEMY){}
-                    else if (target_friendly)
+                    if(target_friendly)
                         return SPELL_FAILED_BAD_TARGETS;
 
                     explicit_target_mode = true;
