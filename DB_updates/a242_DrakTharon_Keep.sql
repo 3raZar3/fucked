@@ -3,6 +3,8 @@
 -- Drakkari dead guardians realy dead
 UPDATE creature SET 
 DeathState = 1 WHERE id = 26620 AND guid IN (SELECT guid FROM creature_addon WHERE bytes1 = 7);
+-- If dead ones are dead remove nonattackable and unselectable flags
+UPDATE creature_template SET unit_flags = unit_flags &~2 &~33554432 WHERE entry IN (26620,31339);
 
 ################### Novos the Summoner #############################
 -- Crystal Channel Target
