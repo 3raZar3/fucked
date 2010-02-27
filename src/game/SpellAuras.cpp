@@ -2692,16 +2692,8 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                     caster->InterruptSpell(CURRENT_CHANNELED_SPELL);
                 return;
             }
-            // Stop caster Penance chanelling on death
-            if (m_spellProto->SpellFamilyName == SPELLFAMILY_PRIEST &&
-                (m_spellProto->SpellFamilyFlags2 & UI64LIT(0x00000080)))
-            {
-                if (Unit* caster = GetCaster())
-                    caster->InterruptSpell(CURRENT_CHANNELED_SPELL);
-                return;
             }
         }
-    }
 
     // AT APPLY & REMOVE
 
@@ -4863,6 +4855,14 @@ void Aura::HandlePeriodicTriggerSpell(bool apply, bool /*Real*/)
             case 43648:                                     // Electrical Storm - remove cloud around caster
                 if (m_target->HasAura(45213))
                     m_target->RemoveAurasDueToSpell(45213);
+                return;
+            case 51912:                                     // Ultra-Advanced Proto-Typical Shortening Blaster
+                if (m_removeMode == AURA_REMOVE_BY_DEFAULT && m_duration <= 0)
+                {
+                    if (Unit* pCaster = GetCaster())
+                        pCaster->CastSpell(m_target, m_spellProto->EffectTriggerSpell[GetEffIndex()], true, NULL, this);
+                }
+
                 return;
             default:
                 break;
