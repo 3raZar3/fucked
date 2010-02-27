@@ -6,6 +6,30 @@ DeathState = 1 WHERE id = 26620 AND guid IN (SELECT guid FROM creature_addon WHE
 -- If dead ones are dead remove nonattackable and unselectable flags
 UPDATE creature_template SET unit_flags = unit_flags &~2 &~33554432 WHERE entry IN (26620,31339);
 
+DELETE FROM creature WHERE id IN (15631, 30534) AND map = 600;
+INSERT INTO creature VALUES
+-- Spotlight
+('9000048','15631','600','3','1','0','0','-483.741','-722.726','30.2465','1.95575','25','0','0','4120','0','0','0'),
+-- Elder Kilias
+('9000049','30534','600','3','1','0','0','-483.819','-722.418','30.2465','1.74212','25','0','0','1','0','0','0');
+-- Elder Kilias
+UPDATE creature_template SET
+npcflag = npcflag |1|2
+WHERE entry = 30534;
+
+-- Q: Kilias the Elder
+DELETE FROM creature_questrelation WHERE quest = 13023;
+DELETE FROM creature_involvedrelation WHERE quest = 13023;
+
+INSERT INTO creature_questrelation VALUES
+(30534,13023);
+INSERT INTO creature_involvedrelation VALUES
+(30534,13023);
+
+INSERT INTO game_event_creature VALUES
+(9000048,7),
+(9000049,7);
+
 ################### Novos the Summoner #############################
 -- Crystal Channel Target
 UPDATE creature_template SET 
