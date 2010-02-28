@@ -25,125 +25,119 @@ EndScriptData */
 #include "precompiled.h"
 #include "azjol-nerub.h"
 
-enum Spells
+enum
 {
-    SPELL_CARRION_BEETLES                  =       53520,
-    SPELL_SUMMON_CARRION_BEETLES           =       53521,
-    SPELL_LEECHING_SWARM                   =       53467,
+    SPELL_CARRION_BEETLES           = 53520,
+    SPELL_SUMMON_CARRION_BEETLES    = 53521,
+    SPELL_LEECHING_SWARM            = 53467,
 
-    SPELL_IMPALE                           =       53454,
-    H_SPELL_IMPALE                         =       59446,
+    SPELL_IMPALE                    = 53454,
+    H_SPELL_IMPALE                  = 59446,
 
-    SPELL_POUND                            =       53472,
-    H_SPELL_POUND                          =       59433,
+    SPELL_POUND                     = 53472,
+    H_SPELL_POUND                   = 59433,
 
-    SPELL_SUBMERGE                         =       53421,
-};
+    SPELL_SUBMERGE                  = 53421,
 
-enum Creatures
-{
-    CREATURE_GUARDIAN                      =       29216,
-    CREATURE_VENOMANCER                    =       29217,
-    CREATURE_DATTER                        =       29213
-};
+    CREATURE_GUARDIAN               = 29216,
+    CREATURE_VENOMANCER             = 29217,
+    CREATURE_DATTER                 = 29213,
 
-// not in db
-enum Yells
-{
-	SAY_INTRO                       = -1601014,
-	SAY_AGGRO                       = -1601015,
-	SAY_SLAY_1                      = -1601016,
-	SAY_SLAY_2                      = -1601017,
-	SAY_SLAY_3                      = -1601018,
-	SAY_SUBMERGE_1                  = -1601019,
-	SAY_SUBMERGE_2                  = -1601020,
-	SAY_LOCUST_1                    = -1601021,
-	SAY_LOCUST_2                    = -1601022,
-	SAY_LOCUST_3                    = -1601023,
-	SAY_DEATH                       = -1601024
+    SAY_INTRO                       = -1601014,
+    SAY_AGGRO                       = -1601015,
+    SAY_KILL_1                      = -1601016,
+    SAY_KILL_2                      = -1601017,
+    SAY_KILL_3                      = -1601018,
+    SAY_SUBMERGE_1                  = -1601019,
+    SAY_SUBMERGE_2                  = -1601020,
+    SAY_LOCUST_1                    = -1601021,
+    SAY_LOCUST_2                    = -1601022,
+    SAY_LOCUST_3                    = -1601023,
+    SAY_DEATH                       = -1601024
 };                          
 
-struct MANGOS_DLL_DECL boss_anub_arakAI : public ScriptedAI
+struct MANGOS_DLL_DECL boss_anubarakAI : public ScriptedAI
 {
-    boss_anub_arakAI(Creature* pCreature) : ScriptedAI(pCreature)
-	{
-        pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+    boss_anubarakAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
         m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
         Reset();
     }
 
-    ScriptedInstance *pInstance;
+    ScriptedInstance *m_pInstance;
 
-    bool Channeling;
+    bool bChanneling;
     bool m_bIsRegularMode;
-    bool Summoned_Guardian;
-    bool Summoned_Venomancer;
-    bool Summoned_Datter;
-    uint32 Phase;
-    uint32 Phase_Time;
+    bool bSummoned_Guardian;
+    bool bSummoned_Venomancer;
+    bool bSummoned_Datter;
+    uint8 Phase;
+    uint32 m_uiPhase_Time;
 
-    uint32 SPELL_CARRION_BEETLES_Timer;
-    uint32 SPELL_LEECHING_SWARM_Timer;
-    uint32 SPELL_IMPALE_Timer;
-    uint32 SPELL_POUND_Timer;
-    uint32 SPELL_SUBMERGE_Timer;
-    uint32 UNDERGROUND_Timer;
-    uint32 VENOMANCER_Timer;
-    uint32 DATTER_Timer;
+    uint32 m_uiCarrionBittles_Timer;
+    uint32 m_uiLeechingSwarm_Timer;
+    uint32 m_uiImpale_Timer;
+    uint32 m_uiSpellPound_Timer;
+    uint32 m_uiSpellSubmerge_Timer;
+    uint32 m_uiUnderground_Timer;
+    uint32 m_uiVenomancer_Timer;
+    uint32 m_uiDatter_Timer;
 
     void Reset()
     {
 
-        SPELL_CARRION_BEETLES_Timer = 8000;
-        SPELL_LEECHING_SWARM_Timer = 20000;
-        SPELL_IMPALE_Timer = 9000;
-        SPELL_POUND_Timer = 15000;
+        m_uiCarrionBittles_Timer = 8000;
+        m_uiLeechingSwarm_Timer = 20000;
+        m_uiImpale_Timer = 9000;
+        m_uiSpellPound_Timer = 15000;
 
         Phase = 0;
-        Phase_Time = 0;
-        Channeling = false;
+        m_uiPhase_Time = 0;
+        bChanneling = false;
 
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
-		m_creature->RemoveAurasDueToSpell(SPELL_SUBMERGE);
+        m_creature->RemoveAurasDueToSpell(SPELL_SUBMERGE);
         
-        if (pInstance)
-            pInstance->SetData(TYPE_ANUBARAK, NOT_STARTED);
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_ANUBARAK, NOT_STARTED);
     }
 
 
-    void EnterCombat(Unit *pWho)
+    void Aggro(Unit *pWho)
     {
         DoScriptText(SAY_AGGRO, m_creature);
         
-        if (pInstance)
-            pInstance->SetData(TYPE_ANUBARAK, IN_PROGRESS);
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_ANUBARAK, IN_PROGRESS);
     }
 
 
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 uiDiff)
     {
         //Return since we have no target
-		if (!m_creature->SelectHostileTarget() || !m_creature->getVictim() )
-		   return;  
+        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+           return;  
 
-        if (Channeling == true)
+        if (bChanneling == true)
         {
             for (uint8 i = 0; i < 4; ++i)
-                DoCast(m_creature->getVictim(), SPELL_SUMMON_CARRION_BEETLES, true);
-            Channeling = false;
+                DoCastSpellIfCan(m_creature->getVictim(), SPELL_SUMMON_CARRION_BEETLES);
+            bChanneling = false;
         }
 
         if (Phase == 1)
         {
-            if (SPELL_IMPALE_Timer <= diff)
+            if (m_uiImpale_Timer <= uiDiff)
             {
                 if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-					DoCast(pTarget, m_bIsRegularMode ? SPELL_IMPALE : H_SPELL_IMPALE);
-                SPELL_IMPALE_Timer = 9000;
-            } else SPELL_IMPALE_Timer -= diff;
+                    DoCastSpellIfCan(pTarget, m_bIsRegularMode ? SPELL_IMPALE : H_SPELL_IMPALE);
+                m_uiImpale_Timer = 9000;
+            } else m_uiImpale_Timer -= uiDiff;
 
-            if (!Summoned_Guardian)
+            if (!bSummoned_Guardian)
             {
+                // has to be done by spell!!!!!
                 for (uint8 i = 0; i < 2; ++i)
                 {
                     if (Creature *Guardian = m_creature->SummonCreature(CREATURE_GUARDIAN,550,282,224,0,TEMPSUMMON_CORPSE_DESPAWN,0))
@@ -151,14 +145,15 @@ struct MANGOS_DLL_DECL boss_anub_arakAI : public ScriptedAI
                         Guardian->AddThreat(m_creature->getVictim(), 0.0f);
                     }
                 }
-                Summoned_Guardian = true;
+                bSummoned_Guardian = true;
             }
 
-            if(!Summoned_Venomancer)
+            if(!bSummoned_Venomancer)
             {
-                if (VENOMANCER_Timer <= diff)
+                // Has to be done by spell!!!!!
+                if (m_uiVenomancer_Timer <= uiDiff)
                 {
-                    if (Phase_Time > 1)
+                    if (m_uiPhase_Time > 1)
                     {
                         for (uint8 i = 0; i < 2; ++i)
                         {
@@ -167,16 +162,17 @@ struct MANGOS_DLL_DECL boss_anub_arakAI : public ScriptedAI
                                 Venomancer->AddThreat(m_creature->getVictim(), 0.0f);
                             }
                         }
-                        Summoned_Venomancer = true;
+                        bSummoned_Venomancer = true;
                     }
-                } else VENOMANCER_Timer -= diff;
+                } else m_uiVenomancer_Timer -= uiDiff;
             }
 
-            if(!Summoned_Datter)
+            if(!bSummoned_Datter)
             {
-                if (DATTER_Timer <= diff)
+                if (m_uiDatter_Timer <= uiDiff)
                 {
-                    if (Phase_Time > 2)
+                    // has to be done by spell!!!!
+                    if (m_uiPhase_Time > 2)
                     {
                         for (uint8 i = 0; i < 2; ++i)
                         {
@@ -185,56 +181,56 @@ struct MANGOS_DLL_DECL boss_anub_arakAI : public ScriptedAI
                                 Datter->AddThreat(m_creature->getVictim(), 0.0f);
                             }
                         }
-                        Summoned_Datter = true;
+                        bSummoned_Datter = true;
                     }
-                } else DATTER_Timer -= diff;
+                } else m_uiDatter_Timer -= uiDiff;
             }
 
-            if (UNDERGROUND_Timer <= diff)
+            if (m_uiUnderground_Timer <= uiDiff)
             {
-				m_creature->RemoveAurasDueToSpell(SPELL_SUBMERGE);
+                m_creature->RemoveAurasDueToSpell(SPELL_SUBMERGE);
                 m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
                 Phase = 0;
-            } else UNDERGROUND_Timer -= diff;
+            } else m_uiUnderground_Timer -= uiDiff;
         }
 
         if (Phase == 0)
         {
-            if (SPELL_LEECHING_SWARM_Timer <= diff)
+            if (m_uiLeechingSwarm_Timer <= uiDiff)
             {
-                DoCast(m_creature, SPELL_LEECHING_SWARM, true);
-                SPELL_LEECHING_SWARM_Timer = 19000;
-            } else SPELL_LEECHING_SWARM_Timer -= diff;
+                DoCastSpellIfCan(m_creature, SPELL_LEECHING_SWARM, true);
+                m_uiLeechingSwarm_Timer = 19000;
+            } else m_uiLeechingSwarm_Timer -= uiDiff;
 
-            if (SPELL_CARRION_BEETLES_Timer <= diff)
+            if (m_uiCarrionBittles_Timer <= uiDiff)
             {
-                Channeling = true;
-				DoCast(m_creature->getVictim(), SPELL_CARRION_BEETLES);
-                SPELL_CARRION_BEETLES_Timer = 25000;
-            } else SPELL_CARRION_BEETLES_Timer -= diff;
+                bChanneling = true;
+                DoCastSpellIfCan(m_creature->getVictim(), SPELL_CARRION_BEETLES);
+                m_uiCarrionBittles_Timer = 25000;
+            } else m_uiCarrionBittles_Timer -= uiDiff;
 
-            if (SPELL_POUND_Timer <= diff)
+            if (m_uiSpellPound_Timer <= uiDiff)
             {
-				 DoCast(m_creature->getVictim(), m_bIsRegularMode ? SPELL_POUND : H_SPELL_POUND);
-                 SPELL_POUND_Timer = 16500;
-            } else SPELL_POUND_Timer -= diff;
+                 DoCastSpellIfCan(m_creature->getVictim(), m_bIsRegularMode ? SPELL_POUND : H_SPELL_POUND);
+                 m_uiSpellPound_Timer = 16500;
+            } else m_uiSpellPound_Timer -= uiDiff;
         }
 
-        if ((Phase_Time == 0 && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 75)
-            || (Phase_Time == 1 && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 50)
-            || (Phase_Time == 2 && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 25))
+        if ((m_uiPhase_Time == 0 && m_creature->GetHealthPercent() <= 75.0f)
+            || (m_uiPhase_Time == 1 && m_creature->GetHealthPercent() <= 50.0f)
+            || (m_uiPhase_Time == 2 && m_creature->GetHealthPercent() <= 25.0f))
         {
-            ++Phase_Time;
+            ++m_uiPhase_Time;
 
-            Summoned_Guardian = false;
-            Summoned_Venomancer = false;
-            Summoned_Datter = false;
+            bSummoned_Guardian = false;
+            bSummoned_Venomancer = false;
+            bSummoned_Datter = false;
 
-            UNDERGROUND_Timer = 40000;
-            VENOMANCER_Timer = 25000;
-            DATTER_Timer = 32000;
+            m_uiUnderground_Timer = 40000;
+            m_uiVenomancer_Timer = 25000;
+            m_uiDatter_Timer = 32000;
 
-            DoCast(m_creature, SPELL_SUBMERGE, false);
+            DoCastSpellIfCan(m_creature, SPELL_SUBMERGE);
 
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
 
@@ -249,30 +245,27 @@ struct MANGOS_DLL_DECL boss_anub_arakAI : public ScriptedAI
     {
         DoScriptText(SAY_DEATH, m_creature);
         
-        if (pInstance)
-            pInstance->SetData(TYPE_ANUBARAK, DONE);
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_ANUBARAK, DONE);
     }
 
     void KilledUnit(Unit *pVictim)
     {
-        if (pVictim == m_creature)
-            return;
-        
-        DoScriptText(urand(SAY_SLAY_2,SAY_SLAY_3), m_creature);
+        DoScriptText(urand(0, 1) > 0 ? SAY_KILL_2 : SAY_KILL_3, m_creature);
     }
 };
 
-CreatureAI* GetAI_boss_anub_arak(Creature *pCreature)
+CreatureAI* GetAI_boss_anubarak(Creature *pCreature)
 {
-    return new boss_anub_arakAI (pCreature);
+    return new boss_anubarakAI (pCreature);
 }
 
-void AddSC_boss_anub_arak()
+void AddSC_boss_anubarak()
 {
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name = "boss_anub_arak";
-    newscript->GetAI = &GetAI_boss_anub_arak;
+    newscript->Name = "boss_anubarak";
+    newscript->GetAI = &GetAI_boss_anubarak;
     newscript->RegisterSelf();
 }
