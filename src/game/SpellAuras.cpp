@@ -943,11 +943,13 @@ void Aura::ApplyModifier(bool apply, bool Real)
 
 bool Aura::IsNeedVisibleSlot(Unit const* caster) const
 {
-    bool totemAura = caster && caster->GetTypeId() == TYPEID_UNIT && ((Creature*)caster)->isTotem();
-
-    // passive auras (except totem auras) do not get placed in the slots
     // generic not caster case
-    if (m_isPassive && !totemAura && m_target == caster)
+    if (m_target != caster)
+        return true;
+
+    // passive auras (except totem auras) do not get placed in the slots for caster
+    bool totemAura = caster && caster->GetTypeId() == TYPEID_UNIT && ((Creature*)caster)->isTotem();
+    if (m_isPassive && !totemAura)
         return false;
 
     // special area auras case at caster
@@ -2273,24 +2275,6 @@ void Aura::TriggerSpell()
             case 33525:
                 target->CastSpell(target, trigger_spell_id, true, NULL, this, casterGUID);
                 return;
-            // Penance
-            case 47758: // Hurt effect - Rank 1
-            case 53001: // Hurt effect - Rank 2
-            case 53002: // Hurt effect - Rank 3
-            case 53003: // Hurt effect - Rank 4
-            case 47757: // Heal effect - Rank 1
-            case 52986: // Heal effect - Rank 2
-            case 52987: // Heal effect - Rank 3
-            case 52988: // Heal effect - Rank 4
-            {
-                Unit* caster = GetCaster();
-                if (!target->isAlive())
-                {
-                    caster->RemoveAurasDueToSpell(auraId);
-                    return;
-                }
-                break;
-            }
             // Beacon of Light
             case 53563:
                 // original caster must be target (beacon)
@@ -2848,7 +2832,7 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
         case SPELLFAMILY_PRIEST:
         {
             // Penance
-            if (m_spellProto->SpellIconID == 225)
+            if (m_spellProto->SpellIconID == 2818)
             {
                 Unit* caster = GetCaster();
                 if (!caster || caster->GetTypeId() != TYPEID_PLAYER)
@@ -4895,6 +4879,18 @@ void Aura::HandlePeriodicEnergize(bool apply, bool Real)
                 break;
         }
     }
+    if (!apply && !loading)
+    {
+        switch (GetId())
+        {
+            case 5229:                                      // Druid Bear Enrage
+                if (m_target->HasAura(51185))               // King of the Jungle self Enrage bonus with infinity duration
+                    m_target->RemoveAurasDueToSpell(51185);
+                break;
+            default:
+                break;
+        }
+    }
 
     if (!apply && !loading)
     {
@@ -6361,24 +6357,47 @@ void Aura::HandleSpellSpecificBoosts(bool apply)
                 else
                     return;
             }
-            // Combustion (remove triggered aura stack)
-            else if (m_spellProto->Id == 11129)
+
+            switch(GetId())
             {
-                if(!apply)
-                    spellId1 = 28682;
-                else
+                case 11129:                                 // Combustion (remove triggered aura stack)
+                {
+                    if(!apply)
+                        spellId1 = 28682;
+                    else
+                        return;
+                    break;
+                }
+                case 28682:                                 // Combustion (remove main aura)
+                {
+                    if(!apply)
+                        spellId1 = 11129;
+                    else
+                        return;
+                    break;
+                }
+                case 44401:                                 // Missile Barrage (triggered)
+                case 48108:                                 // Hot Streak (triggered)
+                case 57761:                                 // Fireball! (Brain Freeze triggered)
+                {
+                    // consumed aura
+                    if (!apply && m_removeMode == AURA_REMOVE_BY_DEFAULT && m_duration != 0)
+                    {
+                        Unit* caster = GetCaster();
+                        // Item - Mage T10 2P Bonus
+                        if (!caster || !caster->HasAura(70752))
+                            return;
+
+                        cast_at_remove = true;
+                        spellId1 = 70753;                   // Pushing the Limit
+                    }
+                    else
+                        return;
+                    break;
+                }
+                default:
                     return;
             }
-            // Combustion (remove main aura)
-            else if (m_spellProto->Id == 28682)
-            {
-                if(!apply)
-                    spellId1 = 11129;
-                else
-                    return;
-            }
-            else
-                return;
             break;
         }
         case SPELLFAMILY_WARRIOR:

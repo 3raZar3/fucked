@@ -1147,6 +1147,30 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     DoCreateItem(eff_idx, newitemid);
                     return;
                 }
+                case 42287:                                 // Salvage Wreckage
+                {
+                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    if (roll_chance_i(66))
+                        m_caster->CastSpell(m_caster, 42289, true, m_CastItem);
+                    else
+                        m_caster->CastSpell(m_caster, 42288, true);
+
+                    return;
+                }
+                case 43036:                                 // Dismembering Corpse
+                {
+                    if (!unitTarget || m_caster->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    if (unitTarget->HasAura(43059, EFFECT_INDEX_0))
+                        return;
+
+                    unitTarget->CastSpell(m_caster, 43037, true);
+                    unitTarget->CastSpell(unitTarget, 43059, true);
+                    return;
+                }
                 // Demon Broiled Surprise
                 /* FIX ME: Required for correct work implementing implicit target 7 (in pair (22,7))
                 case 43723:
@@ -1230,6 +1254,15 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                             ((Creature*)unitTarget)->ForcedDespawn();
                     }
 
+                    return;
+                }
+                case 45685:                                 // Magnataur On Death 2
+                {
+                    m_caster->RemoveAurasDueToSpell(45673);
+                    m_caster->RemoveAurasDueToSpell(45672);
+                    m_caster->RemoveAurasDueToSpell(45677);
+                    m_caster->RemoveAurasDueToSpell(45681);
+                    m_caster->RemoveAurasDueToSpell(45683);
                     return;
                 }
                 case 45990:                                 // Collect Oil
@@ -1395,15 +1428,27 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                 }
                 case 51330:                                 // Shoot RJR
                 {
-                    if (!m_caster || !unitTarget)
+                    if (!unitTarget)
                         return;
 
-                    switch(urand(0, 2))
-                    {
-                        case 0: m_caster->CastSpell(unitTarget,51331,true); break; // Hit Apple
-                        case 1: m_caster->CastSpell(unitTarget,51366,true); break; // Miss Apple, Hit Bird
-                        case 2: m_caster->CastSpell(unitTarget,51332,true); break; // Miss Apple (Hit Wilhelm)
-                    }
+                    // guessed chances
+                    if (roll_chance_i(75))
+                        m_caster->CastSpell(unitTarget, roll_chance_i(50) ? 51332 : 51366, true, m_CastItem);
+                    else
+                        m_caster->CastSpell(unitTarget, 51331, true, m_CastItem);
+
+                    return;
+                }
+                case 51333:                                 // Dig For Treasure
+                {
+                    if (!unitTarget)
+                        return;
+
+                    if (roll_chance_i(75))
+                        m_caster->CastSpell(unitTarget, 51370, true, m_CastItem);
+                    else
+                        m_caster->CastSpell(m_caster, 51345, true);
+
                     return;
                 }
                 case 51369:                                 // Tickbird Signal to Fall
@@ -5289,6 +5334,20 @@ void Spell::EffectWeaponDmg(SpellEffectIndex eff_idx)
         else if(uint32 ammo = ((Player*)m_caster)->GetUInt32Value(PLAYER_AMMO_ID))
             ((Player*)m_caster)->DestroyItemCount(ammo, 1, true);
     }
+
+    switch(m_spellInfo->Id)                     // for spells with divided damage to targets
+    {
+        case 66765: case 67333:                 // Meteor Fists
+        {
+            uint32 count = 0;
+            for(std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin();ihit != m_UniqueTargetInfo.end();++ihit) 
+            ++count;
+
+            m_damage /= count;                    // divide to all targets
+            break;
+}
+        break;
+    }
 }
 
 void Spell::EffectThreat(SpellEffectIndex /*eff_idx*/)
@@ -5725,6 +5784,24 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
 
                     m_caster->CastSpell(m_caster, spellPlayer[urand(0,4)], true);
                     unitTarget->CastSpell(unitTarget, spellTarget[urand(0,4)], true);
+
+                    return;
+                }
+                case 45691:                                 // Magnataur On Death 1
+                {
+                    // assuming caster is creature, if not, then return
+                    if (m_caster->GetTypeId() != TYPEID_UNIT)
+                        return;
+
+                    Player* pPlayer = ((Creature*)m_caster)->GetLootRecipient();
+
+                    if (!pPlayer)
+                        return;
+
+                    if (pPlayer->HasAura(45674) || pPlayer->HasAura(45675) || pPlayer->HasAura(45678) || pPlayer->HasAura(45682) || pPlayer->HasAura(45684))
+                        pPlayer->CastSpell(pPlayer, 45686, true);
+
+                    m_caster->CastSpell(m_caster, 45685, true);
 
                     return;
                 }
