@@ -1656,6 +1656,16 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                 m_caster->CastCustomSpell(m_caster, 34846, &chargeBasePoints0, NULL, NULL, true);
                 return;
             }
+            // Slam
+            if (m_spellInfo->SpellFamilyFlags & UI64LIT(0x0000000000200000) && m_spellInfo->SpellIconID == 559)
+            {
+                if(!unitTarget)
+                    return;
+
+                // dummy cast itself ignored by client in logs
+                m_caster->CastCustomSpell(unitTarget,50782,&damage,NULL,NULL,true);
+                return;
+            }
             // Execute
             if (m_spellInfo->SpellFamilyFlags & UI64LIT(0x20000000))
             {
@@ -1698,16 +1708,6 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                 }
 
                 m_caster->SetPower(POWER_RAGE,m_caster->GetPower(POWER_RAGE)-rage);
-                return;
-            }
-            // Slam
-            if (m_spellInfo->SpellFamilyFlags & UI64LIT(0x0000000000200000))
-            {
-                if(!unitTarget)
-                    return;
-
-                // dummy cast itself ignored by client in logs
-                m_caster->CastCustomSpell(unitTarget,50782,&damage,NULL,NULL,true);
                 return;
             }
             // Concussion Blow
