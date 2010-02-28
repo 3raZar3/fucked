@@ -50,17 +50,17 @@ enum Creatures
 // not in db
 enum Yells
 {
-    SAY_INTRO                                  = -1601010,
-    SAY_AGGRO                                  = -1601000,
-    SAY_SLAY_1                                 = -1601001,
-    SAY_SLAY_2                                 = -1601002,
-    SAY_SLAY_3                                 = -1601003,
-    SAY_LOCUST_1                               = -1601005,
-    SAY_LOCUST_2                               = -1601006,
-    SAY_LOCUST_3                               = -1601007,
-    SAY_SUBMERGE_1                             = -1601008,
-    SAY_SUBMERGE_2                             = -1601009,
-    SAY_DEATH                                  = -1601004
+	SAY_INTRO                       = -1601014,
+	SAY_AGGRO                       = -1601015,
+	SAY_SLAY_1                      = -1601016,
+	SAY_SLAY_2                      = -1601017,
+	SAY_SLAY_3                      = -1601018,
+	SAY_SUBMERGE_1                  = -1601019,
+	SAY_SUBMERGE_2                  = -1601020,
+	SAY_LOCUST_1                    = -1601021,
+	SAY_LOCUST_2                    = -1601022,
+	SAY_LOCUST_3                    = -1601023,
+	SAY_DEATH                       = -1601024
 };                          
 
 struct MANGOS_DLL_DECL boss_anub_arakAI : public ScriptedAI
