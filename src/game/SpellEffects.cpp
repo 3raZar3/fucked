@@ -318,6 +318,7 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                     // Meteor like spells (divided damage to targets)
                     case 24340: case 26558: case 28884:     // Meteor
                     case 36837: case 38903: case 41276:     // Meteor
+                     case 57467:                             // Meteor
                     case 26789:                             // Shard of the Fallen Star
                     case 31436:                             // Malevolent Cleave
                     case 35181:                             // Dive Bomb
@@ -1424,6 +1425,17 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                         m_caster->CastSpell(m_caster, 50246, true);
                     }
 
+                    return;
+                }
+                case 51276:                                 // Incinerate Corpse
+                {
+                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
+                        return;
+
+                    unitTarget->CastSpell(unitTarget, 51278, true);
+                    unitTarget->CastSpell(m_caster, 51279, true);
+
+                    unitTarget->setDeathState(JUST_DIED);
                     return;
                 }
                 case 51330:                                 // Shoot RJR
@@ -6014,11 +6026,9 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     if (!unitTarget)    // Stoneclaw Totem owner
                         return;
                     // Absorb shield for totems
-                    for(int slot = 0; slot < MAX_TOTEM_SLOT; ++slot)
-                    {
-                        if (Unit* totem = unitTarget->GetTotem(TotemSlot(slot)))
+                    for(int itr = 0; itr < MAX_TOTEM_SLOT; ++itr)
+                        if (Totem* totem = unitTarget->GetTotem(TotemSlot(itr)))
                             m_caster->CastCustomSpell(totem, 55277, &damage, NULL, NULL, true);
-                    }
                     // Glyph of Stoneclaw Totem
                     if(Aura* auraGlyph = unitTarget->GetAura(63298, EFFECT_INDEX_0))
                     {
