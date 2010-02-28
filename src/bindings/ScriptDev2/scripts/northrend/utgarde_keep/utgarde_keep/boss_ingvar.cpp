@@ -16,8 +16,8 @@
 
 /* ScriptData
 SDName: Boss_Ingvar
-SD%Complete: 80%
-SDComment: Uncorrect Timers; Ressurect Event half; Phase 2 done; Playable;
+SD%Complete: 85%
+SDComment: HP*2 Cheat
 SDCategory: Utgarde Keep
 EndScriptData */
 
@@ -105,7 +105,6 @@ struct MANGOS_DLL_DECL boss_ingvarAI : public ScriptedAI
 	uint32 m_uiDreadfulRoarTimer;
 	uint32 m_uiWoeStrikeTimer;
 	
-	uint64 m_uiShadowAxeGUID;
 	
     void Reset()
     {
@@ -127,26 +126,6 @@ struct MANGOS_DLL_DECL boss_ingvarAI : public ScriptedAI
 		DoScriptText(SAY_AGGRO_FIRST,m_creature);
     }
 
-	void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
-    {
-		if(Phase1 && uiDamage >= m_creature->GetHealth())
-		{
-			uiDamage = m_creature->GetHealth() -1;
-			m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-			m_creature->RemoveAllAuras();
-			DoScriptText(SAY_DEATH_FIRST, m_creature);
-			DoCast(m_creature,SPELL_FEIGN_DEATH);
-			m_uiRessurectTimer = 10000;
-			Phase1 = false;
-			return;
-		}
-		if(!Phase1)
-		{
-			return;
-		}
-
-	}
-
     void JustDied(Unit* pKiller)
     {
         DoScriptText(SAY_DEATH_SECOND, m_creature);
@@ -160,14 +139,24 @@ struct MANGOS_DLL_DECL boss_ingvarAI : public ScriptedAI
 
     void UpdateAI(const uint32 uiDiff)
     {
-        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+      if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 		
       if (Phase1)
         {
+			if (m_creature->GetHealth() <= m_creature->GetMaxHealth()*0.5)
+			{
+				m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+				m_creature->RemoveAllAuras();
+				DoScriptText(SAY_DEATH_FIRST, m_creature);
+				m_creature->CastSpell(m_creature,SPELL_FEIGN_DEATH,true);
+				m_uiRessurectTimer = 10000;
+				Phase1 = false;
+			}
+
             if (m_uiCleaveTimer < uiDiff)
             {
-                DoCastSpellIfCan(m_creature->getVictim(), SPELL_CLEAVE);
+                m_creature->CastSpell(m_creature->getVictim(), SPELL_CLEAVE,true);
                 m_uiCleaveTimer = urand(2500, 7000);
             }
             else
@@ -175,7 +164,7 @@ struct MANGOS_DLL_DECL boss_ingvarAI : public ScriptedAI
 
             if (m_uiSmashTimer < uiDiff)
             {
-                DoCastSpellIfCan(m_creature, m_bIsRegularMode ? SPELL_SMASH : SPELL_SMASH_H);
+                DoCast(m_creature, m_bIsRegularMode ? SPELL_SMASH : SPELL_SMASH_H,false);
                 m_uiSmashTimer = urand(8000, 15000);
             }
             else
@@ -184,7 +173,7 @@ struct MANGOS_DLL_DECL boss_ingvarAI : public ScriptedAI
             if (m_uiStaggeringRoarTimer < uiDiff)
             {
                 DoScriptText(EMOTE_ROAR, m_creature);
-                DoCastSpellIfCan(m_creature, m_bIsRegularMode ? SPELL_STAGGERING_ROAR : SPELL_STAGGERING_ROAR_H);
+                DoCast(m_creature, m_bIsRegularMode ? SPELL_STAGGERING_ROAR : SPELL_STAGGERING_ROAR_H,false);
                 m_uiStaggeringRoarTimer = urand(15000, 30000);
             }
             else
@@ -192,7 +181,7 @@ struct MANGOS_DLL_DECL boss_ingvarAI : public ScriptedAI
 
             if (m_uiEnrageTimer < uiDiff)
             {
-                DoCastSpellIfCan(m_creature, m_bIsRegularMode ? SPELL_ENRAGE : SPELL_ENRAGE_H);
+                DoCast(m_creature, m_bIsRegularMode ? SPELL_ENRAGE : SPELL_ENRAGE_H,false);
                 m_uiEnrageTimer = urand(10000, 20000);
             }
             else
@@ -201,12 +190,11 @@ struct MANGOS_DLL_DECL boss_ingvarAI : public ScriptedAI
 		}
 		
 		
-		if(Phase1 == false)
+		if(!Phase1)
 		{
 			if(m_uiRessurectTimer < uiDiff)
 			{
 				DoCast(m_creature,SPELL_TRANSFORM,false);
-				m_creature->SetHealth(m_creature->GetMaxHealth());
 				m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 				DoScriptText(SAY_AGGRO_SECOND,m_creature);
 				
@@ -327,9 +315,9 @@ CreatureAI* GetAI_shadow_axe(Creature *_Creature)
 /*######
 ## npc_annhylde
 ######*/
-struct MANGOS_DLL_DECL npc_annhyldeAI : public ScriptedAI
+struct MANGOS_DLL_DECL npc_annhyldeAI : public Scripted_NoMovementAI
 {
-    npc_annhyldeAI(Creature* pCreature) : ScriptedAI(pCreature)
+    npc_annhyldeAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
     {
         m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
         m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
