@@ -3165,38 +3165,16 @@ void Aura::HandleAuraModShapeshift(bool apply, bool Real)
             modelid = ssEntry->modelID_A;
         else
         {
-            // players are a bit difficult since the dbc has seldomly an horde modelid
-            // so we add hacks here to set the right model
-            if (Player::TeamForRace(m_target->getRace()) == ALLIANCE)
-                modelid = ssEntry->modelID_A;
-            else                                            // 3.2.3 only the moonkin form has this information
-                modelid = ssEntry->modelID_H;
+            modelid = m_target->GetModelForForm(form);
 
-            // no model found, if player is horde we look here for our hardcoded modelids
-            if (!modelid && Player::TeamForRace(m_target->getRace()) == HORDE)
+            if (modelid == 0)
             {
-
-                switch(form)
-                {
-                    case FORM_CAT:
-                        modelid = 8571;
-                        break;
-                    case FORM_BEAR:
-                    case FORM_DIREBEAR:
-                        modelid = 2289;
-                        break;
-                    case FORM_FLIGHT:
-                        modelid = 20872;
-                        break;
-                    case FORM_FLIGHT_EPIC:
-                        modelid = 21244;
-                        break;
-                    // per default use alliance modelid
-                    // mostly horde and alliance share the same
-                    default:
-                        modelid = ssEntry->modelID_A;
-                        break;
-                }
+                // if there is no custom model in GetModelForForm() lets find out default one
+                if (Player::TeamForRace(m_target->getRace()) == HORDE && ssEntry->modelID_H != 0)
+                    modelid = ssEntry->modelID_H;
+                else
+                    // most of alliance models exists so if couldn't find nothing lets set just thisone
+                    modelid = ssEntry->modelID_A;
             }
         }
     }
