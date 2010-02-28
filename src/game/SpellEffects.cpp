@@ -5337,7 +5337,7 @@ void Spell::EffectWeaponDmg(SpellEffectIndex eff_idx)
         case 66765: case 67333:                 // Meteor Fists
         {
             uint32 count = 0;
-            for(std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin();ihit != m_UniqueTargetInfo.end();++ihit) 
+            for(tbb::concurrent_vector<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin();ihit != m_UniqueTargetInfo.end();++ihit) 
             ++count;
 
             m_damage /= count;                    // divide to all targets
@@ -6014,10 +6014,9 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     if (!unitTarget)    // Stoneclaw Totem owner
                         return;
                     // Absorb shield for totems
-                    for(int itr = 0; itr < MAX_TOTEM; ++itr)
+                    for(int slot = 0; slot < MAX_TOTEM_SLOT; ++slot)
                     {
-                        Unit* totem = ObjectAccessor::GetUnit(*unitTarget, unitTarget->m_TotemSlot[itr]);
-                        if(totem)
+                        if (Unit* totem = unitTarget->GetTotem(TotemSlot(slot)))
                             m_caster->CastCustomSpell(totem, 55277, &damage, NULL, NULL, true);
                     }
                     // Glyph of Stoneclaw Totem
