@@ -443,14 +443,9 @@ void WorldSession::HandleSetActiveMoverOpcode(WorldPacket &recv_data)
     uint64 guid;
     recv_data >> guid;
 
-    if(!guid)
+    if (!_player->m_mover || !_player->m_mover->IsInWorld())
     {
-        sLog.outError("HandleSetActiveMoverOpcode: called with NULL guid");
-        return;
-    }
-    if(!_player)
-    {
-        sLog.outError("HandleSetActiveMoverOpcode: called with NULL _player");
+        sLog.outError("HandleSetActiveMoverOpcode: incorrect mover for player %s guid %u",_player->GetName(), _player->GetGUID());
         return;
     }
 
