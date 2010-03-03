@@ -2590,15 +2590,12 @@ void Spell::prepare(SpellCastTargets const* targets, Aura* triggeredByAura)
     // skip triggered spell (item equip spell casting and other not explicit character casts/item uses)
     if ( !m_IsTriggeredSpell && isSpellBreakStealth(m_spellInfo) )
     {
-        m_caster->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
-        m_caster->RemoveSpellsCausingAura(SPELL_AURA_FEIGN_DEATH);
+        m_caster->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CAST);
     }
 
     // add non-triggered (with cast time and without)
     if (!m_IsTriggeredSpell)
     {
-        m_caster->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CAST);
-
         // add to cast type slot
         m_caster->SetCurrentCastedSpell( this );
 
@@ -3910,7 +3907,7 @@ void Spell::TakeCastItem()
             // item has limited charges
             if (proto->Spells[i].SpellCharges)
             {
-                if (proto->Spells[i].SpellCharges < 0)
+                if (proto->Spells[i].SpellCharges < 0 && !proto->NonConsumable)
                     expendable = true;
 
                 int32 charges = m_CastItem->GetSpellCharges(i);
@@ -5802,7 +5799,7 @@ SpellCastResult Spell::CheckItems()
                 {
                     // CastItem will be used up and does not count as reagent
                     int32 charges = m_CastItem->GetSpellCharges(s);
-                    if (proto->Spells[s].SpellCharges < 0 && abs(charges) < 2)
+                        if (proto->Spells[s].SpellCharges < 0 && !proto->NonConsumable && abs(charges) < 2)
                     {
                         ++itemcount;
                         break;
@@ -5863,6 +5860,25 @@ SpellCastResult Spell::CheckItems()
             {
                 if (!m_IsTriggeredSpell && m_spellInfo->EffectItemType[i])
                 {
+                    // Conjure Mana Gem (skip same or low level ranks for later recharge)
+                    if (i == EFFECT_INDEX_0 && m_spellInfo->Effect[EFFECT_INDEX_1] == SPELL_EFFECT_DUMMY)
+                    {
+                        if (ItemPrototype const* itemProto = ObjectMgr::GetItemPrototype(m_spellInfo->EffectItemType[i]))
+                        {
+                            if (Item* item = p_caster->GetItemByLimitedCategory(itemProto->ItemLimitCategory))
+                            {
+                                if (item->GetProto()->ItemLevel <= itemProto->ItemLevel)
+                                {
+                                    if (item->HasMaxCharges())
+                                        return SPELL_FAILED_ITEM_AT_MAX_CHARGES;
+
+                                    // will recharge in next effect
+                                    continue;
+                                }
+                            }
+                        }
+                    }
+
                     ItemPosCountVec dest;
                     uint8 msg = p_caster->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, m_spellInfo->EffectItemType[i], 1 );
                     if (msg != EQUIP_ERR_OK )
@@ -5871,6 +5887,14 @@ SpellCastResult Spell::CheckItems()
                         return SPELL_FAILED_DONT_REPORT;
                     }
                 }
+                break;
+            }
+            case SPELL_EFFECT_RESTORE_ITEM_CHARGES:
+            {
+                if (Item* item = p_caster->GetItemByEntry(m_spellInfo->EffectItemType[i]))
+                    if (item->HasMaxCharges())
+                        return SPELL_FAILED_ITEM_AT_MAX_CHARGES;
+
                 break;
             }
             case SPELL_EFFECT_ENCHANT_ITEM:
