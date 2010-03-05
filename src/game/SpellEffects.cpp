@@ -3964,10 +3964,11 @@ void Spell::EffectSummonSnakes(SpellEffectIndex eff_idx)
 
         // Apply stats
         pSummon->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
-        pSummon->SetUInt32Value(UNIT_FIELD_FLAGS,UNIT_FLAG_PVP_ATTACKABLE);
+        pSummon->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE | UNIT_FLAG_PET_IN_COMBAT | UNIT_FLAG_PVP);
         pSummon->SetCreatorGUID(m_caster->GetGUID());
         pSummon->setFaction(m_caster->getFaction());
         pSummon->SetLevel(m_caster->getLevel());
+        pSummon->SetMaxHealth(m_caster->getLevel()+ urand(20,30));
     }
 }
 

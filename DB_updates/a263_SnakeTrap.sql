@@ -5,4 +5,9 @@ INSERT INTO creature_template_addon VALUES
 (19833,0,0,0,0,0,'6645 0');
 
 -- make them friendly for each other that they won't attack at stats (player faction) apply
-UPDATE creature_template SET faction_A = 35, faction_H = 35 WHERE entry IN (19833,19921);
+UPDATE creature_template SET
+faction_A = 35,
+faction_H = 35,
+-- no XP at kill
+flags_extra = falgs_extra | 64
+WHERE entry IN (19833,19921);
