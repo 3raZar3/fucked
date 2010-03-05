@@ -5938,11 +5938,11 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     Aura* DivineAegis = pVictim->GetAura(47753,EFFECT_INDEX_0);
                     if (DivineAegis)
                         basepoints[0] = DivineAegis->GetModifier()->m_amount;
-                    basepoints[0] += damage * triggerAmount/100;
+                    basepoints[0] += int32(damage) * triggerAmount/100;
 
                     // limit absorb amount
-                    if (basepoints[0] > pVictim->getLevel()*125)
-                        basepoints[0] = pVictim->getLevel()*125;
+                    if (basepoints[0] > int32(pVictim->getLevel()*125))
+                        basepoints[0] = int32(pVictim->getLevel()*125);
                     triggered_spell_id = 47753;
                     break;
                 }
