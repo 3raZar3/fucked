@@ -525,7 +525,7 @@ void Object::BuildMovementUpdate(ByteBuffer * data, uint16 updateFlags) const
     if(updateFlags & UPDATEFLAG_VEHICLE)                    // unused for now
     {
         *data << uint32(((Vehicle*)this)->GetVehicleId());  // vehicle id
-        *data << float(0);                                  // facing adjustment
+        *data << float(((WorldObject*)this)->GetOrientation());
     }
 
     // 0x200
@@ -1849,14 +1849,18 @@ void WorldObject::GetNearPoint(WorldObject const* searcher, float &x, float &y, 
     selector.InitializeAngle();
 
     // select in positions after current nodes (selection one by one)
+    uint32 i = 0;
     while(selector.NextAngle(angle))                        // angle for free pos
     {
+        ++i;
         GetNearPoint2D(x,y,distance2d,absAngle+angle);
         z = GetPositionZ();
         UpdateGroundPositionZ(x,y,z);                       // update to LOS height if available
 
         if(IsWithinLOS(x,y,z))
             return;
+        if (i == 16)
+            break;
     }
 
     // BAD NEWS: not free pos (or used or have LOS problems)
@@ -1981,4 +1985,22 @@ void WorldObject::BuildUpdateData( UpdateDataMapType & update_players)
     cell.Visit(p, player_notifier, *aMap, *this, aMap->GetVisibilityDistance());
 
     ClearUpdateMask(false);
+}
+
+bool WorldObject::IsControlledByPlayer() const
+{
+    switch (GetTypeId())
+    {
+        case TYPEID_GAMEOBJECT:
+            return IS_PLAYER_GUID(((GameObject*)this)->GetOwnerGUID());
+        case TYPEID_UNIT:
+        case TYPEID_PLAYER:
+            return ((Unit*)this)->IsCharmerOrOwnerPlayerOrPlayerItself();
+        case TYPEID_DYNAMICOBJECT:
+            return IS_PLAYER_GUID(((DynamicObject*)this)->GetCasterGUID());
+        case TYPEID_CORPSE:
+            return true;
+        default:
+            return false;
+    }
 }

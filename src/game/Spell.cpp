@@ -1524,7 +1524,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
             std::list<Unit *> tempTargetUnitMap;
 
             {
-                MaNGOS::AnyAoETargetUnitInObjectRangeCheck u_check(m_caster, m_caster, max_range);
+                MaNGOS::AnyAoETargetUnitInObjectRangeCheck u_check(m_caster, max_range);
                 MaNGOS::UnitListSearcher<MaNGOS::AnyAoETargetUnitInObjectRangeCheck> searcher(m_caster, tempTargetUnitMap, u_check);
 
                 TypeContainerVisitor<MaNGOS::UnitListSearcher<MaNGOS::AnyAoETargetUnitInObjectRangeCheck>, WorldTypeMapContainer > world_unit_searcher(searcher);
@@ -1593,7 +1593,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
             cell.SetNoCreate();
             std::list<Unit *> tempTargetUnitMap;
             {
-                MaNGOS::AnyFriendlyUnitInObjectRangeCheck u_check(m_caster, m_caster, max_range);
+                MaNGOS::AnyFriendlyUnitInObjectRangeCheck u_check(m_caster, max_range);
                 MaNGOS::UnitListSearcher<MaNGOS::AnyFriendlyUnitInObjectRangeCheck> searcher(m_caster, tempTargetUnitMap, u_check);
 
                 TypeContainerVisitor<MaNGOS::UnitListSearcher<MaNGOS::AnyFriendlyUnitInObjectRangeCheck>, WorldTypeMapContainer > world_unit_searcher(searcher);
@@ -1689,10 +1689,10 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
 
                 std::list<Unit *> tempTargetUnitMap;
                 {
-                    MaNGOS::AnyAoETargetUnitInObjectRangeCheck u_check(pUnitTarget, originalCaster, max_range, false);
-                    MaNGOS::UnitListSearcher<MaNGOS::AnyAoETargetUnitInObjectRangeCheck> searcher(m_caster, tempTargetUnitMap, u_check);
-                    TypeContainerVisitor<MaNGOS::UnitListSearcher<MaNGOS::AnyAoETargetUnitInObjectRangeCheck>, WorldTypeMapContainer> world_unit_searcher(searcher);
-                    TypeContainerVisitor<MaNGOS::UnitListSearcher<MaNGOS::AnyAoETargetUnitInObjectRangeCheck>, GridTypeMapContainer>  grid_unit_searcher(searcher);
+                    MaNGOS::AnyAoEVisibleTargetUnitInObjectRangeCheck u_check(pUnitTarget, originalCaster, max_range);
+                    MaNGOS::UnitListSearcher<MaNGOS::AnyAoEVisibleTargetUnitInObjectRangeCheck> searcher(m_caster, tempTargetUnitMap, u_check);
+                    TypeContainerVisitor<MaNGOS::UnitListSearcher<MaNGOS::AnyAoEVisibleTargetUnitInObjectRangeCheck>, WorldTypeMapContainer> world_unit_searcher(searcher);
+                    TypeContainerVisitor<MaNGOS::UnitListSearcher<MaNGOS::AnyAoEVisibleTargetUnitInObjectRangeCheck>, GridTypeMapContainer>  grid_unit_searcher(searcher);
 
                     cell.Visit(p, world_unit_searcher, *m_caster->GetMap(), *pUnitTarget, max_range);
                     cell.Visit(p, grid_unit_searcher, *m_caster->GetMap(), *pUnitTarget, max_range);
@@ -2379,6 +2379,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                     }
                     break;
                 }
+                case SPELL_EFFECT_BIND:
                 case SPELL_EFFECT_RESURRECT:
                 case SPELL_EFFECT_PARRY:
                 case SPELL_EFFECT_BLOCK:
@@ -2589,18 +2590,7 @@ void Spell::prepare(SpellCastTargets const* targets, Aura* triggeredByAura)
     // skip triggered spell (item equip spell casting and other not explicit character casts/item uses)
     if ( !m_IsTriggeredSpell && isSpellBreakStealth(m_spellInfo) )
     {
-        m_caster->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
-        m_caster->RemoveSpellsCausingAura(SPELL_AURA_FEIGN_DEATH);
-        Unit::AuraList const& dAuras = m_caster->GetAurasByType(SPELL_AURA_MOD_INVISIBILITY);
-        for(Unit::AuraList::const_iterator itr = dAuras.begin(); itr != dAuras.end(); ++itr)
-        {
-            SpellEntry const* itr_spellProto = (*itr)->GetSpellProto();
-            if(itr_spellProto->InterruptFlags != 0x00000000)
-            {
-                m_caster->RemoveAurasDueToSpell((*itr)->GetId());
-                break;
-    }
-        }
+        m_caster->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CAST);
     }
 
     // add non-triggered (with cast time and without)
@@ -2826,6 +2816,9 @@ void Spell::cast(bool skipCheck)
             // Heroism
             else if (m_spellInfo->Id == 32182)
                 AddPrecastSpell(57723);                     // Exhaustion
+            else if (m_spellInfo->Effect[EFFECT_INDEX_0]==SPELL_EFFECT_APPLY_AREA_AURA_RAID && m_spellInfo->SpellFamilyFlags & UI64LIT(0x0000000004000000))
+                // only for main totem spell cast
+                AddTriggeredSpell(30708);                   // Totem of Wrath
             break;
         }
         default:
@@ -3408,20 +3401,20 @@ void Spell::SendCastResult(Player* caster, SpellEntry const* spellInfo, uint8 ca
 
 void Spell::SendSpellStart()
 {
-    if(!IsNeedSendToClient())
+    if (!IsNeedSendToClient())
         return;
 
     sLog.outDebug("Sending SMSG_SPELL_START id=%u", m_spellInfo->Id);
 
     uint32 castFlags = CAST_FLAG_UNKNOWN1;
-    if(IsRangedSpell())
+    if (IsRangedSpell())
         castFlags |= CAST_FLAG_AMMO;
 
-    if(m_spellInfo->runeCostID)
+    if (m_spellInfo->runeCostID)
         castFlags |= CAST_FLAG_UNKNOWN10;
 
     WorldPacket data(SMSG_SPELL_START, (8+8+4+4+2));
-    if(m_CastItem)
+    if (m_CastItem)
         data.append(m_CastItem->GetPackGUID());
     else
         data.append(m_caster->GetPackGUID());
@@ -3501,7 +3494,7 @@ void Spell::SendSpellGo()
     m_targets.write(&data);
 
     if ( castFlags & CAST_FLAG_UNKNOWN6 )                   // unknown wotlk, predicted power?
-        data << uint32(0);
+        data << uint32(m_caster->GetPower(m_caster->getPowerType())); // Yes, it is really predicted power.
 
     if ( castFlags & CAST_FLAG_UNKNOWN7 )                   // rune cooldowns list
     {
@@ -3914,7 +3907,7 @@ void Spell::TakeCastItem()
             // item has limited charges
             if (proto->Spells[i].SpellCharges)
             {
-                if (proto->Spells[i].SpellCharges < 0)
+                if (proto->Spells[i].SpellCharges < 0 && !proto->NonConsumable)
                     expendable = true;
 
                 int32 charges = m_CastItem->GetSpellCharges(i);
@@ -4758,6 +4751,12 @@ SpellCastResult Spell::CheckCast(bool strict)
                     if(m_caster->IsInWater())
                         return SPELL_FAILED_ONLY_ABOVEWATER;
                 }
+                else if (m_spellInfo->SpellFamilyFlags == UI64LIT(0x2000)) // Death Coil (DeathKnight)
+                {
+                    Unit* target = m_targets.getUnitTarget();
+                    if (!target || (target->IsFriendlyTo(m_caster) && target->GetCreatureType() != CREATURE_TYPE_UNDEAD))
+                        return SPELL_FAILED_BAD_TARGETS;
+                }
                 else if(m_spellInfo->SpellIconID == 156)    // Holy Shock
                 {
                     // spell different for friends and enemies
@@ -4769,7 +4768,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                 if (m_spellInfo->SpellFamilyName == SPELLFAMILY_SHAMAN && m_spellInfo->SpellIconID == 33)
                 {
                     // fire totems slot
-                    if (!m_caster->m_TotemSlot[0])
+                    if (!m_caster->GetTotemGUID(TOTEM_SLOT_FIRE))
                         return SPELL_FAILED_TOTEMS;
                 }
                 break;
@@ -5031,21 +5030,6 @@ SpellCastResult Spell::CheckCast(bool strict)
                             return SPELL_FAILED_ALREADY_HAVE_CHARM;
                     }
                 }
-
-                break;
-            }
-            // Not used for summon?
-            case SPELL_EFFECT_SUMMON_PHANTASM:
-            {
-                //Snake Trap exception
-                if(m_spellInfo->EffectMiscValueB[i] == 2301)
-                    break;
-
-                if(m_caster->GetPetGUID())
-                    return SPELL_FAILED_ALREADY_HAVE_SUMMON;
-
-                if(m_caster->GetCharmGUID())
-                    return SPELL_FAILED_ALREADY_HAVE_CHARM;
 
                 break;
             }
@@ -5821,7 +5805,7 @@ SpellCastResult Spell::CheckItems()
                 {
                     // CastItem will be used up and does not count as reagent
                     int32 charges = m_CastItem->GetSpellCharges(s);
-                    if (proto->Spells[s].SpellCharges < 0 && abs(charges) < 2)
+                        if (proto->Spells[s].SpellCharges < 0 && !proto->NonConsumable && abs(charges) < 2)
                     {
                         ++itemcount;
                         break;
@@ -5882,14 +5866,41 @@ SpellCastResult Spell::CheckItems()
             {
                 if (!m_IsTriggeredSpell && m_spellInfo->EffectItemType[i])
                 {
+                    // Conjure Mana Gem (skip same or low level ranks for later recharge)
+                    if (i == EFFECT_INDEX_0 && m_spellInfo->Effect[EFFECT_INDEX_1] == SPELL_EFFECT_DUMMY)
+                    {
+                        if (ItemPrototype const* itemProto = ObjectMgr::GetItemPrototype(m_spellInfo->EffectItemType[i]))
+                        {
+                            if (Item* item = p_caster->GetItemByLimitedCategory(itemProto->ItemLimitCategory))
+                            {
+                                if (item->GetProto()->ItemLevel <= itemProto->ItemLevel)
+                                {
+                                    if (item->HasMaxCharges())
+                                        return SPELL_FAILED_ITEM_AT_MAX_CHARGES;
+
+                                    // will recharge in next effect
+                                    continue;
+                                }
+                            }
+                        }
+                    }
+
                     ItemPosCountVec dest;
                     uint8 msg = p_caster->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, m_spellInfo->EffectItemType[i], 1 );
                     if (msg != EQUIP_ERR_OK )
                     {
-                        p_caster->SendEquipError( msg, NULL, NULL );
+                        p_caster->SendEquipError( msg, NULL, NULL, m_spellInfo->EffectItemType[i] );
                         return SPELL_FAILED_DONT_REPORT;
                     }
                 }
+                break;
+            }
+            case SPELL_EFFECT_RESTORE_ITEM_CHARGES:
+            {
+                if (Item* item = p_caster->GetItemByEntry(m_spellInfo->EffectItemType[i]))
+                    if (item->HasMaxCharges())
+                        return SPELL_FAILED_ITEM_AT_MAX_CHARGES;
+
                 break;
             }
             case SPELL_EFFECT_ENCHANT_ITEM:

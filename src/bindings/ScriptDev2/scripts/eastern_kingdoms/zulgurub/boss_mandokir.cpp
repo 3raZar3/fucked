@@ -162,7 +162,8 @@ struct MANGOS_DLL_DECL boss_mandokirAI : public ScriptedAI
                             DoScriptText(SAY_GRATS_JINDO, jTemp);
 
                 DoCastSpellIfCan(m_creature, SPELL_LEVEL_UP, CAST_TRIGGERED);
-                m_creature->SetLevel(m_creature->getLevel() + 1);
+                if (m_creature->getLevel() < 80)
+                    m_creature->SetLevel(m_creature->getLevel() + 1);
                 m_uiKillCount = 0;
             }
 

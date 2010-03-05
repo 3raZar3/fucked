@@ -222,6 +222,7 @@ class Spell
     friend void Unit::SetCurrentCastedSpell( Spell * pSpell );
     public:
 
+        void EffectEmpty(SpellEffectIndex eff_idx);
         void EffectNULL(SpellEffectIndex eff_idx);
         void EffectUnused(SpellEffectIndex eff_idx);
         void EffectDistract(SpellEffectIndex eff_idx);
@@ -236,6 +237,7 @@ class Spell
         void EffectPowerBurn(SpellEffectIndex eff_idx);
         void EffectPowerDrain(SpellEffectIndex eff_idx);
         void EffectHeal(SpellEffectIndex eff_idx);
+        void EffectBind(SpellEffectIndex eff_idx);
         void EffectHealthLeech(SpellEffectIndex eff_idx);
         void EffectQuestComplete(SpellEffectIndex eff_idx);
         void EffectCreateItem(SpellEffectIndex eff_idx);
@@ -269,6 +271,7 @@ class Spell
         void EffectTriggerSpell(SpellEffectIndex eff_idx);
         void EffectTriggerMissileSpell(SpellEffectIndex eff_idx);
         void EffectThreat(SpellEffectIndex eff_idx);
+        void EffectRestoreItemCharges(SpellEffectIndex eff_idx);
         void EffectHealMaxHealth(SpellEffectIndex eff_idx);
         void EffectInterruptCast(SpellEffectIndex eff_idx);
         void EffectSummonObjectWild(SpellEffectIndex eff_idx);
@@ -374,7 +377,7 @@ class Spell
         void DoSummon(SpellEffectIndex eff_idx);
         void DoSummonWild(SpellEffectIndex eff_idx, uint32 forceFaction = 0);
         void DoSummonGuardian(SpellEffectIndex eff_idx, uint32 forceFaction = 0);
-        void DoSummonTotem(SpellEffectIndex eff_idx, uint8 slot = 0);
+        void DoSummonTotem(SpellEffectIndex eff_idx, uint8 slot_dbc = 0);
         void DoSummonCritter(SpellEffectIndex eff_idx, uint32 forceFaction = 0);
 
         void WriteSpellGoTargets( WorldPacket * data );
@@ -628,12 +631,12 @@ namespace MaNGOS
         Spell &i_spell;
         const uint32& i_index;
         float i_radius;
-        Unit* i_originalCaster;
+        WorldObject* i_originalCaster;
 
         SpellNotifierPlayer(Spell &spell, std::list<Unit*> &data, const uint32 &i, float radius)
             : i_data(data), i_spell(spell), i_index(i), i_radius(radius)
         {
-            i_originalCaster = i_spell.GetAffectiveCaster();
+            i_originalCaster = i_spell.GetCastingObject();
         }
 
         void Visit(PlayerMapType &m)
@@ -664,13 +667,15 @@ namespace MaNGOS
         SpellNotifyPushType i_push_type;
         float i_radius;
         SpellTargets i_TargetType;
-        Unit* i_originalCaster;
+        WorldObject* i_originalCaster;
+        bool i_playerControled;
 
         SpellNotifierCreatureAndPlayer(Spell &spell, std::list<Unit*> &data, float radius, SpellNotifyPushType type,
             SpellTargets TargetType = SPELL_TARGETS_NOT_FRIENDLY)
             : i_data(&data), i_spell(spell), i_push_type(type), i_radius(radius), i_TargetType(TargetType)
         {
-            i_originalCaster = spell.GetAffectiveCaster();
+            i_originalCaster = spell.GetCastingObject();
+            i_playerControled = i_originalCaster  ? i_originalCaster->IsControlledByPlayer() : false;
         }
 
         template<class T> inline void Visit(GridRefManager<T>  &m)
@@ -712,16 +717,14 @@ namespace MaNGOS
                         if(itr->getSource()->GetTypeId()==TYPEID_UNIT && ((Creature*)itr->getSource())->isTotem())
                             continue;
 
-                        Unit* check = i_originalCaster->GetCharmerOrOwnerOrSelf();
-
-                        if( check->GetTypeId()==TYPEID_PLAYER )
+                        if (i_playerControled)
                         {
-                            if (check->IsFriendlyTo( itr->getSource() ))
+                            if (i_originalCaster->IsFriendlyTo( itr->getSource() ))
                                 continue;
                         }
                         else
                         {
-                            if (!check->IsHostileTo( itr->getSource() ))
+                            if (!i_originalCaster->IsHostileTo( itr->getSource() ))
                                 continue;
                         }
                     }

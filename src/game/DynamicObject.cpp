@@ -68,7 +68,7 @@ bool DynamicObject::Create( uint32 guidlow, Unit *caster, uint32 spellId, SpellE
     }
 
     SetEntry(spellId);
-    SetFloatValue( OBJECT_FIELD_SCALE_X, 1 );
+    SetFloatValue( OBJECT_FIELD_SCALE_X, 2 );
     SetUInt64Value( DYNAMICOBJECT_CASTER, caster->GetGUID() );
     SetUInt32Value( DYNAMICOBJECT_BYTES, 0x00000001 );
     SetUInt32Value( DYNAMICOBJECT_SPELLID, spellId );
@@ -160,4 +160,20 @@ bool DynamicObject::isVisibleForInState(Player const* u, WorldObject const* view
 
     // normal case
     return IsWithinDistInMap(viewPoint, World::GetMaxVisibleDistanceForObject() + (inVisibleList ? World::GetVisibleObjectGreyDistance() : 0.0f), false);
+}
+
+bool DynamicObject::IsHostileTo( Unit const* unit ) const
+{
+    if (Unit* owner = GetCaster())
+        return owner->IsHostileTo(unit);
+    else
+        return false;
+}
+
+bool DynamicObject::IsFriendlyTo( Unit const* unit ) const
+{
+    if (Unit* owner = GetCaster())
+        return owner->IsFriendlyTo(unit);
+    else
+        return true;
 }
