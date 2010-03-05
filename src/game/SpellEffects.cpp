@@ -1600,6 +1600,12 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                 case 58418:                                 // Portal to Orgrimmar
                 case 58420:                                 // Portal to Stormwind
                     return;                                 // implemented in EffectScript[0]
+                case 58601:                                 // Remove Flight Auras
+                {
+                    m_caster->RemoveSpellsCausingAura(SPELL_AURA_FLY);
+                    m_caster->RemoveSpellsCausingAura(SPELL_AURA_MOD_INCREASE_FLIGHT_SPEED);
+                    return;
+                }
                 case 59640:                                 // Underbelly Elixir
                 {
                     if (m_caster->GetTypeId() != TYPEID_PLAYER)
@@ -2942,7 +2948,14 @@ void Spell::EffectApplyAura(SpellEffectIndex eff_idx)
 
     Unit* caster = GetAffectiveCaster();
     if(!caster)
-        return;
+    {
+        // FIXME: currently we can't have auras applied explIcitly by gameobjects
+        // so for auras from wild gameobjects (no owner) target used
+        if (IS_GAMEOBJECT_GUID(m_originalCasterGUID))
+            caster = unitTarget;
+        else
+            return;
+    }
 
     sLog.outDebug("Spell: Aura is: %u", m_spellInfo->EffectApplyAuraName[eff_idx]);
 
