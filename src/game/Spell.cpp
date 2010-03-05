@@ -1828,7 +1828,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                         cell.SetNoCreate();
                         std::list<Unit *> tempTargetUnitMap;
                         {
-                            MaNGOS::AnyFriendlyUnitInObjectRangeCheck u_check(m_caster, m_caster, radius);
+                            MaNGOS::AnyFriendlyUnitInObjectRangeCheck u_check(m_caster, radius);
                             MaNGOS::UnitListSearcher<MaNGOS::AnyFriendlyUnitInObjectRangeCheck> searcher(m_caster, tempTargetUnitMap, u_check);
 
                             TypeContainerVisitor<MaNGOS::UnitListSearcher<MaNGOS::AnyFriendlyUnitInObjectRangeCheck>, WorldTypeMapContainer > world_unit_searcher(searcher);
