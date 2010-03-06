@@ -562,6 +562,14 @@ void Spell::FillTargetMap()
             case TARGET_CASTER_COORDINATES:
                 switch(m_spellInfo->EffectImplicitTargetB[i])
                 {
+                    case TARGET_ALL_FRIENDLY_UNITS_AROUND_CASTER:
+                        SetTargetMap(SpellEffectIndex(i), m_spellInfo->EffectImplicitTargetA[i], tmpUnitMap);
+                        SetTargetMap(SpellEffectIndex(i), m_spellInfo->EffectImplicitTargetB[i], tmpUnitMap);
+                        
+                        // Guardian Aura - Ahn'Kahet
+                        if (m_spellInfo->Id == 56153)
+                            tmpUnitMap.remove(m_caster);
+                        break;
                     case TARGET_ALL_ENEMY_IN_AREA:
                         // Note: this hack with search required until GO casting not implemented
                         // environment damage spells already have around enemies targeting but this not help in case not existed GO casting support
@@ -618,10 +626,9 @@ void Spell::FillTargetMap()
                                         }
                                 }
                                 break;
-
                             default:
-                        SetTargetMap(SpellEffectIndex(i), m_spellInfo->EffectImplicitTargetA[i], tmpUnitMap);
-                        SetTargetMap(SpellEffectIndex(i), m_spellInfo->EffectImplicitTargetB[i], tmpUnitMap);
+                                SetTargetMap(SpellEffectIndex(i), m_spellInfo->EffectImplicitTargetA[i], tmpUnitMap);
+                                SetTargetMap(SpellEffectIndex(i), m_spellInfo->EffectImplicitTargetB[i], tmpUnitMap);
                                 break;
                         }
                         break;
