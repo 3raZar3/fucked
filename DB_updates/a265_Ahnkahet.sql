@@ -1,19 +1,18 @@
--- Koordy Jedogi sumonow do poprawy nie raz ich nie widac
--- Grzyby dispaly i spele do zrobienia
-
-
 -- AHN KAHET
-
--- Nadox Taldaram Jedoga Volazi Amanitar
--- 29309,29308,29310,29311,30258
--- 31469,31456,31465,31464,31463
-
 
 -- Ahn-Kahet::Nadox 29309 31456
 UPDATE creature_template SET `mechanic_immune_mask` = '1073463287' WHERE `entry` IN (29309,31456);
--- Ahn-Kahet::Swarmer
-UPDATE creature_template SET `flags_extra` = '64', `mindmg` = '125', `maxdmg` = '250', dmg_multiplier = 2, `baseattacktime` = '2000', `minhealth` = '150', `maxhealth` = '150' WHERE `entry` IN (30178);
-UPDATE creature_template SET `flags_extra` = '64', `mindmg` = '250', `maxdmg` = '500', dmg_multiplier = 2, `baseattacktime` = '2000', `minhealth` = '250', `maxhealth` = '250' WHERE `entry` IN (31448);
+-- limit XP gained on Elder Nadox Adds
+UPDATE creature_template SET flags_extra = flags_extra | 2048 WHERE entry IN (30176,30178,31441,31448);
+
+-- Ahn'kahar Swarmer (H)
+UPDATE creature_template SET
+minlevel = 80,
+maxlevel = 82 WHERE entry = 31448;
+
+/*
+-- Koordy Jedogi sumonow do poprawy nie raz ich nie widac
+-- Grzyby dispaly i spele do zrobienia
 
 -- Flame Sphere
 UPDATE creature_template SET `minlevel` ='80', `maxlevel` = '80', `AIName` = '', `Scriptname` = 'mob_flame_sphere', `minmana` = '5000', `maxmana` = '5000' WHERE `entry` IN (30702);
@@ -46,4 +45,4 @@ UPDATE creature_template SET `mechanic_immune_mask` = mechanic_immune_mask|10734
 
 -- Ahn-Kahet::twisted Visage 30625
 UPDATE creature_template SET `mindmg` = '500', `maxdmg` = '1000', `baseattacktime` = '2000', `minhealth` = '8000', `maxhealth` = '8000' WHERE `entry` IN (30625);
--- Insert heroic creature?
+-- Insert heroic creature? */
