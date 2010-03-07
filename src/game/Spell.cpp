@@ -1738,6 +1738,11 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
         }
         case TARGET_ALL_ENEMY_IN_AREA:
             FillAreaTargets(targetUnitMap, m_targets.m_destX, m_targets.m_destY, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
+            // Shadowstep dummy (Ahn'Kahet) - lets choose fourthest target
+            if (!targetUnitMap.empty() && m_spellInfo->Id == 55965)
+            {
+                targetUnitMap.sort(TargetDistanceOrder(m_caster));
+            }
             break;
         case TARGET_AREAEFFECT_INSTANT:
         {

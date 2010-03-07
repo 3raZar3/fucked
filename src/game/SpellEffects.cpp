@@ -1597,6 +1597,22 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
 
                     return;
                 }
+                case 55965:                                 // Shadowstep (Ahn'Kahet dummy)
+                {
+                    if (!unitTarget)
+                        return;
+                    // set Vanish
+                    m_caster->CastSpell(m_caster, 55964, false);
+                    // delete threat list
+                    m_caster->DeleteThreatList();
+                    // add new target to threat list
+                    m_caster->AddThreat(unitTarget);
+                    // cast Shadowstep
+                    m_caster->CastSpell(unitTarget, 55966, true);
+                    // remove Vanish auras
+                    m_caster->RemoveAurasDueToSpell(55964);
+                return;
+                }
                 case 58418:                                 // Portal to Orgrimmar
                 case 58420:                                 // Portal to Stormwind
                     return;                                 // implemented in EffectScript[0]
