@@ -8678,7 +8678,7 @@ void Aura::HandleAuraInitializeImages(bool Apply, bool Real)
     Unit* caster = GetCaster();
     Unit* creator = Unit::GetUnit(*m_target,m_target->GetCreatorGUID());
     Creature* pImmage = (Creature*)m_target;
-    if (!creator || !caster || creator != caster)
+    if (!creator || !caster || creator != caster || pImmage->isPet())
         return;
 
     // set stats and visual
@@ -8700,6 +8700,11 @@ void Aura::HandleAuraInitializeImages(bool Apply, bool Real)
     Unit* victim = creator->getVictim();
     if (victim && victim->isAlive() && victim->IsHostileTo(pImmage) && victim->isInAccessablePlaceFor(pImmage) && pImmage->AI())
         pImmage->AI()->AttackStart(victim);
+    else
+    {
+        pImmage->GetMotionMaster()->Clear();
+        pImmage->GetMotionMaster()->MoveFollow(creator, pImmage->GetDistance(creator), pImmage->GetAngle(creator));
+    }
 }
 
 void Aura::HandleAuraCloneCaster(bool Apply, bool Real)
