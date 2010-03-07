@@ -8697,8 +8697,6 @@ void Aura::HandleAuraInitializeImages(bool Apply, bool Real)
     pImmage->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE | UNIT_FLAG_PET_IN_COMBAT | UNIT_FLAG_PVP);
     pImmage->SetUInt32Value(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_UNK2 | UNIT_FLAG2_REGENERATE_POWER);
     // force follow
-    pImmage->GetMotionMaster()->Clear(true, true);
-    pImmage->GetMotionMaster()->MoveFollow(creator, pImmage->GetDistance(creator), pImmage->GetAngle(creator));
     pImmage->UpdateSpeed(MOVE_RUN, true);
     // hack - should be handled by propper spell ("inherit masters threat list" or something like that)
     Unit* victim = creator->getVictim();
