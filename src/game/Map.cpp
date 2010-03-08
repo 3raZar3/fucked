@@ -2488,11 +2488,11 @@ bool InstanceMap::Add(Player *player)
                     // set up a solo bind or continue using it
                     if(!playerBind)
                         player->BindToInstance(mapSave, false);
-                    else
+                    else if (playerBind->save != mapSave)
                     {
                         // cannot jump to a different instance without resetting it
                         // lets send him to nearest graveyard or homebind
-                        if (WorldSafeLocsEntry const *Grave = sObjectMgr.GetClosestGraveYard(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), player->GetTeam() ))
+                        if (WorldSafeLocsEntry const *ClosestGrave = sObjectMgr.GetClosestGraveYard(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), player->GetTeam() ))
                             player->RepopAtGraveyard();
                         else player->RelocateToHomebind();
                         error_log("Player %s (GUID %u) logged into instance which is not bound to. Cheat, exploit?",player->GetName(),player->GetGUID());
