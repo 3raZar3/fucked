@@ -1,4 +1,5 @@
 -- AHN KAHET
+######################  Elder Nadox   ##################################################################
 
 -- Ahn-Kahet::Nadox 29309 31456
 UPDATE creature_template SET `mechanic_immune_mask` = '1073463287' WHERE `entry` IN (29309,31456);
@@ -10,16 +11,21 @@ UPDATE creature_template SET
 minlevel = 80,
 maxlevel = 82 WHERE entry = 31448;
 
+######################  Prince Taldaram ################################################################
+-- Flame Sphere
+UPDATE creature_template SET 
+`minlevel` = 80, 
+`maxlevel` = 80,
+`AIName` = '',
+`Scriptname` = 'mob_flame_sphere',
+WHERE `entry` IN (30106,31686,31687);
+
+-- Taldaram - delete blue beam aura
+DELETE FROM creature_addon WHERE guid IN (SELECT guid FROM creature WHERE id IN (29308,31469));
+
 /*
 -- Koordy Jedogi sumonow do poprawy nie raz ich nie widac
 -- Grzyby dispaly i spele do zrobienia
-
--- Flame Sphere
-UPDATE creature_template SET `minlevel` ='80', `maxlevel` = '80', `AIName` = '', `Scriptname` = 'mob_flame_sphere', `minmana` = '5000', `maxmana` = '5000' WHERE `entry` IN (30702);
--- DELETE FROM creature_ai_scripts WHERE creature_id IN (30702);
--- INSERT INTO creature_ai_scripts VALUES (NULL, '30702', '0', '0', '100', '3', '500', '500','3000','3000', '11', '57748', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', 'Flame Sphere - Cast FireBeam (Normal)');
--- INSERT INTO creature_ai_scripts VALUES (NULL, '30702', '0', '0', '100', '5', '500', '500','3000','3000', '11', '58938', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', 'Flame Sphere - Cast FireBeam (Heroic)');
-
 -- boss_jedoga
 UPDATE creature_template SET `mechanic_immune_mask` = mechanic_immune_mask|1073463287, `unit_flags` = '0' WHERE `entry` IN (29310,31465);
 
