@@ -60,6 +60,7 @@ enum Spells
     H_SPELL_SPIRIT_FOUNT                    = 59320,
     SPELL_SPIRIT_FOUNT_BEAM                 = 48385,
 
+    SPELL_SPIRIT_EMERGE                     = 56864,
     SPELL_SPIRIT_DIES                       = 48596,
 
     SPELL_SUMMON_SPIRIT_FOUNT               = 48386,

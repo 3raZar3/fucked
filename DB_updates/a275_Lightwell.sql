@@ -16,6 +16,3 @@ INSERT INTO creature_template_addon VALUES
 (31896,0,0,0,0,0,'59907 0'),
 (31897,0,0,0,0,0,'59907 0');
 
-UPDATE creature_template SET
-npcflag = npcflag|16777216
-WHERE entry IN (31883,31893,31894,31895,31896,31897);
