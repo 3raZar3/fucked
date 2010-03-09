@@ -2461,6 +2461,10 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                     case 58591:                                 // Stoneclaw Totem X
                         m_target->CastSpell(m_target, 58585, true);
                         return;
+                    case 59907:                             // Lightwell charges
+                        if (m_target->GetTypeId() == TYPEID_UNIT)
+                            ((Creature*)m_target)->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                        return;
                     case 62061:                             // Festive Holiday Mount
                         if (m_target->HasAuraType(SPELL_AURA_MOUNTED))
                             // Reindeer Transformation
@@ -2711,7 +2715,7 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                     caster->RemoveAurasDueToSpell(34027);
                 return;
             }
-            case 59907:                                     // Lightwell charges
+            case 59907:                                     // Lightwell charges - despawn creature if no charges remain
             {
                 if (m_target->GetTypeId() == TYPEID_UNIT)
                     ((Creature*)m_target)->AddObjectToRemoveList();
