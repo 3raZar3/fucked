@@ -6173,11 +6173,12 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
 
                     m_caster->CastSpell(unitTarget, renewSpell, true);
 
-                    Aura* aur = m_caster->GetAura(59907, EFFECT_INDEX_0);
-                    if (aur && aur->GetAuraCharges() > 1)
-                        aur->DropAuraCharge();
-                    else m_caster->RemoveAura(aur);
-
+                    if (Aura* aur = m_caster->GetAura(59907, EFFECT_INDEX_0))
+                    {
+                        if (aur->GetAuraCharges() > 1)
+                            aur->DropAuraCharge();
+                        else m_caster->RemoveAura(aur);
+                    }
                     return;
                 }
                                                             // random spell learn instead placeholder
