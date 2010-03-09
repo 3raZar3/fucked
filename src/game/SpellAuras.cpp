@@ -2711,6 +2711,12 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                     caster->RemoveAurasDueToSpell(34027);
                 return;
             }
+            case 59907:                                     // Lightwell charges
+            {
+                if (m_target->GetTypeId() == TYPEID_UNIT)
+                    ((Creature*)m_target)->AddObjectToRemoveList();
+                return;
+            }
         }
         // Living Bomb
         if (m_spellProto->SpellFamilyName == SPELLFAMILY_MAGE && (m_spellProto->SpellFamilyFlags & UI64LIT(0x2000000000000)))
