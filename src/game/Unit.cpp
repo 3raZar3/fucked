@@ -5525,16 +5525,6 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     target = this;
                     break;
                 }
-                // kill command (pet aura proc)
-                case 58914:
-                {
-                    Unit* owner = GetOwner();
-                    if( !owner || owner->GetTypeId() != TYPEID_PLAYER || !owner->HasAura(34027) )
-                        break;
-                    // reduce the owner's aura stack
-                    owner->RemoveSingleSpellAurasFromStack(34027);
-                    break;
-                }
                 // Vampiric Touch (generic, used by some boss)
                 case 52723:
                 case 60501:

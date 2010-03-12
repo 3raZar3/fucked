@@ -1350,12 +1350,6 @@ bool Aura::modStackAmount(int32 num)
         return true; // need remove aura
     }
 
-    // reset charge when modding stack, update aura in SetStackamount
-    m_procCharges = m_spellProto->procCharges;
-    Player* modOwner = GetCaster() ? GetCaster()->GetSpellModOwner() : NULL;
-    if(modOwner)
-        modOwner->ApplySpellMod(GetId(), SPELLMOD_CHARGES, m_procCharges);
-
     // Update stack amount
     SetStackAmount(stackAmount);
     return false;
@@ -2520,30 +2514,6 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                 }
                 break;
             }
-            case SPELLFAMILY_HUNTER:
-            {
-                switch(GetId())
-                {
-                    case 34026:                            // kill command
-                    {
-                        Unit* caster = GetCaster();
-                        if(!caster || caster->GetTypeId() != TYPEID_PLAYER || !caster->GetPet())
-                            return;
-                            
-                        caster->CastSpell(caster,34027,true,NULL,this);
-
-                        // set 3 stacks
-                        Aura* owner_aura  = caster->GetAura(34027, EFFECT_INDEX_0);
-                        Aura* pet_aura  = caster->GetPet()->GetAura(58914, EFFECT_INDEX_0);
-                        if( owner_aura )
-                            owner_aura->SetStackAmount(3);
-                        if( pet_aura )
-                            pet_aura->SetStackAmount(3);
-                        return;
-                    }
-                }
-                break;
-            }
             case SPELLFAMILY_SHAMAN:
             {
                 // Tidal Force
@@ -2699,20 +2669,6 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                 m_target->CastSpell(m_target, 58601, true);
                 // Parachute
                 m_target->CastSpell(m_target, 45472, true);
-                return;
-            }
-            case 58914:
-            {
-                Unit* caster = GetCaster();
-                // kill command, just eye candy
-                if(!caster)
-                    return;
-                // the "casting" dummy aura
-                if (caster->HasAura(34026))
-                    caster->RemoveAurasDueToSpell(34026);
-                // the spellmod aura (e.g. in case pet gets killed)
-                if (caster->HasAura(34027))
-                    caster->RemoveAurasDueToSpell(34027);
                 return;
             }
             case 59907:                                     // Lightwell charges - despawn creature if no charges remain
