@@ -1,3 +1,11 @@
+####################################################################################
+-- Add missing item Greater Inscription of the Gladiator (44957)
+DELETE FROM npc_vendor WHERE item=44957;
+INSERT INTO npc_vendor VALUES
+(12793,44957,0,0,2588),
+(12781,44957,0,0,2588);
+
+####################################################################################
 -- Add and remove missing items - pvp vendors by Grandres
 -- Alliance's vendors
 -- Sergeant Major Clate (12785) missing items
