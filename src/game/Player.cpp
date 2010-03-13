@@ -21913,6 +21913,10 @@ void Player::ActivateSpec(uint8 spec)
         return;
 
     _SaveActions();
+
+    // Shamans weapons enchantments passives applies twice (couldn't find source of issue so hacked this way)
+    if (getClass() == CLASS_SHAMAN)
+        RemoveAllEnchantments(TEMP_ENCHANTMENT_SLOT);
     
     UnsummonPetTemporaryIfAny();
     
