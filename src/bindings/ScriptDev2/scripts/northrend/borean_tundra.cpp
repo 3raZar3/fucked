@@ -481,7 +481,7 @@ struct MANGOS_DLL_DECL mob_overseerAI : public ScriptedAI
                         else if (!pWeaver->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
                             pWeaver->CastSpell(m_creature, SPELL_WEAVING_OOC, false);
                     }
-                    else 
+                    else if (pWeaver->HasAura(SPELL_WEAVING_OOC)) 
                         pWeaver->InterruptSpell(CURRENT_CHANNELED_SPELL);
                 }
             }
