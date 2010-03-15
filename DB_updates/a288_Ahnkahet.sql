@@ -57,19 +57,29 @@ UPDATE creature_template SET
 ScriptName = 'mob_jedoga_add'
 WHERE entry IN (30385,30114);
 
+#####################   Amanitar   #####################################################################
+DELETE FROM creature_template_addon WHERE entry IN (30391,31461,30435,31462);
+INSERT INTO creature_template_addon VALUES
+-- healthy mushroom (Putid mushroom visual(morph), healthy mushroom visual)
+(30391,0,0,0,0,0,'31690 0 56740 0'),
+(31461,0,0,0,0,0,'31690 0 56740 0'),
+-- posionous mushroom
+(30435,0,0,0,0,0,'31690 0 56741 0'),
+(31462,0,0,0,0,0,'31690 0 56741 0');
+
+UPDATE creature_template SET
+modelid_A = 26981
+WHERE entry IN (30435,30391,31461,31462);
+
+UPDATE creature_template SET
+ScriptName = 'mob_amanitars_mushroom',
+AIName = ''
+WHERE entry IN (30391,30435);
+
+-- Amanitar heroic only spawn
+REPLACE INTO creature VALUES ('151232','30258','619','2','1','0','0','344.183','-868.576','-77.5017','6.00132','88600','0','0','431392','0','0','0');
+
 /*
--- Ahn-Kahet::Amanitar NOT COMPLETE YET
-DELETE FROM creature WHERE id = '30258';
--- INSERT INTO creature VALUES (NULL,30258,619,2,1,0,0,345.169,-869.813,-77.6156,6.03587,86400,0,0,431392,0,0,0);
-
-UPDATE creature_template SET `mechanic_immune_mask` = mechanic_immune_mask|1073463287, `AIName` = '', `Scriptname` = 'boss_amanitar' WHERE `entry` IN (30258);
-UPDATE creature_template SET `minhealth` = '431392', `maxhealth` = '431392', `mechanic_immune_mask` = mechanic_immune_mask|1073463287  WHERE `entry` IN (31463);
--- Ahn-Kahet::Mushrooms
-UPDATE creature_template SET `AIName` = '', `Scriptname` = 'mob_healthymushroom' WHERE `entry` IN (30435);
-UPDATE creature_template SET `AIName` = '', `Scriptname` = 'mob_poisonmushroom' WHERE `entry` IN (30391);
-UPDATE creature_template SET `minhealth` = '150', `maxhealth` = '150' WHERE `entry` IN (31461,31462);
-
-
 -- Ahn-Kahet::Volazj2931131464
 UPDATE creature_template SET `mechanic_immune_mask` = mechanic_immune_mask|1073463287 WHERE `entry` IN (29311,31464);
 

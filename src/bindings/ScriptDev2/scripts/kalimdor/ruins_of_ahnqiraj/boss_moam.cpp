@@ -98,6 +98,7 @@ struct MANGOS_DLL_DECL boss_moamAI : public ScriptedAI
 
                 if (m_uiManaDrain_Timer <= uiDiff)
                 {
+                    m_uiManaDrain_Timer = urand(2000, 6000);
                     // choose random target with mana
                     std::list<Unit*>targets;
                     ThreatList const& threatlist = m_creature->getThreatManager().getThreatList();
@@ -115,7 +116,6 @@ struct MANGOS_DLL_DECL boss_moamAI : public ScriptedAI
                     std::advance(itr, rand() % targets.size());            
 
                     DoCastSpellIfCan(*itr, SPELL_DRAIN_MANA);
-                    m_uiManaDrain_Timer = urand(2000, 6000);
                 } else m_uiManaDrain_Timer -= uiDiff;
 
                 if (m_uiTrample_Timer <= uiDiff)
