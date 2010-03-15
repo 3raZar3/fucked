@@ -1,4 +1,12 @@
 #########################################################################################
+a289
+-- Wolves Across the Border (33) missing quest item
+DELETE FROM creature_loot_template WHERE item=50432;
+INSERT INTO creature_loot_template VALUES
+(299,50432,-60,0,1,1,0,0,0),
+(69,50432,-60,0,1,1,0,0,0);
+
+#########################################################################################
 -- Book of Glyph Mastery (45912) by Grandres (Yrael thx for id's)
 
 REPLACE INTO creature_loot_template VALUES
