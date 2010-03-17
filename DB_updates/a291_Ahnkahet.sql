@@ -1,4 +1,29 @@
 -- AHN KAHET
+################
+-- Elder Nadox
+-- Prince Taldaram
+-- Jedoga Shadowseer
+-- Twilight Volunteer
+-- Amanitar
+UPDATE creature_template SET 
+mechanic_immune_mask = mechanic_immune_mask
+|1 	     -- MECHANIC_CHARM 
+|2 	     -- MECHANIC_CONFUSED 	
+|65536     -- MECHANIC_POLYMORPH
+|131072    -- MECHANIC_BANISH
+|8 	     -- MECHANIC_DISTRACT
+|16 	     -- MECHANIC_FEAR
+|64 	     -- MECHANIC_ROOT
+|128 	     -- MECHANIC_PACIFY
+|256 	     -- MECHANIC_SILENCE
+|8388608   -- MECHANIC_HORROR
+|512	     -- MECHANIC_SLEEP
+|33554432  -- MECHANIC_INTERRUPT
+|2048      -- MECHANIC_STUN 	
+|67108864  -- MECHANIC_DAZE
+|536870912 -- MECHANIC_SAPPED 
+WHERE entry IN (29309,31456,31469,29308,29310,31465,30385,31474,30258,31463);
+
 ######################  Elder Nadox   ##################################################################
 
 -- Ahn-Kahet::Nadox 29309 31456
@@ -68,7 +93,8 @@ INSERT INTO creature_template_addon VALUES
 (31462,0,0,0,0,0,'31690 0 56741 0');
 
 UPDATE creature_template SET
-modelid_A = 26981
+modelid_A = 26981, -- invisilbe model
+flags_extra = flags_extra | 64 -- no XP at kill
 WHERE entry IN (30435,30391,31461,31462);
 
 UPDATE creature_template SET
