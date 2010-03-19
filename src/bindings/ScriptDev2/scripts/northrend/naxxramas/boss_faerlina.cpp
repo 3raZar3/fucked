@@ -41,32 +41,22 @@ enum
     H_SPELL_POSIONBOLT_VOLLEY = 54098,
     SPELL_ENRAGE              = 28798,
     H_SPELL_ENRAGE            = 54100,
-    
-    SPELL_WIDOWS_EMBRANCE     = 28732,
 
-    SPELL_RAINOFFIRE          = 28794,                       //Not sure if targeted AoEs work if casted directly upon a pPlayer
-    SPELL_RAINOFFIRE1         = 39024,
-    //43440,   
-    SPELL_RAINOFFIRE_H        = 58936,
-
-    CREATURE_WORSHIPER        = 16506,
-    CREATURE_FOLLOWER         = 16505,
+    SPELL_RAINOFFIRE          = 28794                       //Not sure if targeted AoEs work if casted directly upon a pPlayer
 };
-
 struct MANGOS_DLL_DECL boss_faerlinaAI : public ScriptedAI
 {
     boss_faerlinaAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (instance_naxxramas*)pCreature->GetInstanceData();
         m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
         m_bHasTaunted = false;
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_naxxramas* m_pInstance;
     bool m_bIsRegularMode;
 
-    uint64 m_uiWorshiperGUID[4];
     uint32 m_uiPoisonBoltVolleyTimer;
     uint32 m_uiRainOfFireTimer;
     uint32 m_uiEnrageTimer;
@@ -74,23 +64,13 @@ struct MANGOS_DLL_DECL boss_faerlinaAI : public ScriptedAI
 
     void Reset()
     {
-        m_uiPoisonBoltVolleyTimer = 5000;
-        m_uiRainOfFireTimer = 10000;
-        m_uiEnrageTimer = 35000;
-
-        for(uint8 i=0; i<4; ++i)
-            m_uiWorshiperGUID[i] = 0;
-
-        if (m_pInstance)
-            m_pInstance->SetData(TYPE_FAERLINA, NOT_STARTED);
+        m_uiPoisonBoltVolleyTimer = 8000;
+        m_uiRainOfFireTimer = 16000;
+        m_uiEnrageTimer = 60000;
     }
 
     void Aggro(Unit* pWho)
     {
-        m_creature->SetInCombatWithZone();
-
-        SpawnAdds();
-
         switch(urand(0, 3))
         {
             case 0: DoScriptText(SAY_AGGRO1, m_creature); break;
@@ -101,25 +81,6 @@ struct MANGOS_DLL_DECL boss_faerlinaAI : public ScriptedAI
 
         if (m_pInstance)
             m_pInstance->SetData(TYPE_FAERLINA, IN_PROGRESS);
-    }
-
-    void SpawnAdds()
-    {
-        for(uint8 i=0; m_bIsRegularMode ? i<4 : i<6 ; ++i)
-        {
-            uint32 ID = CREATURE_FOLLOWER;
-            if(i<4)
-                ID = CREATURE_WORSHIPER;
-
-            Creature* Guard = m_creature->SummonCreature(ID, m_creature->GetPositionX()+urand(2,6), m_creature->GetPositionY()+urand(2,6), m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
-            if(Guard)
-            {
-                if(Unit* pPlayer = SelectUnit(SELECT_TARGET_RANDOM,0))
-                    Guard->AI()->AttackStart(pPlayer);
-                if(i<4)
-                    m_uiWorshiperGUID[i] = Guard->GetGUID();
-            }
-        }
     }
 
     void MoveInLineOfSight(Unit* pWho)
@@ -146,36 +107,22 @@ struct MANGOS_DLL_DECL boss_faerlinaAI : public ScriptedAI
             m_pInstance->SetData(TYPE_FAERLINA, DONE);
     }
 
+    void JustReachedHome()
+    {
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_FAERLINA, FAIL);
+    }
+
     void UpdateAI(const uint32 uiDiff)
     {
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
-        //If some worshiper ar dead cast spell
-        for(uint8 i=0; i<4; ++i)
-        {
-            Unit* Worshiper = Unit::GetUnit(*m_creature, m_uiWorshiperGUID[i]);
-            if(Worshiper && !Worshiper->isAlive())
-            {
-                //cheach if this spell working corectly
-                if(m_creature->HasAura(SPELL_ENRAGE))
-                {
-                    m_creature->RemoveAurasDueToSpell(SPELL_ENRAGE);
-                    m_uiPoisonBoltVolleyTimer = m_uiPoisonBoltVolleyTimer + 30000;
-                    //m_creature->AddAura(SPELL_WIDOWS_EMBRANCE);
-                }
-                else 
-                    m_uiEnrageTimer = m_uiEnrageTimer + 30000;
-
-                m_uiWorshiperGUID[i] = 0;
-            }
-        }
-
         // Poison Bolt Volley
         if (m_uiPoisonBoltVolleyTimer < uiDiff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_POSIONBOLT_VOLLEY);
-            m_uiPoisonBoltVolleyTimer = urand(7000, 12000);
+            m_uiPoisonBoltVolleyTimer = 11000;
         }
         else
             m_uiPoisonBoltVolleyTimer -= uiDiff;
@@ -184,9 +131,9 @@ struct MANGOS_DLL_DECL boss_faerlinaAI : public ScriptedAI
         if (m_uiRainOfFireTimer < uiDiff)
         {
             if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                DoCast(pTarget, m_bIsRegularMode ? SPELL_RAINOFFIRE1 : SPELL_RAINOFFIRE_H);
+                DoCastSpellIfCan(pTarget, SPELL_RAINOFFIRE);
 
-            m_uiRainOfFireTimer = 10000;
+            m_uiRainOfFireTimer = 16000;
         }
         else
             m_uiRainOfFireTimer -= uiDiff;
@@ -195,7 +142,7 @@ struct MANGOS_DLL_DECL boss_faerlinaAI : public ScriptedAI
         if (m_uiEnrageTimer < uiDiff)
         {
             DoCastSpellIfCan(m_creature, SPELL_ENRAGE);
-            m_uiEnrageTimer = urand(30000,50000);
+            m_uiEnrageTimer = 61000;
         }
         else 
             m_uiEnrageTimer -= uiDiff;
