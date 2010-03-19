@@ -19225,7 +19225,7 @@ void Player::SendInitialPacketsAfterAddToMap()
     if(HasAura(64976) || HasAura(57499))
     {
         WorldPacket aura_update(SMSG_AURA_UPDATE);
-        aura_update.append(GetPackGUID());
+        aura_update << GetPackGUID();
         aura_update << uint8(255);
         if(HasAura(64976))
             aura_update << uint32(64976);
