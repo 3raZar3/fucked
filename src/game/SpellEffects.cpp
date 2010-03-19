@@ -6030,6 +6030,14 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     caster->CastSpell(caster, damage, false);
                     break;
                 }
+                case 51962:
+                {
+                    if (!unitTarget)
+                        return;
+
+                    unitTarget->MonsterSay("Care to try Grimbooze Thunderbrew's new jungle punch?",LANG_UNIVERSAL,NULL);
+                    return;
+                }
                 case 52751:                                 // Death Gate
                 {
                     if(!unitTarget || unitTarget->getClass() != CLASS_DEATH_KNIGHT)

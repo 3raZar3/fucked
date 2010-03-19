@@ -248,9 +248,90 @@ bool QuestAccept_fortunate_misunderstandings(Player* pPlayer, Creature* pCreatur
     return true;
 }
 
+enum TasteTest
+{
+    SPELL_OFFER_JUNGLE_PUNCH    = 51962,
+
+    NPC_HEMET_NESINGWAY         = 27986,
+    NPC_HADRIUS_HARLOWE         = 28047,
+    NPC_TAMARA_WOBBLESPROCKET   = 28568
+};
+
+int32 HemetText[3] = {-1999791, -1999790, -1999789};
+int32 HadriusText[3] = {-1999788, -1999787, -1999786};
+int32 TamaraText[3] = {-1999785, -1999784, -1999783};
+
+struct MANGOS_DLL_DECL mob_taste_testAI : public ScriptedAI
+{
+    mob_taste_testAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+
+    bool bTasteing;
+    uint8 Phase;
+    uint32 m_uiEventTimer;
+    uint64 m_uiPlayersGUID;
+
+    void Reset() 
+    {
+        bTasteing = false;
+        Phase = 0;
+        m_uiPlayersGUID = 0;
+        m_uiEventTimer = 5000;
+    }
+
+    void UpdateAI (const uint32 uiDiff)
+    {
+        if (bTasteing)
+        {
+            if (m_uiEventTimer <= uiDiff)
+            {
+                switch(m_creature->GetEntry())
+                {
+                    case NPC_HEMET_NESINGWAY: DoScriptText(HemetText[Phase], m_creature); break;
+                    case NPC_HADRIUS_HARLOWE: DoScriptText(HadriusText[Phase], m_creature); break;
+                    case NPC_TAMARA_WOBBLESPROCKET: DoScriptText(TamaraText[Phase], m_creature); break;
+                    default: break;
+                }
+                if (Phase == 2)
+                {
+                    if (Player* pPlayer = (Player*)Unit::GetUnit((*m_creature),m_uiPlayersGUID))
+                        pPlayer->KilledMonsterCredit(m_creature->GetEntry(), m_creature->GetGUID());
+                    Reset();
+                    return;
+                }
+                ++Phase;
+                m_uiEventTimer = 5000;
+            } else m_uiEventTimer -= uiDiff;
+        }
+    }
+};
+
+bool EffectDummyCreature_mob_taste_test(Unit *pCaster, uint32 spellId, SpellEffectIndex effIndex, Creature *pCreatureTarget)
+{
+    if (spellId == SPELL_OFFER_JUNGLE_PUNCH && effIndex == EFFECT_INDEX_1 && pCaster->GetTypeId() == TYPEID_PLAYER && pCreatureTarget)
+    {
+        if (pCreatureTarget->AI())
+        {
+            ((mob_taste_testAI*)pCreatureTarget->AI())->bTasteing = true;
+            ((mob_taste_testAI*)pCreatureTarget->AI())->m_uiPlayersGUID = pCaster->GetGUID();
+        }
+    }
+    return true;
+}
+
+CreatureAI* GetAI_mob_taste_test(Creature* pCreature)
+{
+    return new mob_taste_testAI(pCreature);
+}
+
 void AddSC_sholazar_basin()
 {
     Script *newscript;
+
+    newscript = new Script;
+    newscript->Name = "mob_taste_test";
+    newscript->GetAI = &GetAI_mob_taste_test;
+    newscript->pEffectDummyCreature = &EffectDummyCreature_mob_taste_test;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "mob_rjr_target";
