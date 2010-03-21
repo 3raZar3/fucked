@@ -82,6 +82,12 @@ struct MANGOS_DLL_DECL boss_anubrekhanAI : public ScriptedAI
         m_bBerserking = false;
         if (m_pInstance)
             m_pInstance->SetData(TYPE_ANUB_REKHAN, NOT_STARTED);
+
+        DespawnGuards();
+        m_creature->SummonCreature(NPC_CRYPT_GUARD, m_creature->GetPositionX(), m_creature->GetPositionY()+10, m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
+        if (!m_bIsRegularMode)
+            m_creature->SummonCreature(NPC_CRYPT_GUARD, m_creature->GetPositionX(), m_creature->GetPositionY()-10, m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
+
     }
 
     void KilledUnit(Unit* pVictim)
@@ -132,12 +138,6 @@ struct MANGOS_DLL_DECL boss_anubrekhanAI : public ScriptedAI
     {
         if (m_pInstance)
             m_pInstance->SetData(TYPE_ANUB_REKHAN, FAIL);
-
-        DespawnGuards();
-        m_creature->SummonCreature(NPC_CRYPT_GUARD, m_creature->GetPositionX(), m_creature->GetPositionY()+10, m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
-        if (!m_bIsRegularMode)
-            m_creature->SummonCreature(NPC_CRYPT_GUARD, m_creature->GetPositionX(), m_creature->GetPositionY()-10, m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
-
     }
 
     void MoveInLineOfSight(Unit* pWho)
