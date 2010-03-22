@@ -6,7 +6,7 @@ maxdmg=290,
 dmg_multiplier=2,
 attackpower=642,
 dynamicflags=1,
-lootid=30845,
+lootid=34300,
 AIName='EventAI'
 WHERE entry=34300;
 

@@ -1,6 +1,6 @@
 -- Mirror Immage summon
 UPDATE creature_template SET 
-speed = 1.5,
+speed_walk = 1.5,
 modelid_A = 11686,
 modelid_H = 11686,
 AIName = 'EventAI',

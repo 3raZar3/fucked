@@ -62,5 +62,5 @@ mindmg = 150,
 maxdmg = 250,
 attackpower = 253,
 dmg_multiplier = 2,
-speed = 0.4
+speed_walk = 0.4
 WHERE entry IN (32503,32499);

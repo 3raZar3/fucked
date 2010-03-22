@@ -1,6 +1,6 @@
 -- NAXXRAMAS
 ###################   boss_anubrekhan   ########################################################
--- crypt guard (summon) based on ACID 3.0.3
+-- crypt guard (summon) based on ACID 3.0.4
 DELETE FROM creature_ai_scripts WHERE creature_id = 16573;
 INSERT INTO creature_ai_scripts VALUES
 ('1657301','16573','0','0','100','2','0','0','0','0','11','28969','4','32','0','0','0','0','0','0','0','0','Crypt Guard (Normal) - Cast Acid Spit on Aggro'),

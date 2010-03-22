@@ -1,6 +1,6 @@
 -- Optional SQLs:
 -- correcting DB bugs posted in UDB forums
-UPDATE creature_template SET MovementType = 4 WHERE entry = 22424;
+UPDATE creature_template SET InhabitType = 4 WHERE entry = 22424;
 UPDATE creature SET MovementType = 4 WHERE id = 22424;
 DELETE FROM creature WHERE id = 18533;
 
