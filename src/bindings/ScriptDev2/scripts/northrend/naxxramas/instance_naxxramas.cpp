@@ -140,15 +140,13 @@ void instance_naxxramas::OnObjectCreate(GameObject* pGo)
                 pGo->SetGoState(GO_STATE_ACTIVE);
             break;
         case GO_PLAG_HEIG_ENTRY_DOOR:
-            // temp bypass heigan encounter
             m_uiHeigEntryDoorGUID = pGo->GetGUID();
-            //if (m_auiEncounter[3] == DONE)
+            if (m_auiEncounter[3] == DONE)
                 pGo->SetGoState(GO_STATE_ACTIVE);
             break;
         case GO_PLAG_HEIG_EXIT_DOOR:
-            // temp bypass heigan encounter
             m_uiHeigExitDoorGUID = pGo->GetGUID();
-            //if (m_auiEncounter[4] == DONE)
+            if (m_auiEncounter[4] == DONE)
                 pGo->SetGoState(GO_STATE_ACTIVE);
             break;
         case GO_PLAG_LOAT_DOOR:
