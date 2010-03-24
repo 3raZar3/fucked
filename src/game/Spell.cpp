@@ -1733,6 +1733,18 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
 
             FillAreaTargets(targetUnitMap, m_caster->GetPositionX(), m_caster->GetPositionY(), radius, PUSH_DEST_CENTER, targetB);
 
+            // initialize immage (removed all except clones)
+            if (m_spellInfo->Id == 58836 && !targetUnitMap.empty())
+            {
+                for (std::list<Unit*>::iterator itr = targetUnitMap.begin(),next; itr != targetUnitMap.end(); itr = next)
+                {
+                    next = itr;
+                    ++next;
+                    if (!(*itr) || (*itr)->GetTypeId() != TYPEID_UNIT || (*itr)->GetCreatorGUID() != m_caster->GetGUID() || ((Creature*)*itr)->isPet())
+                        targetUnitMap.erase(itr);
+                }
+            }
+
             // exclude caster
             targetUnitMap.remove(m_caster);
             break;

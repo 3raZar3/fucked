@@ -8798,30 +8798,17 @@ void Aura::HandleAuraInitializeImages(bool Apply, bool Real)
     //creator->CastSpell(m_target, 45204, false);
     //creator->CastSpell((Unit*)NULL, 58838, true);
     // probably should be handled by DB?
-    pImmage->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE | UNIT_FLAG_PET_IN_COMBAT | UNIT_FLAG_PVP);
-    pImmage->SetUInt32Value(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_UNK2 | UNIT_FLAG2_REGENERATE_POWER);
-    // hack - should be handled by propper spell ("inherit masters threat list" or something like that)
-    Unit* victim = creator->getVictim();
-    if (victim && victim->isAlive() && victim->IsHostileTo(pImmage) && victim->isInAccessablePlaceFor(pImmage) && pImmage->AI())
-        pImmage->AI()->AttackStart(victim);
-    else
-    {
-        pImmage->GetMotionMaster()->Clear();
-        pImmage->GetMotionMaster()->MoveFollow(creator, pImmage->GetDistance(creator), pImmage->GetAngle(creator));
-    }
+    pImmage->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
+    pImmage->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
+    pImmage->SetUInt32Value(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_UNK2);
 }
 
 void Aura::HandleAuraCloneCaster(bool Apply, bool Real)
 {
-    error_log("HandleAuraCloneCaster");
     if (!Real || !Apply)
         return;
 
     Unit * caster = GetCaster();
     if (!caster)
         return;
-
-    // Set item visual
-    m_target->SetDisplayId(caster->GetDisplayId());
-    m_target->SetUInt32Value(UNIT_FIELD_FLAGS_2, 2064);
 }

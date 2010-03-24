@@ -26,6 +26,7 @@ EndScriptData
 #include "escort_ai.h"
 #include "ObjectMgr.h"
 #include "GameEventMgr.h"
+#include "Spell.h"
 
 /* ContentData
 npc_air_force_bots       80%    support for misc (invisible) guard bots in areas where player allowed to fly. Summon guards after a preset time if tagged by spell
@@ -45,6 +46,96 @@ npc_tabard_vendor        50%    allow recovering quest related tabards, achievem
 npc_locksmith            75%    list of keys needs to be confirmed
 mob_winter_reveler      100%    responce on /kiss emote. don't know if it has any other function?
 EndContentData */
+
+
+/*########
+# mob_mirror_image AI
+#########*/
+
+enum MirrorImage
+{
+    SPELL_FROSTBOLT = 59638,
+    SPELL_FIREBLAST = 59637
+};
+
+struct MANGOS_DLL_DECL mob_mirror_imageAI : public ScriptedAI
+{
+    mob_mirror_imageAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        bLocked = false;
+        Reset();
+    }
+    Unit* pTarget;
+    uint64 m_uiCreatorGUID;
+    uint32 m_uiFrostboltTimer;
+    uint32 m_uiFireBlastTimer;
+    float fDist;
+    float fAngle;
+    bool bLocked;
+
+    void Reset()
+    {
+        m_uiFrostboltTimer = urand(500, 1500);
+        m_uiFireBlastTimer = urand(4500, 6000);
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (!bLocked)
+        {
+            m_uiCreatorGUID = m_creature->GetCreatorGUID();
+            if (Player* pOwner = (Player*)Unit::GetUnit(*m_creature, m_uiCreatorGUID))
+            {
+                fDist = m_creature->GetDistance(pOwner);
+                fAngle = m_creature->GetAngle(pOwner);
+            }
+            bLocked = true;
+        }
+
+        Player* pOwner = (Player*)Unit::GetUnit(*m_creature, m_uiCreatorGUID);
+        if (!pOwner || !pOwner->IsInWorld())
+        {
+            m_creature->ForcedDespawn();
+            return;
+        }
+        
+        Unit* pTarget = NULL;
+        if (Spell* pSpell = pOwner->GetCurrentSpell(CURRENT_GENERIC_SPELL))
+            pTarget = pSpell->m_targets.getUnitTarget();
+
+        if (!pTarget || !pTarget->isTargetableForAttack() || !m_creature->IsHostileTo(pTarget))
+            pTarget = pOwner->getVictim();
+
+        if (!pTarget || !pTarget->isTargetableForAttack() || !m_creature->IsHostileTo(pTarget))
+        {
+            if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() != FOLLOW_MOTION_TYPE)
+            {
+                m_creature->InterruptNonMeleeSpells(false);
+                m_creature->GetMotionMaster()->Clear();
+                m_creature->GetMotionMaster()->MoveFollow(pOwner, fDist, fAngle);
+            }
+            return;
+        }
+
+        if (m_uiFrostboltTimer <= uiDiff)
+        {
+            m_creature->CastSpell(pTarget, SPELL_FROSTBOLT, false, NULL, NULL, pOwner->GetGUID());
+            m_uiFrostboltTimer = urand(3000, 4500);
+        } else m_uiFrostboltTimer -= uiDiff;
+
+        if (m_uiFireBlastTimer <= uiDiff)
+        {
+            m_creature->CastSpell(pTarget, SPELL_FIREBLAST, false, NULL, NULL, pOwner->GetGUID());
+            m_uiFireBlastTimer = urand(9000, 12000);
+        } else m_uiFireBlastTimer -= uiDiff;
+    }
+};
+
+CreatureAI* GetAI_mob_mirror_image(Creature* pCreature)
+{
+    return new mob_mirror_imageAI(pCreature);
+}
+
 
 /*########
 # npc_air_force_bots
@@ -1865,6 +1956,11 @@ CreatureAI* GetAI_mob_winter_reveler(Creature* pCreature)
 void AddSC_npcs_special()
 {
     Script* newscript;
+
+    newscript = new Script;
+    newscript->Name = "mob_mirror_image";
+    newscript->GetAI = &GetAI_mob_mirror_image;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "npc_air_force_bots";
