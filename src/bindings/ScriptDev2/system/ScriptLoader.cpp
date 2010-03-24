@@ -69,6 +69,7 @@ extern void AddSC_boss_attumen();                           //karazhan
 extern void AddSC_boss_curator();
 extern void AddSC_boss_maiden_of_virtue();
 extern void AddSC_boss_shade_of_aran();
+extern void AddSC_boss_netherspite();
 extern void AddSC_boss_malchezaar();
 extern void AddSC_boss_terestian_illhoof();
 extern void AddSC_netherspite_infernal();
@@ -186,6 +187,7 @@ extern void AddSC_hinterlands();
 extern void AddSC_ironforge();
 extern void AddSC_isle_of_queldanas();
 extern void AddSC_loch_modan();
+extern void AddSC_redridge_mountains();
 extern void AddSC_searing_gorge();
 extern void AddSC_silvermoon_city();
 extern void AddSC_silverpine_forest();
@@ -298,6 +300,7 @@ extern void AddSC_boss_kelthuzad();
 extern void AddSC_boss_loatheb();
 extern void AddSC_boss_maexxna();
 extern void AddSC_boss_noth();
+extern void AddSC_boss_heigan();
 extern void AddSC_boss_patchwerk();
 extern void AddSC_boss_razuvious();
 extern void AddSC_boss_sapphiron();
@@ -496,6 +499,7 @@ void AddScripts()
     AddSC_boss_curator();
     AddSC_boss_maiden_of_virtue();
     AddSC_boss_shade_of_aran();
+    AddSC_boss_netherspite();
     AddSC_boss_malchezaar();
     AddSC_boss_terestian_illhoof();
     AddSC_netherspite_infernal();
@@ -613,6 +617,7 @@ void AddScripts()
     AddSC_ironforge();
     AddSC_isle_of_queldanas();
     AddSC_loch_modan();
+    AddSC_redridge_mountains();
     AddSC_searing_gorge();
     AddSC_silvermoon_city();
     AddSC_silverpine_forest();
@@ -725,6 +730,7 @@ void AddScripts()
     AddSC_boss_loatheb();
     AddSC_boss_maexxna();
     AddSC_boss_noth();
+    AddSC_boss_heigan();
     AddSC_boss_patchwerk();
     AddSC_boss_razuvious();
     AddSC_boss_sapphiron();
