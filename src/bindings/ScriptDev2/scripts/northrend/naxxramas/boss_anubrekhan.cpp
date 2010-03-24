@@ -77,7 +77,7 @@ struct MANGOS_DLL_DECL boss_anubrekhanAI : public ScriptedAI
     {
         m_uiImpaleTimer = 15000;                            // 15 seconds
         m_uiLocustSwarmTimer = urand(80000, 120000);        // Random time between 80 seconds and 2 minutes for initial cast
-        m_uiSummonTimer = m_uiLocustSwarmTimer + 20000;     // 20 seconds after initial locust swarm
+        m_uiSummonTimer = 30000;    						// 30 seconds 
         m_uiBerserkTimer = 300000;
         m_bBerserking = false;
         if (m_pInstance)
@@ -217,7 +217,7 @@ struct MANGOS_DLL_DECL boss_anubrekhanAI : public ScriptedAI
                     pTemp->AddThreat(pTarget);
                     pTemp->AI()->AttackStart(pTarget);
                 }
-                m_uiSummonTimer += 30000;
+                m_uiSummonTimer = 30000; // 30 sec after initial locust swarm
             }
             m_uiLocustSwarmTimer = urand(90000, 120000);
         }
@@ -236,7 +236,6 @@ struct MANGOS_DLL_DECL boss_anubrekhanAI : public ScriptedAI
                     pTemp->AI()->AttackStart(pTarget);
                 }
             }
-            m_uiSummonTimer = 30000;
         }
         else
             m_uiSummonTimer -= uiDiff;
