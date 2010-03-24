@@ -2298,6 +2298,14 @@ void Aura::TriggerSpell()
                 target->CastCustomSpell(target, trigger_spell_id, &m_modifier.m_amount, NULL, NULL, true, NULL, this);
                 return;
             }
+            // Curse of the Plaguebringer (normal and heroic)
+            case 29213:
+            case 54835:
+            {
+                if (Unit* caster = GetCaster())
+                    caster->CastSpell(target, trigger_spell_id, true, NULL, this, casterGUID);
+                return;
+            }
             // Ground Slam
             case 33525:
                 target->CastSpell(target, trigger_spell_id, true, NULL, this, casterGUID);
