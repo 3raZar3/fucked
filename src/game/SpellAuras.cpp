@@ -6501,8 +6501,8 @@ void Aura::HandleSpellSpecificBoosts(bool apply)
                         if ((*itr)->GetSpellProto()->SpellIconID == 2945)
                         {
                             cast_at_remove = true;
-                            // first rank have 50% chance
-                            if ((*itr)->GetId() != 44745 || roll_chance_i(50))
+                            // 1st rank have 50% chance, 2nd 100%
+                            if (((*itr)->GetId() == 44745 && roll_chance_i(50)) || (*itr)->GetId() == 54787)
                                 spellId1 = 55080;
                             break;
                         }
@@ -6510,6 +6510,7 @@ void Aura::HandleSpellSpecificBoosts(bool apply)
                 }
                 else
                     return;
+                break;
             }
 
             switch(GetId())
