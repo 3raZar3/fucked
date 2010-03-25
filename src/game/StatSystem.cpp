@@ -905,6 +905,7 @@ void Pet::UpdateMaxHealth()
     UnitMods unitMod = UNIT_MOD_HEALTH;
     float stamina = GetStat(STAT_STAMINA) - GetCreateStat(STAT_STAMINA);
     float multiplicator;
+    float healthPrc = GetHealthPercent();
 
     // some pets don't gain 10 hp per stamina
     switch(GetEntry())
@@ -923,6 +924,7 @@ void Pet::UpdateMaxHealth()
     value  *= GetModifierValue(unitMod, TOTAL_PCT);
 
     SetMaxHealth((uint32)value);
+    SetHealth(uint32(value * healthPrc / 100));
 }
 
 void Pet::UpdateMaxPower(Powers power)
