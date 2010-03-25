@@ -435,7 +435,7 @@ struct MANGOS_DLL_DECL boss_kaelthasAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit* pWho)
     {
-        if (!m_creature->hasUnitState(UNIT_STAT_STUNNED) && pWho->isTargetableForAttack() &&
+        if (m_creature->CanInitiateAttack() && pWho->isTargetableForAttack() &&
             m_creature->IsHostileTo(pWho) && pWho->isInAccessablePlaceFor(m_creature))
         {
             if (!m_creature->canFly() && m_creature->GetDistanceZ(pWho) > CREATURE_Z_ATTACK_RANGE)
@@ -989,13 +989,6 @@ struct MANGOS_DLL_DECL boss_kaelthasAI : public ScriptedAI
 
                                         pUnit->CastSpell(pUnit, SPELL_GRAVITY_LAPSE, true, 0, 0, m_creature->GetGUID());
                                         pUnit->CastSpell(pUnit, SPELL_GRAVITY_LAPSE_AURA, true, 0, 0, m_creature->GetGUID());
-
-                                        //Using packet workaround
-                                        WorldPacket data(12);
-                                        data.SetOpcode(SMSG_MOVE_SET_CAN_FLY);
-                                        data.append(pUnit->GetPackGUID());
-                                        data << uint32(0);
-                                        pUnit->SendMessageToSet(&data, true);
                                     }
                                 }
                                 m_uiGravityLapse_Timer = 10000;
@@ -1014,20 +1007,6 @@ struct MANGOS_DLL_DECL boss_kaelthasAI : public ScriptedAI
                             case 3:
                             {
                                 //Remove flight
-                                ThreatList const& tList = m_creature->getThreatManager().getThreatList();
-                                for (ThreatList::const_iterator i = tList.begin();i != tList.end(); ++i)
-                                {
-                                    if (Unit* pUnit = Unit::GetUnit((*m_creature), (*i)->getUnitGuid()))
-                                    {
-                                        //Using packet workaround
-                                        WorldPacket data(12);
-                                        data.SetOpcode(SMSG_MOVE_UNSET_CAN_FLY);
-                                        data.append(pUnit->GetPackGUID());
-                                        data << uint32(0);
-                                        pUnit->SendMessageToSet(&data, true);
-                                    }
-                                }
-
                                 m_creature->RemoveAurasDueToSpell(SPELL_NETHER_VAPOR);
                                 m_bInGravityLapse = false;
                                 m_uiGravityLapse_Timer = 60000;

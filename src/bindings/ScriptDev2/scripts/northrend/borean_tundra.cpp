@@ -29,83 +29,6 @@ npc_kara_thricestar
 mob_overseer
 npc_surristrasz
 npc_tiare
-
--- Overseer texts
-DELETE FROM script_texts WHERE entry BETWEEN -1999844 AND -1999842;
-INSERT INTO script_texts (`entry`, `content_default`,`comment`) VALUES
-(-1999844,'You dare to defy the sons of iron?','Overseer(1)'),
-(-1999843,'What do you think you\'re doing?','Overseer aggro(2)'),
-(-1999842,'Fool! You will never get away with this!','Overseer aggro(3)');
-
--- Rune-Weaver Channel focused on Directional Runes
-DELETE FROM spell_script_target WHERE entry = 47463;
-INSERT INTO spell_script_target VALUES
-(47463,0,188471),
-(47463,0,188505),
-(47463,0,188506),
-(47463,0,188507);
-
--- Directional Runes not targetable for player
-UPDATE gameobject_template SET flags = flags|4 WHERE entry IN (188471,188505,188506,188507);
-
--- Removed Iron Rune-Weaver. They will be spawn by propper overseers in SD2 script
-DELETE FROM creature WHERE id = 26820;
-
--- Spawn missing 4th Directional Rune
-DELETE FROM gameobject WHERE id = 188507;
-INSERT INTO gameobject VALUES
-('400013','188507','571','1','1','3985.83','-5250.23','7.01735','0.05196','0','0','0.0259771','0.999663','300','100','0');
-
--- Spawn Overseers
-DELETE FROM creature WHERE id IN (26921,26920,26922,26923);
-INSERT INTO creature VALUES
-('11457406','26920','571','1','1','0','749','4486.66','-4654.01','77.547','0.087266','300','0','0','10635','3561','0','0'),
-('11457407','26921','571','1','1','0','749','4317.75','-4880.36','33.3857','-0.698132','300','0','0','8508','7981','0','0'),
-('11457408','26922','571','1','1','0','749','4218.81','-5050.21','5.62514','-0.506145','300','0','0','10635','3561','0','0'),
-('11457405','26923','571','1','1','0','870','3984.56','-5250.67','6.98164','0.336503','300','0','0','10635','3561','0','0');
-
-UPDATE creature_template SET AIName = 'EventAI' WHERE entry = 26820;
-
-DELETE FROM creature_ai_scripts WHERE creature_id = 26820;
-INSERT INTO creature_ai_scripts VALUES
-(2682001,26820,1,0,100,0, 500,500,0,0 ,11,47463,0,0, 0,0,0,0, 0,0,0,0,'Iron Rune-Weaver: OOC Rune-Weaving'),
-(2682002,26820,0,0,100,1, 1000,3000,30000,30000 ,11,52713,1,1, 0,0,0,0, 0,0,0,0,'Iron Rune-Weaver: Rune-Weaving');
-
--- Overseer Brunon
--- Overseer Durval
--- Overseer Lochli
-UPDATE creature_template SET 
-minlevel = 75,
-maxlevel = 75,
-minhealth = 10635,
-maxhealth = 10635,
-minmana = 3561,
-maxmana = 3561,
-faction_A = 754, -- Dark Iron Dwarfs
-faction_H = 754,
-mindmg = 120,
-maxdmg = 180,
-dmg_multiplier = 3,
-attackpower = 2000,
-scriptname = 'mob_overseer'
-WHERE entry IN (26923,26922,26920);
-
--- Overseer Korgan
-UPDATE creature_template SET 
-minlevel = 75,
-maxlevel = 75,
-minhealth = 8508,
-maxhealth = 8508,
-minmana = 7981,
-maxmana = 7981,
-faction_A = 754,
-faction_H = 754,
-mindmg = 120,
-maxdmg = 180,
-dmg_multiplier = 3,
-attackpower = 2000,
-scriptname = 'mob_overseer'
-WHERE entry IN (26921);
 EndContentData */
 
 #include "precompiled.h"
@@ -384,6 +307,7 @@ enum Overseer
     GO_RUNE_LOCHLI                  = 188506,
     GO_RUNE_KORGAN                  = 188505,
     GO_RUNE_DURVAL                  = 188471,
+    GO_RUNE_BASIS                   = 188492,
 
     NPC_BRUNON                      = 26923,
     NPC_LOCHLI                      = 26922,
@@ -416,7 +340,6 @@ enum Overseer
 struct MANGOS_DLL_DECL mob_overseerAI : public ScriptedAI
 {
     mob_overseerAI(Creature* pCreature) : ScriptedAI(pCreature)
-    
     {
         Reset();
         ManageWeavers();
@@ -438,27 +361,25 @@ struct MANGOS_DLL_DECL mob_overseerAI : public ScriptedAI
 
     void ManageWeavers()
     {
-        WeaversDead = 0;
-
         // summoning weavers
         for (int i = 0; i < MAX_WEAVERS; ++i)
         {
             // if somehow overseer entered combat and than evaded before all weavers are dead and despawed (30sec from encounter)
-            if (Creature* pWeaver = (Creature*) Unit::GetUnit((*m_creature),WeaverGUID[i]))
+            if (Creature* pWeaver = (Creature*) Unit::GetUnit((*m_creature), WeaverGUID[i]))
             {
                 if (!pWeaver->isAlive())
                 {
                     pWeaver->Respawn();
-                    pWeaver->Relocate(WeaverPOSITION[i][0],WeaverPOSITION[i][1],WeaverPOSITION[i][2]);
+                    pWeaver->Relocate(WeaverPOSITION[i][0], WeaverPOSITION[i][1], WeaverPOSITION[i][2]);
                     pWeaver->SetFacingToObject(m_creature);
                 }
             }
             else 
             {
                 // spawn weavers around overseer in regular distance
-                float x,y,z; 
-                m_creature->GetNearPoint(m_creature,x,y,z,m_creature->GetObjectSize(),SPAWN_DISTANCE,(i*(6.20f/MAX_WEAVERS)));
-                if (Creature* pWeaver = m_creature->SummonCreature(MOB_RUNE_WEAVER,x,y,z,0.0f,TEMPSUMMON_DEAD_DESPAWN,30000))
+                float x, y, z; 
+                m_creature->GetNearPoint(m_creature, x, y, z, m_creature->GetObjectSize(), SPAWN_DISTANCE, (i*(6.20f/MAX_WEAVERS)));
+                if (Creature* pWeaver = m_creature->SummonCreature(MOB_RUNE_WEAVER, x, y, z, 0.0f, TEMPSUMMON_MANUAL_DESPAWN, 0))
                 {
                     WeaverGUID[i] = pWeaver->GetGUID();
                     WeaverPOSITION[i][0] = x;
@@ -478,15 +399,26 @@ struct MANGOS_DLL_DECL mob_overseerAI : public ScriptedAI
         }
 
         // every reset
-        if (GameObject* pGo = GetClosestGameObjectWithEntry(m_creature,m_uiRuneEntry,INTERACTION_DISTANCE))
+        if (GameObject* pGo = GetClosestGameObjectWithEntry(m_creature, m_uiRuneEntry, INTERACTION_DISTANCE))
+            if (pGo->GetGoState() == GO_STATE_READY)
+                pGo->SetGoState(GO_STATE_ACTIVE);
+        if (GameObject* pGo = GetClosestGameObjectWithEntry(m_creature, GO_RUNE_BASIS, INTERACTION_DISTANCE))
             if (pGo->GetGoState() == GO_STATE_READY)
                 pGo->SetGoState(GO_STATE_ACTIVE);
 
-        m_creature->SetVisibility(VISIBILITY_OFF);
+        m_creature->SetDisplayId(11686);
+        SetEquipmentSlots(false, EQUIP_UNEQUIP, EQUIP_UNEQUIP, EQUIP_UNEQUIP);
         m_creature->setFaction(FACTION_FRIENDLY_ALL);
+
+        WeaversDead = 0;
     }
 
     void JustReachedHome()
+    {
+        ManageWeavers();
+    }
+
+    void JustRespawned()
     {
         ManageWeavers();
     }
@@ -505,67 +437,81 @@ struct MANGOS_DLL_DECL mob_overseerAI : public ScriptedAI
         ScriptedAI::Aggro(pWho);
     }
 
-    void UpdateAI(const uint32 uiDiff)
+    void SummonedCreatureJustDied(Creature* pSummoned)
     {
-        // in combat
-        if (m_creature->getVictim() || (m_creature->SelectHostileTarget() || m_creature->isInCombat()))
-        {
-            if (m_uiEventTimer <= uiDiff)
-            {
-                if (Unit* pVictim = m_creature->getVictim())
-                    switch(m_creature->GetEntry())
-                    {
-                        case NPC_DURVAL: DoCast(pVictim,SPELL_RUNE_OF_DESTRUCTION,false); break;
-                        case NPC_LOCHLI: DoCast(pVictim,SPELL_THUNDERSTORM,false);break;
-                        case NPC_KORGAN:
-                            if ((m_creature->GetHealth()*100)/m_creature->GetMaxHealth() < 80)
-                                DoCast(m_creature,SPELL_SPELL_REVITALIZING_RUNE,false);
-                            else DoCast(pVictim,SPELL_CALL_LIGHTNING,false);
-                        default: break;
-                    }
-                m_uiEventTimer = 30000;
-            } else m_uiEventTimer -= uiDiff;
-
-            DoMeleeAttackIfReady();
-            return;
-        }
-
-        // OOC
-        if (m_uiCheckoutTimer <= uiDiff)
-        {
-            WeaversDead = 0;
-            for (int i = 0; i < MAX_WEAVERS; ++i)
-            {
-                Creature* pWeaver = (Creature*) Unit::GetUnit((*m_creature),WeaverGUID[i]);
-                // return weavers to orginal spawn point
-                if (pWeaver && pWeaver->isAlive() && !pWeaver->isInCombat())
-                    if ((m_creature->GetDistance(pWeaver)> (SPAWN_DISTANCE+1.5)) || (m_creature->GetDistance(pWeaver)< (SPAWN_DISTANCE-1.5)))
-                    {
-                        if (pWeaver->GetMotionMaster()->GetCurrentMovementGeneratorType() == IDLE_MOTION_TYPE)
-                            pWeaver->GetMotionMaster()->MovePoint(0,WeaverPOSITION[i][0],WeaverPOSITION[i][1],WeaverPOSITION[i][2]);
-                    }
-                    else
-                    {
-                        if (!pWeaver->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
-                            pWeaver->CastSpell(pWeaver,SPELL_WEAVING_OOC,false);
-                    }
-
-                //count dead or dead and despawned weavers
-                if (!pWeaver || !pWeaver->isAlive())
-                    ++WeaversDead;
-            }
+        if (pSummoned->GetEntry() == MOB_RUNE_WEAVER)
+            ++WeaversDead;
 
             if (WeaversDead >= MAX_WEAVERS)
             {
-                m_creature->SetVisibility(VISIBILITY_ON);
                 m_creature->setFaction(FACTION_DARK_IRON);
+                m_creature->SetDisplayId(m_creature->GetNativeDisplayId());
+                SetEquipmentSlots(true);
 
-                if (GameObject* pGo = GetClosestGameObjectWithEntry(m_creature,m_uiRuneEntry,INTERACTION_DISTANCE))
+                if (GameObject* pGo = GetClosestGameObjectWithEntry(m_creature, m_uiRuneEntry, INTERACTION_DISTANCE))
+                    if (pGo->GetGoState() == GO_STATE_ACTIVE)
+                        pGo->SetGoState(GO_STATE_READY);
+                if (GameObject* pGo = GetClosestGameObjectWithEntry(m_creature, GO_RUNE_BASIS, INTERACTION_DISTANCE))
                     if (pGo->GetGoState() == GO_STATE_ACTIVE)
                         pGo->SetGoState(GO_STATE_READY);
             }
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        // OOC
+        if (m_uiCheckoutTimer <= uiDiff)
+        {
+            for (int i = 0; i < MAX_WEAVERS; ++i)
+            {
+                if (WeaverGUID[i] == 0)
+                    continue;
+
+                Creature* pWeaver = (Creature*) Unit::GetUnit((*m_creature),WeaverGUID[i]);
+                // return weavers to orginal spawn point
+                if (pWeaver && pWeaver->isAlive())
+                {
+                    if (!pWeaver->SelectHostileTarget() || !pWeaver->getVictim())
+                    {
+                        if ((m_creature->GetDistance(pWeaver) > (SPAWN_DISTANCE + 1.5)) || (m_creature->GetDistance(pWeaver) < (SPAWN_DISTANCE - 1.5)))
+                        {
+                            pWeaver->GetMotionMaster()->Clear();
+                            pWeaver->GetMotionMaster()->MovePoint(0, WeaverPOSITION[i][0], WeaverPOSITION[i][1], WeaverPOSITION[i][2]);
+                        }
+                        else if (!pWeaver->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
+                            pWeaver->CastSpell(m_creature, SPELL_WEAVING_OOC, false);
+                    }
+                    else if (pWeaver->HasAura(SPELL_WEAVING_OOC)) 
+                        pWeaver->InterruptSpell(CURRENT_CHANNELED_SPELL);
+                }
+            }
             m_uiCheckoutTimer = 1000;
         } m_uiCheckoutTimer -= uiDiff;
+
+        // in combat
+        if(!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+            return;
+
+        if (m_uiEventTimer <= uiDiff)
+        {
+            if (Unit* pVictim = m_creature->getVictim())
+            {
+                switch(m_creature->GetEntry())
+                {
+                    case NPC_DURVAL: DoCastSpellIfCan(pVictim, SPELL_RUNE_OF_DESTRUCTION);  break;
+                    case NPC_LOCHLI: DoCastSpellIfCan(pVictim, SPELL_THUNDERSTORM);         break;
+                    case NPC_KORGAN:
+                        if (m_creature->GetHealthPercent() < 80.0f)
+                            DoCastSpellIfCan(m_creature, SPELL_SPELL_REVITALIZING_RUNE);
+                        else DoCastSpellIfCan(pVictim, SPELL_CALL_LIGHTNING);
+                        break;
+                    default: break;
+                }
+            }
+            m_uiEventTimer = 30000;
+        } else m_uiEventTimer -= uiDiff;
+
+        DoMeleeAttackIfReady();
     }                 
 };
 

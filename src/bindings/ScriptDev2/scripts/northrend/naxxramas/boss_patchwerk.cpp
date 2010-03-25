@@ -47,12 +47,12 @@ struct MANGOS_DLL_DECL boss_patchwerkAI : public ScriptedAI
 {
     boss_patchwerkAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (instance_naxxramas*)pCreature->GetInstanceData();
         m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_naxxramas* m_pInstance;
     bool m_bIsRegularMode;
 
     uint32 m_uiHatefulStrikeTimer;
@@ -111,7 +111,7 @@ struct MANGOS_DLL_DECL boss_patchwerkAI : public ScriptedAI
         for (ThreatList::const_iterator iter = tList.begin();iter != tList.end(); ++iter)
         {
             if (!uiTargets)
-                return;
+                break;
 
             if (Unit* pTempTarget = Unit::GetUnit((*m_creature), (*iter)->getUnitGuid()))
             {

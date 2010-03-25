@@ -180,7 +180,7 @@ bool GOHello_go_altar_of_keepers(Player* pPlayer, GameObject* pGo)
     if (!pPlayer || !pGo)
         return false;
 
-    pPlayer->CastSpell(pPlayer,SPELL_USE_ALTAR_VISUAL,true);
+    pPlayer->CastSpell(pPlayer, SPELL_USE_ALTAR_VISUAL, true);
 
     std::list<Creature*> lStoneKeepers;
     GetCreatureListWithEntryInGrid(lStoneKeepers, pGo, NPC_STONE_KEEPER, HALL_RADIUS);
@@ -189,7 +189,7 @@ bool GOHello_go_altar_of_keepers(Player* pPlayer, GameObject* pGo)
     {
         for(std::list<Creature*>::iterator itr = lStoneKeepers.begin(); itr != lStoneKeepers.end(); ++itr)
         {
-            if ((*itr) && (*itr)->isAlive())
+            if (*itr && (*itr)->isAlive())
             {
                 (*itr)->setFaction(FACTION_TITAN_UNFRIENDLY);
                 (*itr)->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);

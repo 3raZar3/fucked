@@ -125,8 +125,8 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
     }
 
     SpellCastTargets targets;
-    if (!targets.read(&recvPacket, pUser))
-        return;
+
+    recvPacket >> targets.ReadForCaster(pUser);
 
     targets.Update(pUser);
 
@@ -334,27 +334,25 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
 
     // client provided targets
     SpellCastTargets targets;
-    if(!targets.read(&recvPacket,mover))
-    {
-        recvPacket.rpos(recvPacket.wpos());                 // prevent spam at ignore packet
-        return;
-    }
+
+    recvPacket >> targets.ReadForCaster(mover);
 
     // some spell cast packet including more data (for projectiles?)
     if (unk_flags & 0x02)
     {
-        recvPacket.read_skip<float>();                      // unk1, coords?
-        recvPacket.read_skip<float>();                      // unk1, coords?
         uint8 unk1;
+
+        recvPacket >> Unused<float>();                      // unk1, coords?
+        recvPacket >> Unused<float>();                      // unk1, coords?
         recvPacket >> unk1;                                 // >> 1 or 0
         if(unk1)
         {
-            recvPacket.read_skip<uint32>();                 // >> MSG_MOVE_STOP
-            uint64 guid;                                    // guid - unused
-            if(!recvPacket.readPackGUID(guid))
-                return;
+            ObjectGuid guid;                                // guid - unused
+            MovementInfo movementInfo;
 
-            MovementInfo movementInfo(recvPacket);
+            recvPacket >> Unused<uint32>();                 // >> MSG_MOVE_STOP
+            recvPacket >> guid.ReadAsPacked();
+            recvPacket >> movementInfo;
         }
     }
 
@@ -567,3 +565,88 @@ void WorldSession::HandleSpellClick( WorldPacket & recv_data )
     }
 }
 
+void WorldSession::HandleMirrorImageDataRequest( WorldPacket & recv_data )
+{
+    sLog.outDebug("WORLD: CMSG_GET_MIRRORIMAGE_DATA");
+    uint64 guid;
+    recv_data >> guid;
+
+    // Get unit for which data is needed by client
+    Unit *unit = ObjectAccessor::GetUnit(*_player, guid);
+    if (!unit)
+        return;
+
+    // Get creator of the unit
+    Unit *creator = ObjectAccessor::GetUnit(*_player, unit->GetCreatorGUID());
+    if (!creator)
+        creator = unit;
+
+    if (!creator)
+        return;
+
+    WorldPacket data(SMSG_MIRRORIMAGE_DATA, 68);
+    data << (uint64)guid;
+    data << (uint32)creator->GetDisplayId();
+    if (creator->GetTypeId() == TYPEID_PLAYER)
+    {
+        Player* pCreator = (Player *)creator;
+        data << (uint8)pCreator->getRace();                         // race
+        data << (uint8)pCreator->getGender();                       // gender
+        data << (uint8)pCreator->getClass();                        // class
+        data << (uint8)pCreator->GetByteValue(PLAYER_BYTES, 0);     // skin
+        data << (uint8)pCreator->GetByteValue(PLAYER_BYTES, 1);     // face
+        data << (uint8)pCreator->GetByteValue(PLAYER_BYTES, 2);     // hair
+        data << (uint8)pCreator->GetByteValue(PLAYER_BYTES, 3);     // haircolor
+        data << (uint8)pCreator->GetByteValue(PLAYER_BYTES_2, 0);   // facialhair
+
+        data << (uint32)0;                    // unknown
+
+        static const EquipmentSlots ItemSlots[] =
+        {
+            EQUIPMENT_SLOT_HEAD,
+            EQUIPMENT_SLOT_SHOULDERS,
+            EQUIPMENT_SLOT_BODY,
+            EQUIPMENT_SLOT_CHEST,
+            EQUIPMENT_SLOT_WAIST,
+            EQUIPMENT_SLOT_LEGS,
+            EQUIPMENT_SLOT_FEET,
+            EQUIPMENT_SLOT_WRISTS,
+            EQUIPMENT_SLOT_HANDS,
+            EQUIPMENT_SLOT_BACK,
+            EQUIPMENT_SLOT_TABARD,
+            EQUIPMENT_SLOT_END
+        };
+
+        // Display items in visible slots
+        for (EquipmentSlots const* itr = &ItemSlots[0]; *itr != EQUIPMENT_SLOT_END; ++itr)
+            if (Item const* item =  pCreator->GetItemByPos(INVENTORY_SLOT_BAG_0, *itr))
+                data << (uint32)item->GetProto()->DisplayInfoID;    // display id
+            else
+                data << (uint32)0;                    // no item found, so no id
+
+        if (Item const* item = pCreator->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
+            unit->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, item->GetProto()->ItemId);
+        if (Item const* item = pCreator->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
+            unit->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, item->GetProto()->ItemId);
+    }
+    else
+    {
+        // Skip player data for creatures
+        data << (uint32)0;
+        data << (uint32)0;
+        data << (uint32)0;
+        data << (uint32)0;
+        data << (uint32)0;
+        data << (uint32)0;
+        data << (uint32)0;
+        data << (uint32)0;
+        data << (uint32)0;
+        data << (uint32)0;
+        data << (uint32)0;
+        data << (uint32)0;
+        data << (uint32)0;
+        data << (uint32)0;
+    }
+
+    SendPacket( &data );
+}

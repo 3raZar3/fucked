@@ -16,10 +16,9 @@
 
 /* ScriptData
 SDName: Boss_Loatheb
-SD%Complete: 90
+SD%Complete: 100
 SDComment:
 SDCategory: Naxxramas
-SDAuthor: ScrappyDoo (c) Andeeria
 EndScriptData */
 
 #include "precompiled.h"
@@ -27,56 +26,51 @@ EndScriptData */
 
 enum
 {
-    SPELL_BERSERK         = 26662,
-    SPELL_DEATHBLOOM      = 29865,
-    SPELL_BLOOM           = 55594, 
-    SPELL_DEATHBLOOM_H    = 55053, 
-    SPELL_BLOOM_H         = 55601,
-    SPELL_DOOM            = 29204, 
-    SPELL_DOOM_H          = 55052, 
-    SPELL_NECROTIC_AURA   = 55593, 
-    SPELL_FUNGAL_CREEP    = 29232, 
-
-    SPELL_SUMMON_SPORES   = 29234,
-
-    CREATURE_SPORE        = 16286 
+    SPELL_CORRUPTED_MIND  = 29198,
+    SPELL_POISON_AURA     = 29865,
+    SPELL_INEVITABLE_DOOM = 29204,
+    SPELL_REMOVE_CURSE    = 30281
 };
+
+#define ADD_1X 2957.040f
+#define ADD_1Y -3997.590f
+#define ADD_1Z 274.280f
+
+#define ADD_2X 2909.130f
+#define ADD_2Y -4042.970f
+#define ADD_2Z 274.280f
+
+#define ADD_3X 2861.102f
+#define ADD_3Y -3997.901f
+#define ADD_3Z 274.280f
 
 struct MANGOS_DLL_DECL boss_loathebAI : public ScriptedAI
 {
     boss_loathebAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (instance_naxxramas*)pCreature->GetInstanceData();
         m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_naxxramas* m_pInstance;
     bool m_bIsRegularMode;
-    bool m_bIsBloom;
-    bool m_bIsEnrage;
 
-    uint32 m_uiEnrage2Timer;
-    uint32 m_uiBloomTimer;
-    uint32 m_uiNecroticAuraTimer;
-    uint32 m_uiDeatchBloomTimer;
-    uint32 m_uiDoomTimer;
-    uint32 m_uiEnrageTimer;
+    uint32 m_uiCorruptedMindTimer;
+    uint32 m_uiPoisonAuraTimer;
+    uint32 m_uiInevitableDoomTimer;
+    uint32 m_uiInevitableDoom5minsTimer;
+    uint32 m_uiRemoveCurseTimer;
     uint32 m_uiSummonTimer;
 
     void Reset()
     {
-        m_bIsBloom            = false;
-        m_bIsEnrage          = false;
-        m_uiBloomTimer        = 26000;
-        m_uiNecroticAuraTimer = 10000;
-        m_uiDeatchBloomTimer  = 20000;
-        m_uiDoomTimer         = 120000;
-        m_uiEnrageTimer       = 300000;
-        m_uiEnrage2Timer      = 720000;
-        m_uiSummonTimer       = 8000;
-        if (m_pInstance)
-            m_pInstance->SetData(TYPE_LOATHEB, NOT_STARTED);
+        m_uiCorruptedMindTimer = 4000;
+        m_uiPoisonAuraTimer = 2500;
+        m_uiInevitableDoomTimer = 120000;
+        m_uiInevitableDoom5minsTimer = 300000;
+        m_uiRemoveCurseTimer = 30000;
+        m_uiSummonTimer = 8000;
     }
 
     void Aggro(Unit* pWho)
@@ -91,101 +85,84 @@ struct MANGOS_DLL_DECL boss_loathebAI : public ScriptedAI
             m_pInstance->SetData(TYPE_LOATHEB, DONE);
     }
 
+    void JustReachedHome()
+    {
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_LOATHEB, FAIL);
+    }
+
     void UpdateAI(const uint32 uiDiff)
     {
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
-        if(!m_bIsEnrage && m_uiEnrage2Timer < uiDiff)
+        // Corrupted Mind
+        if (m_uiCorruptedMindTimer < uiDiff)
         {
-            DoCast(m_creature, SPELL_BERSERK);
-            m_bIsEnrage = true;
-        }else m_uiEnrage2Timer -= uiDiff;
+            DoCastSpellIfCan(m_creature->getVictim(), SPELL_CORRUPTED_MIND);
+            m_uiCorruptedMindTimer = 62000;
+        }
+        else
+            m_uiCorruptedMindTimer -= uiDiff;
 
-        if(m_bIsBloom && m_uiBloomTimer < uiDiff)
+        // Poison Aura
+        if (m_uiPoisonAuraTimer < uiDiff)
         {
-            std::list<HostileReference *> t_list = m_creature->getThreatManager().getThreatList();
-            for(std::list<HostileReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
-            {
-                Unit *TargetedPlayer = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
-                if (TargetedPlayer && TargetedPlayer->GetTypeId() == TYPEID_PLAYER && TargetedPlayer->isAlive())
-                    TargetedPlayer->CastSpell(TargetedPlayer, m_bIsRegularMode ? SPELL_BLOOM : SPELL_BLOOM_H, false);
-            }
-            m_uiBloomTimer = 20000;  
-            m_bIsBloom = false;
-        }else m_uiBloomTimer -= uiDiff;
+            DoCastSpellIfCan(m_creature->getVictim(), SPELL_POISON_AURA);
+            m_uiPoisonAuraTimer = 60000;
+        }
+        else
+            m_uiPoisonAuraTimer -= uiDiff;
 
-        if(m_uiNecroticAuraTimer < uiDiff)
+        // Inevitable Doom
+        if (m_uiInevitableDoomTimer < uiDiff)
         {
-            if(m_creature->getVictim())
-                m_creature->CastSpell(m_creature->getVictim(), SPELL_NECROTIC_AURA, false);
-            m_uiNecroticAuraTimer = 20000;
-        }else m_uiNecroticAuraTimer -= uiDiff;
+            DoCastSpellIfCan(m_creature->getVictim(), SPELL_INEVITABLE_DOOM);
+            m_uiInevitableDoomTimer = 120000;
+        }
+        else
+            m_uiInevitableDoomTimer -= uiDiff;
 
-        if(m_uiDeatchBloomTimer < uiDiff)
+        // Inevitable Doom 5mins
+        if (m_uiInevitableDoom5minsTimer < uiDiff)
         {
-            DoCast(m_creature->getVictim(), m_bIsRegularMode ? SPELL_DEATHBLOOM : SPELL_DEATHBLOOM_H);
-            m_uiDeatchBloomTimer = (m_bIsRegularMode ? 30000 : 20000);
-            m_uiBloomTimer = 6000;
-            m_bIsBloom = true;
-        }else m_uiDeatchBloomTimer -= uiDiff;
+            DoCastSpellIfCan(m_creature->getVictim(), SPELL_INEVITABLE_DOOM);
+            m_uiInevitableDoom5minsTimer = 15000;
+        }
+        else
+            m_uiInevitableDoom5minsTimer -= uiDiff;
 
-        if(m_uiDoomTimer < uiDiff)
+        // Remove Curse
+        if (m_uiRemoveCurseTimer < uiDiff)
         {
-            DoCast(m_creature->getVictim(), m_bIsRegularMode ? SPELL_DOOM : SPELL_DOOM_H);
-            m_uiDoomTimer = 30000;
-            if(m_uiEnrageTimer < uiDiff)
-                m_uiDoomTimer = 15000;
-            else m_uiEnrageTimer -= uiDiff;
-        }else m_uiDoomTimer -= uiDiff;
+            DoCastSpellIfCan(m_creature, SPELL_REMOVE_CURSE);
+            m_uiRemoveCurseTimer = 30000;
+        }
+        else
+            m_uiRemoveCurseTimer -= uiDiff;
 
+        // Summon
         if (m_uiSummonTimer < uiDiff)
         {
-            for(uint8 i=0; i<3; ++i)
+            Unit* pSummonedSpores = NULL;
+
+            pSummonedSpores = m_creature->SummonCreature(16286, ADD_1X, ADD_1Y, ADD_1Z, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,80000);
+            pSummonedSpores = m_creature->SummonCreature(16286, ADD_2X, ADD_2Y, ADD_2Z, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,80000);
+            pSummonedSpores = m_creature->SummonCreature(16286, ADD_3X, ADD_3Y, ADD_3Z, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,80000);
+            if (pSummonedSpores)
+            {
                 if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
-                {
-                    Creature* pSummonedSpores = m_creature->SummonCreature(CREATURE_SPORE, pTarget->GetPositionX()+1, pTarget->GetPositionY()+1, pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN,80000);
-                    if (pSummonedSpores && pSummonedSpores->AI())
-                    {
-                        if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
-                            pSummonedSpores->AI()->AttackStart(pTarget);
-                    }
-                }
-            m_uiSummonTimer = 30000;
-        }else m_uiSummonTimer -= uiDiff;
+                    pSummonedSpores->AddThreat(pTarget);
+            }
+
+            m_uiSummonTimer = 28000;
+        }
+        else
+            m_uiSummonTimer -= uiDiff;
 
         DoMeleeAttackIfReady();
     }
 };
-
-struct MANGOS_DLL_DECL mob_fungalsporeAI : public ScriptedAI
-{
-    mob_fungalsporeAI(Creature *c) : ScriptedAI(c) { Reset(); }
- 
-    void Reset(){}
-
-    void JustDied(Unit* pKiller)
-    {
-        if(!pKiller)
-            return;
-
-        m_creature->CastSpell(pKiller, SPELL_FUNGAL_CREEP, true);
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
-            return;
-
-        DoMeleeAttackIfReady();
-    }
-};
-
-CreatureAI* GetAI_mob_fungalspore(Creature* pCreature)
-{
-    return new mob_fungalsporeAI(pCreature);
-}
-
 CreatureAI* GetAI_boss_loatheb(Creature* pCreature)
 {
     return new boss_loathebAI(pCreature);
@@ -194,12 +171,6 @@ CreatureAI* GetAI_boss_loatheb(Creature* pCreature)
 void AddSC_boss_loatheb()
 {
     Script* NewScript;
-
-    NewScript = new Script;
-    NewScript->Name = "mob_fungalspore";
-    NewScript->GetAI = &GetAI_mob_fungalspore;
-    NewScript->RegisterSelf();
-
     NewScript = new Script;
     NewScript->Name = "boss_loatheb";
     NewScript->GetAI = &GetAI_boss_loatheb;

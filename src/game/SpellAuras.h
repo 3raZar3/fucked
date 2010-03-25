@@ -222,6 +222,9 @@ class MANGOS_DLL_SPEC Aura
         void HandleModTargetArmorPct(bool Apply, bool Real);
         void HandleAuraModAllCritChance(bool Apply, bool Real);
         void HandleAllowOnlyAbility(bool Apply, bool Real);
+        void HandleAuraInitializeImages(bool Apply, bool Real);
+        void HandleAuraCloneCaster(bool Apply, bool Real);
+        void HandleAuraOpenStable(bool apply, bool Real);
 
         virtual ~Aura();
 
@@ -245,8 +248,6 @@ class MANGOS_DLL_SPEC Aura
         time_t GetAuraApplyTime() const { return m_applyTime; }
         uint32 GetAuraTicks() const { return m_periodicTick; }
         uint32 GetAuraMaxTicks() const { return m_maxduration > 0 && m_modifier.periodictime > 0 ? m_maxduration / m_modifier.periodictime : 0; }
-
-        SpellModifier *getAuraSpellMod() {return m_spellmod; }
 
         uint64 const& GetCasterGUID() const { return m_caster_guid; }
         Unit* GetCaster() const;

@@ -26,17 +26,20 @@ EndScriptData */
 
 enum
 {
-    SPELL_BASH          = 57094,
-    SPELL_ROOTS         = 57095,
-    SPELL_MINI          = 57055,
-    SPELL_BOLT          = 57088,
+    SPELL_BASH                  = 57094,
+    SPELL_ROOTS                 = 57095,
+    SPELL_MINI                  = 57055,
+    SPELL_BOLT                  = 57088,
+    SPELL_POTENT_FUNGUS         = 56648,
+    SPELL_POISON_CLOUD          = 57061,
+    SPELL_GROW                  = 62559,
+    SPELL_REMOVE_MUSHROOMS_POWER= 57283,
 
-    SPELL_POTENT_FUNGUS = 56648,
-    SPELL_POISON        = 57061,
+    MOB_HEALTHY_MUSHROOM        = 30435,
+    MOB_POISONED_MUSHROOM       = 30391,
 
-    MUSHROOM_HEALTHY    = 30435,
-    MUSHROOM_POISON     = 30391, // 59116, //30391,
-    SPELL_PUTRID_MUSHROOM   = 31690
+    // how many mushrooms will be summoned?
+    MUSHROOMS_NUMBER            = 25
 };
 
 /*######
@@ -47,33 +50,58 @@ struct MANGOS_DLL_DECL boss_amanitarAI : public ScriptedAI
 {
     boss_amanitarAI(Creature* pCreature) : ScriptedAI(pCreature){Reset();}
 
+    std::list<uint64>lMushrooms;
     uint32 m_uiBashTimer;
     uint32 m_uiBoltTimer;
     uint32 m_uiRootsTimer;
     uint32 m_uiMiniTimer;
     uint32 m_uiMushroomsTimer;
 
-    float fPosX;
-    float fPosY;
-    float fPosZ;
-    
     void Reset()
     {
-        m_uiBashTimer       = urand(10000,25000);
-        m_uiBoltTimer       = urand(10000,20000);
-        m_uiRootsTimer      = urand(10000,15000);
-        m_uiMiniTimer       = urand(25000,30000);
-        m_uiMushroomsTimer  = 25000;
+        m_uiBashTimer       = urand(10000, 25000);
+        m_uiBoltTimer       = urand(10000, 20000);
+        m_uiRootsTimer      = urand(10000, 15000);
+        m_uiMiniTimer       = urand(25000, 30000);
+        m_uiMushroomsTimer  = 5000;
+    }
 
-        fPosX = m_creature->GetPositionX();
-        fPosY = m_creature->GetPositionY();
-        fPosZ = m_creature->GetPositionZ();
+    void JustReachedHome()
+    {
+        DespawnMusrooms();
     }
 
     void JustDied(Unit* pKiller)
     {
-        for(uint8 i=0; i<5; ++i)
-            Creature* Mushroom = m_creature->SummonCreature(MUSHROOM_HEALTHY, m_creature->GetPositionX()+urand(5,10), m_creature->GetPositionY()+urand(5,10), m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 120000);
+        DespawnMusrooms();
+        DoCastSpellIfCan(m_creature, SPELL_REMOVE_MUSHROOMS_POWER, CAST_TRIGGERED);
+    }
+
+    void SummonMushroom()
+    {
+        float x, y, z, posX, posY, posZ;
+        m_creature->GetPosition(x, y, z);
+        m_creature->GetRandomPoint(x, y, z, 45.0f, posX, posY, posZ);
+        if (Unit* pMushroom = m_creature->SummonCreature(urand(0, 1) > 0 ? MOB_HEALTHY_MUSHROOM : MOB_POISONED_MUSHROOM, posX, posY, posZ, m_creature->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 120000))
+            lMushrooms.push_back(pMushroom->GetGUID());
+    }
+
+    void DespawnMusrooms()
+    {
+        if (lMushrooms.empty())
+            return;
+        for (std::list<uint64>::iterator itr = lMushrooms.begin(); itr != lMushrooms.end(); ++itr)
+        {
+            if (Creature* pMushroom = (Creature*)Unit::GetUnit(*m_creature, *itr))
+                pMushroom->ForcedDespawn();
+        }
+        lMushrooms.clear();
+    }
+
+    void Aggro(Unit* pWho)
+    {
+        for (uint8 i =  0; i < MUSHROOMS_NUMBER; ++i)
+            SummonMushroom();
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -81,50 +109,65 @@ struct MANGOS_DLL_DECL boss_amanitarAI : public ScriptedAI
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
-        if(m_uiBashTimer < uiDiff)
+        if(m_uiBashTimer <= uiDiff)
         {
-            if(m_creature->getVictim())
-                m_creature->CastSpell(m_creature->getVictim(), SPELL_BASH, false);
-            m_uiBashTimer = urand(5000,10000);
+            DoCastSpellIfCan(m_creature->getVictim(), SPELL_BASH);
+            m_uiBashTimer = urand(5000, 10000);
         }else m_uiBashTimer -= uiDiff;
 
-        if(m_uiBoltTimer < uiDiff)
+        if(m_uiBoltTimer <= uiDiff)
         {
-            if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-                m_creature->CastSpell(target, SPELL_BOLT, true);
-            m_uiBoltTimer = urand(8000,16000);
+            if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                DoCastSpellIfCan(target, SPELL_BOLT);
+            m_uiBoltTimer = urand(8000, 16000);
         }else m_uiBoltTimer -= uiDiff;
 
-        if(m_uiRootsTimer < uiDiff)
+        if(m_uiRootsTimer <= uiDiff)
         {
-            if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-            {
-                m_creature->CastSpell(target, SPELL_ROOTS, true);
-                fPosX = target->GetPositionX();
-                fPosY = target->GetPositionY();
-                fPosZ = target->GetPositionZ();
-            }
-            m_uiRootsTimer = urand(10000,15000);
+            if(Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1))
+                DoCastSpellIfCan(pTarget, SPELL_ROOTS);
+            m_uiRootsTimer = urand(10000, 15000);
         }else m_uiRootsTimer -= uiDiff;
 
-        if(m_uiMiniTimer < uiDiff)
+        if(m_uiMiniTimer <= uiDiff)
         {
-            if(m_creature->getVictim())
-                m_creature->CastSpell(m_creature->getVictim(), SPELL_MINI, true);
-            m_uiMiniTimer = urand(25000,35000);
+            DoCastSpellIfCan(m_creature, SPELL_MINI);
+            m_uiMiniTimer = urand(25000, 35000);
         }else m_uiMiniTimer -= uiDiff;
 
-        if(m_uiMushroomsTimer < uiDiff)
+        if(m_uiMushroomsTimer <= uiDiff)
         {
-            uint32 ID = MUSHROOM_POISON;
-            if(urand(0,1) == 0)
-                ID = MUSHROOM_HEALTHY;
+            m_uiMushroomsTimer = 5000;
+            if (lMushrooms.empty())
+                return;
 
-            Creature* Mushroom = m_creature->SummonCreature(ID, fPosX, fPosY, fPosZ, m_creature->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 120000);
-            if(Mushroom && m_creature->getVictim()) 
-                Mushroom->AI()->AttackStart(m_creature->getVictim());
-
-            m_uiMushroomsTimer = urand(10000,20000);
+            for (std::list<uint64>::iterator itr = lMushrooms.begin(), next; itr != lMushrooms.end(); itr = next)
+            {
+                next = itr;
+                ++next;
+                Creature* pMushroom = (Creature*)Unit::GetUnit(*m_creature, *itr);
+                // if dead and despawned
+                if(!pMushroom)
+                {
+                    lMushrooms.erase(itr);
+                    SummonMushroom();
+                    if (lMushrooms.empty())
+                        break;
+                    else
+                        next = lMushrooms.begin();
+                }
+                // if dead or OOR
+                else if(pMushroom->GetDistance(m_creature) > 45.0f || !pMushroom->isAlive())
+                {
+                    lMushrooms.erase(itr);
+                    pMushroom->ForcedDespawn();
+                    SummonMushroom();
+                    if (lMushrooms.empty())
+                        break;
+                    else
+                        next = lMushrooms.begin();
+                }
+            }
         }else m_uiMushroomsTimer -= uiDiff;
 
         DoMeleeAttackIfReady();
@@ -136,13 +179,16 @@ CreatureAI* GetAI_boss_amanitar(Creature* pCreature)
     return new boss_amanitarAI(pCreature);
 }
 
-struct MANGOS_DLL_DECL mob_healthymushroomAI : public Scripted_NoMovementAI
+struct MANGOS_DLL_DECL mob_amanitars_mushroomAI : public Scripted_NoMovementAI
 {
-    mob_healthymushroomAI(Creature *c) : Scripted_NoMovementAI(c) { Reset(); }
+    mob_amanitars_mushroomAI(Creature *pCreature) : Scripted_NoMovementAI(pCreature) {Reset();}
+
+    uint32 m_uiPoisonCloudTimer;
  
-    void Reset() 
+    void Reset()
     {
-        DoCast(m_creature,SPELL_PUTRID_MUSHROOM,true);
+        m_uiPoisonCloudTimer = 0;
+        DoCastSpellIfCan(m_creature, SPELL_GROW);
     }
 
     void JustDied(Unit* pKiller)
@@ -150,51 +196,30 @@ struct MANGOS_DLL_DECL mob_healthymushroomAI : public Scripted_NoMovementAI
         if(!pKiller)
             return;
 
-        m_creature->CastSpell(pKiller, SPELL_POTENT_FUNGUS, true);
-
-        if(pKiller->HasAura(SPELL_MINI))
-            pKiller->RemoveAurasDueToSpell(SPELL_MINI);
+        if (m_creature->GetEntry() == MOB_HEALTHY_MUSHROOM)
+        {
+            if (pKiller->HasAura(SPELL_MINI))
+                pKiller->RemoveAurasDueToSpell(SPELL_MINI);
+            else DoCastSpellIfCan(m_creature, SPELL_POTENT_FUNGUS, CAST_TRIGGERED);
+        }
     }
 
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 uiDiff)
     {
-        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
-            return;
+        if (m_creature->GetEntry() == MOB_POISONED_MUSHROOM)
+        {
+            if (m_uiPoisonCloudTimer <= uiDiff)
+            {
+                DoCastSpellIfCan(m_creature, SPELL_POISON_CLOUD);
+                m_uiPoisonCloudTimer = 3000;
+            } else m_uiPoisonCloudTimer -= uiDiff;
+        }
     }
 };
 
-CreatureAI* GetAI_mob_healthymushroom(Creature* pCreature)
+CreatureAI* GetAI_mob_amanitars_mushroom(Creature* pCreature)
 {
-    return new mob_healthymushroomAI(pCreature);
-}
-
-struct MANGOS_DLL_DECL mob_poisonmushroomAI : public Scripted_NoMovementAI
-{
-    mob_poisonmushroomAI(Creature *c) : Scripted_NoMovementAI(c) { Reset(); }
- 
-    void Reset() 
-    {
-        DoCast(m_creature,SPELL_PUTRID_MUSHROOM,true);
-    }
-
-    void JustDied(Unit* pKiller)
-    {
-        if(!pKiller)
-            return;
-
-        m_creature->CastSpell(pKiller, SPELL_POISON, true);
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
-            return;
-    }
-};
-
-CreatureAI* GetAI_mob_poisonmushroom(Creature* pCreature)
-{
-    return new mob_poisonmushroomAI(pCreature);
+    return new mob_amanitars_mushroomAI(pCreature);
 }
 
 void AddSC_boss_amanitar()
@@ -207,12 +232,7 @@ void AddSC_boss_amanitar()
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name = "mob_healthymushroom";
-    newscript->GetAI = &GetAI_mob_healthymushroom;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "mob_poisonmushroom";
-    newscript->GetAI = &GetAI_mob_poisonmushroom;
+    newscript->Name = "mob_amanitars_mushroom";
+    newscript->GetAI = &GetAI_mob_amanitars_mushroom;
     newscript->RegisterSelf();
 }

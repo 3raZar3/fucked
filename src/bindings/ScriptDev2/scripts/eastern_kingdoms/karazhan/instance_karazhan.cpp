@@ -52,7 +52,6 @@ struct MANGOS_DLL_DECL instance_karazhan : public ScriptedInstance
     uint64 m_uiCurtainGUID;
     uint64 m_uiStageDoorLeftGUID;
     uint64 m_uiStageDoorRightGUID;
-    uint64 m_uiKilrekGUID;
     uint64 m_uiTerestianGUID;
     uint64 m_uiMoroesGUID;
     uint64 m_uiLibraryDoor;                                 // Door at Shade of Aran
@@ -75,7 +74,6 @@ struct MANGOS_DLL_DECL instance_karazhan : public ScriptedInstance
         m_uiStageDoorLeftGUID   = 0;
         m_uiStageDoorRightGUID  = 0;
 
-        m_uiKilrekGUID          = 0;
         m_uiTerestianGUID       = 0;
         m_uiMoroesGUID          = 0;
 
@@ -101,9 +99,8 @@ struct MANGOS_DLL_DECL instance_karazhan : public ScriptedInstance
     {
         switch (pCreature->GetEntry())
         {
-            case 17229: m_uiKilrekGUID = pCreature->GetGUID(); break;
             case 15688: m_uiTerestianGUID = pCreature->GetGUID(); break;
-            case 15687: m_uiMoroesGUID = pCreature->GetGUID(); break;
+            case 15687: m_uiMoroesGUID    = pCreature->GetGUID(); break;
         }
     }
 
@@ -160,11 +157,27 @@ struct MANGOS_DLL_DECL instance_karazhan : public ScriptedInstance
                 break;
             case TYPE_MAIDEN:               m_auiEncounter[2] = uiData; break;
             case TYPE_OPTIONAL_BOSS:        m_auiEncounter[3] = uiData; break;
-            case TYPE_OPERA:                m_auiEncounter[4] = uiData; break;
+            case TYPE_OPERA:
+                m_auiEncounter[4] = uiData;
+                if (uiData == DONE)
+                {
+                    DoUseDoorOrButton(m_uiStageDoorLeftGUID);
+                    DoUseDoorOrButton(m_uiStageDoorRightGUID);
+                    if (GameObject* pSideEntrance = instance->GetGameObject(m_uiSideEntranceDoor))
+                        pSideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
+                }
+                break;
             case TYPE_CURATOR:              m_auiEncounter[5] = uiData; break;
-            case TYPE_ARAN:                 m_auiEncounter[6] = uiData; break;
+            case TYPE_ARAN:
+                m_auiEncounter[6] = uiData;
+                if (uiData != IN_PROGRESS)
+                    DoUseDoorOrButton(m_uiLibraryDoor);
+                break;
             case TYPE_TERESTIAN:            m_auiEncounter[7] = uiData; break;
-            case TYPE_NETHERSPITE:          m_auiEncounter[8] = uiData; break;
+            case TYPE_NETHERSPITE:
+                m_auiEncounter[8] = uiData;
+                DoUseDoorOrButton(m_uiMassiveDoor);
+                break;
             case TYPE_CHESS:
                 if (uiData == DONE)
                     DoRespawnGameObject(m_uiDustCoveredChest,DAY);
@@ -229,7 +242,6 @@ struct MANGOS_DLL_DECL instance_karazhan : public ScriptedInstance
     {
         switch (uiData)
         {
-            case DATA_KILREK:                   return m_uiKilrekGUID;
             case DATA_TERESTIAN:                return m_uiTerestianGUID;
             case DATA_MOROES:                   return m_uiMoroesGUID;
             case DATA_GO_STAGEDOORLEFT:         return m_uiStageDoorLeftGUID;

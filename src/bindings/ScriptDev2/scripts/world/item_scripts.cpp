@@ -153,9 +153,34 @@ bool ItemUse_item_petrov_cluster_bombs(Player* pPlayer, Item* pItem, const Spell
     return false;
 }
 
+enum
+{
+    SPELL_OFFER_JUNGLE_PUNCH = 51962
+};
+
+bool ItemUse_item_jungle_punch_sample(Player* pPlayer, Item* pItem, const SpellCastTargets &pTargets)
+{
+    Unit* pTarget = Unit::GetUnit(*pPlayer, pPlayer->GetTargetGUID());
+    if (pTarget && pTarget->GetTypeId() == TYPEID_UNIT)
+    {
+        pPlayer->CastSpell(pTarget, SPELL_OFFER_JUNGLE_PUNCH, false);
+        return true;
+    }
+    else
+    {
+        pPlayer->SendEquipError(EQUIP_ERR_NONE, pItem, NULL);
+        return true;
+    }
+}
+
 void AddSC_item_scripts()
 {
     Script *newscript;
+
+    newscript = new Script;
+    newscript->Name = "item_jungle_punch_sample";
+    newscript->pItemUse = &ItemUse_item_jungle_punch_sample;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "item_arcane_charges";

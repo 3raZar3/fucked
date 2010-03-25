@@ -23,7 +23,7 @@
 #include "WorldSession.h"
 #include "World.h"
 #include "ObjectMgr.h"
-#include "ObjectDefines.h"
+#include "ObjectGuid.h"
 #include "SpellMgr.h"
 #include "Unit.h"
 #include "QuestDef.h"
@@ -55,7 +55,7 @@ float baseMoveSpeed[MAX_MOVE_TYPE] =
 {
     2.5f,                                                   // MOVE_WALK
     7.0f,                                                   // MOVE_RUN
-    1.25f,                                                  // MOVE_RUN_BACK
+    2.5f,                                                   // MOVE_RUN_BACK
     4.722222f,                                              // MOVE_SWIM
     4.5f,                                                   // MOVE_SWIM_BACK
     3.141594f,                                              // MOVE_TURN_RATE
@@ -73,25 +73,6 @@ static bool isNonTriggerAura[TOTAL_AURAS];
 // Prepare lists
 static bool procPrepared = InitTriggerAuraData();
 
-MovementInfo::MovementInfo(WorldPacket &data)
-{
-    // Init fields
-    moveFlags = MOVEFLAG_NONE;
-    moveFlags2 = MOVEFLAG2_NONE;
-    time = 0;
-    t_guid = 0;
-    t_time = 0;
-    t_seat = -1;
-    t_time2 = 0;
-    s_pitch = 0.0f;
-    fallTime = 0;
-    j_velocity = j_sinAngle = j_cosAngle = j_xyspeed = 0.0f;
-    u_unk1 = 0.0f;
-
-    // Read actual data
-    Read(data);
-}
-
 void MovementInfo::Read(ByteBuffer &data)
 {
     data >> moveFlags;
@@ -104,9 +85,7 @@ void MovementInfo::Read(ByteBuffer &data)
 
     if(HasMovementFlag(MOVEFLAG_ONTRANSPORT))
     {
-        if(!data.readPackGUID(t_guid))
-            return;
-
+        data >> t_guid.ReadAsPacked();
         data >> t_pos.x;
         data >> t_pos.y;
         data >> t_pos.z;
@@ -139,7 +118,7 @@ void MovementInfo::Read(ByteBuffer &data)
     }
 }
 
-void MovementInfo::Write(ByteBuffer &data)
+void MovementInfo::Write(ByteBuffer &data) const
 {
     data << moveFlags;
     data << moveFlags2;
@@ -151,8 +130,7 @@ void MovementInfo::Write(ByteBuffer &data)
 
     if(HasMovementFlag(MOVEFLAG_ONTRANSPORT))
     {
-        data.appendPackGUID(t_guid);
-
+        data << t_guid.WriteAsPacked();
         data << t_pos.x;
         data << t_pos.y;
         data << t_pos.z;
@@ -375,7 +353,7 @@ void Unit::SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, SplineTy
     float moveTime = (float)Time;
 
     WorldPacket data( SMSG_MONSTER_MOVE, (41 + GetPackGUID().size()) );
-    data.append(GetPackGUID());
+    data << GetPackGUID();
     data << uint8(0);                                       // new in 3.1
     data << GetPositionX() << GetPositionY() << GetPositionZ();
     data << uint32(getMSTime());
@@ -403,8 +381,9 @@ void Unit::SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, SplineTy
 
     data << uint32(flags);
 
-    if(flags & SPLINEFLAG_WALKMODE)
-        moveTime *= 1.05f;
+    // enable me if things goes wrong or looks ugly, it is however an old hack
+    // if(flags & SPLINEFLAG_WALKMODE)
+        // moveTime *= 1.05f;
 
     data << uint32(moveTime);                               // Time in between points
     data << uint32(1);                                      // 1 single waypoint
@@ -423,7 +402,7 @@ void Unit::SendMonsterMoveByPath(Path const& path, uint32 start, uint32 end, Spl
     uint32 pathSize = end - start;
 
     WorldPacket data( SMSG_MONSTER_MOVE, (GetPackGUID().size()+1+4+4+4+4+1+4+4+4+pathSize*4*3) );
-    data.append(GetPackGUID());
+    data << GetPackGUID();
     data << uint8(0);
     data << GetPositionX();
     data << GetPositionY();
@@ -464,7 +443,7 @@ void Unit::BuildHeartBeatMsg(WorldPacket *data) const
         : MOVEFLAG_NONE;
 
     data->Initialize(MSG_MOVE_HEARTBEAT, 32);
-    data->append(GetPackGUID());
+    *data << GetPackGUID();
     *data << uint32(move_flags);                            // movement flags
     *data << uint16(0);                                     // 2.3.0
     *data << uint32(getMSTime());                           // time
@@ -1621,11 +1600,14 @@ void Unit::CalculateMeleeDamage(Unit *pVictim, uint32 damage, CalcDamageInfo *da
     // only from players
     if (GetTypeId() == TYPEID_PLAYER)
     {
-        uint32 redunction_affected_damage = CalcNotIgnoreDamageRedunction(damage,damageInfo->damageSchoolMask);
+        uint32 redunction_affected_damage = CalcNotIgnoreDamageRedunction(damageInfo->damage,damageInfo->damageSchoolMask);
+        uint32 resilienceReduction;
         if (attackType != RANGED_ATTACK)
-            damage -= pVictim->GetMeleeDamageReduction(redunction_affected_damage);
+            resilienceReduction = pVictim->GetMeleeDamageReduction(redunction_affected_damage);
         else
-            damage -= pVictim->GetRangedDamageReduction(redunction_affected_damage);
+            resilienceReduction = pVictim->GetRangedDamageReduction(redunction_affected_damage);
+        damageInfo->damage      -= resilienceReduction;
+        damageInfo->cleanDamage += resilienceReduction;
     }
 
     // Calculate absorb resist
@@ -2026,9 +2008,9 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
                 // Primal Tenacity
                 if (spellProto->SpellIconID == 2253)
                 {
-                    //reduces all damage taken while Stunned
-                    if (unitflag & UNIT_FLAG_STUNNED)
-                        RemainingDamage -= RemainingDamage * currentAbsorb / 100;
+                    //reduces all damage taken while Stunned & in Cat Form
+                    if (pVictim->m_form == FORM_CAT && (unitflag & UNIT_FLAG_STUNNED))
+                         RemainingDamage -= RemainingDamage * currentAbsorb / 100;
                     continue;
                 }
                 break;
@@ -2096,17 +2078,6 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
                     preventDeathSpell = (*i)->GetSpellProto();
                     preventDeathAmount = (*i)->GetModifier()->m_amount;
                     continue;
-                }
-                // Power Word: Shield
-                if (spellProto->SpellFamilyFlags & UI64LIT(00000001) && spellProto->Mechanic == MECHANIC_SHIELD)
-                {
-                    // Glyph of Power Word: Shield
-                    if (Aura *glyph = pVictim->GetAura(55672, EFFECT_INDEX_0))
-                    {
-                        int32 heal = int32(glyph->GetModifier()->m_amount *
-                            (RemainingDamage >= currentAbsorb ? currentAbsorb : RemainingDamage) / 100);
-                        pVictim->CastCustomSpell(pVictim, 56160, &heal, NULL, NULL, true, 0, *i);
-                    }
                 }
                 // Reflective Shield
                 if (spellProto->SpellFamilyFlags == 0x1 && canReflect)
@@ -2738,8 +2709,8 @@ void Unit::SendMeleeAttackStop(Unit* victim)
         return;
 
     WorldPacket data( SMSG_ATTACKSTOP, (4+16) );            // we guess size
-    data.append(GetPackGUID());
-    data.append(victim->GetPackGUID());                     // can be 0x00...
+    data << GetPackGUID();
+    data << victim->GetPackGUID();                          // can be 0x00...
     data << uint32(0);                                      // can be 0x1
     SendMessageToSet(&data, true);
     sLog.outDetail("%s %u stopped attacking %s %u", (GetTypeId()==TYPEID_PLAYER ? "player" : "creature"), GetGUIDLow(), (victim->GetTypeId()==TYPEID_PLAYER ? "player" : "creature"),victim->GetGUIDLow());
@@ -2823,7 +2794,7 @@ float Unit::MeleeSpellMissChance(Unit *pVictim, WeaponAttackType attType, int32 
 }
 
 // Melee based spells hit result calculations
-SpellMissInfo Unit::MeleeSpellHitResult(Unit *pVictim, SpellEntry const *spell)
+SpellMissInfo Unit::MeleeSpellHitResult(Unit *pVictim, SpellEntry const *spell, bool canMiss)
 {
     WeaponAttackType attType = BASE_ATTACK;
 
@@ -2831,17 +2802,23 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit *pVictim, SpellEntry const *spell)
         attType = RANGED_ATTACK;
 
     // bonus from skills is 0.04% per skill Diff
-    int32 attackerWeaponSkill = int32(GetWeaponSkillValue(attType,pVictim));
+    int32 attackerWeaponSkill = !(spell->DmgClass == SPELL_DAMAGE_CLASS_RANGED && !(spell->Attributes & SPELL_ATTR_RANGED) )
+        ? int32(GetWeaponSkillValue(attType,pVictim))
+        : int32(GetMaxSkillValueForLevel());
     int32 skillDiff = attackerWeaponSkill - int32(pVictim->GetMaxSkillValueForLevel(this));
     int32 fullSkillDiff = attackerWeaponSkill - int32(pVictim->GetDefenseSkillValue(this));
 
     uint32 roll = urand (0, 10000);
+    uint32 tmp = 0;
 
-    uint32 missChance = uint32(MeleeSpellMissChance(pVictim, attType, fullSkillDiff, spell)*100.0f);
-    // Roll miss
-    uint32 tmp = missChance;
-    if (roll < tmp)
-        return SPELL_MISS_MISS;
+    if(canMiss)
+    {
+        uint32 missChance = uint32(MeleeSpellMissChance(pVictim, attType, fullSkillDiff, spell)*100.0f);
+        // Roll miss
+        tmp += missChance;
+        if (roll < tmp)
+            return SPELL_MISS_MISS;
+    }
 
     // Chance resist mechanic (select max value from every mechanic spell effect)
     int32 resist_mech = 0;
@@ -3036,12 +3013,15 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit *pVictim, SpellEntry const *spell)
 //   Parry
 // For spells
 //   Resist
-SpellMissInfo Unit::SpellHitResult(Unit *pVictim, SpellEntry const *spell, bool CanReflect)
+SpellMissInfo Unit::SpellHitResult(Unit *pVictim, SpellEntry const *spell, bool canReflect, bool canMiss)
 {
     // Return evade for units in evade mode
     if (pVictim->GetTypeId()==TYPEID_UNIT && ((Creature*)pVictim)->IsInEvadeMode())
         return SPELL_MISS_EVADE;
 
+	if (!(spell->Id == 64380 || spell->Id == 64382 || spell->Id == 32375 ||
+        spell->Id == 32592 || spell->Id == 39897))
+    {
     // Check for immune
     if (pVictim->IsImmunedToSpell(spell))
     {
@@ -3071,15 +3051,18 @@ SpellMissInfo Unit::SpellHitResult(Unit *pVictim, SpellEntry const *spell, bool 
 
     // All positive spells can`t miss
     // TODO: client not show miss log for this spells - so need find info for this in dbc and use it!
-    if (IsPositiveSpell(spell->Id))
+        if (IsPositiveSpell(spell->Id) && IsFriendlyTo(pVictim))
         return SPELL_MISS_NONE;
 
     // Check for immune
     if (pVictim->IsImmunedToDamage(GetSpellSchoolMask(spell)))
         return SPELL_MISS_IMMUNE;
+    }
+    else if (IsPositiveSpell(spell->Id) && IsFriendlyTo(pVictim))
+        return SPELL_MISS_NONE;
 
     // Try victim reflect spell
-    if (CanReflect)
+    if (canReflect)
     {
         int32 reflectchance = pVictim->GetTotalAuraModifier(SPELL_AURA_REFLECT_SPELLS);
         Unit::AuraList const& mReflectSpellsSchool = pVictim->GetAurasByType(SPELL_AURA_REFLECT_SPELLS_SCHOOL);
@@ -3098,7 +3081,7 @@ SpellMissInfo Unit::SpellHitResult(Unit *pVictim, SpellEntry const *spell, bool 
     {
         case SPELL_DAMAGE_CLASS_RANGED:
         case SPELL_DAMAGE_CLASS_MELEE:
-            return MeleeSpellHitResult(pVictim, spell);
+            return MeleeSpellHitResult(pVictim, spell, canMiss);
         case SPELL_DAMAGE_CLASS_NONE:
         case SPELL_DAMAGE_CLASS_MAGIC:
             return MagicSpellHitResult(pVictim, spell);
@@ -4865,8 +4848,8 @@ void Unit::RemoveAllGameObjects()
 void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage *log)
 {
     WorldPacket data(SMSG_SPELLNONMELEEDAMAGELOG, (16+4+4+4+1+4+4+1+1+4+4+1)); // we guess size
-    data.append(log->target->GetPackGUID());
-    data.append(log->attacker->GetPackGUID());
+    data << log->target->GetPackGUID();
+    data << log->attacker->GetPackGUID();
     data << uint32(log->SpellID);
     data << uint32(log->damage);                            // damage amount
     data << uint32(log->overkill);                          // overkill
@@ -4901,7 +4884,7 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo *pInfo)
     Modifier *mod = aura->GetModifier();
 
     WorldPacket data(SMSG_PERIODICAURALOG, 30);
-    data.append(aura->GetTarget()->GetPackGUID());
+    data << aura->GetTarget()->GetPackGUID();
     data.appendPackGUID(aura->GetCasterGUID());
     data << uint32(aura->GetId());                          // spellId
     data << uint32(1);                                      // count
@@ -4973,8 +4956,8 @@ void Unit::SendAttackStateUpdate(CalcDamageInfo *damageInfo)
     uint32 count = 1;
     WorldPacket data(SMSG_ATTACKERSTATEUPDATE, 16 + 45);    // we guess size
     data << uint32(damageInfo->HitInfo);
-    data.append(damageInfo->attacker->GetPackGUID());
-    data.append(damageInfo->target->GetPackGUID());
+    data << damageInfo->attacker->GetPackGUID();
+    data << damageInfo->target->GetPackGUID();
     data << uint32(damageInfo->damage);                     // Full damage
     data << uint32(0);                                      // overkill value
     data << uint8(count);                                   // Sub damage count
@@ -5556,6 +5539,19 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     owner->CastSpell(owner,58227,true,castItem,triggeredByAura);
                     return true;
                 }
+                // kill command (pet aura proc)
+                case 58914:
+                {
+                    // try to exclude procs from hot's (spirit bonde)
+                    if (IsPositiveSpell(procSpell->Id))
+                        return false;
+                    Unit* owner = GetOwner();
+                    if( !owner || owner->GetTypeId() != TYPEID_PLAYER )
+                        return true;
+                    // reduce the owner's aura stack (spellmods)
+                    owner->RemoveSingleSpellAurasFromStack(34027);
+                    return true;
+                }
                 // Glyph of Life Tap
                 case 63320:
                     triggered_spell_id = 63321;
@@ -5737,6 +5733,17 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     triggered_spell_id = 58068;
                     break;
                 }
+                // Blessing of Ancient Kings
+                case 64411:
+                {
+                    // for DOT procs
+                    if (!IsPositiveSpell(procSpell->Id))
+                        return false;
+
+                    triggered_spell_id = 64413;
+                    basepoints[0] = damage * 15 / 100;
+                    break;
+            }
             }
             break;
         }
@@ -5782,20 +5789,31 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                 basepoints[0] = GetShieldBlockValue() * triggerAmount / 100;
                 break;
             }
-
-            // Sweeping Strikes
-            if (dummySpell->Id == 12328)
+            switch ( dummySpell->Id )
             {
-                // prevent chain of triggered spell from same triggered spell
-                if(procSpell && procSpell->Id == 26654)
-                    return false;
+                case 12328: // Sweeping Strikes
+                {
+                    // prevent chain of triggered spell from same triggered spell
+                    if(procSpell && procSpell->Id == 26654)
+                        return false;
 
-                target = SelectRandomUnfriendlyTarget(pVictim);
-                if(!target)
-                    return false;
+                    target = SelectRandomUnfriendlyTarget(pVictim);
+                    if(!target)
+                        return false;
 
-                triggered_spell_id = 26654;
-                break;
+                    triggered_spell_id = 26654;
+                    break;
+                }
+                case 58375: // Glyph of Blocking
+                {
+                    triggered_spell_id = 58374;
+                    break;
+                }
+                case 58388: // Glyph of Devastate
+                {
+                    triggered_spell_id = 58567;
+                    break;
+                }
             }
             break;
         }
@@ -5949,11 +5967,11 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     Aura* DivineAegis = pVictim->GetAura(47753,EFFECT_INDEX_0);
                     if (DivineAegis)
                         basepoints[0] = DivineAegis->GetModifier()->m_amount;
-                    basepoints[0] += damage * triggerAmount/100;
+                    basepoints[0] += int32(damage) * triggerAmount/100;
 
                     // limit absorb amount
-                    if (basepoints[0] > pVictim->getLevel()*125)
-                        basepoints[0] = pVictim->getLevel()*125;
+                    if (basepoints[0] > int32(pVictim->getLevel()*125))
+                        basepoints[0] = int32(pVictim->getLevel()*125);
                     triggered_spell_id = 47753;
                     break;
                 }
@@ -7286,6 +7304,31 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                 target = this;
                 break;
             }
+            // Sudden Doom
+            if (dummySpell->SpellIconID == 1939)
+            {
+                if (!target || !target->isAlive() || this->GetTypeId() != TYPEID_PLAYER)
+                    return false;
+                
+                // get highest rank of Death Coil spell
+                const PlayerSpellMap& sp_list = ((Player*)this)->GetSpellMap();
+                for (PlayerSpellMap::const_iterator itr = sp_list.begin(); itr != sp_list.end(); ++itr)
+                {
+                    if(!itr->second.active || itr->second.disabled || itr->second.state == PLAYERSPELL_REMOVED)
+                        continue;
+
+                    SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->first);
+                    if (!spellInfo)
+                        continue;
+
+                    if (spellInfo->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && spellInfo->SpellFamilyFlags & UI64LIT(0x2000))
+                    {
+                        triggered_spell_id = spellInfo->Id;
+                        break;
+                    }
+                }
+                break;
+            }
             // Wandering Plague
             if (dummySpell->SpellIconID == 1614)
             {
@@ -7489,6 +7532,13 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, Aura* triggeredB
                 //case 59288: break;                        // Infra-Green Shield
                 //case 59532: break;                        // Abandon Passengers on Poly
                 //case 59735: break:                        // Woe Strike
+                case 64415:                                 // // Val'anyr Hammer of Ancient Kings - Equip Effect
+                {
+                    // for DOT procs
+                    if (!IsPositiveSpell(procSpell->Id))
+                        return false;
+                    break;
+                }
                 case 67702:                                 // Death's Choice, Item - Coliseum 25 Normal Melee Trinket
                 {
                     float stat = 0.0f;
@@ -8088,8 +8138,10 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, Aura* triggeredB
         // Lock and Load
         case 56453:
         {
-            // Proc only from trap activation (from periodic proc another aura of this spell)
-            if (!(procFlags & PROC_FLAG_ON_TRAP_ACTIVATION) || !roll_chance_i(triggerAmount))
+            // Proc only from trap activation (from periodic proc another aura of this spell). We need to recheck family flags,
+            // because some spells have both flags (ON_TRAP_ACTIVATION and ON_PERIODIC), but should only proc ON_PERIODIC!!
+            if (!(procFlags & PROC_FLAG_ON_TRAP_ACTIVATION) ||
+                !(procSpell->SpellFamilyFlags & 0x00000008 || procSpell->SpellFamilyFlags2 & 0x40000) || !roll_chance_i(triggerAmount))
                 return false;
             break;
         }
@@ -8628,7 +8680,7 @@ bool Unit::Attack(Unit *victim, bool meleeAttack)
 
     if (GetTypeId() == TYPEID_UNIT)
     {
-        ((Creature*)this)->SendAIReaction(AI_REACTION_AGGRO);
+        ((Creature*)this)->SendAIReaction(AI_REACTION_HOSTILE);
         ((Creature*)this)->CallAssistance();
     }
 
@@ -8893,11 +8945,6 @@ void Unit::SetPet(Pet* pet)
 
     if(pet && GetTypeId() == TYPEID_PLAYER)
         ((Player*)this)->SendPetGUIDs();
-
-    // FIXME: hack, speed must be set only at follow
-    if(pet && GetTypeId()==TYPEID_PLAYER)
-        for(int i = 0; i < MAX_MOVE_TYPE; ++i)
-            pet->SetSpeedRate(UnitMoveType(i), m_speed_rate[i], true);
 }
 
 void Unit::SetCharm(Unit* pet)
@@ -9052,8 +9099,8 @@ void Unit::SendHealSpellLog(Unit *pVictim, uint32 SpellID, uint32 Damage, uint32
 {
     // we guess size
     WorldPacket data(SMSG_SPELLHEALLOG, (8+8+4+4+1));
-    data.append(pVictim->GetPackGUID());
-    data.append(GetPackGUID());
+    data << pVictim->GetPackGUID();
+    data << GetPackGUID();
     data << uint32(SpellID);
     data << uint32(Damage);
     data << uint32(OverHeal);
@@ -9065,8 +9112,8 @@ void Unit::SendHealSpellLog(Unit *pVictim, uint32 SpellID, uint32 Damage, uint32
 void Unit::SendEnergizeSpellLog(Unit *pVictim, uint32 SpellID, uint32 Damage, Powers powertype)
 {
     WorldPacket data(SMSG_SPELLENERGIZELOG, (8+8+4+4+4+1));
-    data.append(pVictim->GetPackGUID());
-    data.append(GetPackGUID());
+    data << pVictim->GetPackGUID();
+    data << GetPackGUID();
     data << uint32(SpellID);
     data << uint32(powertype);
     data << uint32(Damage);
@@ -9197,7 +9244,8 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
             case 5142: // Increased Lightning Damage
             case 5147: // Improved Consecration / Libram of Resurgence
             case 5148: // Idol of the Shooting Star
-            case 6008: // Increased Lightning Damage / Totem of Hex
+            case 6008: // Increased Lightning Damage
+            case 8627: // Totem of Hex
             {
                 DoneTotal+=(*i)->GetModifier()->m_amount;
                 break;
@@ -9312,6 +9360,18 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
             }
             break;
         }
+        case SPELLFAMILY_PRIEST:
+        {
+            // Glyph of Smite
+            if (spellProto->SpellFamilyFlags & UI64LIT(0x00000080))
+            {
+                // Holy Fire
+                if (pVictim->GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_PRIEST, UI64LIT(0x00100000), NULL))
+                    if (Aura *aur = GetAura(55692, EFFECT_INDEX_0))
+                        DoneTotalMod *= (aur->GetModifier()->m_amount+100.0f) / 100.0f;
+            }
+            break;
+        }
         case SPELLFAMILY_DEATHKNIGHT:
         {
             // Icy Touch, Howling Blast and Frost Strike
@@ -9399,11 +9459,7 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
         DoneAdvertisedBenefit += ((Pet*)this)->GetBonusDamage();
 
     float LvlPenalty = CalculateLevelPenalty(spellProto);
-    // Spellmod SpellDamage
-    float SpellModSpellDamage = 100.0f;
-    if(Player* modOwner = GetSpellModOwner())
-        modOwner->ApplySpellMod(spellProto->Id,SPELLMOD_SPELL_BONUS_DAMAGE,SpellModSpellDamage);
-    SpellModSpellDamage /= 100.0f;
+    Player* modOwner = GetSpellModOwner();
 
     // Check for table values
     if (SpellBonusEntry const* bonus = sSpellMgr.GetSpellBonusData(spellProto->Id))
@@ -9417,7 +9473,15 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
         if (bonus->ap_bonus)
             DoneTotal += int32(bonus->ap_bonus * GetTotalAttackPowerValue(BASE_ATTACK) * stack);
 
-        DoneTotal  += int32(DoneAdvertisedBenefit * coeff * SpellModSpellDamage);
+        // Spellmod SpellBonusDamage
+        if (modOwner)
+        {
+            coeff *= 100.0f;
+            modOwner->ApplySpellMod(spellProto->Id,SPELLMOD_SPELL_BONUS_DAMAGE,coeff);
+            coeff /= 100.0f;
+        }
+
+        DoneTotal  += int32(DoneAdvertisedBenefit * coeff);
         TakenTotal += int32(TakenAdvertisedBenefit * coeff);
     }
     // Default calculation
@@ -9450,8 +9514,18 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
                 break;
             }
         }
-        DoneTotal += int32(DoneAdvertisedBenefit * (CastingTime / 3500.0f) * DotFactor * LvlPenalty * SpellModSpellDamage);
-        TakenTotal+= int32(TakenAdvertisedBenefit * (CastingTime / 3500.0f) * DotFactor * LvlPenalty);
+        float coeff = (CastingTime / 3500.0f) * DotFactor;
+
+        // Spellmod SpellBonusDamage
+        if (modOwner)
+        {
+            coeff *= 100.0f;
+            modOwner->ApplySpellMod(spellProto->Id,SPELLMOD_SPELL_BONUS_DAMAGE,coeff);
+            coeff /= 100.0f;
+        }
+
+        DoneTotal += int32(DoneAdvertisedBenefit * coeff * LvlPenalty);
+        TakenTotal+= int32(TakenAdvertisedBenefit * coeff * LvlPenalty);
     }
 
     float tmpDamage = (pdamage + DoneTotal) * DoneTotalMod;
@@ -9874,11 +9948,7 @@ int32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, int32
     int32 TakenAdvertisedBenefit = SpellBaseHealingBonusForVictim(GetSpellSchoolMask(spellProto), pVictim);
 
     float LvlPenalty = CalculateLevelPenalty(spellProto);
-    // Spellmod SpellDamage
-    float SpellModSpellDamage = 100.0f;
-    if(Player* modOwner = GetSpellModOwner())
-        modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_SPELL_BONUS_DAMAGE, SpellModSpellDamage);
-    SpellModSpellDamage /= 100.0f;
+    Player* modOwner = GetSpellModOwner();
 
     // Check for table values
     SpellBonusEntry const* bonus = sSpellMgr.GetSpellBonusData(spellProto->Id);
@@ -9893,7 +9963,15 @@ int32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, int32
         if (bonus->ap_bonus)
             DoneTotal += int32(bonus->ap_bonus * GetTotalAttackPowerValue(BASE_ATTACK) * stack);
 
-        DoneTotal  += int32(DoneAdvertisedBenefit * coeff * SpellModSpellDamage);
+        // Spellmod SpellBonusDamage
+        if (modOwner)
+        {
+            coeff *= 100.0f;
+            modOwner->ApplySpellMod(spellProto->Id,SPELLMOD_SPELL_BONUS_DAMAGE,coeff);
+            coeff /= 100.0f;
+        }
+
+        DoneTotal  += int32(DoneAdvertisedBenefit * coeff);
         TakenTotal += int32(TakenAdvertisedBenefit * coeff);
     }
     // Default calculation
@@ -9925,8 +10003,18 @@ int32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, int32
                 break;
             }
         }
-        DoneTotal  += int32(DoneAdvertisedBenefit * (CastingTime / 3500.0f) * DotFactor * LvlPenalty * SpellModSpellDamage * 1.88f);
-        TakenTotal += int32(TakenAdvertisedBenefit * (CastingTime / 3500.0f) * DotFactor * LvlPenalty * 1.88f);
+        float coeff = (CastingTime / 3500.0f) * DotFactor * 1.88f;
+
+        // Spellmod SpellBonusDamage
+        if (modOwner)
+        {
+            coeff *= 100.0f;
+            modOwner->ApplySpellMod(spellProto->Id,SPELLMOD_SPELL_BONUS_DAMAGE,coeff);
+            coeff /= 100.0f;
+        }
+
+        DoneTotal  += int32(DoneAdvertisedBenefit * coeff * LvlPenalty);
+        TakenTotal += int32(TakenAdvertisedBenefit * coeff * LvlPenalty);
     }
 
     // use float as more appropriate for negative values and percent applying
@@ -10612,6 +10700,7 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy)
 
     if (creatureNotInCombat)
     {
+        // should probably be removed for the attacked (+ it's party/group) only, not global
         RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
 
         if (((Creature*)this)->AI())
@@ -11046,7 +11135,7 @@ void Unit::UpdateWalkMode(Unit* source, bool self)
         CallForAllControlledUnits(UpdateWalkModeHelper(source),false,true,true);
 }
 
-void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
+void Unit::UpdateSpeed(UnitMoveType mtype, bool forced, float ratio)
 {
     // not in combat pet have same speed as owner
     switch(mtype)
@@ -11171,7 +11260,7 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
         if (speed < min_speed)
             speed = min_speed;
     }
-    SetSpeedRate(mtype, speed, forced);
+    SetSpeedRate(mtype, speed * ratio, forced);
 }
 
 float Unit::GetSpeed( UnitMoveType mtype ) const
@@ -11237,7 +11326,7 @@ void Unit::SetSpeedRate(UnitMoveType mtype, float rate, bool forced)
                 return;
         }
 
-        data.append(GetPackGUID());
+        data << GetPackGUID();
         data << uint32(0);                                  // movement flags
         data << uint16(0);                                  // unk flags
         data << uint32(getMSTime());
@@ -11291,7 +11380,7 @@ void Unit::SetSpeedRate(UnitMoveType mtype, float rate, bool forced)
                 sLog.outError("Unit::SetSpeedRate: Unsupported move type (%d), data not sent to client.",mtype);
                 return;
         }
-        data.append(GetPackGUID());
+        data << GetPackGUID();
         data << (uint32)0;                                  // moveEvent, NUM_PMOVE_EVTS = 0x39
         if (mtype == MOVE_RUN)
             data << uint8(0);                               // new 2.1.0
@@ -11527,8 +11616,10 @@ bool Unit::SelectHostileTarget()
     if(target)
     {
         if(!hasUnitState(UNIT_STAT_STUNNED | UNIT_STAT_DIED))
+        {
             SetInFront(target);
         ((Creature*)this)->AI()->AttackStart(target);
+        }
         return true;
     }
 
@@ -12117,7 +12208,7 @@ void Unit::SetPower(Powers power, uint32 val)
     SetStatInt32Value(UNIT_FIELD_POWER1 + power, val);
 
     WorldPacket data(SMSG_POWER_UPDATE);
-    data.append(GetPackGUID());
+    data << GetPackGUID();
     data << uint8(power);
     data << uint32(val);
     SendMessageToSet(&data, GetTypeId() == TYPEID_PLAYER ? true : false);
@@ -12949,7 +13040,7 @@ void Unit::SendPetAIReaction(uint64 guid)
 
     WorldPacket data(SMSG_AI_REACTION, 8 + 4);
     data << uint64(guid);
-    data << uint32(AI_REACTION_AGGRO);
+    data << uint32(AI_REACTION_HOSTILE);
     ((Player*)owner)->GetSession()->SendPacket(&data);
 }
 
@@ -13158,7 +13249,7 @@ void Unit::ClearComboPointHolders()
     {
         uint32 lowguid = *m_ComboPointHolders.begin();
 
-        Player* plr = sObjectMgr.GetPlayer(MAKE_NEW_GUID(lowguid, 0, HIGHGUID_PLAYER));
+        Player* plr = sObjectMgr.GetPlayer(ObjectGuid(HIGHGUID_PLAYER, lowguid));
         if(plr && plr->GetComboTarget()==GetGUID())         // recheck for safe
             plr->ClearComboPoints();                        // remove also guid from m_ComboPointHolders;
         else
@@ -13878,7 +13969,7 @@ void Unit::KnockBackFrom(Unit* target, float horizontalSpeed, float verticalSpee
     if(GetTypeId()==TYPEID_PLAYER)
     {
         WorldPacket data(SMSG_MOVE_KNOCK_BACK, 8+4+4+4+4+4);
-        data.append(GetPackGUID());
+        data << GetPackGUID();
         data << uint32(0);                                  // Sequence
         data << float(vcos);                                // x direction
         data << float(vsin);                                // y direction
@@ -13943,7 +14034,7 @@ void Unit::SendThreatUpdate()
     {
         sLog.outDebug( "WORLD: Send SMSG_THREAT_UPDATE Message" );
         WorldPacket data(SMSG_THREAT_UPDATE, 8 + count * 8);
-        data.append(GetPackGUID());
+        data << GetPackGUID();
         data << uint32(count);
         for (ThreatList::const_iterator itr = tlist.begin(); itr != tlist.end(); ++itr)
         {
@@ -13961,7 +14052,7 @@ void Unit::SendHighestThreatUpdate(HostileReference* pHostilReference)
     {
         sLog.outDebug( "WORLD: Send SMSG_HIGHEST_THREAT_UPDATE Message" );
         WorldPacket data(SMSG_HIGHEST_THREAT_UPDATE, 8 + 8 + count * 8);
-        data.append(GetPackGUID());
+        data << GetPackGUID();
         data.appendPackGUID(pHostilReference->getUnitGuid());
         data << uint32(count);
         for (ThreatList::const_iterator itr = tlist.begin(); itr != tlist.end(); ++itr)
@@ -13977,7 +14068,7 @@ void Unit::SendThreatClear()
 {
     sLog.outDebug( "WORLD: Send SMSG_THREAT_CLEAR Message" );
     WorldPacket data(SMSG_THREAT_CLEAR, 8);
-    data.append(GetPackGUID());
+    data << GetPackGUID();
     SendMessageToSet(&data, false);
 }
 
@@ -13985,7 +14076,7 @@ void Unit::SendThreatRemove(HostileReference* pHostileReference)
 {
     sLog.outDebug( "WORLD: Send SMSG_THREAT_REMOVE Message" );
     WorldPacket data(SMSG_THREAT_REMOVE, 8 + 8);
-    data.append(GetPackGUID());
+    data << GetPackGUID();
     data.appendPackGUID(pHostileReference->getUnitGuid());
     SendMessageToSet(&data, false);
 }

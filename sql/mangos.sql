@@ -24,7 +24,7 @@ CREATE TABLE `db_version` (
   `version` varchar(120) default NULL,
   `creature_ai_version` varchar(120) default NULL,
   `cache_id` int(10) default '0',
-  `required_9512_01_mangos_spell_proc_event` bit(1) default NULL
+  `required_9590_01_mangos_db_script_string` bit(1) default NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Used DB version notes';
 
 --
@@ -1098,7 +1098,8 @@ CREATE TABLE `creature_template` (
   `faction_A` smallint(5) unsigned NOT NULL default '0',
   `faction_H` smallint(5) unsigned NOT NULL default '0',
   `npcflag` int(10) unsigned NOT NULL default '0',
-  `speed` float NOT NULL default '1',
+  `speed_walk` float NOT NULL default '1' COMMENT 'Result of 2.5/2.5, most common value',
+  `speed_run` float NOT NULL default '1.14286' COMMENT 'Result of 8.0/7.0, most common value',
   `scale` float NOT NULL default '1',
   `rank` tinyint(3) unsigned NOT NULL default '0',
   `mindmg` float NOT NULL default '0',
@@ -1165,7 +1166,7 @@ CREATE TABLE `creature_template` (
 LOCK TABLES `creature_template` WRITE;
 /*!40000 ALTER TABLE `creature_template` DISABLE KEYS */;
 INSERT INTO `creature_template` VALUES
-(1,0,0,0,0,0,10045,0,10045,0,'Waypoint(Only GM can see it)','Visual',NULL,0,1,1,64,64,0,0,0,35,35,0,0.91,1,0,14,15,0,100,1,2000,2200,8,4096,0,0,0,0,0,0,1.76,2.42,100,8,5242886,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,'',0,3,1.0,1.0,0,0,0,0,0,0,0,0,1,0,0,0x82,'');
+(1,0,0,0,0,0,10045,0,10045,0,'Waypoint(Only GM can see it)','Visual',NULL,0,1,1,64,64,0,0,5,35,35,0,0.91,1.14286,1,0,2,3,0,10,1,2000,2200,8,4096,0,0,0,0,0,0,1,2,100,8,5242886,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,'',0,3,1,1,0,0,0,0,0,0,0,0,1,0,0,130,'');
 /*!40000 ALTER TABLE `creature_template` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1200,7 +1201,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `db_script_string`;
 CREATE TABLE `db_script_string` (
-  `entry` mediumint(8) unsigned NOT NULL default '0',
+  `entry` int(11) unsigned NOT NULL default '0',
   `content_default` text NOT NULL,
   `content_loc1` text,
   `content_loc2` text,
@@ -1972,22 +1973,22 @@ CREATE TABLE gossip_menu_option (
 LOCK TABLES `gossip_menu_option` WRITE;
 /*!40000 ALTER TABLE `gossip_menu_option` DISABLE KEYS */;
 INSERT INTO gossip_menu_option VALUES
-(0,0,0,'GOSSIP_OPTION_QUESTGIVER',2,2,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0),
-(0,1,1,'GOSSIP_OPTION_VENDOR',3,128,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0),
-(0,2,2,'GOSSIP_OPTION_TAXIVENDOR',4,8192,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0),
-(0,3,3,'GOSSIP_OPTION_TRAINER',5,16,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0),
-(0,4,4,'GOSSIP_OPTION_SPIRITHEALER',6,16384,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0),
-(0,5,4,'GOSSIP_OPTION_SPIRITGUIDE',7,32768,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0),
-(0,6,5,'GOSSIP_OPTION_INNKEEPER',8,65536,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0),
-(0,7,6,'GOSSIP_OPTION_BANKER',9,131072,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0),
-(0,8,7,'GOSSIP_OPTION_PETITIONER',10,262144,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0),
-(0,9,8,'GOSSIP_OPTION_TABARDDESIGNER',11,524288,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0),
-(0,10,9,'GOSSIP_OPTION_BATTLEFIELD',12,1048576,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0),
-(0,11,6,'GOSSIP_OPTION_AUCTIONEER',13,2097152,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0),
-(0,12,0,'GOSSIP_OPTION_STABLEPET',14,4194304,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0),
-(0,13,1,'GOSSIP_OPTION_ARMORER',15,4096,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0),
-(0,14,2,'GOSSIP_OPTION_UNLEARNTALENTS',16,16,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0),
-(0,15,2,'GOSSIP_OPTION_UNLEARNPETSKILLS',17,16,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0);
+(0, 0,0,'GOSSIP_OPTION_QUESTGIVER',       2,0x000002,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0),
+(0, 1,1,'GOSSIP_OPTION_VENDOR',           3,0x000080,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0),
+(0, 2,2,'GOSSIP_OPTION_TAXIVENDOR',       4,0x002000,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0),
+(0, 3,3,'GOSSIP_OPTION_TRAINER',          5,0x000010,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0),
+(0, 4,4,'GOSSIP_OPTION_SPIRITHEALER',     6,0x004000,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0),
+(0, 5,4,'GOSSIP_OPTION_SPIRITGUIDE',      7,0x008000,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0),
+(0, 6,5,'GOSSIP_OPTION_INNKEEPER',        8,0x010000,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0),
+(0, 7,6,'GOSSIP_OPTION_BANKER',           9,0x020000,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0),
+(0, 8,7,'GOSSIP_OPTION_PETITIONER',      10,0x040000,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0),
+(0, 9,8,'GOSSIP_OPTION_TABARDDESIGNER',  11,0x080000,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0),
+(0,10,9,'GOSSIP_OPTION_BATTLEFIELD',     12,0x100000,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0),
+(0,11,6,'GOSSIP_OPTION_AUCTIONEER',      13,0x200000,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0),
+(0,12,0,'GOSSIP_OPTION_STABLEPET',       14,0x400000,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0),
+(0,13,1,'GOSSIP_OPTION_ARMORER',         15,0x001000,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0),
+(0,14,2,'GOSSIP_OPTION_UNLEARNTALENTS',  16,0x000010,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0),
+(0,15,2,'GOSSIP_OPTION_UNLEARNPETSKILLS',17,0x000010,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0);
 /*!40000 ALTER TABLE `gossip_menu_option` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -14157,6 +14158,8 @@ INSERT INTO `spell_bonus_data` VALUES
 (61391, 0.193,  0,       0,     'Druid - Typhoon'),
 (48438, 0,      0.11505, 0,     'Druid - Wild Growth'),
 (5176,  0.5714, 0,       0,     'Druid - Wrath'),
+/* Generic */
+(54757, 0,      0,       0,     'Generic - Pyro Rocket'),
 /* Mage */
 (44425, 0.714286,0,      0,     'Mage - Arcane Barrage'),
 (30451, 0.7143, 0,       0,     'Mage - Arcane Blast'),
@@ -14268,7 +14271,9 @@ INSERT INTO `spell_bonus_data` VALUES
 (30294, 0,      0,       0,     'Warlock - Soul Leech'),
 (31117, 1.8,    0,       0,     'Warlock - Unstable Affliction Dispell'),
 /* Item */
+(56131, 0,      0,       0,     'Item - Glyph of Dispel Magic'),
 (56160, 0,      0,       0,     'Item - Glyph of Power Word: Shield'),
+(46567, 0,      0,       0,     'Item - Goblin Rocket Launcher'),
 (31024, 0,      0,       0,     'Item - Living Ruby Pedant'),
 (17712, 0,      0,       0,     'Item - Lifestone Healing'),
 (5707,  0,      0,       0,     'Item - Lifestone Regeneration'),
@@ -17992,8 +17997,8 @@ INSERT INTO `spell_proc_event` VALUES
 (16880, 0x00000000,  0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000002, 0.000000, 0.000000,  0),
 (16923, 0x00000000,  7, 0x00000004, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0.000000, 0.000000,  0),
 (16924, 0x00000000,  7, 0x00000004, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0.000000, 0.000000,  0),
-(16952, 0x00000000,  7, 0x00039000, 0x00000400, 0x00000000, 0x00040000, 0x00000002, 0.000000, 0.000000,  0),
-(16954, 0x00000000,  7, 0x00039000, 0x00000400, 0x00000000, 0x00040000, 0x00000002, 0.000000, 0.000000,  0),
+(16952, 0x00000000,  7, 0x00039000, 0x00000400, 0x00040000, 0x00000000, 0x00000002, 0.000000, 0.000000,  0),
+(16954, 0x00000000,  7, 0x00039000, 0x00000400, 0x00040000, 0x00000000, 0x00000002, 0.000000, 0.000000,  0),
 (16958, 0x00000000,  0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000002, 0.000000, 0.000000,  0),
 (16961, 0x00000000,  0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000002, 0.000000, 0.000000,  0),
 (17106, 0x00000000,  7, 0x00080000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0.000000, 0.000000,  0),

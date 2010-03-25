@@ -464,6 +464,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\scripts\eastern_kingdoms\redridge_mountains.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\scripts\eastern_kingdoms\searing_gorge.cpp"
 					>
 				</File>
@@ -1094,6 +1098,10 @@
 						RelativePath="..\scripts\eastern_kingdoms\uldaman\uldaman.h"
 						>
 					</File>
+					<File
+						RelativePath="..\scripts\eastern_kingdoms\uldaman\instance_uldaman.cpp"
+						>
+					</File>
 				</Filter>
 				<Filter
 					Name="zulaman"
@@ -1709,6 +1717,38 @@
 					<Filter
 						Name="trial_of_the_crusader"
 						>
+						<File
+							RelativePath="..\scripts\northrend\crusaders_coliseum\trial_of_the_crusader\boss_anubarak_trial.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\northrend\crusaders_coliseum\trial_of_the_crusader\boss_faction_champions.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\northrend\crusaders_coliseum\trial_of_the_crusader\boss_jaraxxus.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\northrend\crusaders_coliseum\trial_of_the_crusader\boss_northrend_beasts.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\northrend\crusaders_coliseum\trial_of_the_crusader\boss_twin_valkyr.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\northrend\crusaders_coliseum\trial_of_the_crusader\instance_trial_of_the_crusader.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\northrend\crusaders_coliseum\trial_of_the_crusader\trial_of_the_crusader.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\northrend\crusaders_coliseum\trial_of_the_crusader\trial_of_the_crusader.h"
+							>
+						</File>
 					</Filter>
 				</Filter>
 				<Filter

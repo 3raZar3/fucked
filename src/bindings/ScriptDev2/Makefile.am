@@ -62,6 +62,7 @@ scripts/eastern_kingdoms/hinterlands.cpp \
 scripts/eastern_kingdoms/ironforge.cpp \
 scripts/eastern_kingdoms/isle_of_queldanas.cpp \
 scripts/eastern_kingdoms/loch_modan.cpp \
+scripts/eastern_kingdoms/redridge_mountains.cpp \
 scripts/eastern_kingdoms/searing_gorge.cpp \
 scripts/eastern_kingdoms/silvermoon_city.cpp \
 scripts/eastern_kingdoms/silverpine_forest.cpp \
@@ -330,6 +331,14 @@ scripts/northrend/azjol-nerub/azjol-nerub/boss_anubarak.cpp \
 scripts/northrend/azjol-nerub/azjol-nerub/boss_hadronox.cpp \
 scripts/northrend/azjol-nerub/azjol-nerub/boss_krikthir.cpp \
 scripts/northrend/azjol-nerub/azjol-nerub/instance_azjol-nerub.cpp \
+scripts/northrend/crusaders_coliseum/trial_of_the_crusader/boss_anubarak_trial.cpp \
+scripts/northrend/crusaders_coliseum/trial_of_the_crusader/boss_faction_champions.cpp \
+scripts/northrend/crusaders_coliseum/trial_of_the_crusader/boss_jaraxxus.cpp \
+scripts/northrend/crusaders_coliseum/trial_of_the_crusader/boss_northrend_beasts.cpp \
+scripts/northrend/crusaders_coliseum/trial_of_the_crusader/boss_twin_valkyr.cpp \
+scripts/northrend/crusaders_coliseum/trial_of_the_crusader/instance_trial_of_the_crusader.cpp \
+scripts/northrend/crusaders_coliseum/trial_of_the_crusader/trial_of_the_crusader.cpp \
+scripts/northrend/crusaders_coliseum/trial_of_the_crusader/trial_of_the_crusader.h \
 scripts/northrend/draktharon_keep/boss_dred.cpp \
 scripts/northrend/draktharon_keep/boss_novos.cpp \
 scripts/northrend/draktharon_keep/boss_tharonja.cpp \
