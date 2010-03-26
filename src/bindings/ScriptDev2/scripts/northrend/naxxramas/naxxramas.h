@@ -7,7 +7,7 @@
 
 enum
 {
-    MAX_ENCOUNTER               = 15,
+    MAX_ENCOUNTER               = 19,
 
     TYPE_ANUB_REKHAN            = 1,
     TYPE_FAERLINA               = 2,
@@ -30,6 +30,11 @@ enum
 
     TYPE_SAPPHIRON              = 16,
     TYPE_KELTHUZAD              = 17,
+
+    TYPE_ZELIEK                 = 18,
+    TYPE_THANE                  = 19,
+    TYPE_BLAUMEUX               = 20,
+    TYPE_RIVENDARE              = 21,
 
     NPC_ANUB_REKHAN             = 15956,
     NPC_FAERLINA                = 15953,

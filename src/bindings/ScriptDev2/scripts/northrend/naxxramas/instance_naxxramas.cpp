@@ -396,7 +396,42 @@ void instance_naxxramas::SetData(uint32 uiType, uint32 uiData)
                     break;
             }
             break;
+
+        case TYPE_ZELIEK:
+            m_auiEncounter[15] = uiData;
+            if (uiData == NOT_STARTED && m_auiEncounter[16] != IN_PROGRESS && m_auiEncounter[17] != IN_PROGRESS && m_auiEncounter[18] != IN_PROGRESS)
+                SetData(TYPE_FOUR_HORSEMEN, NOT_STARTED);
+            if (uiData == IN_PROGRESS)
+                SetData(TYPE_FOUR_HORSEMEN, IN_PROGRESS);
+            break;
+
+        case TYPE_THANE:
+            m_auiEncounter[16] = uiData;
+            if (uiData == NOT_STARTED && m_auiEncounter[15] != IN_PROGRESS && m_auiEncounter[17] != IN_PROGRESS && m_auiEncounter[18] != IN_PROGRESS)
+                SetData(TYPE_FOUR_HORSEMEN, NOT_STARTED);
+            if (uiData == IN_PROGRESS)
+                SetData(TYPE_FOUR_HORSEMEN, IN_PROGRESS);
+            break;
+
+        case TYPE_BLAUMEUX:
+            m_auiEncounter[17] = uiData;
+            if (uiData == NOT_STARTED && m_auiEncounter[16] != IN_PROGRESS && m_auiEncounter[15] != IN_PROGRESS && m_auiEncounter[18] != IN_PROGRESS)
+                SetData(TYPE_FOUR_HORSEMEN, NOT_STARTED);
+            if (uiData == IN_PROGRESS)
+                SetData(TYPE_FOUR_HORSEMEN, IN_PROGRESS);
+            break;
+
+        case TYPE_RIVENDARE:
+            m_auiEncounter[18] = uiData;
+            if (uiData == NOT_STARTED && m_auiEncounter[16] != IN_PROGRESS && m_auiEncounter[17] != IN_PROGRESS && m_auiEncounter[15] != IN_PROGRESS)
+                SetData(TYPE_FOUR_HORSEMEN, NOT_STARTED);
+            if (uiData == IN_PROGRESS)
+                SetData(TYPE_FOUR_HORSEMEN, IN_PROGRESS);
+            break;
     }
+
+    if (m_auiEncounter[15] == DONE && m_auiEncounter[16] == DONE && m_auiEncounter[17] == DONE && m_auiEncounter[18] && m_auiEncounter[8] != DONE )
+        SetData(TYPE_FOUR_HORSEMEN, DONE);
 
     if (uiData == DONE)
     {
