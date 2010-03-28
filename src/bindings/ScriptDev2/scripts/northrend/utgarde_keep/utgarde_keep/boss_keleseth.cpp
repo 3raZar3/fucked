@@ -85,6 +85,9 @@ struct MANGOS_DLL_DECL mob_vrykul_skeletonAI : public ScriptedAI
 
     Creature* GetKeleseth()
     {
+        if (!m_pInstance)
+            return NULL;
+
         if (Creature* pKeleseth = m_pInstance->instance->GetCreature(m_pInstance->GetData64(NPC_KELESETH)))
             return pKeleseth;
         else 
@@ -131,7 +134,6 @@ struct MANGOS_DLL_DECL mob_vrykul_skeletonAI : public ScriptedAI
             m_creature->GetMotionMaster()->Clear();
             m_creature->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
             m_creature->SetStandState(UNIT_STAND_STATE_DEAD);
-            m_creature->UpdateObjectVisibility();
             m_bIsDead = true;
             m_uiSubevent = 0;
             return;
