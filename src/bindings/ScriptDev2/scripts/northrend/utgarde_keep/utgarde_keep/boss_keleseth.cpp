@@ -131,7 +131,8 @@ struct MANGOS_DLL_DECL mob_vrykul_skeletonAI : public ScriptedAI
             uiDamage = 0;
             m_creature->SetHealth(0);
             m_creature->RemoveAllAuras();
-            m_creature->GetMotionMaster()->Clear();
+            m_creature->GetMotionMaster()->Clear(false);
+            m_creature->GetMotionMaster()->MoveIdle();
             m_creature->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
             m_creature->SetStandState(UNIT_STAND_STATE_DEAD);
             m_bIsDead = true;

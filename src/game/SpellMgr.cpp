@@ -1371,6 +1371,10 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
             {
                 case SPELLFAMILY_GENERIC:                   // same family case
                 {
+                    // Utgarde Keep spells stack with everything
+                    if (spellInfo_1->Id == 42704 || spellInfo_1->Id == 42862 || spellInfo_1->Id == 42857)
+                        return false;
+
                     // Spell Grow and Poison Aura (Ahn'Kahet - Amanitars mashrooms)
                     if ( (spellInfo_1->Id == 62559 && spellInfo_2->Id == 56741) ||
                         (spellInfo_2->Id == 62559 && spellInfo_1->Id == 56741) )
