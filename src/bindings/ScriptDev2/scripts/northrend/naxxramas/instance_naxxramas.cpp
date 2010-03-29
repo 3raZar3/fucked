@@ -166,7 +166,7 @@ void instance_naxxramas::OnObjectCreate(GameObject* pGo)
             break;
         case GO_MILI_HORSEMEN_DOOR:
             m_uiHorsemenDoorGUID  = pGo->GetGUID();
-            if (m_auiEncounter[7] == DONE)
+            if (m_auiEncounter[7] == DONE || m_auiEncounter[4] == DONE)
                 pGo->SetGoState(GO_STATE_ACTIVE);
             break;
 
@@ -282,7 +282,10 @@ void instance_naxxramas::SetData(uint32 uiType, uint32 uiData)
             m_auiEncounter[4] = uiData;
             DoUseDoorOrButton(m_uiHeigEntryDoorGUID);
             if (uiData == DONE)
+            {
+                DoUseDoorOrButton(m_uiMiliEyeRampGUID);
                 DoUseDoorOrButton(m_uiHeigExitDoorGUID);
+            }
             break;
         case TYPE_LOATHEB:
             m_auiEncounter[5] = uiData;
