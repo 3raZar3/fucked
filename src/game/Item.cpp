@@ -884,6 +884,7 @@ bool Item::GemsFitSockets() const
             }
         }
 
+        SocketColor = SocketColor ? SocketColor : PRISMATIC_SOCKET;
         fits &= (GemColor & SocketColor) ? true : false;
     }
     return fits;
