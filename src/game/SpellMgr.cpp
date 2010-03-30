@@ -1519,6 +1519,10 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     if (spellInfo_1->Id == 67480 && spellInfo_2->Id == 20911)
                         return false;
 
+                    // item spells and Ardent Defender cooldown aura
+                    if (spellInfo_1->SpellIconID == 2135 && spellInfo_2->Id == 66233)
+                        return false;
+
                     break;
                 }
             }
@@ -1814,6 +1818,11 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
             // *Seal of Command and Band of Eternal Champion (multi-family check)
             if( spellInfo_1->SpellIconID==561 && spellInfo_1->SpellVisual[0]==7992 && spellId_2 == 35081)
                 return false;
+
+            // Ardent Defender cooldown aura and item spells
+            if( spellInfo_1->Id == 66233 && spellInfo_2->SpellIconID == 2135 )
+                return false;
+
             break;
         case SPELLFAMILY_SHAMAN:
             if( spellInfo_2->SpellFamilyName == SPELLFAMILY_SHAMAN )
