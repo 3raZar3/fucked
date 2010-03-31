@@ -57,7 +57,10 @@ enum
     SPELL_SUMMON_CRISTAL_HANDLER            = 49179,
 
     // not used
-    SPELL_DESPAWN_CRYSTAL_HANDLERS          = 51403
+    SPELL_DESPAWN_CRYSTAL_HANDLERS          = 51403,
+
+    PHASE_SUMMONING                         = 0,
+    PHASE_ACTIVE_ATTACKING                  = 1
 };
 
 /*######
@@ -88,14 +91,13 @@ struct MANGOS_DLL_DECL boss_novosAI : public ScriptedAI
 
     void Reset()
     {
-        Phase = 1;
+        Phase = PHASE_SUMMONING;
         m_uiFrostbolt_Timer = 5000;
         m_uiMisery_Timer = 10000;
         m_uiArcane_Timer = 25000;
         m_uiBlizzard_Timer = 30000;
 		m_uiSummonTrollCorpse_Timer = 30000;
 
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         if (!m_pInstance)
             return;
 
@@ -105,6 +107,9 @@ struct MANGOS_DLL_DECL boss_novosAI : public ScriptedAI
 
     void Aggro(Unit* pWho)
     {
+        if (Phase == PHASE_SUMMONING)
+            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+
         DoScriptText(SAY_AGGRO, m_creature);
         DoCastSpellIfCan(m_creature, SPELL_FIELD);
 
@@ -113,7 +118,6 @@ struct MANGOS_DLL_DECL boss_novosAI : public ScriptedAI
 
         m_pInstance->SetData(TYPE_NOVOS, IN_PROGRESS);
         m_pInstance->SetData(TYPE_CRYSTAL_EVENT, IN_PROGRESS);
-        Phase = 1;
     }
 
     void KilledUnit(Unit* pVictim)
@@ -139,20 +143,18 @@ struct MANGOS_DLL_DECL boss_novosAI : public ScriptedAI
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
-        if(Phase == 1)
+        if(Phase == PHASE_SUMMONING)
         {
-            // phase 1
             if (m_pInstance->GetData(TYPE_CRYSTAL_EVENT) == DONE)
             {
                 m_creature->InterruptNonMeleeSpells(false);
                 m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                Phase = 2;
+                Phase = PHASE_ACTIVE_ATTACKING;
             }
 
         }
         else
         {
-            // phase 2
             Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1);
             if(!pTarget)
                 pTarget = m_creature->getVictim();
