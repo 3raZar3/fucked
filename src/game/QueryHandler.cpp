@@ -485,7 +485,7 @@ void WorldSession::HandleQueryQuestsCompleted( WorldPacket & /*recv_data */)
     SendPacket(&data);
 }
 
-void WorldSession::HandleQuestPOIQuery(WorldPacket & recv_data)
+void WorldSession::HandleQuestPOIQuery(WorldPacket& recv_data)
 {
     uint32 count;
     recv_data >> count;                                     // quest count, max=25
@@ -520,15 +520,16 @@ void WorldSession::HandleQuestPOIQuery(WorldPacket & recv_data)
                 data << uint32(questId);                    // quest ID
                 data << uint32(POI->size());                // POI count
 
+                int index = 0;
                 for(QuestPOIVector::const_iterator itr = POI->begin(); itr != POI->end(); ++itr)
                 {
-                    data << uint32(itr->PoiId);             // POI index
-                    data << int32(itr->ObjectiveIndex);     // Objective index
-                    data << uint32(itr->MapId);             // Mapid
-                    data << uint32(itr->AreaId);            // WorldMapArea index
-                    data << uint32(itr->FloorId);           // Floor id
-                    data << uint32(itr->Unk3);              // Unknown
-                    data << uint32(itr->Unk4);              // Unknown
+                    data << uint32(index);                  // POI index
+                    data << int32(itr->ObjectiveIndex);     // objective index
+                    data << uint32(itr->MapId);             // mapid
+                    data << uint32(itr->Unk1);              // unknown
+                    data << uint32(itr->Unk2);              // unknown
+                    data << uint32(itr->Unk3);              // unknown
+                    data << uint32(itr->Unk4);              // unknown
                     data << uint32(itr->points.size());     // POI points count
 
                     for(std::vector<QuestPOIPoint>::const_iterator itr2 = itr->points.begin(); itr2 != itr->points.end(); ++itr2)
@@ -536,6 +537,7 @@ void WorldSession::HandleQuestPOIQuery(WorldPacket & recv_data)
                         data << int32(itr2->x);             // POI point x
                         data << int32(itr2->y);             // POI point y
                     }
+                    ++index;
                 }
             }
             else
@@ -551,6 +553,7 @@ void WorldSession::HandleQuestPOIQuery(WorldPacket & recv_data)
         }
     }
 
+    data.hexlike();
     SendPacket(&data);
 }
 
