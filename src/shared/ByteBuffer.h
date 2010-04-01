@@ -399,6 +399,7 @@ class ByteBuffer
 
                 guid >>= 8;
             }
+
             append(packGUID, size);
         }
 
