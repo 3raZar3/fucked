@@ -63,7 +63,9 @@ struct MANGOS_DLL_DECL boss_heiganAI : public ScriptedAI
 
     instance_naxxramas* m_pInstance;
     bool m_bIsRegularMode;
+    int8 Direction;
 
+    uint8 CurrentSafeArea;
     uint8 m_uiPhase;
     uint8 m_uiPhaseEruption;
 
@@ -73,6 +75,7 @@ struct MANGOS_DLL_DECL boss_heiganAI : public ScriptedAI
     uint32 m_uiPhaseTimer;
     uint32 m_uiTauntTimer;
     uint32 m_uiStartChannelingTimer;
+    uint32 m_uiDanceTimer;
 
     void ResetPhase()
     {
@@ -82,6 +85,7 @@ struct MANGOS_DLL_DECL boss_heiganAI : public ScriptedAI
         m_uiDisruptionTimer = 5000;
         m_uiStartChannelingTimer = 1000;
         m_uiPhaseTimer = m_uiPhase == PHASE_GROUND ? 90000 : 45000;
+        m_uiDanceTimer = 5000;
     }
 
     void Reset()
@@ -89,6 +93,8 @@ struct MANGOS_DLL_DECL boss_heiganAI : public ScriptedAI
         m_uiPhase = PHASE_GROUND;
         m_uiTauntTimer = urand(20000,60000);                // TODO, find information
         ResetPhase();
+        CurrentSafeArea = MIDDLE_UPPER;
+        Direction = 1;
     }
 
     void Aggro(Unit* pWho)
@@ -127,6 +133,27 @@ struct MANGOS_DLL_DECL boss_heiganAI : public ScriptedAI
 
     void UpdateAI(const uint32 uiDiff)
     {
+
+        if (m_uiDanceTimer < uiDiff)
+        {
+            for (uint8 i = TOP_MOST; i < TOTAL_AREAS; ++i)
+            {
+                if (i == CurrentSafeArea)
+                    continue;
+                
+                m_pInstance->ActivateAreaFissures(ChamberArea(i));
+            }
+
+            if (CurrentSafeArea == BOTTOM_LOWEST)
+                Direction = -1;
+            else if (CurrentSafeArea == TOP_MOST)
+                Direction = 1;
+
+            CurrentSafeArea = CurrentSafeArea + Direction;
+
+            m_uiDanceTimer = m_uiPhase ? 15000 : 5000;
+        }else m_uiDanceTimer -= uiDiff;
+
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 

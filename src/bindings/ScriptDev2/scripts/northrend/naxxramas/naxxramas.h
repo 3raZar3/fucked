@@ -116,6 +116,15 @@ enum
     AREATRIGGER_GOTHIK          = 4116
 };
 
+enum ChamberArea
+{
+    TOP_MOST        = 0,
+    MIDDLE_UPPER    = 1,
+    MIDDLE_LOWER    = 2,
+    BOTTOM_LOWEST   = 3,
+    TOTAL_AREAS     = 4
+};
+
 struct GothTrigger
 {
     bool bIsRightSide;
@@ -141,6 +150,9 @@ class MANGOS_DLL_DECL instance_naxxramas : public ScriptedInstance
 
         const char* Save() { return strInstData.c_str(); }
         void Load(const char* chrIn);
+
+        // heigan
+        void ActivateAreaFissures(ChamberArea AreaNo);
 
         // goth
         void SetGothTriggers();
@@ -168,6 +180,11 @@ class MANGOS_DLL_DECL instance_naxxramas : public ScriptedInstance
 
         uint64 m_uiAnubRekhanGUID;
         uint64 m_uiFaerlinanGUID;
+
+        uint64 m_uiHeiganGUID;
+        // table contains 4 lists of fissures related to Heigan encounter.
+        // each list groups fissures from different area of his chamber
+        std::list<uint64> lFissuresGUIDs[4];
 
         uint64 m_uiZeliekGUID;
         uint64 m_uiThaneGUID;

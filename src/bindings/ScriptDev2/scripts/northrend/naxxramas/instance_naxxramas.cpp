@@ -104,6 +104,37 @@ void instance_naxxramas::OnCreatureCreate(Creature* pCreature)
 
 void instance_naxxramas::OnObjectCreate(GameObject* pGo)
 {
+    if (pGo->GetGOInfo()->displayId == 6785 || pGo->GetGOInfo()->displayId == 1287)
+    {
+        // I devided Heigans chamber into 4 areas (ChamberAreaNo). 
+        // The bordes between those areas are diagonal lines prallel to that connecting Heigan and opposite corner of his chamber 
+        // (lets call this line "L").
+        // geometrically we would have to consider 3 linses described by eqations x = ay + b (mangos switchs x<->y coords)
+        // "a" is common for all parallel lines and in our case it is exactly -1. b for "L" is -915. All lines above "L" have b > b(L)
+        // so comparing b of different points casted at parallel line to "L" we can find in which area (between which lines) it lies.
+        // ChamberAreaNo are counted from the topmost (close to enter) to buttom one (close to exit)
+        uint8 ChamberAreaNo = 0;
+        float fPosX = pGo->GetPositionX();
+        float fPosY = pGo->GetPositionY();
+
+        float b = fPosX - (-1 * fPosY);
+        float bDiff = b + 915;
+
+        // outside of chamber
+        if (bDiff > 120 || bDiff < -120)
+            return;
+        else if (bDiff <= 120 && bDiff >= 30)
+            ChamberAreaNo = TOP_MOST;
+        else if (bDiff < 25 && bDiff > 0)
+            ChamberAreaNo = MIDDLE_UPPER;
+        else if (bDiff <= 0 && bDiff > -25)
+            ChamberAreaNo = MIDDLE_LOWER;
+        else if (bDiff <= -25 && bDiff >= -120)
+            ChamberAreaNo = BOTTOM_LOWEST;
+ 
+        lFissuresGUIDs[ChamberAreaNo].push_back(pGo->GetGUID());
+    }
+
     switch(pGo->GetEntry())
     {
         case GO_ARAC_ANUB_DOOR:
@@ -229,6 +260,31 @@ void instance_naxxramas::OnObjectCreate(GameObject* pGo)
         case GO_CONS_PORTAL:
             m_uiConsPortalGUID = pGo->GetGUID();
             break;
+    }
+}
+
+void instance_naxxramas::ActivateAreaFissures(ChamberArea AreaNo)
+{
+    for (std::list<uint64>::iterator itr = lFissuresGUIDs[AreaNo].begin(); itr != lFissuresGUIDs[AreaNo].end(); ++itr)
+    {
+        GameObject* pFissure = instance->GetGameObject(*itr);
+        if (!pFissure)
+            continue;
+
+        float radius = 2.5f;
+        Player* pPlayer = NULL;
+        CellPair p(MaNGOS::ComputeCellPair(pFissure->GetPositionX(), pFissure->GetPositionY()));
+        Cell cell(p);
+        cell.data.Part.reserved = ALL_DISTRICT;
+        MaNGOS::AnyPlayerInObjectRangeCheck p_check(pFissure, radius);
+        MaNGOS::PlayerSearcher<MaNGOS::AnyPlayerInObjectRangeCheck>  checker(pFissure, pPlayer , p_check);
+
+        TypeContainerVisitor<MaNGOS::PlayerSearcher<MaNGOS::AnyPlayerInObjectRangeCheck>, WorldTypeMapContainer > world_object_checker(checker);
+        cell.Visit(p, world_object_checker, *pFissure->GetMap(), *pFissure, radius);
+
+        if (pPlayer)
+            pPlayer->CastSpell(pPlayer, pFissure->GetGOInfo()->trap.spellId, true, NULL, NULL, pFissure->GetGUID());
+        pFissure->SendGameObjectCustomAnim(pFissure->GetGUID());
     }
 }
 
