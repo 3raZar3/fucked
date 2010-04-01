@@ -99,14 +99,17 @@ struct MANGOS_DLL_DECL mob_mirror_imageAI : public ScriptedAI
             return;
         }
         
-        Unit* pTarget = NULL;
+        uint64 targetGUID = 0;
+
         if (Spell* pSpell = pOwner->GetCurrentSpell(CURRENT_GENERIC_SPELL))
-            pTarget = pSpell->m_targets.getUnitTarget();
+            targetGUID = pSpell->m_targets.getUnitTargetGUID();
+        else if (pOwner->getVictim())
+            targetGUID = pOwner->getVictim()->GetGUID();
 
-        if (!pTarget || !pTarget->isTargetableForAttack() || !m_creature->IsHostileTo(pTarget))
-            pTarget = pOwner->getVictim();
+        Unit* pTarget = Unit::GetUnit(*m_creature, targetGUID);
 
-        if (!pTarget || !pTarget->isTargetableForAttack() || !m_creature->IsHostileTo(pTarget))
+        if (!pTarget || !m_creature->CanInitiateAttack() || !pTarget->isTargetableForAttack() ||
+        !m_creature->IsHostileTo(pTarget) || !pTarget->isInAccessablePlaceFor(m_creature))
         {
             if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() != FOLLOW_MOTION_TYPE)
             {
