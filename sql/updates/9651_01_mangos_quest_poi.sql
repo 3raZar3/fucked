@@ -1,6 +1,6 @@
-/*ALTER TABLE db_version CHANGE COLUMN required_9636_01_mangos_item_template required_9651_01_mangos_quest_poi bit;
+ALTER TABLE db_version CHANGE COLUMN required_9636_01_mangos_item_template required_9651_01_mangos_quest_poi bit;
 
--- Sorry, this was only way I knew, to avoid problems adding new primary key. Take backup if you don't want to loose your current data.
+/* -- Sorry, this was only way I knew, to avoid problems adding new primary key. Take backup if you don't want to loose your current data.
 TRUNCATE quest_poi;
 TRUNCATE quest_poi_points;
 
