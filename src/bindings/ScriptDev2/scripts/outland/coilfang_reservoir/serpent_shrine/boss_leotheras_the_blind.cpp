@@ -223,9 +223,9 @@ struct MANGOS_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
         ChaosBlast_Timer = 1000;
         SwitchToDemon_Timer = 45000;
         SwitchToHuman_Timer = 60000;
-		Berserk_Timer = 600000;
-		InnerDemons_Timer = 30000;
-		DealDamage = true;
+        Berserk_Timer = 600000;
+        InnerDemons_Timer = 30000;
+        DealDamage = true;
 
         DemonForm = false;
         IsFinalForm = false;
@@ -671,8 +671,8 @@ struct MANGOS_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
             DemonForm = false;
             //DoYell(SAY_FINAL_FORM, LANG_UNIVERSAL, NULL);
             DoPlaySoundToSet(m_creature, SOUND_FINAL_FORM);
-			m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_NIGHTELF);
-			m_creature->LoadEquipment(m_creature->GetEquipmentId());
+            m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_NIGHTELF);
+            m_creature->LoadEquipment(m_creature->GetEquipmentId());
         }
 
     }
