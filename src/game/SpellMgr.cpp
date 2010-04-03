@@ -1421,10 +1421,6 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     if(spellInfo_1->SpellIconID == 2606 && spellInfo_2->SpellIconID == 2606)
                         return false;
 
-                    // Kindred Spirits (allow stack for auras)
-                    if (spellInfo_1->SpellIconID == 3559 && spellInfo_2->SpellIconID == 3559)
-                        return false;
-
                     // Brood Affliction: Bronze
                     if( (spellInfo_1->Id == 23170 && spellInfo_2->Id == 23171) ||
                         (spellInfo_2->Id == 23170 && spellInfo_1->Id == 23171) )
@@ -1445,11 +1441,14 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                         (spellInfo_2->Id == 8326 && spellInfo_1->Id == 20584) )
                          return false;
 
+                    // Kindred Spirits
+                    if( spellInfo_1->SpellIconID == 3559 && spellInfo_2->SpellIconID == 3559 )
+                        return false;
+
                     // Blue Flame Shield and Blue Power Focus (more generic rule needed for all spells with dummy auras)
                     if( (spellInfo_1->Id == 46796 && spellInfo_2->Id == 46789) ||
                         (spellInfo_2->Id == 46796 && spellInfo_1->Id == 46789) )
-                         return false;
-
+                        return false;
                     break;
                 }
                 case SPELLFAMILY_MAGE:
