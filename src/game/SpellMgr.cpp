@@ -1472,6 +1472,12 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
 
                     break;
                 }
+                case SPELLFAMILY_PRIEST:
+                {
+                    // Berserking/Enrage PvE spells and Mind Trauma
+                    if(spellInfo_1->SpellIconID == 95 && spellInfo_2->Id == 48301)
+                        return false;
+                }
                 case SPELLFAMILY_DRUID:
                 {
                     // Scroll of Stamina and Leader of the Pack (multi-family check)
@@ -1673,6 +1679,12 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                 // Power Word: Shield and Divine Aegis
                 if ((spellInfo_1->SpellIconID == 566 && spellInfo_2->SpellIconID == 2820) ||
                     (spellInfo_2->SpellIconID == 566 && spellInfo_1->SpellIconID == 2820))
+                    return false;
+            }
+            else if (spellInfo_2->SpellFamilyName == SPELLFAMILY_GENERIC)
+            {
+                // Mind Trauma and Berserk/Enrage (PvE spells)
+                if(spellInfo_1->Id == 48301 && spellInfo_2->SpellIconID == 95)
                     return false;
             }
             break;
