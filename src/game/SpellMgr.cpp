@@ -1466,6 +1466,10 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     if( (spellInfo_2->SpellFamilyFlags & UI64LIT(0x2)) && spellInfo_1->Id == 23694 )
                         return false;
 
+                    // Heart of a Dragon (trinket) and Death Wish
+                    if (spellInfo_1->SpellIconID == 169 && spellInfo_2->Id == 12292)
+                        return false;
+
                     break;
                 }
                 case SPELLFAMILY_DRUID:
@@ -1627,6 +1631,13 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                 // Taste for Blood and Sudden Death
                 if( (spellInfo_1->SpellIconID == 2961 && spellInfo_2->SpellIconID == 1989) ||
                     (spellInfo_2->SpellIconID == 2961 && spellInfo_1->SpellIconID == 1989) )
+                    return false;
+            }
+            
+            else if( spellInfo_2->SpellFamilyName == SPELLFAMILY_GENERIC)
+            {
+                // Death Wish and Heart of a Dragon (trinket)
+                if (spellInfo_1->Id == 12292 && spellInfo_2->SpellIconID == 169)
                     return false;
             }
 
