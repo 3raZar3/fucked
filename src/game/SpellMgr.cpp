@@ -1797,6 +1797,12 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                 if( spellInfo_1->SpellIconID == 1680 && spellInfo_2->SpellIconID == 1680 )
                     return false;
             }
+            else if ( spellInfo_2->SpellFamilyName == SPELLFAMILY_PALADIN )
+            {
+                // Repentance and Track Humanoids
+                if (spellInfo_1->SpellIconID == 316 && spellInfo_2->SpellIconID == 316)
+                    return false;
+            }
 
             // Wing Clip -> Improved Wing Clip (multi-family check)
             if( (spellInfo_1->SpellFamilyFlags & UI64LIT(0x40)) && spellInfo_2->Id == 19229 )
@@ -1832,6 +1838,13 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
 
                 // Divine Sacrifice and Divine Guardian
                 if (spellInfo_1->SpellIconID == 3837 && spellInfo_2->SpellIconID == 3837)
+                    return false;
+            }
+            
+            else if (spellInfo_2->SpellFamilyName == SPELLFAMILY_HUNTER)
+            {
+                // Repentance and Track Humanoids
+                if (spellInfo_1->SpellIconID == 316 && spellInfo_2->SpellIconID == 316)
                     return false;
             }
 
