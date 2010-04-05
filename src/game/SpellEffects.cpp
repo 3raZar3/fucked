@@ -4495,6 +4495,10 @@ void Spell::DoSummonGuardian(SpellEffectIndex eff_idx, uint32 forceFaction)
         modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_DURATION, duration);
 
     int32 amount = damage > 0 ? damage : 1;
+    
+    // engineering dragonlings
+    if (m_spellInfo->EffectMiscValueB[0] == 2081)
+        amount = 1;
 
     for(int32 count = 0; count < amount; ++count)
     {
