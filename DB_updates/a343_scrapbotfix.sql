@@ -7,7 +7,7 @@ npcflag = npcflag |4225,
 flags_extra = flags_extra | 2
 WHERE `entry` = 29561;
 
--- Usuniêcie z bazy istniej¹cych wpisow
+-- Usuniecie z bazy istniejacych wpisow
 DELETE FROM `npc_vendor` WHERE `entry` = 29561;
 
 -- Dodanie przedmiotow do vendora
