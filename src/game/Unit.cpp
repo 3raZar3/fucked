@@ -94,7 +94,7 @@ void MovementInfo::Read(ByteBuffer &data)
         data >> t_time;
         data >> t_seat;
 
-        if(moveFlags2 & MOVEFLAG2_UNK1)
+        if(moveFlags2 & MOVEFLAG2_INTERP_MOVEMENT)
             data >> t_time2;
     }
 
@@ -139,7 +139,7 @@ void MovementInfo::Write(ByteBuffer &data) const
         data << t_time;
         data << t_seat;
 
-        if(moveFlags2 & MOVEFLAG2_UNK1)
+        if(moveFlags2 & MOVEFLAG2_INTERP_MOVEMENT)
             data << t_time2;
     }
 
@@ -3104,12 +3104,13 @@ SpellMissInfo Unit::SpellHitResult(Unit *pVictim, SpellEntry const *spell, bool 
 
     switch (spell->DmgClass)
     {
-        case SPELL_DAMAGE_CLASS_RANGED:
-        case SPELL_DAMAGE_CLASS_MELEE:
-            return MeleeSpellHitResult(pVictim, spell, canMiss);
         case SPELL_DAMAGE_CLASS_NONE:
+            return SPELL_MISS_NONE;
         case SPELL_DAMAGE_CLASS_MAGIC:
             return MagicSpellHitResult(pVictim, spell);
+        case SPELL_DAMAGE_CLASS_MELEE:
+        case SPELL_DAMAGE_CLASS_RANGED:
+            return MeleeSpellHitResult(pVictim, spell);
     }
     return SPELL_MISS_NONE;
 }
