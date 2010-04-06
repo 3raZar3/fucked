@@ -12,3 +12,6 @@ INSERT INTO `creature_ai_scripts` VALUES
 ('1552702','15527','0','0','100','3','10000','10000','10000','10000','11','15122','4','0','0','0','0','0','0','0','0','0','Mana Fiend - Cast Counterspell');
 UPDATE `creature_template` SET `AIName` = 'EventAI' WHERE `entry` = 15527;
 
+###############################  general  #################################################
+
+UPDATE creature_template SET dmg_multiplier=26 WHERE entry IN (15348,15340,15341,15339,15369,15370);
