@@ -90,21 +90,8 @@ struct MANGOS_DLL_DECL boss_telestraAI : public ScriptedAI
     uint32 m_uiIceNovaTimer;
     uint32 m_uiGravityWellTimer;
 
-    std::list<uint64> lAddsList;
-
     void Reset()
     {
-        if (!lAddsList.empty())
-        {
-            for(std::list<uint64>::iterator itr = lAddsList.begin(); itr != lAddsList.end(); ++itr)
-            {
-                if(Creature* pAdd = (Creature*)Unit::GetUnit((*m_creature),*itr))
-                    if (pAdd->isAlive())
-                        pAdd->ForcedDespawn();
-            }
-            lAddsList.clear();
-        }
-
         m_uiPhase = PHASE_1;
         m_uiCloneDeadCount = 0;
 
@@ -115,9 +102,6 @@ struct MANGOS_DLL_DECL boss_telestraAI : public ScriptedAI
 
     void JustReachedHome()
     {
-        // temp spell hack
-        SetEquipmentSlots(false, EQUIP_UNEQUIP, EQUIP_UNEQUIP, EQUIP_UNEQUIP);
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
     }
 
@@ -161,9 +145,6 @@ struct MANGOS_DLL_DECL boss_telestraAI : public ScriptedAI
             case SPELL_ARCANE_DIES:
             case SPELL_FROST_DIES:
             {
-                if (!m_creature->isInCombat())
-                    Reset();
-
                 ++m_uiCloneDeadCount;
 
                 if (m_uiCloneDeadCount == 3 || m_uiCloneDeadCount == 6)
@@ -171,9 +152,6 @@ struct MANGOS_DLL_DECL boss_telestraAI : public ScriptedAI
                     m_creature->RemoveAurasDueToSpell(SPELL_SUMMON_CLONES);
                     m_creature->CastSpell(m_creature, SPELL_SPAWN_BACK_IN, false);
 
-                    //temp spell hack
-                    SetEquipmentSlots(true);
-                    m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
                     DoScriptText(SAY_MERGE, m_creature);
@@ -183,10 +161,7 @@ struct MANGOS_DLL_DECL boss_telestraAI : public ScriptedAI
                 break;
             }
             case SPELL_SUMMON_CLONES:
-                // temp spell hack
-                SetEquipmentSlots(false, EQUIP_UNEQUIP, EQUIP_UNEQUIP, EQUIP_UNEQUIP);
                 m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 break;
         }
     }
@@ -199,13 +174,6 @@ struct MANGOS_DLL_DECL boss_telestraAI : public ScriptedAI
             case NPC_TELEST_ARCANE: pSummoned->CastSpell(pSummoned, SPELL_ARCANE_VISUAL, true); break;
             case NPC_TELEST_FROST: pSummoned->CastSpell(pSummoned, SPELL_FROST_VISUAL, true); break;
         }
-
-        if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-            if (pSummoned->AI() && pTarget->isTargetableForAttack())
-                pSummoned->AI()->AttackStart(pTarget);
-
-        // store creature in list
-        lAddsList.push_back(pSummoned->GetGUID());
     }
 
     void UpdateAI(const uint32 uiDiff)
