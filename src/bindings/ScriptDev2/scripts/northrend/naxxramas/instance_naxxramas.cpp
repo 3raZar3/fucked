@@ -393,7 +393,7 @@ void instance_naxxramas::SetData(uint32 uiType, uint32 uiData)
             {
                 DoUseDoorOrButton(m_uiMiliEyeRampGUID);
                 DoRespawnGameObject(m_uiMiliPortalGUID, 30*MINUTE);
-                instance->IsRegularDifficulty() ? (DoRespawnGameObject(m_uiHorsemenChestNormGUID, 30*MINUTE)) : (DoRespawnGameObject(m_uiHorsemenChestHeroGUID, 30*MINUTE));
+                DoRespawnGameObject(instance->IsRegularDifficulty() ? m_uiHorsemenChestNormGUID : m_uiHorsemenChestHeroGUID, 30*MINUTE);
             }
             break;
         case TYPE_PATCHWERK:
