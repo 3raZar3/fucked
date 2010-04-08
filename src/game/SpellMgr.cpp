@@ -1371,8 +1371,13 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
             {
                 case SPELLFAMILY_GENERIC:                   // same family case
                 {
-                    // Utgarde Keep spells stack with everything
-                    if (spellInfo_1->Id == 42704 || spellInfo_1->Id == 42862 || spellInfo_1->Id == 42857)
+                    // Summon Telestra Clones (visual aura) - instance Nexus 
+                    if (spellInfo_1->Id == 47710 || spellInfo_2->Id == 47710)
+                        return false;
+
+                    // Scourge Resurrection - instance Utgarde Keep
+                    if (spellInfo_1->Id == 42704 || spellInfo_1->Id == 42862 || spellInfo_1->Id == 42857 ||
+                        spellInfo_2->Id == 42704 || spellInfo_2->Id == 42862 || spellInfo_2->Id == 42857)
                         return false;
 
                     // Spell Grow and Poison Aura (Ahn'Kahet - Amanitars mashrooms)
