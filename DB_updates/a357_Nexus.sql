@@ -1,3 +1,12 @@
+###################################### boss_telestra ######################################################
+DELETE FROM creature_ai_scripts WHERE id IN (2692806,2692904,2693006);
+INSERT INTO creature_ai_scripts VALUES
+(2692806,26928,1,0,100,6,10000,10000,0,0, 41,0,0,0, 0,0,0,0, 0,0,0,0,'Grand Magus Telestra OOC despawn'),
+(2692904,26929,1,0,100,6,10000,10000,0,0, 41,0,0,0, 0,0,0,0, 0,0,0,0,'Grand Magus Telestra OOC despawn'),
+(2693006,26930,1,0,100,6,10000,10000,0,0, 41,0,0,0, 0,0,0,0, 0,0,0,0,'Grand Magus Telestra OOC despawn'),
+
+
+/*
 -- clearly wrong !! (Guen)
 -- IDs Nexus mobs Faction 14
 -- 26918,28231,26716,26722,26723,26727,26728,26729,26730,26731,26734,26735,26736,26737,26746,26761,26763,26782,26792,26792,26793,26794,26800,26802,26805,27949,30397,30398
@@ -20,3 +29,4 @@ UPDATE creature_template SET `dynamicflags` = '0', `unit_flags` = '0', `AIName` 
 
 -- Stoutbeard 26796
 -- UPDATE creature_template SET `heroic_entry` = '30398', `AIName` = '', `Scriptname` = 'boss_commander_stoutbeard' WHERE `entry` = 26796;
+*/
