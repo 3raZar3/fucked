@@ -725,3 +725,35 @@ INSERT INTO creature_movement VALUES
 (1049940,330,4026.83,-4618.8,178.88,0,0,0,0,0,0,0,0,0,6.14,0,0),
 (1049940,331,4015.98,-4617.25,181.56,0,0,0,0,0,0,0,0,0,0.06,0,0),
 (1049940,332,4006.45,-4617.88,183.15,0,0,0,0,0,0,0,0,0,0.35,0,0);
+
+-- Add loot to rare mobs in Grizzly Hills
+UPDATE creature_template SET lootid=entry WHERE entry IN (38453,32422,32429,32438);
+DELETE FROM creature_loot_template WHERE entry IN (38453,32422,32429,32438);
+INSERT INTO creature_loot_template VALUES
+
+-- Arcturis (38453)
+(38453,51958,100,0,1,1,0,0,0), -- Pristine Glowbear Pelt
+(38453,44663,100,0,1,1,0,0,0), -- Abandoned Adventurer's Satchel
+
+-- Grocklar (32422)
+(32422,44675,100,0,1,1,0,0,0), -- Rock-Giant's Pinky Cover
+(32422,44663,100,0,1,1,0,0,0), -- Abandoned Adventurer's Satchel
+
+-- Seething Hate (32429)
+(32429,44674,100,0,1,1,0,0,0), -- Ichor-Stained Wraps
+(32429,44663,100,0,1,1,0,0,0), -- Abandoned Adventurer's Satchel
+
+-- Syreian the Bonecarver (32438)
+(32438,44676,100,0,1,1,0,0,0), -- Syreian's Leggings
+(32438,44663,100,0,1,1,0,0,0); -- Abandoned Adventurer's Satchel
+
+-- Arcturis (38453)
+UPDATE creature_template SET
+armor=7918,
+mindmg=328,
+maxdmg=467,
+attackpower=354,
+dmg_multiplier=7.5,
+baseattacktime=1900
+WHERE entry=38453;
+
