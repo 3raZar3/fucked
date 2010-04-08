@@ -63,7 +63,8 @@ instance_naxxramas::instance_naxxramas(Map* pMap) : ScriptedInstance(pMap),
     m_uiGothikEntryDoorGUID(0),
     m_uiGothikExitDoorGUID(0),
     m_uiHorsemenDoorGUID(0),
-    m_uiHorsemenChestGUID(0),
+    m_uiHorsemenChestNormGUID(0),
+    m_uiHorsemenChestHeroGUID(0),
 
     m_uiNothEntryDoorGUID(0),
     m_uiNothExitDoorGUID(0),
@@ -202,7 +203,11 @@ void instance_naxxramas::OnObjectCreate(GameObject* pGo)
             break;
 
         case GO_CHEST_HORSEMEN_NORM:
-            m_uiHorsemenChestGUID = pGo->GetGUID();
+            m_uiHorsemenChestNormGUID = pGo->GetGUID();
+            break;
+
+        case GO_CHEST_HORSEMEN_HERO:
+            m_uiHorsemenChestHeroGUID = pGo->GetGUID();
             break;
 
         case GO_CONS_PATH_EXIT_DOOR:
@@ -388,7 +393,7 @@ void instance_naxxramas::SetData(uint32 uiType, uint32 uiData)
             {
                 DoUseDoorOrButton(m_uiMiliEyeRampGUID);
                 DoRespawnGameObject(m_uiMiliPortalGUID, 30*MINUTE);
-                DoRespawnGameObject(m_uiHorsemenChestGUID, 30*MINUTE);
+                instance->IsRegularDifficulty() ? (DoRespawnGameObject(m_uiHorsemenChestNormGUID, 30*MINUTE)) : (DoRespawnGameObject(m_uiHorsemenChestHeroGUID, 30*MINUTE));
             }
             break;
         case TYPE_PATCHWERK:
