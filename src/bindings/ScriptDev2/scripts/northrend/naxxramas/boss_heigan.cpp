@@ -151,7 +151,7 @@ struct MANGOS_DLL_DECL boss_heiganAI : public ScriptedAI
 
             CurrentSafeArea = CurrentSafeArea + Direction;
 
-            m_uiDanceTimer = m_uiPhase ? 15000 : 5000;
+            m_uiDanceTimer = m_uiPhase == PHASE_GROUND ? 10000 : 3000;
         }else m_uiDanceTimer -= uiDiff;
 
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
