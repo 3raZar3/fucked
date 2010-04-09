@@ -1401,6 +1401,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                     unMaxTargets = 2;
                     break;
                 case 28796:                                 // Poison Bolt Volley
+                case 29213:                                 // Curse of the Plaguebringer
                 case 31298:                                 // Sleep
                     unMaxTargets = 3;
                     break;
@@ -1412,6 +1413,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                     unMaxTargets = 5;
                     break;
                 case 54098:                                 // Poison Bolt Volley (h)
+                case 54835:                                 // Curse of the Plaguebringer (h)
                     unMaxTargets = 10;
                     break;
                 case 25991:                                 // Poison Bolt Volley (Pincess Huhuran)
