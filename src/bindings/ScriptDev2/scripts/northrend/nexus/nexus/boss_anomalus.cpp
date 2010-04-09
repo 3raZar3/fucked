@@ -148,6 +148,7 @@ struct MANGOS_DLL_DECL boss_anomalusAI : public ScriptedAI
         if (!m_bChaoticRift && m_creature->GetHealthPercent() < 50.0f)
         {
             DoCastSpellIfCan(m_creature, SPELL_RIFT_SHIELD);
+            DoScriptText(EMOTE_SHIELD, m_creature);
             DoCastSpellIfCan(m_creature, SPELL_CREATE_RIFT, CAST_TRIGGERED);
             DoScriptText(EMOTE_OPEN_RIFT, m_creature);
             DoScriptText(SAY_SHIELD, m_creature);
