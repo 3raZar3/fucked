@@ -1467,6 +1467,19 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
             targetUnitMap.push_back(m_caster);
             break;
         }
+        case TARGET_RANDOM_NEARBY_POINT:
+        {
+            radius *= sqrtf(rand_norm_f());
+            float angle = 2.0f * M_PI_F * rand_norm_f();
+            float dest_x = m_caster->GetPositionX() + cos(angle) * radius;
+            float dest_y = m_caster->GetPositionY() + sin(angle) * radius;
+            float dest_z = m_caster->GetPositionZ();
+            m_caster->UpdateGroundPositionZ(dest_x, dest_y, dest_z);
+            m_targets.setDestination(dest_x, dest_y, dest_z);
+
+            targetUnitMap.push_back(m_caster);
+            break;
+        }
         case TARGET_RANDOM_NEARBY_DEST:
         {
             radius *= sqrtf(rand_norm_f()); // Get a random point in circle. Use sqrt(rand) to correct distribution when converting polar to Cartesian coordinates.
