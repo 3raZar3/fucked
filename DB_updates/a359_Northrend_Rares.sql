@@ -30,9 +30,9 @@ INSERT INTO pool_creature VALUES
 (1049945,1905,0,'Northrend rare - Grocklar (32422) - Spawn 2'),
 (1049944,1905,0,'Northrend rare - Grocklar (32422) - Spawn 3'),
 
-(1049943,1905,0,'Northrend rare - Seething Hate (32429) - Spawn 1'),
-(1049942,1905,0,'Northrend rare - Seething Hate (32429) - Spawn 2'),
-(1049941,1905,0,'Northrend rare - Seething Hate (32429) - Spawn 3');
+(1049943,1906,0,'Northrend rare - Seething Hate (32429) - Spawn 1'),
+(1049942,1906,0,'Northrend rare - Seething Hate (32429) - Spawn 2'),
+(1049941,1906,0,'Northrend rare - Seething Hate (32429) - Spawn 3');
 
 DELETE FROM creature_movement WHERE id IN (1049946,1049945,1049944,1049940);
 INSERT INTO creature_movement VALUES
