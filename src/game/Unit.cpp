@@ -3110,7 +3110,7 @@ SpellMissInfo Unit::SpellHitResult(Unit *pVictim, SpellEntry const *spell, bool 
             return MagicSpellHitResult(pVictim, spell);
         case SPELL_DAMAGE_CLASS_MELEE:
         case SPELL_DAMAGE_CLASS_RANGED:
-            return MeleeSpellHitResult(pVictim, spell);
+            return MeleeSpellHitResult(pVictim, spell, canMiss);
     }
     return SPELL_MISS_NONE;
 }
@@ -8858,17 +8858,7 @@ void Unit::ModifyAuraState(AuraState flag, bool apply)
                 {
                     SpellEntry const* spellProto = (*itr).second->GetSpellProto();
                     if (spellProto->CasterAuraState == flag)
-                    {
-                        // exceptions (applied at state but not removed at state change)
-                        // Rampage
-                        if(spellProto->SpellIconID==2006 && spellProto->SpellFamilyName==SPELLFAMILY_WARRIOR && spellProto->SpellFamilyFlags==0x100000)
-                        {
-                            ++itr;
-                            continue;
-                        }
-
                         RemoveAura(itr);
-                    }
                     else
                         ++itr;
                 }
@@ -9091,7 +9081,7 @@ Unit* Unit::SelectMagnetTarget(Unit *victim, SpellEntry const *spellInfo)
 
     // Magic case
     if(spellInfo && (spellInfo->DmgClass == SPELL_DAMAGE_CLASS_NONE || spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MAGIC) &&
-        (spellInfo->SchoolMask & SPELL_SCHOOL_MASK_MAGIC || spellInfo->Mechanic == MECHANIC_GRIP))
+    (spellInfo->SchoolMask & SPELL_SCHOOL_MASK_MAGIC || spellInfo->Mechanic == MECHANIC_GRIP))
     {
         Unit::AuraList const& magnetAuras = victim->GetAurasByType(SPELL_AURA_SPELL_MAGNET);
         for(Unit::AuraList::const_iterator itr = magnetAuras.begin(); itr != magnetAuras.end(); ++itr)
