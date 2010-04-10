@@ -12,10 +12,15 @@ UPDATE creature_template SET
 modelid_A = 25206,
 modelid_H = 25206
 WHERE entry IN (26918,30522);
+UPDATE creature_template SET AIName = 'EventAI', ScriptName = '' WHERE entry IN (26918);
+
 
 -- Crazed Mana-Wyrm and Azure Skyrazor 
 UPDATE creature_template SET InhabitType = 4 WHERE entry IN (26761,26736,30518,30521);
 
+DELETE FROM creature_ai_scripts WHERE creature_id = 26918;
+INSERT INTO creature_ai_scripts VALUES
+(2691801,26918,4,0,100,6,0,0,0,0, 21,0,0,0, 0,0,0,0, 0,0,0,0, 'Chaotic Rift - NoMovementAI');
 
 /*
 -- clearly wrong !! (Guen)

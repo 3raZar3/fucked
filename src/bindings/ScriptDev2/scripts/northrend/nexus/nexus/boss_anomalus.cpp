@@ -122,14 +122,10 @@ struct MANGOS_DLL_DECL boss_anomalusAI : public ScriptedAI
 
         if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
             pSummoned->AI()->AttackStart(pTarget);
-
-        pSummoned->GetMotionMaster()->Clear();
-        pSummoned->GetMotionMaster()->MoveIdle();
                
-        DoCastSpellIfCan(m_creature, SPELL_CHARGE_RIFT, CAST_TRIGGERED);
         pSummoned->CastSpell(pSummoned, SPELL_ARCANE_FORM, true);
-        pSummoned->CastSpell(pSummoned, m_bIsRegularMode ? SPELL_RIFT_SUMMON_AURA : SPELL_RIFT_SUMMON_AURA_H, true);
-        pSummoned->CastSpell(pSummoned, m_bIsRegularMode ? SPELL_RIFT_AURA : SPELL_RIFT_AURA_H, false);
+        pSummoned->CastSpell(pSummoned, SPELL_CHARGED_RIFT_AURA, true);
+        pSummoned->CastSpell(pSummoned, SPELL_CHARGED_RIFT_SUMMON_AURA, true);
     }
 
     void SummonedCreatureJustDied(Creature* pSummoned)
@@ -147,10 +143,11 @@ struct MANGOS_DLL_DECL boss_anomalusAI : public ScriptedAI
         // Create additional Chaotic Rift at 50% HP
         if (!m_bChaoticRift && m_creature->GetHealthPercent() < 50.0f)
         {
-            DoCastSpellIfCan(m_creature, SPELL_RIFT_SHIELD);
-            DoScriptText(EMOTE_SHIELD, m_creature);
             DoCastSpellIfCan(m_creature, SPELL_CREATE_RIFT, CAST_TRIGGERED);
+            DoCastSpellIfCan(m_creature, SPELL_RIFT_SHIELD, CAST_TRIGGERED);
+            DoCastSpellIfCan(m_creature, SPELL_CHARGE_RIFT, CAST_FORCE_CAST);
             DoScriptText(EMOTE_OPEN_RIFT, m_creature);
+            DoScriptText(EMOTE_SHIELD, m_creature);
             DoScriptText(SAY_SHIELD, m_creature);
             m_bChaoticRift = true;
             return;
