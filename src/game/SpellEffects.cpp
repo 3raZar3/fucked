@@ -6257,6 +6257,14 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                         ((Player*)m_caster)->learnSpell(discoveredSpell, false);
 
                     return;
+                }                                           // Rifle the Bodies: Create Magehunter Personal Effects Cover
+                case 61832:
+                {
+                    if (m_caster->GetTypeId() != TYPEID_UNIT)
+                        return;
+                 
+                    ((Creature*)m_caster)->ForcedDespawn(1000);
+                    return;
                 }
                 case 69377:                                 // Fortitude
                 {
