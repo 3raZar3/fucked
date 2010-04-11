@@ -12,6 +12,12 @@ INSERT INTO creature_ai_scripts VALUES
 ('1657307','16573','5','0','100','7','1000','1000','0','0','11','29105','0','1','0','0','0','0','0','0','0','0','Crypt Guard - Summon Corpse Scarabs (5) at player kill'),
 ('1657308','16573','6','0','100','6','0','0','0','0','11','28864','6','17','0','0','0','0','0','0','0','0','Crypt Guard - Summon Corpse Scarabs (10) at death');
 
+###################   boss_faerlina   ########################################################
+UPDATE `creature_template` SET `ScriptName`='mob_worshippers' WHERE `entry`='16506';
+
+###################   boss_loatheb   ########################################################
+UPDATE `creature_template` SET `ScriptName`='npc_loatheb_spores' WHERE `entry`='16286';
+
 ################################################################################################
 
 /*
