@@ -25,12 +25,12 @@ char const *SPELL_DBC   = "Spell.dbc";
 char const *SPELL_SQL   = "spell_dbc.sql";
 char const *SPELL_TABLE = "dbc_spell";
 
-#define SPELL_DBC_CLIENT_BUILD  11159 // 3.3.0a
+#define SPELL_DBC_CLIENT_BUILD  11723 // 3.3.3a
 
 #define SPELL_DBC_COLUMN_NUMS   240
-#define SPELL_DBC_ROWS_NUMS     74446
+#define SPELL_DBC_ROWS_NUMS     76568
 
-// Spell.dbc struct: MaNGOS 9310
+// Spell.dbc struct: MaNGOS 9727
 char const *spell_translation[SPELL_DBC_COLUMN_NUMS][2] =
 {
     {"uint32",   "Id"},                                           // 0        m_ID
