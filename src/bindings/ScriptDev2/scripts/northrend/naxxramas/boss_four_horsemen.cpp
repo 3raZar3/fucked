@@ -276,7 +276,16 @@ struct MANGOS_DLL_DECL boss_lady_blaumeuxAI : public ScriptedAI
     {
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
-
+		
+		// Move when ut of range
+		if(Unit *who = m_creature->getVictim())
+        {
+		    if(who && who->IsInRange(m_creature, 0.0f, 20.0f, false))
+			    m_creature->StopMoving();
+            else 
+			    m_creature->CanFreeMove();
+        }
+			
         if (!HasPlayerInRange(m_creature))
         {
             if (m_uiPainTimer <= uiDiff)
@@ -626,7 +635,16 @@ struct MANGOS_DLL_DECL boss_sir_zeliekAI : public ScriptedAI
         //Return since we have no target
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
-
+			
+		// Move when ut of range
+		if(Unit *who = m_creature->getVictim())
+        {
+		    if(who && who->IsInRange(m_creature, 0.0f, 20.0f, false))
+			    m_creature->StopMoving();
+            else 
+			    m_creature->CanFreeMove();
+        }
+		
         if (!HasPlayerInRange(m_creature))
         {
             if (m_uiCondemnationTimer <= uiDiff)
