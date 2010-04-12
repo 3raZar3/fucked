@@ -35,8 +35,6 @@ enum
     SAY_SLAY2                 = -1533015,
     SAY_DEATH                 = -1533016,
 
-    //SOUND_RANDOM_AGGRO        = 8955,                              //soundId containing the 4 aggro sounds, we not using this
-
     SPELL_POSIONBOLT_VOLLEY   = 28796,
     H_SPELL_POSIONBOLT_VOLLEY = 54098,
     SPELL_ENRAGE              = 28798,
@@ -77,14 +75,8 @@ struct MANGOS_DLL_DECL boss_faerlinaAI : public ScriptedAI
         m_uiRainOfFireTimer = 16000;
         m_uiEnrageTimer = 60000;
 		
-        std::list<Creature*> lUnitList;
-        GetCreatureListWithEntryInGrid(lUnitList, m_creature, 16506, 100.0f);
-        if (!lUnitList.empty())
-        {
-            for(std::list<Creature*>::iterator iter = lUnitList.begin(); iter != lUnitList.end(); ++iter)
-                if ((*iter)->isDead())
-                    (*iter)->Respawn();
-        }
+        for(uint8 i=0; i<4; ++i)
+            m_uiWorshiperGUID[i] = 0;
 
         if (m_pInstance)
             m_pInstance->SetData(TYPE_FAERLINA, NOT_STARTED);
@@ -92,6 +84,9 @@ struct MANGOS_DLL_DECL boss_faerlinaAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
+		
+		SpawnAdds();
+		
         switch (rand()%4)
         {
             case 0: DoScriptText(SAY_AGGRO1, m_creature); break;
@@ -103,6 +98,25 @@ struct MANGOS_DLL_DECL boss_faerlinaAI : public ScriptedAI
         if (m_pInstance)
             m_pInstance->SetData(TYPE_FAERLINA, IN_PROGRESS);
     }
+	
+    void SpawnAdds()
+    {
+        for(uint8 i=0; m_bIsRegularMode ? i<4 : i<6 ; ++i)
+        {
+            uint32 ID = CREATURE_FOLLOWER;
+            if(i<4)
+                ID = CREATURE_WORSHIPER;
+
+            Creature* Guard = m_creature->SummonCreature(ID, m_creature->GetPositionX()+urand(2,6), m_creature->GetPositionY()+urand(2,6), m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
+            if(Guard)
+            {
+                if(Unit* pPlayer = SelectUnit(SELECT_TARGET_RANDOM,0))
+                    Guard->AI()->AttackStart(pPlayer);
+                if(i<4)
+                    m_uiWorshiperGUID[i] = Guard->GetGUID();
+            }
+        }
+    }	
 	
     void MoveInLineOfSight(Unit* pWho)
     {
@@ -139,6 +153,26 @@ struct MANGOS_DLL_DECL boss_faerlinaAI : public ScriptedAI
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 			
+        //If some worshiper ar dead cast spell
+        for(uint8 i=0; i<4; ++i)
+        {
+            Unit* Worshiper = Unit::GetUnit(*m_creature, m_uiWorshiperGUID[i]);
+            if(Worshiper && !Worshiper->isAlive())
+            {
+                //cheach if this spell working corectly
+                if(m_creature->HasAura(SPELL_ENRAGE))
+                {
+                    m_creature->RemoveAurasDueToSpell(SPELL_ENRAGE);
+                    m_uiPoisonBoltVolleyTimer = m_uiPoisonBoltVolleyTimer + 30000;
+                    //m_creature->AddAura(SPELL_WIDOWS_EMBRANCE);
+                }
+                else 
+                    m_uiEnrageTimer = m_uiEnrageTimer + 30000;
+
+                m_uiWorshiperGUID[i] = 0;
+            }
+        }		
+		
         //PoisonBoltVolley_Timer
         if (m_uiPoisonBoltVolleyTimer < uiDiff)
         {
