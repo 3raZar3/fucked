@@ -96,16 +96,16 @@ bool check_dbc()
         std::cout << SPELL_DBC << " - Opened successful." << std::endl << SPELL_DBC << " - fields: "
         << DBCSpell.getNumFields() << ", rows: " << DBCSpell.getNumRows() << std::endl;
 
-    /*if(DBCSpell.getNumFields() != SPELL_DBC_COLUMN_NUMS)
+    if(DBCSpell.getNumFields() != SPELL_DBC_COLUMN_NUMS)
     {
         std::cout << SPELL_DBC << " - ERROR: Column numbers do not match with the supported DBC format." << std::endl;
         return false;
-    } */
-    /*if(DBCSpell.getNumRows() != SPELL_DBC_ROWS_NUMS)
+    }
+    if(DBCSpell.getNumRows() != SPELL_DBC_ROWS_NUMS)
     {
         std::cout << SPELL_DBC << " - ERROR: Rows numbers do not match with the supported DBC format." << std::endl;
         return false;
-    }*/
+    }
     std::cout << SPELL_DBC << " - DBC format: OK." << "\n\n";
 
     /********** Achievement.dbc **********//*
