@@ -15,9 +15,6 @@ INSERT INTO creature_ai_scripts VALUES
 ###################   boss_faerlina   ########################################################
 UPDATE `creature_template` SET `ScriptName`='mob_worshippers' WHERE `entry`='16506';
 
-###################   boss_loatheb   ########################################################
-UPDATE `creature_template` SET `ScriptName`='npc_loatheb_spores' WHERE `entry`='16286';
-
 ################################################################################################
 
 /*
