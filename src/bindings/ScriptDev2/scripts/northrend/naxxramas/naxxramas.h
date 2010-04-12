@@ -214,8 +214,7 @@ class MANGOS_DLL_DECL instance_naxxramas : public ScriptedInstance
         UNORDERED_MAP<uint64, GothTrigger> m_mGothTriggerMap;
 
         uint64 m_uiHorsemenDoorGUID;
-        uint64 m_uiHorsemenChestNormGUID;
-        uint64 m_uiHorsemenChestHeroGUID;
+        uint64 m_uiHorsemenChestGUID;
 
         uint64 m_uiNothEntryDoorGUID;
         uint64 m_uiNothExitDoorGUID;
