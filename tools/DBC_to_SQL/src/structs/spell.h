@@ -22,8 +22,8 @@
 #define __SPEL_H__
 
 char const *SPELL_DBC   = "Spell.dbc";
-char const *SPELL_SQL   = "spell_dbc.sql";
-char const *SPELL_TABLE = "dbc_spell";
+char const *SPELL_SQL   = "spell.sql";
+char const *SPELL_TABLE = "spell";
 
 #define SPELL_DBC_CLIENT_BUILD  11723 // 3.3.3a
 
@@ -95,12 +95,12 @@ char const *spell_translation[SPELL_DBC_COLUMN_NUMS][2] =
     {"int32",    "Reagent7"},                                     // 59       m_reagent
     {"uint32",   "ReagentCount0"},                                // 60       m_reagentCount
     {"uint32",   "ReagentCount1"},                                // 61       m_reagentCount
-    {"uint32",   "ReagentCount1"},                                // 62       m_reagentCount
-    {"uint32",   "ReagentCount2"},                                // 63       m_reagentCount
-    {"uint32",   "ReagentCount3"},                                // 64       m_reagentCount
-    {"uint32",   "ReagentCount4"},                                // 65       m_reagentCount
-    {"uint32",   "ReagentCount5"},                                // 66       m_reagentCount
-    {"uint32",   "ReagentCount6"},                                // 67       m_reagentCount
+    {"uint32",   "ReagentCount2"},                                // 62       m_reagentCount
+    {"uint32",   "ReagentCount3"},                                // 63       m_reagentCount
+    {"uint32",   "ReagentCount4"},                                // 64       m_reagentCount
+    {"uint32",   "ReagentCount5"},                                // 65       m_reagentCount
+    {"uint32",   "ReagentCount6"},                                // 66       m_reagentCount
+    {"uint32",   "ReagentCount7"},                                // 67       m_reagentCount
     {"int32",    "EquippedItemClass"},                            // 68       m_equippedItemClass (value)
     {"int32",    "EquippedItemSubClassMask"},                     // 69       m_equippedItemSubclass (mask)
     {"int32",    "EquippedItemInventoryTypeMask"},                // 70       m_equippedItemInvTypes (mask)
@@ -242,8 +242,8 @@ char const *spell_translation[SPELL_DBC_COLUMN_NUMS][2] =
     {"uint32",   "StartRecoveryTime"},                            // 212      m_startRecoveryTime
     {"uint32",   "MaxTargetLevel"},                               // 213      m_maxTargetLevel
     {"uint32",   "SpellFamilyName"},                              // 214      m_spellClassSet
-    {"uint64",   "SpellFamilyFlags0"},                            // 215      m_spellClassMask NOTE: size is 12 bytes!!!
-    {"uint64",   "SpellFamilyFlags1"},                            // 216      m_spellClassMask NOTE: size is 12 bytes!!!
+    {"uint32",   "SpellFamilyFlags0"},                            // 215      m_spellClassMask NOTE: size is 12 bytes!!!
+    {"uint32",   "SpellFamilyFlags1"},                            // 216      m_spellClassMask NOTE: size is 12 bytes!!!
     {"uint32",   "SpellFamilyFlags2"},                            // 217      addition to m_spellClassMask
     {"uint32",   "MaxAffectedTargets"},                           // 218      m_maxTargets
     {"uint32",   "DmgClass"},                                     // 219      m_defenseType

@@ -21,8 +21,7 @@
 #ifndef __COMMON_H__
 #define __COMMON_H__
 
-char static const *DBCTOSQL_VER = "0.3";
-char static const *DBCTOSQL_WEB = "http://code.google.com/p/dbctosql/";
+char static const *EXPECTED_CLIENT_BUILT = "3.3.3a (11723)";
 
 typedef char int8;
 typedef int int16;
