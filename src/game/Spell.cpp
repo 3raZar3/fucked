@@ -1758,11 +1758,6 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
         {
             if(m_spellInfo->Id == 57669)
             {
-                // since 3.2.0 replenishments at arenas should affect only caster http://www.wowwiki.com/Replenishment
-                if(m_caster->GetMap()->IsBattleArena())
-                    targetUnitMap.push_back(m_caster);
-                else// Replenishment (special target selection)
-            {
                 // in arena, target should be only caster
                 if (m_caster->GetMap()->IsBattleArena())
                     targetUnitMap.push_back(m_caster);

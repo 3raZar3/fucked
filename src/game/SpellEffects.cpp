@@ -5975,20 +5975,12 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                 {
                     // Search Ilsa Direbrew
                     uint32 IlsaEntry = 26764;
-                    float SpellRange = 100.0f;
+                    float fSpellRange = 100.0f;
                     Creature* pCreature = NULL;
 
-                    CellPair p(MaNGOS::ComputeCellPair(m_caster->GetPositionX(), m_caster->GetPositionY()));
-                    Cell cell(p);
-                    cell.data.Part.reserved = ALL_DISTRICT;
-                    cell.SetNoCreate();
-
-                    MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck creature_check(*m_caster, IlsaEntry, true, SpellRange);
+                    MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck creature_check(*m_caster, IlsaEntry, true, fSpellRange);
                     MaNGOS::CreatureLastSearcher<MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(m_caster, pCreature, creature_check);
-
-                    TypeContainerVisitor<MaNGOS::CreatureLastSearcher<MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck>, GridTypeMapContainer > grid_creature_searcher(searcher);
-
-                    cell.Visit(p, grid_creature_searcher, *m_caster->GetMap(), *m_caster, SpellRange);
+                    Cell::VisitGridObjects(m_caster, searcher, fSpellRange);
 
                     // if found Ilsa alive cast Send Second Mug
                     if (pCreature)
