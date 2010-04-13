@@ -30,7 +30,7 @@ char const *SPELL_TABLE = "spell";
 #define SPELL_DBC_COLUMN_NUMS   234
 #define SPELL_DBC_ROWS_NUMS     49816
 
-// Spell.dbc struct: MaNGOS 9727
+// Spell.dbc struct: MaNGOS 9740
 char const *spell_translation[SPELL_DBC_COLUMN_NUMS][2] =
 {
     {"uint32",   "Id"},                                           // 0        m_ID
@@ -110,163 +110,163 @@ char const *spell_translation[SPELL_DBC_COLUMN_NUMS][2] =
     {"int32",    "EffectDieSides0"},                              // 74       m_effectDieSides
     {"int32",    "EffectDieSides1"},                              // 75       m_effectDieSides
     {"int32",    "EffectDieSides2"},                              // 76       m_effectDieSides
-    {"float",    "EffectRealPointsPerLevel0"},                    // 83       m_effectRealPointsPerLevel
-    {"float",    "EffectRealPointsPerLevel1"},                    // 84       m_effectRealPointsPerLevel
-    {"float",    "EffectRealPointsPerLevel2"},                    // 85       m_effectRealPointsPerLevel
-    {"int32",    "EffectBasePoints0"},                            // 86       m_effectBasePoints (don't must be used in spell/auras explicitly, must be used 
-    {"int32",    "EffectBasePoints1"},                            // 87       m_effectBasePoints (don't must be used in spell/auras explicitly, must be used 
-    {"int32",    "EffectBasePoints2"},                            // 88       m_effectBasePoints (don't must be used in spell/auras explicitly, must be used cached Spell::m_currentBasePoints)
-    {"uint32",   "EffectMechanic0"},                              // 89       m_effectMechanic
-    {"uint32",   "EffectMechanic1"},                              // 90       m_effectMechanic
-    {"uint32",   "EffectMechanic2"},                              // 91       m_effectMechanic
-    {"uint32",   "EffectImplicitTargetA0"},                       // 92       m_implicitTargetA
-    {"uint32",   "EffectImplicitTargetA1"},                       // 93       m_implicitTargetA
-    {"uint32",   "EffectImplicitTargetA2"},                       // 94       m_implicitTargetA
-    {"uint32",   "EffectImplicitTargetB0"},                       // 95       m_implicitTargetB
-    {"uint32",   "EffectImplicitTargetB1"},                       // 96       m_implicitTargetB
-    {"uint32",   "EffectImplicitTargetB2"},                       // 97       m_implicitTargetB
-    {"uint32",   "EffectRadiusIndex0"},                           // 98       m_effectRadiusIndex - spellradius.dbc
-    {"uint32",   "EffectRadiusIndex1"},                           // 99       m_effectRadiusIndex - spellradius.dbc
-    {"uint32",   "EffectRadiusIndex2"},                           // 100      m_effectRadiusIndex - spellradius.dbc
-    {"uint32",   "EffectApplyAuraName0"},                         // 101      m_effectAura
-    {"uint32",   "EffectApplyAuraName1"},                         // 102      m_effectAura
-    {"uint32",   "EffectApplyAuraName2"},                         // 103      m_effectAura
-    {"uint32",   "EffectAmplitude0"},                             // 104      m_effectAuraPeriod
-    {"uint32",   "EffectAmplitude1"},                             // 105      m_effectAuraPeriod
-    {"uint32",   "EffectAmplitude2"},                             // 106      m_effectAuraPeriod
-    {"float",    "EffectMultipleValue0"},                         // 107      m_effectAmplitude
-    {"float",    "EffectMultipleValue1"},                         // 108      m_effectAmplitude
-    {"float",    "EffectMultipleValue2"},                         // 109      m_effectAmplitude
-    {"uint32",   "EffectChainTarget0"},                           // 110      m_effectChainTargets
-    {"uint32",   "EffectChainTarget1"},                           // 111      m_effectChainTargets
-    {"uint32",   "EffectChainTarget2"},                           // 112      m_effectChainTargets
-    {"uint32",   "EffectItemType0"},                              // 113      m_effectItemType
-    {"uint32",   "EffectItemType1"},                              // 114      m_effectItemType
-    {"uint32",   "EffectItemType2"},                              // 115      m_effectItemType
-    {"int32",    "EffectMiscValue0"},                             // 116      m_effectMiscValue
-    {"int32",    "EffectMiscValue1"},                             // 117      m_effectMiscValue
-    {"int32",    "EffectMiscValue2"},                             // 118      m_effectMiscValue
-    {"int32",    "EffectMiscValueB0"},                            // 119      m_effectMiscValueB
-    {"int32",    "EffectMiscValueB1"},                            // 120      m_effectMiscValueB
-    {"int32",    "EffectMiscValueB2"},                            // 121      m_effectMiscValueB
-    {"uint32",   "EffectTriggerSpell0"},                          // 122      m_effectTriggerSpell
-    {"uint32",   "EffectTriggerSpell1"},                          // 123      m_effectTriggerSpell
-    {"uint32",   "EffectTriggerSpell2"},                          // 124      m_effectTriggerSpell
-    {"float",    "EffectPointsPerComboPoint0"},                   // 125      m_effectPointsPerCombo
-    {"float",    "EffectPointsPerComboPoint1"},                   // 126      m_effectPointsPerCombo
-    {"float",    "EffectPointsPerComboPoint2"},                   // 127      m_effectPointsPerCombo
-    {"uint32",   "EffectSpellClassMaskA0"},                       // 128      m_effectSpellClassMaskA, effect 0
-    {"uint32",   "EffectSpellClassMaskA1"},                       // 129      m_effectSpellClassMaskA, effect 0
-    {"uint32",   "EffectSpellClassMaskA2"},                       // 130      m_effectSpellClassMaskA, effect 0
-    {"uint32",   "EffectSpellClassMaskB0"},                       // 131      m_effectSpellClassMaskB, effect 1
-    {"uint32",   "EffectSpellClassMaskB1"},                       // 132      m_effectSpellClassMaskB, effect 1
-    {"uint32",   "EffectSpellClassMaskB2"},                       // 133      m_effectSpellClassMaskB, effect 1
-    {"uint32",   "EffectSpellClassMaskC0"},                       // 134      m_effectSpellClassMaskC, effect 2
-    {"uint32",   "EffectSpellClassMaskC1"},                       // 135      m_effectSpellClassMaskC, effect 2
-    {"uint32",   "EffectSpellClassMaskC2"},                       // 136      m_effectSpellClassMaskC, effect 2
-    {"uint32",   "SpellVisual0"},                                 // 137      m_spellVisualID
-    {"uint32",   "SpellVisual1"},                                 // 138      m_spellVisualID
-    {"uint32",   "SpellVisual2"},                                 // 139      m_spellVisualID
-    {"uint32",   "SpellIconID"},                                  // 139      m_spellIconID
-    {"uint32",   "activeIconID"},                                 // 140      m_activeIconID
-    {"uint32",   "spellPriority"},                                // 141      m_spellPriority not used
-    {"char*",    "SpellName1"},                                   // 142      m_name_lang
-    {"char*",    "SpellName2"},                                   // 143      m_name_lang
-    {"char*",    "SpellName3"},                                   // 144      m_name_lang
-    {"char*",    "SpellName4"},                                   // 145      m_name_lang
-    {"char*",    "SpellName5"},                                   // 146      m_name_lang
-    {"char*",    "SpellName6"},                                   // 147      m_name_lang
-    {"char*",    "SpellName7"},                                   // 148      m_name_lang
-    {"char*",    "SpellName8"},                                   // 149      m_name_lang
-    {"char*",    "SpellName9"},                                   // 151      m_name_lang
-    {"char*",    "SpellName10"},                                  // 152      m_name_lang
-    {"char*",    "SpellName11"},                                  // 153      m_name_lang
-    {"char*",    "SpellName12"},                                  // 154      m_name_lang
-    {"char*",    "SpellName13"},                                  // 155      m_name_lang
-    {"char*",    "SpellName14"},                                  // 156      m_name_lang
-    {"char*",    "SpellName15"},                                  // 157      m_name_lang
-    {"uint32",   "SpellNameFlag"},                                // 158      not used
-    {"char*",    "Rank0"},                                        // 159      m_nameSubtext_lang
-    {"char*",    "Rank1"},                                        // 160      m_nameSubtext_lang
-    {"char*",    "Rank2"},                                        // 161      m_nameSubtext_lang
-    {"char*",    "Rank3"},                                        // 162      m_nameSubtext_lang
-    {"char*",    "Rank4"},                                        // 163      m_nameSubtext_lang
-    {"char*",    "Rank5"},                                        // 164      m_nameSubtext_lang
-    {"char*",    "Rank6"},                                        // 165      m_nameSubtext_lang
-    {"char*",    "Rank7"},                                        // 166      m_nameSubtext_lang
-    {"char*",    "Rank8"},                                        // 167      m_nameSubtext_lang
-    {"char*",    "Rank9"},                                        // 168      m_nameSubtext_lang
-    {"char*",    "Rank10"},                                       // 169      m_nameSubtext_lang
-    {"char*",    "Rank11"},                                       // 170      m_nameSubtext_lang
-    {"char*",    "Rank12"},                                       // 171      m_nameSubtext_lang
-    {"char*",    "Rank13"},                                       // 172      m_nameSubtext_lang
-    {"char*",    "Rank14"},                                       // 173      m_nameSubtext_lang
-    {"char*",    "Rank15"},                                       // 174      m_nameSubtext_lang
-    {"uint32",   "RankFlags"},                                    // 175      not used
-    {"char*",    "Description1"},                                 // 176      m_description_lang not used
-    {"char*",    "Description2"},                                 // 177      m_description_lang not used
-    {"char*",    "Description3"},                                 // 178      m_description_lang not used
-    {"char*",    "Description4"},                                 // 179      m_description_lang not used
-    {"char*",    "Description5"},                                 // 180      m_description_lang not used
-    {"char*",    "Description6"},                                 // 181      m_description_lang not used
-    {"char*",    "Description7"},                                 // 182      m_description_lang not used
-    {"char*",    "Description8"},                                 // 183      m_description_lang not used
-    {"char*",    "Description9"},                                 // 184      m_description_lang not used
-    {"char*",    "Description10"},                                // 185      m_description_lang not used
-    {"char*",    "Description11"},                                // 186      m_description_lang not used
-    {"char*",    "Description12"},                                // 187      m_description_lang not used
-    {"char*",    "Description13"},                                // 188      m_description_lang not used
-    {"char*",    "Description14"},                                // 189      m_description_lang not used
-    {"char*",    "Description15"},                                // 190      m_description_lang not used
-    {"char*",    "Description16"},                                // 191      m_description_lang not used
-    {"uint32",   "DescriptionFlags"},                             // 192      not used
-    {"char*",    "ToolTip0"},                                     // 193      m_auraDescription_lang not used
-    {"char*",    "ToolTip1"},                                     // 194      m_auraDescription_lang not used
-    {"char*",    "ToolTip2"},                                     // 195      m_auraDescription_lang not used
-    {"char*",    "ToolTip3"},                                     // 196      m_auraDescription_lang not used
-    {"char*",    "ToolTip4"},                                     // 197      m_auraDescription_lang not used
-    {"char*",    "ToolTip5"},                                     // 198      m_auraDescription_lang not used
-    {"char*",    "ToolTip6"},                                     // 199      m_auraDescription_lang not used
-    {"char*",    "ToolTip7"},                                     // 200      m_auraDescription_lang not used
-    {"char*",    "ToolTip8"},                                     // 201      m_auraDescription_lang not used
-    {"char*",    "ToolTip9"},                                     // 202      m_auraDescription_lang not used
-    {"char*",    "ToolTip10"},                                    // 203      m_auraDescription_lang not used
-    {"char*",    "ToolTip11"},                                    // 204      m_auraDescription_lang not used
-    {"char*",    "ToolTip12"},                                    // 205      m_auraDescription_lang not used
-    {"char*",    "ToolTip13"},                                    // 206      m_auraDescription_lang not used
-    {"char*",    "ToolTip14"},                                    // 207      m_auraDescription_lang not used
-    {"char*",    "ToolTip15"},                                    // 208      m_auraDescription_lang not used
-    {"uint32",   "ToolTipFlags"},                                 // 209      not used
-    {"uint32",   "ManaCostPercentage"},                           // 210      m_manaCostPct
-    {"uint32",   "StartRecoveryCategory"},                        // 211      m_startRecoveryCategory
-    {"uint32",   "StartRecoveryTime"},                            // 212      m_startRecoveryTime
-    {"uint32",   "MaxTargetLevel"},                               // 213      m_maxTargetLevel
-    {"uint32",   "SpellFamilyName"},                              // 214      m_spellClassSet
-    {"uint32",   "SpellFamilyFlags0"},                            // 215      m_spellClassMask NOTE: size is 12 bytes!!!
-    {"uint32",   "SpellFamilyFlags1"},                            // 216      m_spellClassMask NOTE: size is 12 bytes!!!
-    {"uint32",   "SpellFamilyFlags2"},                            // 217      addition to m_spellClassMask
-    {"uint32",   "MaxAffectedTargets"},                           // 218      m_maxTargets
-    {"uint32",   "DmgClass"},                                     // 219      m_defenseType
-    {"uint32",   "PreventionType"},                               // 220      m_preventionType
-    {"uint32",   "StanceBarOrder"},                               // 221      m_stanceBarOrder not used
-    {"float",    "DmgMultiplier0"},                               // 222      m_effectChainAmplitude
-    {"float",    "DmgMultiplier1"},                               // 223      m_effectChainAmplitude
-    {"float",    "DmgMultiplier2"},                               // 224      m_effectChainAmplitude
-    {"uint32",   "MinFactionId"},                                 // 225      m_minFactionID not used
-    {"uint32",   "MinReputation"},                                // 226      m_minReputation not used
-    {"uint32",   "RequiredAuraVision"},                           // 227      m_requiredAuraVision not used
-    {"uint32",   "TotemCategory0"},                               // 228      m_requiredTotemCategoryID
-    {"uint32",   "TotemCategory1"},                               // 229      m_requiredTotemCategoryID
-    {"int32",    "AreaGroupId"},                                  // 230      m_requiredAreaGroupId
-    {"uint32",   "SchoolMask"},                                   // 231      m_schoolMask
-    {"uint32",   "runeCostID"},                                   // 232      m_runeCostID
-    {"uint32",   "spellMissileID"},                               // 233      m_spellMissileID not used
-    {"uint32",   "PowerDisplayId"},                               // 234      PowerDisplay.dbc, new in 3.1
-    {"float",    "unk_320_40"},                                   // 235      3.2.0
-    {"float",    "unk_320_41"},                                   // 236      3.2.0
-    {"float",    "unk_320_42"},                                   // 237      3.2.0
-    {"uint32",   "spellDescriptionVariableID"},                   // 238      3.2.0
-    {"uint32",   "SpellDifficultyId"},                            // 239      3.3.0
+    {"float",    "EffectRealPointsPerLevel0"},                    // 77       m_effectRealPointsPerLevel
+    {"float",    "EffectRealPointsPerLevel1"},                    // 78       m_effectRealPointsPerLevel
+    {"float",    "EffectRealPointsPerLevel2"},                    // 79       m_effectRealPointsPerLevel
+    {"int32",    "EffectBasePoints0"},                            // 80       m_effectBasePoints (don't must be used in spell/auras explicitly, must be used 
+    {"int32",    "EffectBasePoints1"},                            // 81       m_effectBasePoints (don't must be used in spell/auras explicitly, must be used 
+    {"int32",    "EffectBasePoints2"},                            // 82       m_effectBasePoints (don't must be used in spell/auras explicitly, must be used cached Spell::m_currentBasePoints)
+    {"uint32",   "EffectMechanic0"},                              // 83       m_effectMechanic
+    {"uint32",   "EffectMechanic1"},                              // 84       m_effectMechanic
+    {"uint32",   "EffectMechanic2"},                              // 85       m_effectMechanic
+    {"uint32",   "EffectImplicitTargetA0"},                       // 86       m_implicitTargetA
+    {"uint32",   "EffectImplicitTargetA1"},                       // 87       m_implicitTargetA
+    {"uint32",   "EffectImplicitTargetA2"},                       // 88       m_implicitTargetA
+    {"uint32",   "EffectImplicitTargetB0"},                       // 89       m_implicitTargetB
+    {"uint32",   "EffectImplicitTargetB1"},                       // 90       m_implicitTargetB
+    {"uint32",   "EffectImplicitTargetB2"},                       // 91       m_implicitTargetB
+    {"uint32",   "EffectRadiusIndex0"},                           // 92       m_effectRadiusIndex - spellradius.dbc
+    {"uint32",   "EffectRadiusIndex1"},                           // 93       m_effectRadiusIndex - spellradius.dbc
+    {"uint32",   "EffectRadiusIndex2"},                           // 94       m_effectRadiusIndex - spellradius.dbc
+    {"uint32",   "EffectApplyAuraName0"},                         // 95       m_effectAura
+    {"uint32",   "EffectApplyAuraName1"},                         // 96       m_effectAura
+    {"uint32",   "EffectApplyAuraName2"},                         // 97       m_effectAura
+    {"uint32",   "EffectAmplitude0"},                             // 98       m_effectAuraPeriod
+    {"uint32",   "EffectAmplitude1"},                             // 99       m_effectAuraPeriod
+    {"uint32",   "EffectAmplitude2"},                             // 100      m_effectAuraPeriod
+    {"float",    "EffectMultipleValue0"},                         // 101      m_effectAmplitude
+    {"float",    "EffectMultipleValue1"},                         // 102      m_effectAmplitude
+    {"float",    "EffectMultipleValue2"},                         // 103      m_effectAmplitude
+    {"uint32",   "EffectChainTarget0"},                           // 104      m_effectChainTargets
+    {"uint32",   "EffectChainTarget1"},                           // 105      m_effectChainTargets
+    {"uint32",   "EffectChainTarget2"},                           // 106      m_effectChainTargets
+    {"uint32",   "EffectItemType0"},                              // 107      m_effectItemType
+    {"uint32",   "EffectItemType1"},                              // 108      m_effectItemType
+    {"uint32",   "EffectItemType2"},                              // 109      m_effectItemType
+    {"int32",    "EffectMiscValue0"},                             // 110      m_effectMiscValue
+    {"int32",    "EffectMiscValue1"},                             // 111      m_effectMiscValue
+    {"int32",    "EffectMiscValue2"},                             // 112      m_effectMiscValue
+    {"int32",    "EffectMiscValueB0"},                            // 113      m_effectMiscValueB
+    {"int32",    "EffectMiscValueB1"},                            // 114      m_effectMiscValueB
+    {"int32",    "EffectMiscValueB2"},                            // 115      m_effectMiscValueB
+    {"uint32",   "EffectTriggerSpell0"},                          // 116      m_effectTriggerSpell
+    {"uint32",   "EffectTriggerSpell1"},                          // 117      m_effectTriggerSpell
+    {"uint32",   "EffectTriggerSpell2"},                          // 118      m_effectTriggerSpell
+    {"float",    "EffectPointsPerComboPoint0"},                   // 119      m_effectPointsPerCombo
+    {"float",    "EffectPointsPerComboPoint1"},                   // 120      m_effectPointsPerCombo
+    {"float",    "EffectPointsPerComboPoint2"},                   // 121      m_effectPointsPerCombo
+    {"uint32",   "EffectSpellClassMaskA0"},                       // 122      m_effectSpellClassMaskA, effect 0
+    {"uint32",   "EffectSpellClassMaskA1"},                       // 123      m_effectSpellClassMaskA, effect 0
+    {"uint32",   "EffectSpellClassMaskA2"},                       // 124      m_effectSpellClassMaskA, effect 0
+    {"uint32",   "EffectSpellClassMaskB0"},                       // 125      m_effectSpellClassMaskB, effect 1
+    {"uint32",   "EffectSpellClassMaskB1"},                       // 126      m_effectSpellClassMaskB, effect 1
+    {"uint32",   "EffectSpellClassMaskB2"},                       // 127      m_effectSpellClassMaskB, effect 1
+    {"uint32",   "EffectSpellClassMaskC0"},                       // 128      m_effectSpellClassMaskC, effect 2
+    {"uint32",   "EffectSpellClassMaskC1"},                       // 129      m_effectSpellClassMaskC, effect 2
+    {"uint32",   "EffectSpellClassMaskC2"},                       // 130      m_effectSpellClassMaskC, effect 2
+    {"uint32",   "SpellVisual0"},                                 // 131      m_spellVisualID
+    {"uint32",   "SpellVisual1"},                                 // 132      m_spellVisualID
+    {"uint32",   "SpellIconID"},                                  // 133      m_spellIconID
+    {"uint32",   "activeIconID"},                                 // 134      m_activeIconID
+    {"uint32",   "spellPriority"},                                // 135      m_spellPriority not used
+    {"char*",    "SpellName0"},                                   // 136      m_name_lang
+    {"char*",    "SpellName1"},                                   // 137      m_name_lang
+    {"char*",    "SpellName2"},                                   // 138      m_name_lang
+    {"char*",    "SpellName3"},                                   // 139      m_name_lang
+    {"char*",    "SpellName4"},                                   // 140      m_name_lang
+    {"char*",    "SpellName5"},                                   // 141      m_name_lang
+    {"char*",    "SpellName6"},                                   // 142      m_name_lang
+    {"char*",    "SpellName7"},                                   // 143      m_name_lang
+    {"char*",    "SpellName8"},                                   // 144      m_name_lang
+    {"char*",    "SpellName9"},                                   // 145      m_name_lang
+    {"char*",    "SpellName10"},                                  // 146      m_name_lang
+    {"char*",    "SpellName11"},                                  // 147      m_name_lang
+    {"char*",    "SpellName12"},                                  // 148      m_name_lang
+    {"char*",    "SpellName13"},                                  // 149      m_name_lang
+    {"char*",    "SpellName14"},                                  // 150      m_name_lang
+    {"char*",    "SpellName15"},                                  // 151      m_name_lang
+    {"uint32",   "SpellNameFlag"},                                // 152      not used
+    {"char*",    "Rank0"},                                        // 153      m_nameSubtext_lang
+    {"char*",    "Rank1"},                                        // 154      m_nameSubtext_lang
+    {"char*",    "Rank2"},                                        // 155      m_nameSubtext_lang
+    {"char*",    "Rank3"},                                        // 156      m_nameSubtext_lang
+    {"char*",    "Rank4"},                                        // 157      m_nameSubtext_lang
+    {"char*",    "Rank5"},                                        // 158      m_nameSubtext_lang
+    {"char*",    "Rank6"},                                        // 159      m_nameSubtext_lang
+    {"char*",    "Rank7"},                                        // 160      m_nameSubtext_lang
+    {"char*",    "Rank8"},                                        // 161      m_nameSubtext_lang
+    {"char*",    "Rank9"},                                        // 162      m_nameSubtext_lang
+    {"char*",    "Rank10"},                                       // 163      m_nameSubtext_lang
+    {"char*",    "Rank11"},                                       // 164      m_nameSubtext_lang
+    {"char*",    "Rank12"},                                       // 165      m_nameSubtext_lang
+    {"char*",    "Rank13"},                                       // 166      m_nameSubtext_lang
+    {"char*",    "Rank14"},                                       // 167      m_nameSubtext_lang
+    {"char*",    "Rank15"},                                       // 168      m_nameSubtext_lang
+    {"uint32",   "RankFlags"},                                    // 169      not used
+    {"char*",    "Description0"},                                 // 170      m_description_lang not used
+    {"char*",    "Description1"},                                 // 171      m_description_lang not used
+    {"char*",    "Description2"},                                 // 172      m_description_lang not used
+    {"char*",    "Description3"},                                 // 173      m_description_lang not used
+    {"char*",    "Description4"},                                 // 174      m_description_lang not used
+    {"char*",    "Description5"},                                 // 175      m_description_lang not used
+    {"char*",    "Description6"},                                 // 176      m_description_lang not used
+    {"char*",    "Description7"},                                 // 177      m_description_lang not used
+    {"char*",    "Description8"},                                 // 178      m_description_lang not used
+    {"char*",    "Description9"},                                 // 179      m_description_lang not used
+    {"char*",    "Description10"},                                // 180      m_description_lang not used
+    {"char*",    "Description11"},                                // 181      m_description_lang not used
+    {"char*",    "Description12"},                                // 182      m_description_lang not used
+    {"char*",    "Description13"},                                // 183      m_description_lang not used
+    {"char*",    "Description14"},                                // 184      m_description_lang not used
+    {"char*",    "Description15"},                                // 185      m_description_lang not used
+    {"uint32",   "DescriptionFlags"},                             // 186      not used
+    {"char*",    "ToolTip0"},                                     // 187      m_auraDescription_lang not used
+    {"char*",    "ToolTip1"},                                     // 188      m_auraDescription_lang not used
+    {"char*",    "ToolTip2"},                                     // 189      m_auraDescription_lang not used
+    {"char*",    "ToolTip3"},                                     // 190      m_auraDescription_lang not used
+    {"char*",    "ToolTip4"},                                     // 191      m_auraDescription_lang not used
+    {"char*",    "ToolTip5"},                                     // 192      m_auraDescription_lang not used
+    {"char*",    "ToolTip6"},                                     // 193      m_auraDescription_lang not used
+    {"char*",    "ToolTip7"},                                     // 194      m_auraDescription_lang not used
+    {"char*",    "ToolTip8"},                                     // 195      m_auraDescription_lang not used
+    {"char*",    "ToolTip9"},                                     // 196      m_auraDescription_lang not used
+    {"char*",    "ToolTip10"},                                    // 197      m_auraDescription_lang not used
+    {"char*",    "ToolTip11"},                                    // 198      m_auraDescription_lang not used
+    {"char*",    "ToolTip12"},                                    // 199      m_auraDescription_lang not used
+    {"char*",    "ToolTip13"},                                    // 200      m_auraDescription_lang not used
+    {"char*",    "ToolTip14"},                                    // 201      m_auraDescription_lang not used
+    {"char*",    "ToolTip15"},                                    // 202      m_auraDescription_lang not used
+    {"uint32",   "ToolTipFlags"},                                 // 203      not used
+    {"uint32",   "ManaCostPercentage"},                           // 204      m_manaCostPct
+    {"uint32",   "StartRecoveryCategory"},                        // 205      m_startRecoveryCategory
+    {"uint32",   "StartRecoveryTime"},                            // 206      m_startRecoveryTime
+    {"uint32",   "MaxTargetLevel"},                               // 207      m_maxTargetLevel
+    {"uint32",   "SpellFamilyName"},                              // 208      m_spellClassSet
+    {"uint32",   "SpellFamilyFlags0"},                            // 209      m_spellClassMask NOTE: size is 12 bytes!!!
+    {"uint32",   "SpellFamilyFlags1"},                            // 210      m_spellClassMask NOTE: size is 12 bytes!!!
+    {"uint32",   "SpellFamilyFlags2"},                            // 211      addition to m_spellClassMask
+    {"uint32",   "MaxAffectedTargets"},                           // 212      m_maxTargets
+    {"uint32",   "DmgClass"},                                     // 213      m_defenseType
+    {"uint32",   "PreventionType"},                               // 214      m_preventionType
+    {"uint32",   "StanceBarOrder"},                               // 215      m_stanceBarOrder not used
+    {"float",    "DmgMultiplier0"},                               // 216      m_effectChainAmplitude
+    {"float",    "DmgMultiplier1"},                               // 217      m_effectChainAmplitude
+    {"float",    "DmgMultiplier2"},                               // 218      m_effectChainAmplitude
+    {"uint32",   "MinFactionId"},                                 // 219      m_minFactionID not used
+    {"uint32",   "MinReputation"},                                // 220      m_minReputation not used
+    {"uint32",   "RequiredAuraVision"},                           // 221      m_requiredAuraVision not used
+    {"uint32",   "TotemCategory0"},                               // 222      m_requiredTotemCategoryID
+    {"uint32",   "TotemCategory1"},                               // 223      m_requiredTotemCategoryID
+    {"int32",    "AreaGroupId"},                                  // 224      m_requiredAreaGroupId
+    {"uint32",   "SchoolMask"},                                   // 225      m_schoolMask
+    {"uint32",   "runeCostID"},                                   // 226      m_runeCostID
+    {"uint32",   "spellMissileID"},                               // 227      m_spellMissileID not used
+    {"uint32",   "PowerDisplayId"},                               // 228      PowerDisplay.dbc, new in 3.1
+    {"float",    "unk_320_40"},                                   // 229      3.2.0
+    {"float",    "unk_320_41"},                                   // 230      3.2.0
+    {"float",    "unk_320_42"},                                   // 231      3.2.0
+    {"uint32",   "spellDescriptionVariableID"},                   // 232      3.2.0
+    {"uint32",   "SpellDifficultyId"}                             // 233      3.3.0
 };
 
 char const *SPELL_TABLE_INDEX = spell_translation[0][1];
