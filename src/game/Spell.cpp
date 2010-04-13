@@ -1802,22 +1802,10 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                     // Electrical Storm (periodic lightning arcs effect)
                 case 43657:
                     {
-                        m_targets.m_targetMask = 0;
-                        CellPair p(MaNGOS::ComputeCellPair(m_caster->GetPositionX(), m_caster->GetPositionY()));
-                        Cell cell(p);
-                        cell.data.Part.reserved = ALL_DISTRICT;
-                        cell.SetNoCreate();
                         std::list<Unit *> tempTargetUnitMap;
-                        {
-                            MaNGOS::AnyFriendlyUnitInObjectRangeCheck u_check(m_caster, radius);
-                            MaNGOS::UnitListSearcher<MaNGOS::AnyFriendlyUnitInObjectRangeCheck> searcher(m_caster, tempTargetUnitMap, u_check);
-
-                            TypeContainerVisitor<MaNGOS::UnitListSearcher<MaNGOS::AnyFriendlyUnitInObjectRangeCheck>, WorldTypeMapContainer > world_unit_searcher(searcher);
-                            TypeContainerVisitor<MaNGOS::UnitListSearcher<MaNGOS::AnyFriendlyUnitInObjectRangeCheck>, GridTypeMapContainer >  grid_unit_searcher(searcher);
-
-                            cell.Visit(p, world_unit_searcher, *m_caster->GetMap(), *m_caster, radius);
-                            cell.Visit(p, grid_unit_searcher, *m_caster->GetMap(), *m_caster, radius);
-                        }
+                        MaNGOS::AnyFriendlyUnitInObjectRangeCheck u_check(m_caster, radius);
+                        MaNGOS::UnitListSearcher<MaNGOS::AnyFriendlyUnitInObjectRangeCheck> searcher(m_caster, tempTargetUnitMap, u_check);
+                        Cell::VisitAllObjects(m_caster, searcher, radius);
 
                         if(!tempTargetUnitMap.empty())
                         {

@@ -4462,19 +4462,6 @@ void Spell::DoSummonGuardian(SpellEffectIndex eff_idx, uint32 forceFaction)
     if (!pet_entry)
         return;
 
-    /*/ despawn all guardians with entry that we are going to summon
-    if (m_caster->GetTypeId() == TYPEID_PLAYER)
-    {
-        GuardianPetList m_guardianPets;
-        if (!m_guardianPets.empty())
-        for(GuardianPetList::const_iterator itr = m_guardianPets.begin(); itr != m_guardianPets.end(); ++itr)
-        {
-            Creature* pGuardian = (Creature*)Unit::GetUnit((*m_caster),*itr);
-            if (pGuardian && pGuardian->GetEntry() == pet_entry)
-                pGuardian->ForcedDespawn();
-        }
-    } */
-
     // in another case summon new
     uint32 level = m_caster->getLevel();
 
@@ -5496,7 +5483,7 @@ void Spell::EffectWeaponDmg(SpellEffectIndex eff_idx)
         case 66765: case 67333:                 // Meteor Fists
         {
             uint32 count = 0;
-            for(std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin();ihit != m_UniqueTargetInfo.end();++ihit) 
+            for(tbb::concurrent_vector<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin();ihit != m_UniqueTargetInfo.end();++ihit) 
             ++count;
 
             m_damage /= count;                    // divide to all targets
