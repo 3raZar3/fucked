@@ -224,6 +224,7 @@ class MANGOS_DLL_SPEC Aura
         void HandleAllowOnlyAbility(bool Apply, bool Real);
         void HandleAuraInitializeImages(bool Apply, bool Real);
         void HandleAuraCloneCaster(bool Apply, bool Real);
+        void HandleAuraOpenStable(bool apply, bool Real);
 
         virtual ~Aura();
 
@@ -297,6 +298,7 @@ class MANGOS_DLL_SPEC Aura
 
         void SetAura(bool remove) { m_target->SetVisibleAura(m_auraSlot, remove ? 0 : GetId()); }
         void SendAuraUpdate(bool remove);
+        void SendFakeAuraUpdate(uint32 auraId, bool remove);
 
         uint8 GetStackAmount() {return m_stackAmount;}
         void SetStackAmount(uint8 num);

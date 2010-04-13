@@ -723,14 +723,14 @@ bool Group::CountRollVote(ObjectGuid const& playerGUID, Rolls::iterator& rollI, 
     {
         case ROLL_PASS:                                     // Player choose pass
         {
-            SendLootRoll(playerGUID, 0, ROLL_PASS, *roll);
+            SendLootRoll(playerGUID, 128, ROLL_PASS, *roll);
             ++roll->totalPass;
             itr->second = PASS;
         }
         break;
         case ROLL_NEED:                                     // player choose Need
         {
-            SendLootRoll(playerGUID, 0, ROLL_NEED, *roll);
+            SendLootRoll(playerGUID, 0, 0, *roll);
             ++roll->totalNeed;
             itr->second = NEED;
         }
@@ -1486,6 +1486,8 @@ GroupJoinBattlegroundResult Group::CanJoinBattleGroundQueue(BattleGround const* 
     uint32 arenaTeamId = reference->GetArenaTeamId(arenaSlot);
     uint32 team = reference->GetTeam();
 
+    uint32 allowedPlayerCount = 0;
+
     // check every member of the group to be able to join
     for(GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
@@ -1512,7 +1514,14 @@ GroupJoinBattlegroundResult Group::CanJoinBattleGroundQueue(BattleGround const* 
         // check if member can join any more battleground queues
         if(!member->HasFreeBattleGroundQueueId())
             return ERR_BATTLEGROUND_TOO_MANY_QUEUES;        // not blizz-like
+
+        ++allowedPlayerCount;
     }
+
+    if(bgOrTemplate->GetTypeID() == BATTLEGROUND_AA)
+        if(allowedPlayerCount < MinPlayerCount || allowedPlayerCount > MaxPlayerCount)
+            return ERR_ARENA_TEAM_PARTY_SIZE;
+
     return GroupJoinBattlegroundResult(bgOrTemplate->GetTypeID());
 }
 

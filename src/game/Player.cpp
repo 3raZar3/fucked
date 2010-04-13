@@ -429,6 +429,7 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
     //returning reagents for temporarily removed pets
     //when dying/logging out
     m_oldpetspell = 0;
+    m_lastpetnumber = 0;
 
     ////////////////////Rest System/////////////////////
     time_inn_enter=0;
@@ -1309,6 +1310,9 @@ void Player::Update( uint32 p_time )
             RegenerateAll();
     }
 
+    if (!isAlive() && !HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
+        SetHealth(0);
+
     if (m_deathState == JUST_DIED)
         KillPlayer();
 
@@ -2141,6 +2145,10 @@ Creature* Player::GetNPCIfCanInteractWith(ObjectGuid guid, uint32 npcflagmask)
     // some basic checks
     if (guid.IsEmpty() || !IsInWorld() || isInFlight())
         return NULL;
+
+    // needed by Aura 292
+    if (GetGUID() == guid.GetRawValue())
+        return ((Creature*)this);
 
     // exist (we need look pets also for some interaction (quest/etc)
     Creature *unit = GetMap()->GetCreatureOrPetOrVehicle(guid);
@@ -4245,7 +4253,8 @@ void Player::BuildPlayerRepop()
     if(GetCorpse())
     {
         sLog.outError("BuildPlayerRepop: player %s(%d) already has a corpse", GetName(), GetGUIDLow());
-        ASSERT(false);
+        sLog.outError("Removing player %s(%d) corpse from DB", GetName(), GetGUIDLow());
+        CharacterDatabase.PExecute("DELETE FROM corpse WHERE player = '%d'",GetGUIDLow());
     }
 
     // create a corpse and place it at the player's location
@@ -4680,7 +4689,7 @@ void Player::RepopAtGraveyard()
     AreaTableEntry const *zone = GetAreaEntryByAreaID(GetAreaId());
 
     // Such zones are considered unreachable as a ghost and the player must be automatically revived
-    if ((!isAlive() && zone && zone->flags & AREA_FLAG_NEED_FLY) || GetTransport())
+    if ((!isAlive() && zone && zone->flags & AREA_FLAG_NEED_FLY) || GetTransport() || GetPositionZ() < -500.0f)
     {
         ResurrectPlayer(0.5f);
         SpawnCorpseBones();
@@ -6318,7 +6327,7 @@ bool Player::RewardHonor(Unit *uVictim, uint32 groupsize, float honor)
             if (!cVictim->isRacialLeader())
                 return false;
 
-            honor = 100;                                    // ??? need more info
+            honor = 2000;                                    // ??? need more info
             victim_rank = 19;                               // HK: Leader
         }
     }
@@ -12098,6 +12107,15 @@ void Player::ApplyEnchantment(Item *item, EnchantmentSlot slot, bool apply, bool
     if (!ignore_condition && pEnchant->EnchantmentCondition && !((Player*)this)->EnchantmentFitsRequirements(pEnchant->EnchantmentCondition, -1))
         return;
 
+    if ((pEnchant->requiredLevel) > ((Player*)this)->getLevel())
+        return;
+
+    if ((pEnchant->requiredSkill) > 0)
+    {
+       if ((pEnchant->requiredSkillValue) > (((Player*)this)->GetSkillValue(pEnchant->requiredSkill)))
+        return;
+    }
+
     if (!item->IsBroken())
     {
         for (int s = 0; s < 3; ++s)
@@ -15375,6 +15393,9 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
 
 bool Player::isAllowedToLoot(Creature* creature)
 {
+    if(creature && creature->isDead() && !creature->AreLootAndRewardAllowed())
+        return false;
+
     if(Player* recipient = creature->GetLootRecipient())
     {
         if (recipient == this)
@@ -17352,7 +17373,7 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
     if (pet && m_temporaryUnsummonedPetNumber && m_temporaryUnsummonedPetNumber != pet->GetCharmInfo()->GetPetNumber() && mode == PET_SAVE_AS_CURRENT)
         mode = PET_SAVE_NOT_IN_SLOT;
 
-    if (returnreagent && pet && mode != PET_SAVE_AS_CURRENT)
+    if (returnreagent && pet && mode != PET_SAVE_AS_CURRENT && !InBattleGround())
     {
         //returning of reagents only for players, so best done here
         uint32 spellId = pet ? pet->GetUInt32Value(UNIT_CREATED_BY_SPELL) : m_oldpetspell;
@@ -21371,6 +21392,12 @@ void Player::UnsummonPetTemporaryIfAny()
     if(!pet)
         return;
 
+    if (((Player*)this)->InArena())
+    {
+        RemovePet(pet, PET_SAVE_NOT_IN_SLOT); // remove pet while is player teleported to arena
+        return;
+    }
+ 
     if(!m_temporaryUnsummonedPetNumber && pet->isControlled() && !pet->isTemporarySummoned() )
     {
         m_temporaryUnsummonedPetNumber = pet->GetCharmInfo()->GetPetNumber();

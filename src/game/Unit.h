@@ -66,7 +66,7 @@ enum SpellAuraInterruptFlags
     AURA_INTERRUPT_FLAG_NOT_UNDERWATER              = 0x00000100,   // 8    removed by leaving water
     AURA_INTERRUPT_FLAG_NOT_SHEATHED                = 0x00000200,   // 9    removed by unsheathing
     AURA_INTERRUPT_FLAG_UNK10                       = 0x00000400,   // 10
-    AURA_INTERRUPT_FLAG_UNK11                       = 0x00000800,   // 11
+    AURA_INTERRUPT_FLAG_CAST                        = 0x00000800,   // 11   removed by casting a spell
     AURA_INTERRUPT_FLAG_UNK12                       = 0x00001000,   // 12   removed by attack?
     AURA_INTERRUPT_FLAG_UNK13                       = 0x00002000,   // 13
     AURA_INTERRUPT_FLAG_UNK14                       = 0x00004000,   // 14
@@ -1291,9 +1291,9 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         uint32 GetSpellDamageReduction(uint32 damage) const { return GetCombatRatingDamageReduction(CR_CRIT_TAKEN_MELEE, 1.0f, 100.0f, damage); }
 
         float  MeleeSpellMissChance(Unit *pVictim, WeaponAttackType attType, int32 skillDiff, SpellEntry const *spell);
-        SpellMissInfo MeleeSpellHitResult(Unit *pVictim, SpellEntry const *spell);
+        SpellMissInfo MeleeSpellHitResult(Unit *pVictim, SpellEntry const *spell, bool canMiss = true);
         SpellMissInfo MagicSpellHitResult(Unit *pVictim, SpellEntry const *spell);
-        SpellMissInfo SpellHitResult(Unit *pVictim, SpellEntry const *spell, bool canReflect = false);
+        SpellMissInfo SpellHitResult(Unit *pVictim, SpellEntry const *spell, bool canReflect = false, bool canMiss = true);
 
         float GetUnitDodgeChance()    const;
         float GetUnitParryChance()    const;
