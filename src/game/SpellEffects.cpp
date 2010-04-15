@@ -5378,6 +5378,12 @@ void Spell::EffectWeaponDmg(SpellEffectIndex eff_idx)
             {
                 totalDamagePercentMod *= 1.2f;
             }
+            // Rune strike
+            if( m_spellInfo->SpellIconID == 3007)
+            {
+                int32 count = CalculateDamage(EFFECT_INDEX_2, unitTarget);
+                spell_bonus += int32(count * m_caster->GetTotalAttackPowerValue(BASE_ATTACK) / 100.0f);
+            }
             break;
         }
     }
@@ -7557,7 +7563,7 @@ void Spell::EffectPlayerPull(SpellEffectIndex eff_idx)
     if (damage && dist > damage)
         dist = float(damage);
 
-    unitTarget->KnockBackFrom(m_caster,-dist,float(m_spellInfo->EffectMiscValue[eff_idx])/10);
+    unitTarget->KnockBackFrom(m_caster,-dist,float(m_spellInfo->EffectMiscValue[eff_idx])/30);
 }
 
 void Spell::EffectDispelMechanic(SpellEffectIndex eff_idx)

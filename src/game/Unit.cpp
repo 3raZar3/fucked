@@ -7355,6 +7355,12 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                 triggered_spell_id = dummySpell->EffectTriggerSpell[effIndex];
                 break;
             }
+            // Rune strike
+            if (dummySpell->Id == 56817)
+            {
+                if (procSpell && procSpell->Id != 56815)
+                    return false;
+            }
             break;
         }
         default:
@@ -11740,6 +11746,7 @@ int32 Unit::CalculateSpellDamage(Unit const* target, SpellEntry const* spellProt
         }
         sLog.outDebug("CalculateSpellDamage: no  saved roll for 12494 (Frostbite)");
     }
+
     return value;
 }
 
@@ -13782,8 +13789,8 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit *pVictim, Aura* aura, SpellEntry con
     if(aura->GetSpellProto()->EffectTriggerSpell[aura->GetEffIndex()] == 44544)
     {
         sLog.outDebug("Fingers of Frost: saving roll; triggered by %u", aura->GetId());
-       m_lastAuraProcRoll = rand_chance();
-       return chance > m_lastAuraProcRoll;
+        m_lastAuraProcRoll = rand_chance();
+        return chance > m_lastAuraProcRoll;
     }
 
     return roll_chance_f(chance);

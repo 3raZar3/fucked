@@ -1372,6 +1372,16 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
             {
                 case SPELLFAMILY_GENERIC:                   // same family case
                 {
+                    // Dark Essence & Light Essence
+                    if ((spellInfo_1->Id == 65684 && spellInfo_2->Id == 65686) ||
+                        (spellInfo_2->Id == 65684 && spellInfo_1->Id == 65686))
+                        return true;
+
+                    //Potent Fungus and Mini must remove each other (Amanitar encounter, Ahn'kahet)
+                    if ((spellInfo_1->Id == 57055 && spellInfo_2->Id == 56648) ||
+                        (spellInfo_2->Id == 57055 && spellInfo_1->Id == 56648))
+                        return true;
+
                     // Charge Rift spells (boss_anomalus instance Nexus: Nexus)
                     if (spellInfo_1->SpellVisual[0] == 7921 || spellInfo_2->SpellVisual[0] == 7921)
                         return false;

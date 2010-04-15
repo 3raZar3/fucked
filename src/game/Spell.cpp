@@ -3286,7 +3286,7 @@ void Spell::finish(bool ok)
         switch((*j)->GetId())
         {
             case 44544: // Fingers of Frost dissapear after two spells
-                if(!m_IsTriggeredSpell)
+                if(!m_IsTriggeredSpell && m_spellInfo->SpellFamilyName == SPELLFAMILY_MAGE)
                 {
                     if((*j)->DropAuraCharge())
                         m_caster->RemoveAura((*j));
@@ -4253,8 +4253,8 @@ SpellCastResult Spell::CheckCast(bool strict)
             return SPELL_FAILED_CASTER_AURASTATE;
     }
     //Check Caster for combat
-    if(m_caster->isInCombat() && IsNonCombatSpell(m_spellInfo) && !m_caster->isIgnoreUnitState(m_spellInfo) 
-        && !(m_spellInfo->SpellFamilyFlags & SPELLFAMILYFLAG_ROGUE_STEALTH) && (m_spellInfo->SpellFamilyFlags & SPELLFAMILYFLAG_ROGUE_VANISH) )  // Vanish hack
+    if(m_caster->isInCombat() && IsNonCombatSpell(m_spellInfo) &&
+        !m_IsTriggeredSpell && !m_caster->isIgnoreUnitState(m_spellInfo)) 
         return SPELL_FAILED_AFFECTING_COMBAT;
 
     // cancel autorepeat spells if cast start when moving
