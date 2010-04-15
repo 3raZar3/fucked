@@ -55,8 +55,6 @@
 #include "SkillDiscovery.h"
 #include "Formulas.h"
 #include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
-#include "CellImpl.h"
 
 pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
 {
