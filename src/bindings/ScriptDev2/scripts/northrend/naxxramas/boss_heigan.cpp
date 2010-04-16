@@ -67,7 +67,6 @@ struct MANGOS_DLL_DECL boss_heiganAI : public ScriptedAI
 
     uint8 CurrentSafeArea;
     uint8 m_uiPhase;
-    uint8 m_uiPhaseEruption;
 
     uint32 m_uiFeverTimer;
     uint32 m_uiDisruptionTimer;
@@ -79,13 +78,14 @@ struct MANGOS_DLL_DECL boss_heiganAI : public ScriptedAI
 
     void ResetPhase()
     {
-        m_uiPhaseEruption = 0;
         m_uiFeverTimer = 4000;
         m_uiEruptionTimer = m_uiPhase == PHASE_GROUND ? urand(8000, 12000) : urand(2000, 3000);
         m_uiDisruptionTimer = 5000;
         m_uiStartChannelingTimer = 1000;
         m_uiPhaseTimer = m_uiPhase == PHASE_GROUND ? 90000 : 45000;
-        m_uiDanceTimer = 5000;
+        Direction = 1;
+        m_uiDanceTimer = 10000;
+        CurrentSafeArea = TOP_MOST;
     }
 
     void Reset()
@@ -93,8 +93,6 @@ struct MANGOS_DLL_DECL boss_heiganAI : public ScriptedAI
         m_uiPhase = PHASE_GROUND;
         m_uiTauntTimer = urand(20000,60000);                // TODO, find information
         ResetPhase();
-        CurrentSafeArea = MIDDLE_UPPER;
-        Direction = 1;
     }
 
     void Aggro(Unit* pWho)
@@ -237,6 +235,7 @@ struct MANGOS_DLL_DECL boss_heiganAI : public ScriptedAI
             m_uiTauntTimer -= uiDiff;
 
         DoMeleeAttackIfReady();
+        EnterEvadeIfOutOfCombatArea(uiDiff);
     }
 };
 

@@ -559,7 +559,8 @@ enum
     NPC_BROODLORD   = 12017,
     NPC_VOID_REAVER = 19516,
     NPC_JAN_ALAI    = 23578,
-    NPC_SARTHARION  = 28860
+    NPC_SARTHARION  = 28860,
+    NPC_HEIGAN      = 15936
 };
 
 bool ScriptedAI::EnterEvadeIfOutOfCombatArea(const uint32 uiDiff)
@@ -596,6 +597,11 @@ bool ScriptedAI::EnterEvadeIfOutOfCombatArea(const uint32 uiDiff)
         case NPC_SARTHARION:                                // sartharion (calculate box)
             if (fX > 3218.86f && fX < 3275.69f && fY < 572.40f && fY > 484.68f)
                 return false;
+        case NPC_HEIGAN:
+            if (m_creature->GetDistance2d(2770.0f, -3688.0f) < 50.0f)
+                return false;
+            break;
+
             break;
         default:
             error_log("SD2: EnterEvadeIfOutOfCombatArea used for creature entry %u, but does not have any definition.", m_creature->GetEntry());

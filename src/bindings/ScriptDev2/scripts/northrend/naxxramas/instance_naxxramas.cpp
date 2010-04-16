@@ -272,16 +272,11 @@ void instance_naxxramas::ActivateAreaFissures(ChamberArea AreaNo)
         if (!pFissure)
             continue;
 
-        float radius = 2.5f;
+        float radius = 4.0f;
         Player* pPlayer = NULL;
-        CellPair p(MaNGOS::ComputeCellPair(pFissure->GetPositionX(), pFissure->GetPositionY()));
-        Cell cell(p);
-        cell.data.Part.reserved = ALL_DISTRICT;
         MaNGOS::AnyPlayerInObjectRangeCheck p_check(pFissure, radius);
         MaNGOS::PlayerSearcher<MaNGOS::AnyPlayerInObjectRangeCheck>  checker(pFissure, pPlayer , p_check);
-
-        TypeContainerVisitor<MaNGOS::PlayerSearcher<MaNGOS::AnyPlayerInObjectRangeCheck>, WorldTypeMapContainer > world_object_checker(checker);
-        cell.Visit(p, world_object_checker, *pFissure->GetMap(), *pFissure, radius);
+        Cell::VisitAllObjects(pFissure, checker, radius);
 
         if (pPlayer)
             pPlayer->CastSpell(pPlayer, pFissure->GetGOInfo()->trap.spellId, true, NULL, NULL, pFissure->GetGUID());
