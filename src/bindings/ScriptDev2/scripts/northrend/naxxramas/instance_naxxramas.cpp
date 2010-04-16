@@ -228,7 +228,7 @@ void instance_naxxramas::OnObjectCreate(GameObject* pGo)
 
         case GO_KELTHUZAD_WATERFALL_DOOR:
             m_uiKelthuzadDoorGUID = pGo->GetGUID();
-            if (m_auiEncounter[13] == DONE)
+            //if (m_auiEncounter[13] == DONE)
                 pGo->SetGoState(GO_STATE_ACTIVE);
             break;
 
