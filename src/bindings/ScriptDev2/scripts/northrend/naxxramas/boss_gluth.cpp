@@ -26,52 +26,36 @@ EndScriptData */
 
 enum
 {
-    EMOTE_ZOMBIE      = -1533119,
+    EMOTE_SPOTED_ZOMBIE     = -1533119,
+    EMOTE_DEVOURED_ZOMBIE   = -1999780, 
+    EMOTE_DECIMATE          = -1999781,
+    EMOTE_PERIODIC_ENRAGE   = -1999779,
 
-    SPELL_MORTALWOUND = 25646,
-    SPELL_DECIMATE    = 28374,
-    SPELL_ENRAGE      = 28371,
-    SPELL_ENRAGE_H    = 54427,
-    SPELL_BERSERK     = 26662,
+    SPELL_MORTALWOUND       = 25646,
+    SPELL_DECIMATE          = 28374,
+    SPELL_ENRAGE            = 28371,
+    SPELL_ENRAGE_H          = 54427,
+    SPELL_BERSERK           = 26662,
+    SPELL_ZOMBIE_CHOW1      = 28239,
+    SPELL_ZOMBIE_CHOW2      = 28404,
 
-    NPC_ZOMBIE_CHOW   = 16360
+
+    NPC_ZOMBIE_CHOW         = 16360,
+
+    GATES                   = 8
 };
 
-#define ADD_1X 3269.590f
-#define ADD_1Y -3161.287f
-#define ADD_1Z 297.423f
-
-#define ADD_2X 3277.797f
-#define ADD_2Y -3170.352f
-#define ADD_2Z 297.423f
-
-#define ADD_3X 3267.049f
-#define ADD_3Y -3172.820f
-#define ADD_3Z 297.423f
-
-#define ADD_4X 3252.157f
-#define ADD_4Y -3132.135f
-#define ADD_4Z 297.423f
-
-#define ADD_5X 3259.990f
-#define ADD_5Y -3126.590f
-#define ADD_5Z 297.423f
-
-#define ADD_6X 3259.815f
-#define ADD_6Y -3137.576f
-#define ADD_6Z 297.423f
-
-#define ADD_7X 3308.030f
-#define ADD_7Y -3132.135f
-#define ADD_7Z 297.423f
-
-#define ADD_8X 3303.046f
-#define ADD_8Y -3180.682f
-#define ADD_8Z 297.423f
-
-#define ADD_9X 3313.283f
-#define ADD_9Y -3180.766f
-#define ADD_9Z 297.423f
+float GatePosition[GATES][3] = 
+{
+    {3269.590f, -3161.287f, 297.423f},
+    {3277.797f, -3170.352f, 297.423f},
+    {3267.049f, -3172.820f, 297.423f},
+    {3252.157f, -3132.135f, 297.423f},
+    {3259.990f, -3126.590f, 297.423f},
+    {3259.815f, -3137.576f, 297.423f},
+    {3303.046f, -3180.682f, 297.423f},
+    {3313.283f, -3180.766f, 297.423f}
+};
 
 struct MANGOS_DLL_DECL boss_gluthAI : public ScriptedAI
 {
@@ -85,27 +69,55 @@ struct MANGOS_DLL_DECL boss_gluthAI : public ScriptedAI
     instance_naxxramas* m_pInstance;
     bool m_bIsRegularMode;
 
+    std::list<uint64> lZombies;
+    uint32 m_uiSearchZombieTimer;
     uint32 m_uiMortalWoundTimer;
     uint32 m_uiDecimateTimer;
     uint32 m_uiEnrageTimer;
     uint32 m_uiSummonTimer;
-
     uint32 m_uiBerserkTimer;
 
     void Reset()
     {
+        m_uiSearchZombieTimer = 1000;
         m_uiMortalWoundTimer = 8000;
         m_uiDecimateTimer = 100000;
-        m_uiEnrageTimer = 60000;
+        m_uiEnrageTimer = urand(15000, 20000);
         m_uiSummonTimer = 10000;
 
         m_uiBerserkTimer = MINUTE*8*IN_MILLISECONDS;
+
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_GLUTH, NOT_STARTED);
+        DespawnZombies();
+    }
+
+    void DespawnZombies()
+    {
+        if (lZombies.empty())
+            return;
+
+        for (std::list<uint64>::iterator itr = lZombies.begin(); itr != lZombies.end(); ++itr)
+        {
+            Creature* pZombie = (Creature*)Unit::GetUnit(*m_creature, *itr);
+            if (pZombie && pZombie->isAlive())
+                pZombie->ForcedDespawn();
+        }
+    }
+
+    void JustSummoned(Creature* pZombie)
+    {
+        pZombie->GetMotionMaster()->Clear();
+        pZombie->GetMotionMaster()->MoveFollow(m_creature, 0.0f, 0.0f);
+        lZombies.push_back(pZombie->GetGUID());
     }
 
     void JustDied(Unit* pKiller)
     {
         if (m_pInstance)
             m_pInstance->SetData(TYPE_GLUTH, DONE);
+
+        DespawnZombies();
     }
 
     void Aggro(Unit* pWho)
@@ -114,16 +126,30 @@ struct MANGOS_DLL_DECL boss_gluthAI : public ScriptedAI
             m_pInstance->SetData(TYPE_GLUTH, IN_PROGRESS);
     }
 
-    void JustReachedHome()
-    {
-        if (m_pInstance)
-            m_pInstance->SetData(TYPE_GLUTH, FAIL);
-    }
-
     void UpdateAI(const uint32 uiDiff)
     {
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
+
+        // Seatch and devour Zombie
+        if (m_uiSearchZombieTimer < uiDiff)
+        {
+            if (Creature* pZombie = GetClosestCreatureWithEntry(m_creature, NPC_ZOMBIE_CHOW, 10.0f))
+            {
+                DoScriptText(EMOTE_SPOTED_ZOMBIE, m_creature);
+                m_creature->SetFacingToObject(pZombie);
+                if (DoCastSpellIfCan(pZombie, SPELL_ZOMBIE_CHOW1) == CAST_OK)
+                {
+                    m_creature->SetFacingToObject(pZombie);
+                    m_creature->SetHealth(m_creature->GetHealthPercent() < 95.0f ? 
+                        (m_creature->GetHealth() + m_creature->GetMaxHealth() * 0.05f) : m_creature->GetMaxHealth());
+                    DoScriptText(EMOTE_DEVOURED_ZOMBIE, m_creature);
+                    lZombies.remove(pZombie->GetGUID());
+                }
+            }
+        } 
+        else 
+            m_uiSearchZombieTimer -= uiDiff;
 
         // Mortal Wound
         if (m_uiMortalWoundTimer < uiDiff)
@@ -137,17 +163,28 @@ struct MANGOS_DLL_DECL boss_gluthAI : public ScriptedAI
         // Decimate
         if (m_uiDecimateTimer < uiDiff)
         {
-            DoCastSpellIfCan(m_creature->getVictim(), SPELL_DECIMATE);
+            DoCastSpellIfCan(m_creature, SPELL_DECIMATE);
+            DoScriptText(EMOTE_DECIMATE, m_creature);
+            for (std::list<uint64>::iterator itr = lZombies.begin(); itr != lZombies.end(); ++itr)
+            {
+                Creature* pZombie = (Creature*)Unit::GetUnit(*m_creature, *itr);
+                if (pZombie && pZombie->isAlive())
+                {
+                    pZombie->GetMotionMaster()->Clear();
+                    pZombie->GetMotionMaster()->MoveFollow(m_creature, 0.0f, 0.0f);
+                }
+            }
             m_uiDecimateTimer = 100000;
         }
         else
             m_uiDecimateTimer -= uiDiff;
 
-        // Enrage
+        // Periodic Enrage
         if (m_uiEnrageTimer < uiDiff)
         {
             DoCastSpellIfCan(m_creature, m_bIsRegularMode ? SPELL_ENRAGE : SPELL_ENRAGE_H);
-            m_uiEnrageTimer = 60000;
+            DoScriptText(EMOTE_PERIODIC_ENRAGE, m_creature);
+            m_uiEnrageTimer = urand(15000, 20000);
         }
         else
             m_uiEnrageTimer -= uiDiff;
@@ -155,21 +192,11 @@ struct MANGOS_DLL_DECL boss_gluthAI : public ScriptedAI
         // Summon
         if (m_uiSummonTimer < uiDiff)
         {
-            if (Creature* pZombie = m_creature->SummonCreature(NPC_ZOMBIE_CHOW, ADD_1X, ADD_1Y, ADD_1Z, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 80000))
+            for (uint8 i = 0; i < (m_bIsRegularMode ? 1 : 2); ++i)
             {
-                if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                    pZombie->AddThreat(pTarget);
+                uint8 m_uiGate = urand(1, GATES) - 1;
+                m_creature->SummonCreature(NPC_ZOMBIE_CHOW, GatePosition[m_uiGate][0], GatePosition[m_uiGate][1], GatePosition[m_uiGate][2], 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 80000);
             }
-
-            if (!m_bIsRegularMode)
-            {
-                if (Creature* pZombie = m_creature->SummonCreature(NPC_ZOMBIE_CHOW, ADD_1X, ADD_1Y, ADD_1Z, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 80000))
-                {
-                    if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                        pZombie->AddThreat(pTarget);
-                }
-            }
-
             m_uiSummonTimer = 10000;
         }
         else
@@ -193,11 +220,48 @@ CreatureAI* GetAI_boss_gluth(Creature* pCreature)
     return new boss_gluthAI(pCreature);
 }
 
+struct MANGOS_DLL_DECL mob_zombie_chowAI : public ScriptedAI
+{
+    mob_zombie_chowAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {Reset();}
+
+    void Reset() {}
+
+    void MoveInLineOfSight(Unit* pWho){}
+
+    void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
+    {
+        if (!pDoneBy)
+            return;
+
+        if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() != CHASE_MOTION_TYPE)
+        {
+            m_creature->GetMotionMaster()->Clear();
+            m_creature->GetMotionMaster()->MoveChase(pDoneBy);
+        }
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        DoMeleeAttackIfReady();
+    }
+};
+
+CreatureAI* GetAI_mob_zombie_chow(Creature* pCreature)
+{
+    return new mob_zombie_chowAI(pCreature);
+}
+
 void AddSC_boss_gluth()
 {
     Script* NewScript;
     NewScript = new Script;
     NewScript->Name = "boss_gluth";
     NewScript->GetAI = &GetAI_boss_gluth;
+    NewScript->RegisterSelf();
+
+    NewScript = new Script;
+    NewScript->Name = "mob_zombie_chow";
+    NewScript->GetAI = &GetAI_mob_zombie_chow;
     NewScript->RegisterSelf();
 }
