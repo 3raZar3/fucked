@@ -131,6 +131,8 @@ struct MANGOS_DLL_DECL boss_heiganAI : public ScriptedAI
 
     void UpdateAI(const uint32 uiDiff)
     {
+        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+            return;
 
         if (m_uiDanceTimer < uiDiff)
         {
@@ -151,9 +153,6 @@ struct MANGOS_DLL_DECL boss_heiganAI : public ScriptedAI
 
             m_uiDanceTimer = m_uiPhase == PHASE_GROUND ? 10000 : 3000;
         }else m_uiDanceTimer -= uiDiff;
-
-        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
-            return;
 
         if (m_uiPhase == PHASE_GROUND)
         {

@@ -89,6 +89,7 @@ struct MANGOS_DLL_DECL boss_gluthAI : public ScriptedAI
 
         if (m_pInstance)
             m_pInstance->SetData(TYPE_GLUTH, NOT_STARTED);
+
         DespawnZombies();
     }
 
@@ -103,6 +104,7 @@ struct MANGOS_DLL_DECL boss_gluthAI : public ScriptedAI
             if (pZombie && pZombie->isAlive())
                 pZombie->ForcedDespawn();
         }
+        lZombies.clear();
     }
 
     void JustSummoned(Creature* pZombie)
