@@ -12,6 +12,12 @@ INSERT INTO creature_ai_scripts VALUES
 ('1657307','16573','5','0','100','7','1000','1000','0','0','11','29105','0','1','0','0','0','0','0','0','0','0','Crypt Guard - Summon Corpse Scarabs (5) at player kill'),
 ('1657308','16573','6','0','100','6','0','0','0','0','11','28864','6','17','0','0','0','0','0','0','0','0','Crypt Guard - Summon Corpse Scarabs (10) at death');
 
+-- Corpse Scarab Force Despaw After Wipe (Anub'Rekhan encounter)
+UPDATE creature_template SET AIName='EventAI' WHERE entry=16698;
+DELETE FROM creature_ai_scripts WHERE id IN (1669801,1669802);
+INSERT INTO creature_ai_scripts VALUES
+(1669801,16698,1,0,100,6,30000,30000,30000,30000,41,0,0,0,0,0,0,0,0,0,0,0,'Corpse Scarab - Force Despawn');
+
 ###################   boss_faerlina   ##########################################################
 UPDATE `creature_template` SET `ScriptName`='mob_worshippers' WHERE `entry`='16506';
 
