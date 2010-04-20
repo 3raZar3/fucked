@@ -1368,15 +1368,18 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
     if (spellInfo_1->AttributesEx6 & SPELL_ATTR_EX6_UNK26 && spellInfo_2->AttributesEx6 & SPELL_ATTR_EX6_UNK26)
     {
         // Marks and Gifts of the Wild
-        if (spellInfo_1->EffectApplyAuraName[2] == 143 && spellInfo_2->EffectApplyAuraName[2] == 143)
+        if (spellInfo_1->EffectApplyAuraName[EFFECT_INDEX_2] == SPELL_AURA_MOD_RESISTANCE_EXCLUSIVE &&
+            spellInfo_2->EffectApplyAuraName[EFFECT_INDEX_2] == SPELL_AURA_MOD_RESISTANCE_EXCLUSIVE)
             return true;
 
         // Blessings of Kings and Blessing of Forgotten Kings
-        if (spellInfo_1->EffectApplyAuraName[0] == 137 && spellInfo_1->EffectApplyAuraName[0] == 137)
+        if (spellInfo_1->EffectApplyAuraName[EFFECT_INDEX_0] == SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE &&
+            spellInfo_2->EffectApplyAuraName[EFFECT_INDEX_0] == SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE)
             return true;
 
         // Battle Shout and Blessings of Might
-        if (spellInfo_1->EffectApplyAuraName[1] == 124 && spellInfo_1->EffectApplyAuraName[1] == 124)
+        if (spellInfo_1->EffectApplyAuraName[EFFECT_INDEX_1] == SPELL_AURA_MOD_RANGED_ATTACK_POWER &&
+            spellInfo_2->EffectApplyAuraName[EFFECT_INDEX_1] == SPELL_AURA_MOD_RANGED_ATTACK_POWER)
             return true;
     }
 
