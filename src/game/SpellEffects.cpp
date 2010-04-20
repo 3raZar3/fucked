@@ -1744,11 +1744,6 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     m_caster->CastSpell(m_caster, spell_id, true);
                     return;
                 }
-                case 51662:                                 // Hunger for Blood
-                {
-                    m_caster->CastSpell(m_caster, 63848, true);
-                    return;
-            }
             }
             break;
         }
@@ -2089,6 +2084,11 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     m_caster->CastSpell(m_caster, 45182, true);
                     return;
                 }
+                case 51662:                                 // Hunger for Blood
+                {
+                    m_caster->CastSpell(m_caster, 63848, true);
+                    return;
+            }
             }
             break;
         }
@@ -6013,8 +6013,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     // Torture the Torturer: High Executor's Branding Iron Impact
                     unitTarget->CastSpell(unitTarget, 48614, true);
                     return;
-                // A Fall from Grace: Scarlet Raven Priest Image - Master
-                case 48762:
+                case 48762:                                 // A Fall from Grace: Scarlet Raven Priest Image - Master
                 {
                     if (!unitTarget)
                         return;
@@ -6022,8 +6021,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     unitTarget->CastSpell(unitTarget,(unitTarget->getGender() == 1) ? 48761 : 48763,true);
                     return;
                 }
-                // A Fall from Grace: Quest Completion Script
-                case 48769:
+                case 48769:                                 // A Fall from Grace: Quest Completion Script
                 {
                     if (!unitTarget)
                         return;
@@ -6034,8 +6032,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                         unitTarget->RemoveAurasDueToSpell(48763);
                     return;
                 }
-                // Avenging Spirits (summon Avenging Spirit Summoners)
-                case 48590:
+                case 48590:                                 // Avenging Spirits (summon Avenging Spirit Summoners)
                 {
                     if (!unitTarget)
                         return;
@@ -6046,8 +6043,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     unitTarget->CastSpell(unitTarget, 48589, true);
                     return;
                 }
-                // Consume (normal mode Trollgore - Drak'Tharok Keep)
-                case 49380:
+                case 49380:                                // Consume (normal mode Trollgore - Drak'Tharok Keep)
                 {
                     if (!unitTarget)
                         return;
@@ -6060,8 +6056,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
 
                     return;
                 }
-                // Taunt Invider Trigger (Trollgore - Drak'Tharon Keep)
-                case 49405:
+                case 49405:                                 // Taunt Invider Trigger (Trollgore - Drak'Tharon Keep)
                 {
                     if (!unitTarget)
                         return;
@@ -6070,8 +6065,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     unitTarget->CastSpell(m_caster, 49406, true);
                     return;
                 }
-                // Consume (heroic mode Trollgore - Drak'Tharok Keep)
-                case 59803:
+                case 59803:                                 // Consume (heroic mode Trollgore - Drak'Tharok Keep)
                 {
                     if (!unitTarget)
                         return;
@@ -6092,7 +6086,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     caster->CastSpell(caster, damage, false);
                     break;
                 }
-                case 51962:
+                case 51962:                                 //Offer Jungle Punch
                 {
                     if (!unitTarget)
                         return;
@@ -6109,8 +6103,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     unitTarget->CastSpell(unitTarget, damage, false);
                     break;
                 }
-                // Clear Gift of Tharonja
-                case 53242:
+                case 53242:                                 // Clear Gift of Tharonja
                 {
                     if (!unitTarget || !unitTarget->HasAura(52509))
                         return;
