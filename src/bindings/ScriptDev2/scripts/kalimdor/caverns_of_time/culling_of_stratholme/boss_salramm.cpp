@@ -137,30 +137,21 @@ struct MANGOS_DLL_DECL boss_salrammAI : public ScriptedAI
 		if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
 			return;
 		
-		if (ShadowBolt_Timer < diff)
-		{
+		if (ShadowBolt_Timer < diff) {
 			if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-				DoCast(target, m_bIsHeroic ? SPELL_SB_H : SPELL_SB_N);
-
+				DoCastSpellIfCan(target, m_bIsHeroic ? SPELL_SB_H : SPELL_SB_N);
             ShadowBolt_Timer = 5300;
-        }
-		else 
-			ShadowBolt_Timer -= diff;
+        } else  ShadowBolt_Timer -= diff;
 
-		if (Flesh_Timer < diff)
-        {
+		if (Flesh_Timer < diff) {
             if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-                DoCast(target,SPELL_FLESH);
-
+                DoCastSpellIfCan(target,SPELL_FLESH);
             Flesh_Timer = 7300;
-        }
-		else 
-			Flesh_Timer -= diff;
+        } else Flesh_Timer -= diff;
 
-		if (Steal_Timer < diff)
-        {
+		if (Steal_Timer < diff) {
             if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-                DoCast(target,SPELL_STEAL);
+                DoCastSpellIfCan(target,SPELL_STEAL);
 			
 			switch(rand()%3)
 			{
@@ -168,12 +159,8 @@ struct MANGOS_DLL_DECL boss_salrammAI : public ScriptedAI
 				case 1: DoScriptText(SAY_SALRAMM_STEAL02, m_creature); break;
 				case 2: DoScriptText(SAY_SALRAMM_STEAL03, m_creature); break;
 			}
-
             Steal_Timer = 17300;
-        }
-		else 
-			Steal_Timer -= diff;
-
+        } else Steal_Timer -= diff;
 	}
 };
 

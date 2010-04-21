@@ -106,35 +106,22 @@ struct MANGOS_DLL_DECL boss_meathookAI : public ScriptedAI
 
 		DoMeleeAttackIfReady();
 
-		if (Chain_Timer < diff)
-        {
+		if (Chain_Timer < diff){
 			if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-				DoCast(target, m_bIsHeroic ? SPELL_CHAIN_H : SPELL_CHAIN_N);
+				DoCastSpellIfCan(target, m_bIsHeroic ? SPELL_CHAIN_H : SPELL_CHAIN_N);
+			Chain_Timer = 6300;
+        } else Chain_Timer -= diff;
 
-            Chain_Timer = 6300;
-        }
-		else
-			Chain_Timer -= diff;
-
-		if (Exploded_Timer < diff)
-        {
+		if (Exploded_Timer < diff){
 			if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-				DoCast(target, m_bIsHeroic ? SPELL_EXPLODED_H : SPELL_EXPLODED_N);
-
+				DoCastSpellIfCan(target, m_bIsHeroic ? SPELL_EXPLODED_H : SPELL_EXPLODED_N);
             Exploded_Timer = 9300;
-        }
-		else 
-			Exploded_Timer -= diff;
+        } else Exploded_Timer -= diff;
 
-		if (Frenzy_Timer < diff)
-        {
-			DoCast(m_creature,SPELL_FRENZY);
-
-            Frenzy_Timer = 23300;
-        }
-		else 
-			Frenzy_Timer -= diff;
-
+		if (Frenzy_Timer < diff){
+			DoCastSpellIfCan(m_creature,SPELL_FRENZY);
+			Frenzy_Timer = 23300;
+        } else Frenzy_Timer -= diff;
    }
 };
 
