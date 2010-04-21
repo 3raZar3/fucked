@@ -3952,6 +3952,34 @@ void Aura::HandleModPossess(bool apply, bool Real)
 
         if(m_target->GetTypeId() == TYPEID_UNIT)
         {
+            // This is clearly wrong sollution (threat table shouldn't be dropped, but more functional than current one
+            ThreatList const& threatList = m_target->getThreatManager().getThreatList();
+            if (!threatList.empty())
+            {
+                for (ThreatList::const_iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
+                {
+                    if (Unit* pUnit = Unit::GetUnit(*m_target, (*itr)->getUnitGuid()))
+                    {
+                        Unit::AuraMap const& auras = pUnit->GetAuras();
+                        for (Unit::AuraMap::const_iterator i = auras.begin(); i != auras.end();)
+                        {
+                            if ((*i).second->GetCasterGUID() == m_target->GetGUID())
+                            {
+                                pUnit->RemoveAura((*i).second);
+                                i = auras.begin();
+                            }
+                            else 
+                                ++i;
+                        }
+                        pUnit->CombatStop();
+                        pUnit->DeleteThreatList();
+                        pUnit->AddThreat(caster);
+                    }
+                }
+            }
+            m_target->RemoveAllAuras();
+            m_target->CombatStop();
+            m_target->DeleteThreatList();
             ((Creature*)m_target)->AIM_Initialize();
 
             if (((Creature*)m_target)->AI())
