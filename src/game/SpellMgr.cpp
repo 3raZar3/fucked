@@ -1513,6 +1513,10 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                 }
                 case SPELLFAMILY_PRIEST:
                 {
+                    // Runescroll of Fortitude & Prayer/PW  Fortitude
+                    if (spellInfo_1->Id == 72590 && spellInfo_2->SpellVisual[0] == 278)
+                        return true;
+
                     // Berserking/Enrage PvE spells and Mind Trauma
                     if(spellInfo_1->SpellIconID == 95 && spellInfo_2->Id == 48301)
                         return false;
@@ -1739,6 +1743,10 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                 // Mind Trauma and Berserk/Enrage (PvE spells)
                 if(spellInfo_1->Id == 48301 && spellInfo_2->SpellIconID == 95)
                     return false;
+
+                // Prayer/PW  Fortitude && Runescroll of Fortitude
+                if (spellInfo_1->SpellVisual[0] == 278 && spellInfo_2->Id == 72590)
+                    return true;
             }
             break;
         case SPELLFAMILY_DRUID:
