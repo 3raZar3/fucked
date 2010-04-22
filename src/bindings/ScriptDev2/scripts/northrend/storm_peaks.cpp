@@ -447,7 +447,6 @@ enum
 
 bool GOHello_go_rusty_cage(Player* pPlayer, GameObject* pGo)
 {
-    pGo->UseDoorOrButton();
     if (pPlayer->GetQuestStatus(QUEST_THEY_TOOK_OUR_MEN) == QUEST_STATUS_INCOMPLETE)
     {
         if(Creature *pGoblin = GetClosestCreatureWithEntry(pPlayer, NPC_GOBLIN_PRISONER, INTERACTION_DISTANCE))
