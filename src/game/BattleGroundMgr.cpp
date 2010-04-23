@@ -33,7 +33,6 @@
 #include "BattleGroundRV.h"
 #include "BattleGroundIC.h"
 #include "BattleGroundRB.h"
-#include "Formulas.h"
 #include "MapManager.h"
 #include "Map.h"
 #include "MapInstanced.h"
@@ -453,9 +452,6 @@ bool BattleGroundQueue::InviteGroupToBG(GroupQueueInfo * ginfo, BattleGround * b
         // set invitation
         ginfo->IsInvitedToBGInstanceGUID = bg->GetInstanceID();
         BattleGroundTypeId bgTypeId = bg->GetTypeID();
-        if(bg->IsRandomBG())
-            bgTypeId = BATTLEGROUND_RB;
-            
         BattleGroundQueueTypeId bgQueueTypeId = BattleGroundMgr::BGQueueTypeId(bgTypeId, bg->GetArenaType());
         BattleGroundBracketId bracket_id = bg->GetBracketId();
 
@@ -1240,10 +1236,6 @@ void BattleGroundMgr::BuildBattleGroundStatusPacket(WorldPacket *data, BattleGro
     data->Initialize(SMSG_BATTLEFIELD_STATUS, (4+8+1+1+4+1+4+4+4));
     *data << uint32(QueueSlot);                             // queue id (0...1) - player can be in 2 queues in time
     // uint64 in client
-    BattleGroundTypeId _bgTypeId = bg->GetTypeID();
-    if(bg->IsRandomBG() && StatusID != STATUS_IN_PROGRESS)
-        _bgTypeId = BATTLEGROUND_RB;
-        
     *data << uint64( uint64(arenatype) | (uint64(0x0D) << 8) | (uint64(bg->GetTypeID()) << 16) | (uint64(0x1F90) << 48) );
     *data << uint8(0);                                      // 3.3.0
     *data << uint8(0);                                      // 3.3.0
@@ -1565,34 +1557,7 @@ BattleGround * BattleGroundMgr::CreateNewBattleGround(BattleGroundTypeId bgTypeI
             bg = new BattleGroundIC(*(BattleGroundIC*)bg_template);
             break;
         case BATTLEGROUND_RB:
-            switch(urand(0, 3/*5*/))
-            {
-                case 0:
-                    bg_template = GetBattleGroundTemplate(BATTLEGROUND_WS);
-                    bg = new BattleGroundWS(*(BattleGroundWS*)bg_template);
-                    break;
-                case 1:
-                    bg_template = GetBattleGroundTemplate(BATTLEGROUND_AB);
-                    bg = new BattleGroundAB(*(BattleGroundAB*)bg_template);
-                    break;
-                case 2:
-                    bg_template = GetBattleGroundTemplate(BATTLEGROUND_EY);
-                    bg = new BattleGroundEY(*(BattleGroundEY*)bg_template);
-                    break;
-                case 3:
-                    bg_template = GetBattleGroundTemplate(BATTLEGROUND_AV);
-                    bg = new BattleGroundAV(*(BattleGroundAV*)bg_template);
-                    break;
-/*              case 4:
-                    bg_template = GetBattleGroundTemplate(BATTLEGROUND_SA);
-                    bg = new BattleGroundSA(*(BattleGroundSA*)bg_template);
-                    break;
-                case 5:
-                    bg_template = GetBattleGroundTemplate(BATTLEGROUND_IC);
-                    bg = new BattleGroundIC(*(BattleGroundIC*)bg_template);
-                    break;*/
-            }
-            bg->SetRandomBG(true);
+            bg = new BattleGroundRB(*(BattleGroundRB*)bg_template);
             break;
         default:
             //error, but it is handled few lines above
@@ -1860,16 +1825,15 @@ void BattleGroundMgr::BuildBattleGroundListPacket(WorldPacket *data, const uint6
     *data << uint32(0);                                     // 3.3.3 winArena
     *data << uint32(0);                                     // 3.3.3 lossHonor
 
-    uint8 isRandom = 1;
+    uint8 isRandom = 0;
     *data << uint8(isRandom);                               // 3.3.3 isRandom
     if(isRandom)
     {
-    uint32 hk = MaNGOS::Honor::hk_honor_at_level(plr->getLevel(),plr->HasDoneRandomBattleGround() ? 15 : 30);
         // Rewards (random)
-        *data << uint8(1);                                  // 3.3.3 hasWin_Random
-        *data << uint32(hk);                                // 3.3.3 winHonor_Random
-        *data << uint32(plr->HasDoneRandomBattleGround() ? 0 : 25);                                 // 3.3.3 winArena_Random
-        *data << uint32(MaNGOS::Honor::hk_honor_at_level(plr->getLevel(),5));                       // 3.3.3 lossHonor_Random
+        *data << uint8(0);                                  // 3.3.3 hasWin_Random
+        *data << uint32(0);                                 // 3.3.3 winHonor_Random
+        *data << uint32(0);                                 // 3.3.3 winArena_Random
+        *data << uint32(0);                                 // 3.3.3 lossHonor_Random
     }
 
     if(bgTypeId == BATTLEGROUND_AA)                         // arena
@@ -1945,7 +1909,7 @@ BattleGroundQueueTypeId BattleGroundMgr::BGQueueTypeId(BattleGroundTypeId bgType
         case BATTLEGROUND_IC:
             return BATTLEGROUND_QUEUE_IC;
         case BATTLEGROUND_RB:
-            return BATTLEGROUND_QUEUE_RANDOM;
+            return BATTLEGROUND_QUEUE_NONE;
         case BATTLEGROUND_AA:
         case BATTLEGROUND_NA:
         case BATTLEGROUND_RL:
