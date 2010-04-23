@@ -165,9 +165,10 @@ enum BattleGroundQueueTypeId
     BATTLEGROUND_QUEUE_IC       = 6,
     BATTLEGROUND_QUEUE_2v2      = 7,
     BATTLEGROUND_QUEUE_3v3      = 8,
-    BATTLEGROUND_QUEUE_5v5      = 9
+    BATTLEGROUND_QUEUE_5v5      = 9,
+    BATTLEGROUND_QUEUE_RANDOM    = 10
 };
-#define MAX_BATTLEGROUND_QUEUE_TYPES 10
+#define MAX_BATTLEGROUND_QUEUE_TYPES 11
 
 enum ScoreType
 {
@@ -542,7 +543,8 @@ class BattleGround
         // creatures will get added wrong
         // door-events are automaticly added - but _ALL_ other must be in this vector
         std::map<uint8, uint8> m_ActiveEvents;
-
+        bool IsRandomBG() { return m_RandomBG; }
+        void SetRandomBG(bool apply) { m_RandomBG = apply; }
 
     protected:
         //this method is called, when BG cannot spawn its own spirit guide, or something is wrong, It correctly ends BattleGround
@@ -623,5 +625,7 @@ class BattleGround
         float m_TeamStartLocY[BG_TEAMS_COUNT];
         float m_TeamStartLocZ[BG_TEAMS_COUNT];
         float m_TeamStartLocO[BG_TEAMS_COUNT];
+        
+        bool m_RandomBG;
 };
 #endif
