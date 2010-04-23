@@ -869,9 +869,9 @@ uint32 Player::EnvironmentalDamage(EnviromentalDamage type, uint32 damage)
     uint32 absorb = 0;
     uint32 resist = 0;
     if (type == DAMAGE_LAVA)
-        CalcAbsorbResist(this, SPELL_SCHOOL_MASK_FIRE, DIRECT_DAMAGE, damage, &absorb, &resist);
+        CalculateAbsorbAndResist(this, SPELL_SCHOOL_MASK_FIRE, DIRECT_DAMAGE, damage, &absorb, &resist);
     else if (type == DAMAGE_SLIME)
-        CalcAbsorbResist(this, SPELL_SCHOOL_MASK_NATURE, DIRECT_DAMAGE, damage, &absorb, &resist);
+        CalculateAbsorbAndResist(this, SPELL_SCHOOL_MASK_NATURE, DIRECT_DAMAGE, damage, &absorb, &resist);
 
     damage-=absorb+resist;
 
@@ -4056,8 +4056,31 @@ TrainerSpellState Player::GetTrainerSpellState(TrainerSpell const* trainer_spell
     return TRAINER_SPELL_GREEN;
 }
 
-void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmChars)
+/**
+ * Deletes a character from the database
+ *
+ * The way, how the characters will be deleted is decided based on the config option.
+ *
+ * @see Player::DeleteOldCharacters
+ *
+ * @param playerguid       the low-GUID from the player which should be deleted
+ * @param accountId        the account id from the player
+ * @param updateRealmChars when this flag is set, the amount of characters on that realm will be updated in the realmlist
+ * @param deleteFinally    if this flag is set, the config option will be ignored and the character will be permanently removed from the database
+ */
+void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmChars, bool deleteFinally)
 {
+    // for not existed account avoid update realm
+    if (accountId == 0)
+        updateRealmChars = false;
+
+    uint32 charDelete_method = sWorld.getConfig(CONFIG_UINT32_CHARDELETE_METHOD);
+    uint32 charDelete_minLvl = sWorld.getConfig(CONFIG_UINT32_CHARDELETE_MIN_LEVEL);
+
+    // if we want to finally delete the character or the character does not meet the level requirement, we set it to mode 0
+    if (deleteFinally || Player::GetLevelFromDB(playerguid) < charDelete_minLvl)
+        charDelete_method = 0;
+
     uint32 guid = GUID_LOPART(playerguid);
 
     // convert corpse to bones if exist (to prevent exiting Corpse in World without DB entry)
@@ -4065,13 +4088,9 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
     sObjectAccessor.ConvertCorpseForPlayer(playerguid);
 
     // remove from guild
-    uint32 guildId = GetGuildIdFromDB(playerguid);
-    if(guildId != 0)
-    {
-        Guild* guild = sObjectMgr.GetGuildById(guildId);
-        if(guild)
+    if (uint32 guildId = GetGuildIdFromDB(playerguid))
+        if (Guild* guild = sObjectMgr.GetGuildById(guildId))
             guild->DelMember(guid);
-    }
 
     // remove from arena teams
     LeaveAllArenaTeams(playerguid);
@@ -4089,7 +4108,12 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
     // remove signs from petitions (also remove petitions if owner);
     RemovePetitionsAndSigns(playerguid, 10);
 
-    // return back all mails with COD and Item                 0  1           2              3      4       5          6     7
+    switch(charDelete_method)
+    {
+        // completely remove from the database
+        case 0:
+        {
+            // return back all mails with COD and Item                 0  1           2              3      4       5    6     7
     QueryResult *resultMail = CharacterDatabase.PQuery("SELECT id,messageType,mailTemplateId,sender,subject,body,money,has_items FROM mail WHERE receiver='%u' AND has_items<>0 AND cod<>0", guid);
     if(resultMail)
     {
@@ -4219,9 +4243,56 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
     CharacterDatabase.PExecute("DELETE FROM guild_eventlog WHERE PlayerGuid1 = '%u' OR PlayerGuid2 = '%u'",guid, guid);
     CharacterDatabase.PExecute("DELETE FROM guild_bank_eventlog WHERE PlayerGuid = '%u'",guid);
     CharacterDatabase.CommitTransaction();
+            break;
+        }
+        // The character gets unlinked from the account, the name gets freed up and appears as deleted ingame
+        case 1:
+            CharacterDatabase.PExecute("UPDATE characters SET deleteInfos_Name=name, deleteInfos_Account=account, deleteDate=%u, name='', account=0 WHERE guid=%u", uint64(time(NULL)), guid);
+            break;
+        default:
+            sLog.outError("Player::DeleteFromDB: Unsupported delete method: %u.", charDelete_method);
+    }
 
-    //loginDatabase.PExecute("UPDATE realmcharacters SET numchars = numchars - 1 WHERE acctid = %d AND realmid = %d", accountId, realmID);
-    if(updateRealmChars) sWorld.UpdateRealmCharCount(accountId);
+    if (updateRealmChars)
+        sWorld.UpdateRealmCharCount(accountId);
+}
+
+/**
+ * Characters which were kept back in the database after being deleted and are now too old (see config option "CharDelete.KeepDays"), will be completely deleted.
+ *
+ * @see Player::DeleteFromDB
+ */
+void Player::DeleteOldCharacters()
+{
+    uint32 keepDays = sWorld.getConfig(CONFIG_UINT32_CHARDELETE_KEEP_DAYS);
+    if (!keepDays)
+        return;
+
+    Player::DeleteOldCharacters(keepDays);
+}
+
+/**
+ * Characters which were kept back in the database after being deleted and are older than the specified amount of days, will be completely deleted.
+ *
+ * @see Player::DeleteFromDB
+ *
+ * @param keepDays overrite the config option by another amount of days
+ */
+void Player::DeleteOldCharacters(uint32 keepDays)
+{
+    sLog.outString("Player::DeleteOldChars: Deleting all characters which have been deleted %u days before...", keepDays);
+
+    QueryResult *resultChars = CharacterDatabase.PQuery("SELECT guid, deleteInfos_Account FROM characters WHERE deleteDate IS NOT NULL AND deleteDate < %u", uint64(time(NULL) - time_t(keepDays * DAY)));
+    if (resultChars)
+    {
+        sLog.outString("Player::DeleteOldChars: Found %u character(s) to delete",resultChars->GetRowCount());
+        do
+        {
+            Field *charFields = resultChars->Fetch();
+            Player::DeleteFromDB(charFields[0].GetUInt64(), charFields[1].GetUInt32(), true, true);
+        } while(resultChars->NextRow());
+        delete resultChars;
+    }
 }
 
 void Player::SetMovement(PlayerMovementType pType)
