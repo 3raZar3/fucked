@@ -120,9 +120,6 @@ struct MANGOS_DLL_DECL boss_maexxnaAI : public ScriptedAI
         m_uiNecroticPoisonTimer = 30000;                    //30 seconds
         m_uiSummonSpiderlingTimer = 30000;                  //30 sec init, 40 sec normal
         m_bEnraged = false;
-
-        if (m_pInstance)
-            m_pInstance->SetData(TYPE_MAEXXNA, NOT_STARTED);
     }
 
     void Aggro(Unit* pWho)
@@ -135,7 +132,12 @@ struct MANGOS_DLL_DECL boss_maexxnaAI : public ScriptedAI
     {
         if (m_pInstance)
             m_pInstance->SetData(TYPE_MAEXXNA, DONE);
+    }
 
+    void JustReachedHome()
+    {
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_MAEXXNA, FAIL);
     }
 
     void DoCastWebWrap()

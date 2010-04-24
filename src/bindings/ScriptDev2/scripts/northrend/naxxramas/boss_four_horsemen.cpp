@@ -220,9 +220,6 @@ struct MANGOS_DLL_DECL boss_lady_blaumeuxAI : public ScriptedAI
         m_uiMarkTimer       = 24000;
         m_uiVoidZoneTimer   = 15000;
         m_uiMarksCasted     = 0;
-
-        if (m_pInstance)
-            m_pInstance->SetData(TYPE_BLAUMEUX, NOT_STARTED);
     }
 
     void Aggro(Unit* pWho)
@@ -269,7 +266,10 @@ struct MANGOS_DLL_DECL boss_lady_blaumeuxAI : public ScriptedAI
     void JustReachedHome()
     {
         if (m_pInstance)
+        {
+            m_pInstance->SetData(TYPE_BLAUMEUX, NOT_STARTED);
             ReachedHome(m_creature, m_pInstance);
+        }
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -344,8 +344,6 @@ struct MANGOS_DLL_DECL boss_rivendare_naxxAI : public ScriptedAI
         m_uiMarkTimer    = 24000;
         m_uiUnholyShadow = 15000;
         m_uiMarksCasted  = 0;
-        if (m_pInstance)
-            m_pInstance->SetData(TYPE_RIVENDARE, NOT_STARTED);
     }
 
     void Aggro(Unit* pWho)
@@ -399,7 +397,10 @@ struct MANGOS_DLL_DECL boss_rivendare_naxxAI : public ScriptedAI
     void JustReachedHome()
     {
         if (m_pInstance)
+        {
+            m_pInstance->SetData(TYPE_RIVENDARE, NOT_STARTED);
             ReachedHome(m_creature, m_pInstance);
+        }
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -456,9 +457,6 @@ struct MANGOS_DLL_DECL boss_thane_korthazzAI : public ScriptedAI
         m_uiMarkTimer    = 24000;
         m_uiMeteorTimer  = 15000;
         m_uiMarksCasted  = 0;
-
-        if (m_pInstance)
-            m_pInstance->SetData(TYPE_THANE, NOT_STARTED);
     }
 
     void Aggro(Unit* pWho)
@@ -507,7 +505,10 @@ struct MANGOS_DLL_DECL boss_thane_korthazzAI : public ScriptedAI
     void JustReachedHome()
     {
         if (m_pInstance)
+        {
+            m_pInstance->SetData(TYPE_THANE, NOT_STARTED);
             ReachedHome(m_creature, m_pInstance);
+        }
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -568,9 +569,6 @@ struct MANGOS_DLL_DECL boss_sir_zeliekAI : public ScriptedAI
         m_uiHolyWrathTimer  = 12000;
         m_uiCondemnationTimer = 2000;
         m_uiMarksCasted     = 0;
-
-        if (m_pInstance)
-            m_pInstance->SetData(TYPE_ZELIEK, NOT_STARTED);
     }
 
     void Aggro(Unit* pWho)
@@ -618,7 +616,10 @@ struct MANGOS_DLL_DECL boss_sir_zeliekAI : public ScriptedAI
     void JustReachedHome()
     {
         if (m_pInstance)
+        {
+            m_pInstance->SetData(TYPE_ZELIEK, NOT_STARTED);
             ReachedHome(m_creature, m_pInstance);
+        }
     }
 
     void UpdateAI(const uint32 uiDiff)

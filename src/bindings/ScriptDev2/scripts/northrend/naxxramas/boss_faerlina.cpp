@@ -77,9 +77,6 @@ struct MANGOS_DLL_DECL boss_faerlinaAI : public ScriptedAI
 		
         for(uint8 i=0; i<4; ++i)
             m_uiWorshiperGUID[i] = 0;
-
-        if (m_pInstance)
-            m_pInstance->SetData(TYPE_FAERLINA, NOT_STARTED);
     }
 
     void Aggro(Unit *who)

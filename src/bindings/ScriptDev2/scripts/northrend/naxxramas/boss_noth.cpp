@@ -111,9 +111,6 @@ struct MANGOS_DLL_DECL boss_nothAI : public ScriptedAI
         m_uiBlinkTimer = 25000;
         m_uiCurseTimer = 4000;
         m_uiSummonTimer = 30000;
-
-        if (m_pInstance)
-            m_pInstance->SetData(TYPE_NOTH, NOT_STARTED);
     }
 
     void Aggro(Unit* pWho)
@@ -148,6 +145,13 @@ struct MANGOS_DLL_DECL boss_nothAI : public ScriptedAI
         if (m_pInstance)
             m_pInstance->SetData(TYPE_NOTH, DONE);
     }
+
+    void JustReachedHome()
+    {
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_NOTH, FAIL);
+    }
+
 
     void SpellHit(Unit* pCaster, const SpellEntry* pSpell)
     {

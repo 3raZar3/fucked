@@ -87,9 +87,6 @@ struct MANGOS_DLL_DECL boss_gluthAI : public ScriptedAI
 
         m_uiBerserkTimer = MINUTE*8*IN_MILLISECONDS;
 
-        if (m_pInstance)
-            m_pInstance->SetData(TYPE_GLUTH, NOT_STARTED);
-
         DespawnZombies();
     }
 
@@ -120,6 +117,12 @@ struct MANGOS_DLL_DECL boss_gluthAI : public ScriptedAI
             m_pInstance->SetData(TYPE_GLUTH, DONE);
 
         DespawnZombies();
+    }
+
+    void JustReachedHome()
+    {
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_GOTHIK, FAIL);
     }
 
     void Aggro(Unit* pWho)
