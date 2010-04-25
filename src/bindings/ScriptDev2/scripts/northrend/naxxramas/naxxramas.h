@@ -38,6 +38,8 @@ enum
 
     NPC_ANUB_REKHAN             = 15956,
     NPC_FAERLINA                = 15953,
+    NPC_NAXXRAMAS_FOLLOWER      = 16505,
+    NPC_NAXXRAMAS_WORSHIPPER    = 16506,
 
     NPC_THADDIUS                = 15928,
     NPC_STALAGG                 = 15929,
@@ -158,6 +160,9 @@ class MANGOS_DLL_DECL instance_naxxramas : public ScriptedInstance
 
         // heigan
         void ActivateAreaFissures(ChamberArea AreaNo);
+
+        // faerlina
+        std::list<uint64> lFaelinasAdds;
 
         // goth
         void SetGothTriggers();
