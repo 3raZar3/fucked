@@ -19,7 +19,6 @@ INSERT INTO creature_ai_scripts VALUES
 (1669801,16698,1,0,100,6,30000,30000,30000,30000,41,0,0,0,0,0,0,0,0,0,0,0,'Corpse Scarab - Force Despawn');
 
 ###################   boss_faerlina   ##########################################################
-UPDATE `creature_template` SET `ScriptName`='mob_worshippers' WHERE `entry`='16506';
 
 ###################   boss_gluth  ##############################################################
 
