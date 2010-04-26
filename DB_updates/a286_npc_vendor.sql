@@ -1,4 +1,19 @@
 ####################################################################################
+-- Arcanum Enhancements replace items with required reputation 
+-- Note! Nowadays MaNGOS doesn't support required reputation while buying
+DELETE FROM npc_vendor WHERE item IN 
+(50370,44152,50368,44159,44149,50367,50373,50372,44702,44701,44150,50369);
+INSERT INTO npc_vendor VALUES
+(32533,50370,0,0,0),
+(32287,50368,0,0,0),
+(32538,50367,0,0,0),
+(32565,50373,0,0,0),
+(32774,50373,0,0,0),
+(32773,50372,0,0,0),
+(32564,50372,0,0,0),
+(30431,50369,0,0,0);
+
+####################################################################################
 -- Add missing item Greater Inscription of the Gladiator (44957)
 DELETE FROM npc_vendor WHERE item=44957;
 INSERT INTO npc_vendor VALUES
