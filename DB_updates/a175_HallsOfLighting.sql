@@ -17,3 +17,11 @@ UPDATE creature_template SET `mechanic_immune_mask` = mechanic_immune_mask|10734
 
 -- HallsOfLighting::Thunderer and Siegebreaker flags remove
 UPDATE `creature_template` SET `unit_flags` = '0',`type_flags` = '0' WHERE `entry` IN (28965,28961,30980,30982);
+
+-- Add Emblem of Heroisms
+INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `groupid`, `mincountOrRef`, `maxcount`, `lootcondition`, `condition_value1`, `condition_value2`) VALUES
+(31533, 40752, 100, 0, 1, 1, 0, 0, 0),
+(31536, 40752, 100, 0, 1, 1, 0, 0, 0),
+(31537, 40752, 100, 5, 1, 1, 0, 0, 0),
+(31538, 40752, 100, 5, 1, 1, 0, 0, 0);
+

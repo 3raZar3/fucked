@@ -225,7 +225,6 @@ struct MANGOS_DLL_DECL mob_molten_golemAI : public ScriptedAI
     ScriptedInstance* m_pInstance;
 
     bool m_bIsRegularMode;
-    bool m_bIsFrozen;
 
     uint32 m_uiBlast_Timer;
     uint32 m_uiDeathDelay_Timer;
@@ -233,8 +232,6 @@ struct MANGOS_DLL_DECL mob_molten_golemAI : public ScriptedAI
 
     void Reset()
     {
-        m_bIsFrozen = false;
-
         m_uiBlast_Timer = 20000;
         m_uiDeathDelay_Timer = 0;
         m_uiImmolation_Timer = 5000;
@@ -252,19 +249,10 @@ struct MANGOS_DLL_DECL mob_molten_golemAI : public ScriptedAI
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
-        if(m_bIsFrozen)
-        {   
-            m_creature->StopMoving();
-            m_creature->GetMotionMaster()->Clear();
-            m_creature->GetMotionMaster()->MoveIdle();
-            return;
-        }
-
         if(m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 20)
         {
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            m_bIsFrozen = true;
         }
 
         if (m_uiBlast_Timer < uiDiff)
