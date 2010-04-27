@@ -7,6 +7,7 @@
 
 #include "CreatureAI.h"
 #include "Creature.h"
+#include "Util.h"
 
 //Spell targets used by SelectSpell
 enum SelectTarget
@@ -166,6 +167,8 @@ struct MANGOS_DLL_DECL ScriptedAI : public CreatureAI
 
     //Selects a unit from the creature's current aggro list
     Unit* SelectUnit(SelectAggroTarget target, uint32 uiPosition);
+    template<typename Check>
+    Unit* SelectUnit(SelectAggroTarget target, uint32 uiPosition, Check condition);
 
     //Returns spells that meet the specified criteria from the creatures spell list
     SpellEntry const* SelectSpell(Unit* pTarget, int32 uiSchool, int32 uiMechanic, SelectTarget selectTargets, uint32 uiPowerCostMin, uint32 uiPowerCostMax, float fRangeMin, float fRangeMax, SelectEffect selectEffect);
@@ -185,6 +188,49 @@ struct MANGOS_DLL_DECL ScriptedAI : public CreatureAI
         bool   m_bCombatMovement;
         uint32 m_uiEvadeCheckCooldown;
 };
+
+#include <utility>
+
+template<typename Check>
+Unit* ScriptedAI::SelectUnit(SelectAggroTarget target, uint32 uiPosition, Check condition)
+{
+    typedef std::list<Unit*> UnitList;
+
+    ThreatList const& threatlist = m_creature->getThreatManager().getThreatList();
+    UnitList targetList;
+
+    for (ThreatList::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
+    {
+        if (Unit *pUnit = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid()))
+        {
+            if (condition(pUnit))
+                targetList.push_back(pUnit);
+        }
+    }
+
+    UnitList::iterator itr = targetList.begin();
+    UnitList::reverse_iterator ritr = targetList.rbegin();
+
+    if (targetList.empty() || uiPosition >= targetList.size())
+        return NULL;
+
+    switch (target)
+    {
+        case SELECT_TARGET_RANDOM:
+            std::advance(itr, urand(uiPosition, targetList.size() - 1));
+            return *itr;
+
+        case SELECT_TARGET_TOPAGGRO:
+            std::advance(itr, uiPosition);
+            return *itr;
+
+        case SELECT_TARGET_BOTTOMAGGRO:
+            std::advance(ritr, uiPosition);
+            return *ritr;
+    }
+
+    return NULL;
+}
 
 struct MANGOS_DLL_DECL Scripted_NoMovementAI : public ScriptedAI
 {
