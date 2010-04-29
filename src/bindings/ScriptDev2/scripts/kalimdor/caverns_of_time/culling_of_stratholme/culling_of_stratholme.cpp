@@ -203,7 +203,7 @@ struct MANGOS_DLL_DECL npc_arthasAI : public npc_escortAI
 
 		// wave event
 		WaveCount = 0;
-		WaveEventTimer = 30000;
+		WaveEventTimer = 60000;
 		WaveSpawned = false;
 
 		// time event
@@ -494,7 +494,7 @@ struct MANGOS_DLL_DECL npc_arthasAI : public npc_escortAI
 						m_pInstance->DoUpdateWorldState(WORLD_STATE_WAVE, true);
 						m_pInstance->DoUpdateWorldState(WORLD_STATE_WAVE, WaveCount);
 						if (WaveEventTimer < diff){
-							WaveEventTimer = 30000;
+							WaveEventTimer = 60000;
 							WaveSpawned = false;
 							++WaveCount;
 						} else WaveEventTimer -= diff;
@@ -506,7 +506,7 @@ struct MANGOS_DLL_DECL npc_arthasAI : public npc_escortAI
 					case 2:
 						m_pInstance->DoUpdateWorldState(WORLD_STATE_WAVE, WaveCount);
 						if (WaveEventTimer < diff){
-							WaveEventTimer = 30000;
+							WaveEventTimer = 60000;
 							WaveSpawned = false;
 							++WaveCount;
 						} else WaveEventTimer -= diff;
@@ -518,7 +518,7 @@ struct MANGOS_DLL_DECL npc_arthasAI : public npc_escortAI
 					case 3:
 						m_pInstance->DoUpdateWorldState(WORLD_STATE_WAVE, WaveCount);
 						if (WaveEventTimer < diff){
-							WaveEventTimer = 30000;
+							WaveEventTimer = 60000;
 							WaveSpawned = false;
 							++WaveCount;
 						} else WaveEventTimer -= diff;
@@ -530,7 +530,7 @@ struct MANGOS_DLL_DECL npc_arthasAI : public npc_escortAI
 					case 4:
 						m_pInstance->DoUpdateWorldState(WORLD_STATE_WAVE, WaveCount);
 						if (WaveEventTimer < diff){
-							WaveEventTimer = 30000;
+							WaveEventTimer = 90000;
 							WaveSpawned = false;
 							++WaveCount;
 						} else WaveEventTimer -= diff;
@@ -560,7 +560,7 @@ struct MANGOS_DLL_DECL npc_arthasAI : public npc_escortAI
 								}
 							}
 						if (WaveEventTimer < diff){
-							WaveEventTimer = 30000;
+							WaveEventTimer = 60000;
 							++WaveCount;
 							WaveSpawned = false;
 						} else WaveEventTimer -= diff;
@@ -568,7 +568,7 @@ struct MANGOS_DLL_DECL npc_arthasAI : public npc_escortAI
 					case 6:
 						m_pInstance->DoUpdateWorldState(WORLD_STATE_WAVE, WaveCount);
 						if (WaveEventTimer < diff){
-							WaveEventTimer = 30000;
+							WaveEventTimer = 60000;
 							WaveSpawned = false;
 							++WaveCount;
 						} else WaveEventTimer -= diff;
@@ -580,7 +580,7 @@ struct MANGOS_DLL_DECL npc_arthasAI : public npc_escortAI
 					case 7:
 						m_pInstance->DoUpdateWorldState(WORLD_STATE_WAVE, WaveCount);
 						if (WaveEventTimer < diff){
-							WaveEventTimer = 30000;
+							WaveEventTimer = 60000;
 							WaveSpawned = false;
 							++WaveCount;
 						} else WaveEventTimer -= diff;
@@ -592,7 +592,7 @@ struct MANGOS_DLL_DECL npc_arthasAI : public npc_escortAI
 					case 8:
 						m_pInstance->DoUpdateWorldState(WORLD_STATE_WAVE, WaveCount);
 						if (WaveEventTimer < diff){
-							WaveEventTimer = 30000;
+							WaveEventTimer = 60000;
 							WaveSpawned = false;
 							++WaveCount;
 						} else WaveEventTimer -= diff;
@@ -604,7 +604,7 @@ struct MANGOS_DLL_DECL npc_arthasAI : public npc_escortAI
 					case 9:
 						m_pInstance->DoUpdateWorldState(WORLD_STATE_WAVE, WaveCount);
 						if (WaveEventTimer < diff){
-							WaveEventTimer = 30000;
+							WaveEventTimer = 90000;
 							WaveSpawned = false;
 							++WaveCount;
 						} else WaveEventTimer -= diff;
