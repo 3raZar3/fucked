@@ -1,5 +1,14 @@
 #########################################################################################
-a289
+
+-- Apprentice Osterkilgr (Support for quest The Sum is Greater than the Parts)
+DELETE FROM creature_loot_template WHERE entry=30409 AND NOT item=45912;
+INSERT INTO creature_loot_template VALUES
+(30409,43089,100,1,1,1,0,0,0), 			-- Vrykul Bones
+(30409,42772,87,3,1,1,0,0,0),			-- Dr. Terrible's "Building a Better Flesh Giant"
+(30409,0,100,0,-30000,1,0,0,0);			-- Some stuff
+
+#########################################################################################
+
 -- Wolves Across the Border (33) missing quest item
 DELETE FROM creature_loot_template WHERE item=50432;
 INSERT INTO creature_loot_template VALUES
