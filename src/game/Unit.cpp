@@ -4403,10 +4403,17 @@ void Unit::RemoveSingleAuraDueToSpellByDispel(uint32 spellId, uint64 casterGUID,
                 int32 bp0 = dot->GetSpellProto()->CalculateSimpleValue(EFFECT_INDEX_1);
                 bp0 *= 8;
 
-    RemoveSingleSpellAurasByCasterSpell(spellId, casterGUID, AURA_REMOVE_BY_DISPEL);
-}
+                // Remove spell auras from stack
+                RemoveSingleSpellAurasByCasterSpell(spellId, casterGUID, AURA_REMOVE_BY_DISPEL);
+
+                CastCustomSpell(this, 64085, &bp0, NULL, NULL, true, NULL, NULL, casterGUID);
+                return;
+            }
         }
     }
+
+    RemoveSingleSpellAurasByCasterSpell(spellId, casterGUID, AURA_REMOVE_BY_DISPEL);
+}
 
 void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, uint64 casterGUID, Unit *stealer)
 {
