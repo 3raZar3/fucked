@@ -522,7 +522,9 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                     if (aura)
                     {
                         int32 damagetick = aura->GetModifier()->m_amount;
-                        damage += damagetick * 4;
+                        // Save value of further damage
+                        m_currentBasePoints[1] = damagetick * 2 / 3;
+                        damage += damagetick * 3;
 
                         // Glyph of Conflagrate
                         if (!m_caster->HasAura(56235))
@@ -776,7 +778,10 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                 else if (m_spellInfo->Id == 54158)
                 {
                     // [1 + 0.25 * SPH + 0.16 * AP]
-                    damage += int32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.16f);
+                    float ap = m_caster->GetTotalAttackPowerValue(BASE_ATTACK);
+                    int32 holy = m_caster->SpellBaseDamageBonusDone(GetSpellSchoolMask(m_spellInfo)) +
+                                 unitTarget->SpellBaseDamageBonusTaken(GetSpellSchoolMask(m_spellInfo));
+                    damage += int32(ap * 0.16f) + int32(holy * 25 / 100);
                 }
                 break;
             }
@@ -1599,6 +1604,33 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                 {
                     // Runeforging Credit
                     m_caster->CastSpell(m_caster, 54586, true);
+                    return;
+                }
+                case 53808:                                 // Pygmy Oil
+                {
+                    const SpellEntry *pSpellShrink = sSpellStore.LookupEntry(53805);
+                    const SpellEntry *pSpellTransf = sSpellStore.LookupEntry(53806);
+
+                    if (!pSpellTransf || !pSpellShrink)
+                        return;
+
+                    if (Aura* pAura = m_caster->GetAura(pSpellShrink->Id, EFFECT_INDEX_0))
+                    {
+                        uint8 stackNum = pAura->GetStackAmount();
+
+                        // chance to become pygmified (5, 10, 15 etc)
+                        if (roll_chance_i(stackNum*5))
+                        {
+                            m_caster->RemoveAurasDueToSpell(pSpellShrink->Id);
+                            m_caster->CastSpell(m_caster, pSpellTransf, true);
+                            return;
+                        }
+                    }
+
+                    if (m_caster->HasAura(pSpellTransf->Id, EFFECT_INDEX_0))
+                        return;
+
+                    m_caster->CastSpell(m_caster, pSpellShrink, true);
                     return;
                 }
                 case 54171:                                 // Divine Storm
@@ -5902,15 +5934,54 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                                 if (pTarget->hasUnitState(UNIT_STAT_ROAMING | UNIT_STAT_ROAMING_MOVE))
                                     pTarget->GetMotionMaster()->MovementExpired();
 
+                                // trigger cast of quest complete script (see code for this spell below)
+                                pTarget->CastSpell(pTarget, 44462, true);
+
                                 pTarget->GetMotionMaster()->MovePoint(0, m_caster->GetPositionX(), m_caster->GetPositionY(), m_caster->GetPositionZ());
                             }
 
                             return;
                         }
 
-                        // or if we are first time used item
+                        // or if it is first time used item, cast summon and despawn the target
                         m_caster->CastSpell(pTarget, pSpell, true);
                         pTarget->ForcedDespawn();
+
+                        // TODO: here we should get pointer to the just summoned and make it move.
+                        // without, it will be one extra use of quest item
+                    }
+
+                    return;
+                }
+                case 44462:                                 // Cast Quest Complete on Master
+                {
+                    if (m_caster->GetTypeId() != TYPEID_UNIT)
+                        return;
+
+                    Creature* pQuestCow = NULL;
+
+                    float range = 20.0f;
+
+                    // search for a reef cow nearby
+                    MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck u_check(*m_caster, 24797, true, range);
+                    MaNGOS::CreatureLastSearcher<MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(m_caster, pQuestCow, u_check);
+
+                    Cell::VisitGridObjects(m_caster, searcher, range);
+
+                    // no cows found, so return
+                    if (!pQuestCow)
+                        return;
+
+                    if (!((Creature*)m_caster)->isTemporarySummon())
+                        return;
+
+                    if (const SpellEntry *pSpell = sSpellStore.LookupEntry(m_spellInfo->CalculateSimpleValue(eff_idx)))
+                    {
+                        TemporarySummon* pSummon = (TemporarySummon*)m_caster;
+
+                        // all ok, so make summoner cast the quest complete
+                        if (Unit* pSummoner = pSummon->GetSummoner())
+                            pSummoner->CastSpell(pSummoner, pSpell, true);
                     }
 
                     return;
