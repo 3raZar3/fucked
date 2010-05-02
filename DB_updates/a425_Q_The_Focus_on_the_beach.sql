@@ -1,7 +1,7 @@
 -- Support for quest The Focus on the beach (12066/12065)
 
 -- Add trigger (26773) into the world
-DELETE FROM creature WHERE guid IN (2677301,2677302);
+DELETE FROM creature WHERE id=26773;
 INSERT INTO creature VALUES
 (2677301,26773,571,1,1,0,0,3115.99,2153.48,20.2818,1.42392,25,0,0,1,0,0,0),
 (2677302,26773,571,1,1,0,0,3139.12,2135.96,23.5424,2.6668,25,0,0,1,0,0,0);

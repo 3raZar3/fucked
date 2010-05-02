@@ -1,7 +1,7 @@
 -- Support for quest Atop the Woodlands (12083/12084)
 
 -- Add trigger (26831) into the world
-DELETE FROM creature WHERE guid IN (2677301,2677302);
+DELETE FROM creature WHERE id=26831;
 INSERT INTO creature VALUES
 (2683101,26831,571,1,1,0,0,2907.08,1817.69,130.849,1.08304,25,0,0,1,0,0,0),
 (2683102,26831,571,1,1,0,0,2878.89,1813.92,133.439,1.49459,25,0,0,1,0,0,0);
