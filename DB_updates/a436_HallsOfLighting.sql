@@ -19,6 +19,8 @@ INSERT INTO `creature_addon` (`guid`, `mount`, `bytes1`, `bytes2`, `emote`, `mov
 ('126864','0','0','1','0','0','52097 0'),
 ('126981','0','0','1','0','0','52097 0');*/
 
+#################### General Bjarngrim #########################################################################
+
 DELETE FROM `creature_movement` WHERE id IN (SELECT `guid` FROM `creature` WHERE id = 28586);
 INSERT INTO `creature_movement` (`id`, `point`, `position_x`, `position_y`, `position_z`, `waittime`, `textid1`, `textid2`, `textid3`, `textid4`, `textid5`, `emote`, `spell`, `wpguid`, `orientation`, `model1`, `model2`) VALUES
 ('126981','1','1261.96','84.6607','33.5055','10000','0','0','0','0','0','0','0','0','0.010127','0','0'),
@@ -38,12 +40,25 @@ INSERT INTO `creature_movement` (`id`, `point`, `position_x`, `position_y`, `pos
 ('126981','15','1262.42','-1.15338','33.5057','0','0','0','0','0','0','0','0','0','1.58091','0','0'),
 ('126981','16','1262.3','35.3213','33.1855','0','0','0','0','0','0','0','0','0','1.55735','0','0');
 
+#################### Volkhan ####################################################################################
+
+-- Anvil trap (visual) - will be summoned using propper spell
+DELETE FROM gameobject WHERE id  = 190858
+
+DELETE FROM spell_script_target WHERE entry IN (52238,52661,52654,52387,59528);
+INSERT INTO spell_script_target VALUES
+-- Temper & Anvil
+(52238, 1, 28823),
+-- Temper (summon trap visual) & Anvil
+(52661, 1, 28823),
+-- Temper (dummy) & Volkhan
+(52654, 1, 28587),
+-- Heat & Molten Golem
+(52387, 1, 28695),
+(59528, 1, 28695);
 
 /*-- HallsOfLighting::Bengram
 UPDATE creature_template SET `mechanic_immune_mask` = mechanic_immune_mask|1073463287 WHERE `entry` IN (31533,28586);
-
--- HallsOfLighting::Volkano
-UPDATE creature_template SET `mechanic_immune_mask` = mechanic_immune_mask|1073463287 WHERE `entry` IN (31536,28587);
 
 -- HallsOfLighting::Ionar
 UPDATE creature_template SET `mechanic_immune_mask` = mechanic_immune_mask|1073463287 WHERE `entry` IN (31537,28546);
