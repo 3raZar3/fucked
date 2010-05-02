@@ -16,15 +16,10 @@
 
 /* ScriptData
 SDName: Boss Ionar
-SD%Complete: 95%
-SDComment: Originaly by sd2 modified by ScrappyDoo (c) Andeeria
+SD%Complete: 80%
+SDComment: Timer check
 SDCategory: Halls of Lightning
 EndScriptData */
-
-/* TODO
-Balls of Lighting need support with visual effect -> baals fly anywhere but  hit the target
-
-*/
 
 #include "precompiled.h"
 #include "halls_of_lightning.h"
@@ -43,7 +38,7 @@ enum
     SPELL_BALL_LIGHTNING_H                  = 59800,
     SPELL_STATIC_OVERLOAD_N                 = 52658,
     SPELL_STATIC_OVERLOAD_H                 = 59795,
- 
+
     SPELL_DISPERSE                          = 52770,
     SPELL_SUMMON_SPARK                      = 52746,
     SPELL_SPARK_DESPAWN                     = 52776,
@@ -72,15 +67,18 @@ struct MANGOS_DLL_DECL boss_ionarAI : public ScriptedAI
     }
 
     ScriptedInstance* m_pInstance;
+
     std::list<uint64> m_lSparkGUIDList;
 
     bool m_bIsRegularMode;
-    bool m_bIsSplitPhase;
 
+    bool m_bIsSplitPhase;
     uint32 m_uiSplit_Timer;
     uint32 m_uiSparkAtHomeCount;
+
     uint32 m_uiStaticOverload_Timer;
     uint32 m_uiBallLightning_Timer;
+
     uint32 m_uiHealthAmountModifier;
 
     void Reset()
@@ -88,12 +86,13 @@ struct MANGOS_DLL_DECL boss_ionarAI : public ScriptedAI
         m_lSparkGUIDList.clear();
 
         m_bIsSplitPhase = true;
-        m_uiSplit_Timer             = 25000;
-        m_uiSparkAtHomeCount        = 0;
-        m_uiStaticOverload_Timer    = urand(5000, 6000);
-        m_uiBallLightning_Timer     = urand(10000, 11000);
+        m_uiSplit_Timer = 25000;
+        m_uiSparkAtHomeCount = 0;
 
-        m_uiHealthAmountModifier    = 1;
+        m_uiStaticOverload_Timer = urand(5000, 6000);
+        m_uiBallLightning_Timer = urand(10000, 11000);
+
+        m_uiHealthAmountModifier = 1;
 
         if (m_creature->GetVisibility() == VISIBILITY_OFF)
             m_creature->SetVisibility(VISIBILITY_ON);
@@ -269,7 +268,7 @@ struct MANGOS_DLL_DECL boss_ionarAI : public ScriptedAI
             if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 DoCastSpellIfCan(pTarget, m_bIsRegularMode ? SPELL_STATIC_OVERLOAD_N : SPELL_STATIC_OVERLOAD_H);
 
-            m_uiStaticOverload_Timer = urand(9000, 10000);
+            m_uiStaticOverload_Timer = urand(5000, 6000);
         }
         else
             m_uiStaticOverload_Timer -= uiDiff;
@@ -279,7 +278,7 @@ struct MANGOS_DLL_DECL boss_ionarAI : public ScriptedAI
             DoCastSpellIfCan(m_creature->getVictim(), m_bIsRegularMode ? SPELL_BALL_LIGHTNING_N : SPELL_BALL_LIGHTNING_H);
             m_uiBallLightning_Timer = urand(10000, 11000);
         }
-        else 
+        else
             m_uiBallLightning_Timer -= uiDiff;
 
         // Health check
@@ -365,8 +364,6 @@ struct MANGOS_DLL_DECL mob_spark_of_ionarAI : public ScriptedAI
                 m_creature->ForcedDespawn();
         }
     }
-
-    void UpdateAI(const uint32 uiDiff) {}
 };
 
 CreatureAI* GetAI_mob_spark_of_ionar(Creature* pCreature)
