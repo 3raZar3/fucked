@@ -235,7 +235,8 @@ enum SpellTargets
     SPELL_TARGETS_NOT_FRIENDLY,
     SPELL_TARGETS_NOT_HOSTILE,
     SPELL_TARGETS_FRIENDLY,
-    SPELL_TARGETS_AOE_DAMAGE
+    SPELL_TARGETS_AOE_DAMAGE,
+    SPELL_TARGETS_ALL
 };
 
 #define SPELL_SPELL_CHANNEL_UPDATE_INTERVAL (1*IN_MILLISECONDS)
@@ -759,6 +760,8 @@ namespace MaNGOS
                         }
                     }
                     break;
+                    case SPELL_TARGETS_ALL:
+                        break;
                     default: continue;
                 }
 
