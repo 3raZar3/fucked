@@ -178,6 +178,8 @@ void npc_escortAI::JustRespawned()
     if (m_creature->getFaction() != m_creature->GetCreatureInfo()->faction_A)
         m_creature->setFaction(m_creature->GetCreatureInfo()->faction_A);
 
+    m_creature->SetFlag(UNIT_FIELD_FLAGS, m_creature->GetCreatureInfo()->unit_flags);
+
     Reset();
 }
 
@@ -200,11 +202,17 @@ void npc_escortAI::EnterEvadeMode()
             m_creature->GetCombatStartPosition(fPosX, fPosY, fPosZ);
             m_creature->GetMotionMaster()->MovePoint(POINT_LAST_POINT, fPosX, fPosY, fPosZ);
         }
+
+        if (m_bIsActiveAttacker)
+            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, (UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_PASSIVE));
     }
     else
     {
         if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == CHASE_MOTION_TYPE)
+        {
+            m_creature->SetFlag(UNIT_FIELD_FLAGS, m_creature->GetCreatureInfo()->unit_flags);
             m_creature->GetMotionMaster()->MoveTargetedHome();
+        }
     }
 
     Reset();
@@ -461,6 +469,9 @@ void npc_escortAI::Start(bool bIsActiveAttacker, bool bRun, uint64 uiPlayerGUID,
 
     //disable npcflags
     m_creature->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
+
+    if (m_bIsActiveAttacker)
+        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, (UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_PASSIVE));
 
     debug_log("SD2: EscortAI started with " SIZEFMTD " waypoints. ActiveAttacker = %d, Run = %d, PlayerGUID = " UI64FMTD, WaypointList.size(), m_bIsActiveAttacker, m_bIsRunning, m_uiPlayerGUID);
 
