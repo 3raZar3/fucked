@@ -998,9 +998,158 @@ bool GossipSelect_npc_slim(Player* pPlayer, Creature* pCreature, uint32 uiSender
     return true;
 }
 
+/*##################
+## npc_isla_starmane
+####################
+
+ToDo:
+* find missing texts
+*/
+
+enum isla_starmane
+{
+    SPELL_ENTANGLING_ROOTS              = 33844,
+    SPELL_MOONFIRE                      = 15798,
+    SPELL_WRATH                         = 9739,
+
+    SAY_QUEST_COMPLETE                  = -1999774,
+
+    QUEST_ESCAPE_FROM_FOREWING_POINT_A  = 10051,
+    QUEST_ESCAPE_FROM_FOREWING_POINT_H  = 10052,
+
+    GO_CAGE                             = 182794
+};
+
+struct MANGOS_DLL_DECL npc_isla_starmaneAI : public npc_escortAI
+{
+    npc_isla_starmaneAI(Creature* pCreature) : npc_escortAI(pCreature)
+    {
+        m_uiCageGUID = 0;
+        Reset();
+    }
+
+    uint64 m_uiCageGUID;
+    uint32 m_uiEntanglingRootsTimer;
+    uint32 m_uiMoonfireTimer;
+    uint32 m_uiWrathTimer;
+
+    void Reset()
+    {
+        m_uiEntanglingRootsTimer = 0;
+        m_uiMoonfireTimer = 4000;
+        m_uiWrathTimer = 5000;
+    }
+
+    void AttackStart(Unit* pWho)
+    {
+        if (!pWho)
+            return;
+
+        if (m_creature->Attack(pWho, true))
+        {
+            m_creature->AddThreat(pWho);
+            m_creature->SetInCombatWith(pWho);
+            pWho->SetInCombatWith(m_creature);
+
+            if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
+                m_creature->GetMotionMaster()->MovementExpired();
+
+            m_creature->GetMotionMaster()->Clear(false);
+            m_creature->GetMotionMaster()->MoveChase(pWho, 10.0f);
+        }
+    }
+          
+    void WaypointReached(uint32 uiPointId)
+    {
+        Player* pPlayer = GetPlayerForEscort();
+        if (!pPlayer)
+            return;
+
+        switch(uiPointId)
+        {
+            case 1:
+                m_creature->SetFacingToObject(pPlayer);
+                if (GameObject* pCage = m_creature->GetMap()->GetGameObject(m_uiCageGUID))
+                    pCage->SetGoState(GO_STATE_READY);
+                break;
+            case 41:
+                m_creature->SetFacingToObject(pPlayer);
+                DoScriptText(SAY_QUEST_COMPLETE, m_creature, pPlayer);
+                pPlayer->GroupEventHappens(pPlayer->GetTeam() == ALLIANCE ? QUEST_ESCAPE_FROM_FOREWING_POINT_A : QUEST_ESCAPE_FROM_FOREWING_POINT_H, m_creature);
+                SetEscortPaused(true);
+                break;
+
+            default: break;
+        }
+    }
+
+    void UpdateEscortAI(const uint32 uiDiff)
+    {
+        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+            return;
+
+        if (m_uiEntanglingRootsTimer <= uiDiff)
+        {
+            DoCastSpellIfCan(m_creature->getVictim(), SPELL_ENTANGLING_ROOTS, (CAST_AURA_NOT_PRESENT | CAST_INTERRUPT_PREVIOUS));
+            m_uiEntanglingRootsTimer = 7000;
+        }
+        else
+            m_uiEntanglingRootsTimer -= uiDiff;
+
+        if (m_uiMoonfireTimer <= uiDiff)
+        {
+            DoCastSpellIfCan(m_creature->getVictim(), SPELL_MOONFIRE);
+            m_uiMoonfireTimer = 12000;
+        }
+        else
+            m_uiMoonfireTimer -= uiDiff;
+
+        if (m_uiWrathTimer <= uiDiff)
+        {
+            DoCastSpellIfCan(m_creature->getVictim(), SPELL_WRATH);
+            m_uiWrathTimer = 7000;
+        }
+        else
+            m_uiWrathTimer -= uiDiff;
+
+        DoMeleeAttackIfReady();
+    }
+};
+
+bool QuestAccept_npc_isla_starmane(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
+{
+    if (!pPlayer || !pQuest)
+        return false;
+
+    if (pQuest->GetQuestId() == (pPlayer->GetTeam() == ALLIANCE ? QUEST_ESCAPE_FROM_FOREWING_POINT_A : QUEST_ESCAPE_FROM_FOREWING_POINT_H))
+    {
+        if (npc_isla_starmaneAI* pEscortAI = dynamic_cast<npc_isla_starmaneAI*>(pCreature->AI()))
+        {
+            pEscortAI->Start(true, false, pPlayer->GetGUID(), pQuest, true);
+            if (GameObject* pCage = GetClosestGameObjectWithEntry(pCreature, GO_CAGE, INTERACTION_DISTANCE))
+            {
+                pCage->SetGoState(GO_STATE_ACTIVE);
+                ((npc_isla_starmaneAI*)pCreature->AI())->m_uiCageGUID = pCage->GetGUID();
+            }
+        }
+    }
+    return true;
+}
+
+CreatureAI* GetAI_npc_isla_starmane(Creature* pCreature)
+{
+    return new npc_isla_starmaneAI(pCreature);
+}
+
 void AddSC_terokkar_forest()
 {
     Script *newscript;
+
+    newscript = new Script;
+    newscript->Name = "npc_isla_starmane";
+    newscript->GetAI = &GetAI_npc_isla_starmane;
+    newscript->pQuestAccept = &QuestAccept_npc_isla_starmane;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "mob_unkor_the_ruthless";
