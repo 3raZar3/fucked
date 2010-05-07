@@ -420,7 +420,7 @@ struct MANGOS_DLL_DECL boss_fathomguard_sharkkisAI : public Advisor_Base_AI
         //m_uiHurlTrident_Timer
         if (m_uiHurlTrident_Timer < uiDiff)
         {
-            if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
             {
                 if (!m_creature->IsWithinDist(pTarget,ATTACK_DISTANCE))
                     DoCastSpellIfCan(pTarget, SPELL_HURL_TRIDENT);

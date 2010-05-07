@@ -110,6 +110,19 @@ struct MANGOS_DLL_DECL mob_vrykul_skeletonAI : public ScriptedAI
         ScriptedAI::AttackStart(pWho);
     }
 
+    void Revive()
+    {
+        m_creature->SetHealth(m_creature->GetMaxHealth());
+        m_creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
+        m_creature->SetStandState(UNIT_STAND_STATE_STAND);
+
+        if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
+            m_creature->GetMotionMaster()->MoveChase(pTarget);
+
+        DoResetThreat();
+        m_uiReviveTimer = 0;
+    }
+
     void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
     {
         Creature* m_pKeleseth = GetKeleseth();
@@ -319,7 +332,7 @@ struct MANGOS_DLL_DECL boss_kelesethAI : public ScriptedAI
 
         if (m_uiFrostTombTimer < uiDiff)
         {
-            if (Unit* pTombTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+            if (Unit* pTombTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
             {
                 //DoCastSpellIfCan(pTombTarget, SPELL_SUMMON_FROST_TOMB);
                 float fPosX, fPosY, fPosZ;

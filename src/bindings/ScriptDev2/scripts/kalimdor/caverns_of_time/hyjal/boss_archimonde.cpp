@@ -549,7 +549,7 @@ struct MANGOS_DLL_DECL boss_archimondeAI : public ScriptedAI
 
         if (GripOfTheLegionTimer < diff)
         {
-            if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
                 DoCastSpellIfCan(pTarget, SPELL_GRIP_OF_THE_LEGION);
 
             GripOfTheLegionTimer = urand(5000, 25000);
@@ -562,7 +562,7 @@ struct MANGOS_DLL_DECL boss_archimondeAI : public ScriptedAI
             else
                 DoScriptText(SAY_AIR_BURST2, m_creature);
 
-            if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1))
+            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1))
             DoCastSpellIfCan(pTarget, SPELL_AIR_BURST);
             AirBurstTimer = urand(25000, 40000);
         }else AirBurstTimer -= diff;
@@ -600,7 +600,7 @@ struct MANGOS_DLL_DECL boss_archimondeAI : public ScriptedAI
         {
             if (CanUseFingerOfDeath())
             {
-                if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
                 DoCastSpellIfCan(pTarget, SPELL_FINGER_OF_DEATH);
 
                 MeleeRangeCheckTimer = 1000;

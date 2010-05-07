@@ -120,7 +120,7 @@ struct MANGOS_DLL_DECL boss_anomalusAI : public ScriptedAI
         DoScriptText(SAY_RIFT, m_creature);
         m_uiChaoticRiftGUID = pSummoned->GetGUID();
 
-        if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
             pSummoned->AI()->AttackStart(pTarget);
                
         pSummoned->CastSpell(pSummoned, SPELL_ARCANE_FORM, true);
@@ -155,7 +155,7 @@ struct MANGOS_DLL_DECL boss_anomalusAI : public ScriptedAI
 
         if (m_uiSparkTimer < uiDiff)
         {
-            if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
                 DoCastSpellIfCan(pTarget, m_bIsRegularMode ? SPELL_SPARK : SPELL_SPARK_H);
 
             m_uiSparkTimer = 5000;

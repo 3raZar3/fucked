@@ -414,7 +414,7 @@ struct MANGOS_DLL_DECL boss_kaelthasAI : public ScriptedAI
             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
-            if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
                 AttackStart(pTarget);
 
         }
@@ -491,7 +491,7 @@ struct MANGOS_DLL_DECL boss_kaelthasAI : public ScriptedAI
         }
 
         // if not phoenix or trigger, then it's one of the 7 weapons
-        if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+        if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
             pSummoned->AI()->AttackStart(pTarget);
     }
 
@@ -554,7 +554,7 @@ struct MANGOS_DLL_DECL boss_kaelthasAI : public ScriptedAI
                                 pAdvisor->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                                 pAdvisor->setFaction(m_creature->getFaction());
 
-                                pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                                pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0);
                                 if (pTarget)
                                     pAdvisor->AI()->AttackStart(pTarget);
                             }
@@ -591,7 +591,7 @@ struct MANGOS_DLL_DECL boss_kaelthasAI : public ScriptedAI
                                 pAdvisor->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                                 pAdvisor->setFaction(m_creature->getFaction());
 
-                                pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                                pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0);
                                 if (pTarget)
                                     pAdvisor->AI()->AttackStart(pTarget);
                             }
@@ -628,7 +628,7 @@ struct MANGOS_DLL_DECL boss_kaelthasAI : public ScriptedAI
                                 pAdvisor->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                                 pAdvisor->setFaction(m_creature->getFaction());
 
-                                pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                                pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0);
                                 if (pTarget)
                                     pAdvisor->AI()->AttackStart(pTarget);
                             }
@@ -665,7 +665,7 @@ struct MANGOS_DLL_DECL boss_kaelthasAI : public ScriptedAI
                                 pAdvisor->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                                 pAdvisor->setFaction(m_creature->getFaction());
 
-                                pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                                pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0);
                                 if (pTarget)
                                     pAdvisor->AI()->AttackStart(pTarget);
                             }
@@ -741,7 +741,7 @@ struct MANGOS_DLL_DECL boss_kaelthasAI : public ScriptedAI
                 if (m_uiPhaseSubphase == 0)
                 {
                     //Respawn advisors
-                    Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                    Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0);
 
                     Creature* pAdvisor;
                     for (uint32 i = 0; i < MAX_ADVISORS; ++i)
@@ -774,7 +774,7 @@ struct MANGOS_DLL_DECL boss_kaelthasAI : public ScriptedAI
                     m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
-                    if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
                         AttackStart(pTarget);
 
                     m_uiPhase_Timer = 30000;
@@ -833,7 +833,7 @@ struct MANGOS_DLL_DECL boss_kaelthasAI : public ScriptedAI
                     //m_uiFlameStrike_Timer
                     if (m_uiFlameStrike_Timer < uiDiff)
                     {
-                        if (Unit* pUnit = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* pUnit = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
                             DoCastSpellIfCan(pUnit, SPELL_FLAME_STRIKE);
 
                         m_uiFlameStrike_Timer = 30000;
@@ -859,7 +859,7 @@ struct MANGOS_DLL_DECL boss_kaelthasAI : public ScriptedAI
                  // Summon Phoenix
                 if (m_uiPhoenix_Timer < uiDiff)
                 {
-                    if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
                     {
                         DoCastSpellIfCan(pTarget, SPELL_PHOENIX_ANIMATION);
                         DoScriptText(urand(0, 1) ? SAY_SUMMON_PHOENIX1 : SAY_SUMMON_PHOENIX2, pTarget);
@@ -1033,7 +1033,7 @@ struct MANGOS_DLL_DECL boss_kaelthasAI : public ScriptedAI
                         //m_uiNetherBeam_Timer
                         if (m_uiNetherBeam_Timer < uiDiff)
                         {
-                            if (Unit* pUnit = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* pUnit = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
                                 DoCastSpellIfCan(pUnit, SPELL_NETHER_BEAM);
 
                             m_uiNetherBeam_Timer = 4000;
@@ -1098,7 +1098,7 @@ struct MANGOS_DLL_DECL boss_thaladred_the_darkenerAI : public advisorbase_ai
         //m_uiGaze_Timer
         if (m_uiGaze_Timer < uiDiff)
         {
-            if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
             {
                 DoResetThreat();
                 m_creature->AddThreat(pTarget, 5000000.0f);
@@ -1268,7 +1268,7 @@ struct MANGOS_DLL_DECL boss_grand_astromancer_capernianAI : public advisorbase_a
         //m_uiConflagration_Timer
         if (m_uiConflagration_Timer < uiDiff)
         {
-            Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+            Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0);
 
             if (pTarget && m_creature->IsWithinDistInMap(pTarget, 30.0f))
                 DoCastSpellIfCan(pTarget, SPELL_CONFLAGRATION);
@@ -1365,7 +1365,7 @@ struct MANGOS_DLL_DECL boss_master_engineer_telonicusAI : public advisorbase_ai
         //m_uiRemoteToy_Timer
         if (m_uiRemoteToy_Timer < uiDiff)
         {
-            if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
                 DoCastSpellIfCan(pTarget, SPELL_REMOTE_TOY);
 
             m_uiRemoteToy_Timer = urand(10000, 15000);

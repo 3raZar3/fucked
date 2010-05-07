@@ -629,7 +629,7 @@ struct MANGOS_DLL_DECL boss_sathrovarrAI : public ScriptedAI
 
         if (m_uiCurseOfBoundlessAgonyTimer < uiDiff)
         {
-            if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
                 DoCastSpellIfCan(pTarget, SPELL_CURSE_OF_BOUNDLESS_AGONY);
             m_uiCurseOfBoundlessAgonyTimer = 20000;
         }else m_uiCurseOfBoundlessAgonyTimer -= uiDiff;
