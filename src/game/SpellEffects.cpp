@@ -153,7 +153,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectKillCreditPersonal,                       // 90 SPELL_EFFECT_KILL_CREDIT              Kill credit but only for single person
     &Spell::EffectUnused,                                   // 91 SPELL_EFFECT_THREAT_ALL               one spell: zzOLDBrainwash
     &Spell::EffectEnchantHeldItem,                          // 92 SPELL_EFFECT_ENCHANT_HELD_ITEM
-    &Spell::EffectUnused,                                   // 93 SPELL_EFFECT_93 (old SPELL_EFFECT_SUMMON_PHANTASM)
+    &Spell::EffectSummonPhantasm,                           // 93 SPELL_EFFECT_93
     &Spell::EffectSelfResurrect,                            // 94 SPELL_EFFECT_SELF_RESURRECT
     &Spell::EffectSkinning,                                 // 95 SPELL_EFFECT_SKINNING
     &Spell::EffectCharge,                                   // 96 SPELL_EFFECT_CHARGE
@@ -1487,6 +1487,22 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
 
                     return;
                 }
+                case 50546:                                 // Ley Line Focus Control Ring Effect
+                case 50547:                                 // Ley Line Focus Control Amulet Effect
+                case 50548:                                 // Ley Line Focus Control Talisman Effect
+                {
+                    if (!m_originalCaster || !unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
+                        return;
+
+                    switch(m_spellInfo->Id)
+                    {
+                        case 50546: unitTarget->CastSpell(m_originalCaster, 47390, true); break;
+                        case 50547: unitTarget->CastSpell(m_originalCaster, 47472, true); break;
+                        case 50548: unitTarget->CastSpell(m_originalCaster, 47635, true); break;
+                    }
+
+                    return;
+                }
                 case 51276:                                 // Incinerate Corpse
                 {
                     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
@@ -2120,6 +2136,11 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                 case 51662:                                 // Hunger for Blood
                 {
                     m_caster->CastSpell(m_caster, 63848, true);
+                    return;
+            }
+                case 51690:                                 // Killing Spree
+                {
+                    m_caster->CastSpell(m_caster, 61851, true);
                     return;
             }
             }
@@ -7746,6 +7767,16 @@ void Spell::EffectDestroyAllTotems(SpellEffectIndex /*eff_idx*/)
         m_caster->CastCustomSpell(m_caster, 39104, &mana, NULL, NULL, true);
 }
 
+void Spell::EffectSummonPhantasm (SpellEffectIndex /* eff_idx */)
+{
+    if (m_caster->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    WorldPacket data(SMSG_CLEAR_TARGET, 8);
+    data << uint64(m_caster->GetGUID());
+    m_caster->SendMessageToSet(&data, false);
+}
+
 void Spell::EffectDurabilityDamage(SpellEffectIndex eff_idx)
 {
     if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
@@ -8022,30 +8053,34 @@ void Spell::EffectStealBeneficialBuff(SpellEffectIndex eff_idx)
     // Ok if exist some buffs for dispel try dispel it
     if (!steal_list.empty())
     {
-        std::list < std::pair<uint32,uint64> > success_list;
-        int32 list_size = steal_list.size();
+        std::list < std::pair<uint32,uint64> > success_list;// (spell_id,casterGuid)
+        std::list < uint32 > fail_list;                     // spell_id
         // Dispell N = damage buffs (or while exist buffs for dispel)
-        for (int32 count=0; count < damage && list_size > 0; ++count)
+       for (int32 count=0; count < damage && !steal_list.empty(); ++count)
         {
             // Random select buff for dispel
-            Aura *aur = steal_list[urand(0, list_size-1)];
-            // Not use chance for steal
-            // TODO possible need do it
-            success_list.push_back( std::pair<uint32,uint64>(aur->GetId(),aur->GetCasterGUID()));
+            std::vector<Aura*>::iterator steal_itr = steal_list.begin();
+            std::advance(steal_itr,urand(0, steal_list.size()-1));
 
-            // Remove buff from list for prevent doubles
-            for (std::vector<Aura *>::iterator j = steal_list.begin(); j != steal_list.end(); )
+            Aura *aur = *steal_itr;
+           // remove entry from steal_list
+            steal_list.erase(steal_itr);
+
+            SpellEntry const* spellInfo = aur->GetSpellProto();
+            // Base dispel chance
+            int32 miss_chance = 0;
+            // Apply dispel mod from aura caster
+            if (Unit *caster = aur->GetCaster())
             {
-                Aura *stealed = *j;
-                if (stealed->GetId() == aur->GetId() && stealed->GetCasterGUID() == aur->GetCasterGUID())
-                {
-                    j = steal_list.erase(j);
-                    --list_size;
+               if ( Player* modOwner = caster->GetSpellModOwner() )
+                    modOwner->ApplySpellMod(spellInfo->Id, SPELLMOD_RESIST_DISPEL_CHANCE, miss_chance, this);
                 }
+            // Try dispel
+            if (roll_chance_i(miss_chance))
+                fail_list.push_back(spellInfo->Id);
                 else
-                    ++j;
+                success_list.push_back(std::pair<uint32,uint64>(aur->GetId(),aur->GetCasterGUID()));
             }
-        }
         // Really try steal and send log
         if (!success_list.empty())
         {
@@ -8065,7 +8100,19 @@ void Spell::EffectStealBeneficialBuff(SpellEffectIndex eff_idx)
             }
             m_caster->SendMessageToSet(&data, true);
         }
+       // Send fail log to client
+        if (!fail_list.empty())
+        {
+            // Failed to steal
+            WorldPacket data(SMSG_DISPEL_FAILED, 8+8+4+4*fail_list.size());
+            data << uint64(m_caster->GetGUID());            // Caster GUID
+            data << uint64(unitTarget->GetGUID());          // Victim GUID
+            data << uint32(m_spellInfo->Id);                // Steal spell id
+            for (std::list< uint32 >::iterator j = fail_list.begin(); j != fail_list.end(); ++j)
+               data << uint32(*j);                         // Spell Id
+            m_caster->SendMessageToSet(&data, true);
     }
+}
 }
 
 void Spell::EffectKillCreditPersonal(SpellEffectIndex eff_idx)
