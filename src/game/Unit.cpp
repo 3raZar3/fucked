@@ -7238,14 +7238,6 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     spell->AddTriggeredSpell(63685);
                 return true;
             }
-            // Flametongue Weapon proc
-            if (dummySpell->SpellFamilyFlags & UI64LIT(0x0000000000200000))
-            {
-                triggered_spell_id = 10444;
-                basepoints[0] = GetAttackTime(BASE_ATTACK) * (dummySpell->EffectBasePoints[0]+1) / 100000;
-                break;
-            }
-            break;
         }
         case SPELLFAMILY_DEATHKNIGHT:
         {
