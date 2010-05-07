@@ -45,7 +45,7 @@ struct MANGOS_DLL_DECL instance_draktharon_keep : public ScriptedInstance
     uint64 m_uiTrollgoreGUID;
     uint64 m_uiNovosGUID;
     uint64 m_uiDrekGUID;
-	uint64 m_uiTharonjaGUID;
+    uint64 m_uiTharonjaGUID;
 
     uint64 m_uiRitualCrystalGUID[CRYSTAL_NUMBER];
 
@@ -56,7 +56,7 @@ struct MANGOS_DLL_DECL instance_draktharon_keep : public ScriptedInstance
         m_uiTrollgoreGUID = 0;
         m_uiNovosGUID = 0;
         m_uiDrekGUID = 0;
-		m_uiTharonjaGUID = 0;
+        m_uiTharonjaGUID = 0;
         CrystalCounter = 0;
         for (uint8 i = 0; i < CRYSTAL_NUMBER; ++i)
         {
@@ -72,7 +72,7 @@ struct MANGOS_DLL_DECL instance_draktharon_keep : public ScriptedInstance
             case 26630: m_uiTrollgoreGUID = pCreature->GetGUID(); break;
             case 26631: m_uiNovosGUID = pCreature->GetGUID(); break;
             case 27483: m_uiDrekGUID = pCreature->GetGUID(); break;
-			case 26632: m_uiTharonjaGUID = pCreature->GetGUID(); break;
+            case 26632: m_uiTharonjaGUID = pCreature->GetGUID(); break;
         }
     }
 

@@ -119,9 +119,9 @@ struct MANGOS_DLL_DECL boss_azgalorAI : public ScriptedAI
         SpellEntry *spellInfo = (SpellEntry *)GetSpellStore()->LookupEntry(SPELL_DOOM);
         if (spellInfo)
             //target without tank
-            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1))
+            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,1))
             {
-                if (target && target->GetTypeId() == TYPEID_PLAYER)
+                if (pTarget->GetTypeId() == TYPEID_PLAYER)
                 {
                     for(uint8 i=0; i< MAX_EFFECT_INDEX; ++i)
                     {
@@ -129,7 +129,7 @@ struct MANGOS_DLL_DECL boss_azgalorAI : public ScriptedAI
                         if (eff >= TOTAL_SPELL_EFFECTS)
                             continue;
                         //uint8 i=1;
-                        target->AddAura(new AzgalorDoom(spellInfo, SpellEffectIndex(i), NULL, target, target));
+                        pTarget->AddAura(new AzgalorDoom(spellInfo, SpellEffectIndex(i), NULL, pTarget, pTarget));
                     }
                 }
                 else
@@ -152,47 +152,53 @@ struct MANGOS_DLL_DECL boss_azgalorAI : public ScriptedAI
                 DoCast(m_creature->getVictim(), SPELL_CLEAVE);
                 CleaveTimer = 10000;
             }
-        }CleaveTimer -= diff;
+        }
+        else
+            CleaveTimer -= diff;
 
         if(RainTimer < diff)
         {
-            switch (rand()%3)
+            switch (urand(0, 2))
             {
                 case 0: DoPlaySoundToSet(m_creature, SAY_WOUND); break;
                 case 1: DoPlaySoundToSet(m_creature, SAY_WOUND2); break;
                 case 2: DoPlaySoundToSet(m_creature, SAY_AGGRO); break;
             }
 
-            if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+            if(Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
             {
-                DoCast(target, SPELL_RAIN, false);
-                target->CastSpell(target, SPELL_FLAMES, false);
-                RainTimer = 20000+rand()%15000;
+                DoCastSpellIfCan(pTarget, SPELL_RAIN);
+                pTarget->CastSpell(pTarget, SPELL_FLAMES, false);
+                RainTimer = urand(20000, 35000);
             }                                
-        }RainTimer -= diff;
+        }
+        else
+            RainTimer -= diff;
 
         if(HowlTimer < diff)
         {
             DoCast(m_creature, SPELL_HOWL); 
             HowlTimer = 15000+rand()%5000;                                            
-        }HowlTimer -= diff;
+        }
+        else
+            HowlTimer -= diff;
 
         if(DoomTimer < diff)
         {
-            switch (rand()%2)
-            {
-                case 0: DoPlaySoundToSet(m_creature, SAY_DOOM); break;
-                case 1: DoPlaySoundToSet(m_creature, SAY_DOOM2); break;
-            }
+            DoPlaySoundToSet(m_creature, urand(0, 1) ? SAY_DOOM : SAY_DOOM2);
             CastDoom();
-            DoomTimer = 45000+rand()%5000;;
-        }DoomTimer -= diff;
+            DoomTimer = urand(45000, 50000);
+        }
+        else
+            DoomTimer -= diff;
 
         if(EnrageTimer < diff)
         {
-            DoCast(m_creature, SPELL_ENRAGE);
+            DoCastSpellIfCan(m_creature, SPELL_ENRAGE);
             EnrageTimer = 300000;
-        }EnrageTimer -= diff;
+        }
+        else
+            EnrageTimer -= diff;
 
         DoMeleeAttackIfReady();
     }

@@ -420,21 +420,27 @@ struct MANGOS_DLL_DECL boss_jedogaAI : public ScriptedAI
         {
             DoCastSpellIfCan(m_creature->getVictim(), m_bIsRegularMode ? SPELL_CYCLONE_STRIKE : SPELL_CYCLONE_STRIKE_H);
             m_uiCycloneTimer = urand(10000, 20000);
-        }else m_uiCycloneTimer -= uiDiff;
+        }
+        else
+            m_uiCycloneTimer -= uiDiff;
 
         if(m_uiLightningboltTimer < uiDiff)
         {
-            if(Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+            if(Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
                 DoCastSpellIfCan(pTarget, m_bIsRegularMode ? SPELL_LIGHTING_BOLT : SPELL_LIGHTING_BOLT_H);
             m_uiLightningboltTimer = urand(3000, 8000);
-        }else m_uiLightningboltTimer -= uiDiff;
+        }
+        else
+            m_uiLightningboltTimer -= uiDiff;
 
         if(m_uiThunderTimer < uiDiff)
         {
-            if(Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+            if(Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
                 DoCastSpellIfCan(pTarget, m_bIsRegularMode ? SPELL_THUNDER_SHOCK : SPELL_THUNDER_SHOCK_H);
             m_uiThunderTimer = urand(8000, 16000);
-        }else m_uiThunderTimer -= uiDiff;
+        }
+        else
+            m_uiThunderTimer -= uiDiff;
 
         DoMeleeAttackIfReady();
     }

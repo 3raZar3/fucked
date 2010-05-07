@@ -111,7 +111,7 @@ struct MANGOS_DLL_DECL boss_brutallusAI : public ScriptedAI
     void Aggro(Unit* pWho)
     {
         DoScriptText(YELL_AGGRO, m_creature);
-	    DoPlaySoundToSet(m_creature, 12463);
+        DoPlaySoundToSet(m_creature, 12463);
 
         Creature* Madrigosa = m_creature->SummonCreature(CREATURE_MADRIGOSA, 1465.831f, 647.065f, m_creature->GetPositionZ(), 4.729f, TEMPSUMMON_TIMED_DESPAWN, 42000);
     }

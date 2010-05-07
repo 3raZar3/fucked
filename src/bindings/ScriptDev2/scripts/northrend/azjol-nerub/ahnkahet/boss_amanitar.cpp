@@ -117,14 +117,14 @@ struct MANGOS_DLL_DECL boss_amanitarAI : public ScriptedAI
 
         if(m_uiBoltTimer <= uiDiff)
         {
-            if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                DoCastSpellIfCan(target, SPELL_BOLT);
+            if(Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
+                DoCastSpellIfCan(pTarget, SPELL_BOLT);
             m_uiBoltTimer = urand(8000, 16000);
         }else m_uiBoltTimer -= uiDiff;
 
         if(m_uiRootsTimer <= uiDiff)
         {
-            if(Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1))
+            if(Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,1))
                 DoCastSpellIfCan(pTarget, SPELL_ROOTS);
             m_uiRootsTimer = urand(10000, 15000);
         }else m_uiRootsTimer -= uiDiff;

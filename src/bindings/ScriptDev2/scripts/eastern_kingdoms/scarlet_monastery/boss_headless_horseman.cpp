@@ -403,7 +403,7 @@ struct MANGOS_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
 
                 ApplyRegenAuras();
 
-                if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
                     if (pHead->AI())
                         pHead->AI()->AttackStart(pTarget);
 
@@ -426,7 +426,7 @@ struct MANGOS_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
 
                 if (m_uiConflageration_Timer <= uiDiff)
                 {
-                    if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                    if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
                     {
                         DoScriptText(SAY_CONFLAGRATION,m_creature);
                         pTarget->CastSpell(pTarget,SPELL_CONFLAGRATION,false);
@@ -447,7 +447,7 @@ struct MANGOS_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
 
                 ApplyRegenAuras();
 
-                if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
                     if (pHead->AI())
                         pHead->AI()->AttackStart(pTarget);
 
@@ -466,7 +466,7 @@ struct MANGOS_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
             case 4:
                 if ((m_creature->GetHealth()*100) / (m_creature->GetMaxHealth()) <= 1)
                 {
-                    if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                    if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
                         if (pHead->AI())
                             pHead->AI()->AttackStart(pTarget);
 
@@ -474,7 +474,7 @@ struct MANGOS_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
                 }
                 if (m_uiPumpkinSprout_Timer <= uiDiff)
                 {
-                    if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                    if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
                     {
                         DoScriptText(SAY_SPROUTING_PUMPKINS,m_creature);
                         m_creature->CastSpell(pTarget,SPELL_SUMMON_PUMPKIN,false);

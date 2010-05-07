@@ -208,15 +208,15 @@ struct MANGOS_DLL_DECL npc_small_pet_handlerAI : public ScriptedAI
                     m_creature->SetSpeedRate(MOVE_RUN, 1.0f, true);
 
                 // Check if owner is stopped
-            	if (pPlayer->isMoving() && m_bIsIdle)
-            	{
+                if (pPlayer->isMoving() && m_bIsIdle)
+                {
                     m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
                     //m_creature->GetMotionMaster()->MoveFollow(pPlayer, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
                     if (m_creature->IsNonMeleeSpellCasted(false))
                         m_creature->InterruptNonMeleeSpells(false);
                     m_bIsIdle = false;
                     m_uiActionTimer = 10000 + rand()%20000;
-            	}
+                }
                 else if (m_creature->IsWithinDistInMap(pPlayer, 1.5f) && !m_bIsIdle)
                 {
                     m_bIsIdle = true;

@@ -84,13 +84,13 @@ float Position [10][3] =
 
 struct MANGOS_DLL_DECL npc_disciple_of_naralexAI : public npc_escortAI
 {
-	npc_disciple_of_naralexAI(Creature* pCreature) : npc_escortAI(pCreature)
-	{
-		m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
-		Reset();
-	}
+    npc_disciple_of_naralexAI(Creature* pCreature) : npc_escortAI(pCreature)
+    {
+        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        Reset();
+    }
 
-	ScriptedInstance* m_pInstance;
+    ScriptedInstance* m_pInstance;
     Unit* EventStarter;
 
     uint32 Event_Timer;
@@ -130,7 +130,7 @@ struct MANGOS_DLL_DECL npc_disciple_of_naralexAI : public npc_escortAI
         error_log("Debug: Wailing Caverns escort event point %u, initialized by %w", Point, EventStarter->GetName());
     }
 
-	void WaypointReached(uint32 i) 
+    void WaypointReached(uint32 i) 
     {
         switch (i)
         {
@@ -168,9 +168,9 @@ struct MANGOS_DLL_DECL npc_disciple_of_naralexAI : public npc_escortAI
         }
     }
 
-   	void SummonAttacker(uint32 entry, float x, float y, float z)
-	{
-		Creature* Summoned = m_creature->SummonCreature(entry, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 20000);
+       void SummonAttacker(uint32 entry, float x, float y, float z)
+    {
+        Creature* Summoned = m_creature->SummonCreature(entry, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 20000);
         if (Summoned && EventStarter)
             ((CreatureAI*)Summoned->AI())->AttackStart(EventStarter);
     }
@@ -375,10 +375,12 @@ struct MANGOS_DLL_DECL npc_disciple_of_naralexAI : public npc_escortAI
 
             if (Sleep_Timer < diff)
             {
-                if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,1))
-                    m_creature->CastSpell(target,SPELL_SLEEP,false);
+                if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,1))
+                    DoCastSpellIfCan(pTarget, SPELL_SLEEP);
                 Sleep_Timer = 30000;
-            } else Sleep_Timer -= diff;
+            }
+            else
+                Sleep_Timer -= diff;
 
             DoMeleeAttackIfReady();
         }
@@ -387,17 +389,17 @@ struct MANGOS_DLL_DECL npc_disciple_of_naralexAI : public npc_escortAI
 
 bool GossipHello_npc_disciple_of_naralex(Player* pPlayer, Creature* pCreature)
 {
-	ScriptedInstance* m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
-	
-	if (pCreature->isQuestGiver())
-		pPlayer->PrepareQuestMenu(pCreature->GetGUID());
-	if (m_pInstance && m_pInstance->GetData(TYPE_DISCIPLE) == SPECIAL)
+    ScriptedInstance* m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+    
+    if (pCreature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+    if (m_pInstance && m_pInstance->GetData(TYPE_DISCIPLE) == SPECIAL)
     {
-		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_BEGIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_BEGIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
         pPlayer->SEND_GOSSIP_MENU(699, pCreature->GetGUID());
     } else
         pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
-	return true;
+    return true;
 }
 
 bool GossipSelect_npc_disciple_of_naralex(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
@@ -407,32 +409,32 @@ bool GossipSelect_npc_disciple_of_naralex(Player* pPlayer, Creature* pCreature, 
     if (!m_pInstance)
         return false;
 
-	if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
-	{
-		if (npc_disciple_of_naralexAI* pEscortAI = dynamic_cast<npc_disciple_of_naralexAI*>(pCreature->AI()))
-		{   
+    if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+    {
+        if (npc_disciple_of_naralexAI* pEscortAI = dynamic_cast<npc_disciple_of_naralexAI*>(pCreature->AI()))
+        {   
             pEscortAI->Start(true,false,pPlayer->GetGUID());
             pCreature->setFaction(FACTION_ESCORT_N_ACTIVE);
             DoScriptText(YELL_AFTER_GOSSIP,pCreature);
-		}
-		pPlayer->CLOSE_GOSSIP_MENU();
-	}
-	return true;
+        }
+        pPlayer->CLOSE_GOSSIP_MENU();
+    }
+    return true;
 }
 
 CreatureAI* GetAI_npc_disciple_of_naralex(Creature* pCreature)
 {
-	return new npc_disciple_of_naralexAI(pCreature);
+    return new npc_disciple_of_naralexAI(pCreature);
 }
 
 void AddSC_wailing_caverns()
 {
-	Script *newscript;
-	
-	newscript = new Script;
-	newscript->Name = "npc_disciple_of_naralex";
-	newscript->GetAI = &GetAI_npc_disciple_of_naralex;
-	newscript->pGossipHello =  &GossipHello_npc_disciple_of_naralex;
-	newscript->pGossipSelect = &GossipSelect_npc_disciple_of_naralex;
-	newscript->RegisterSelf();
+    Script *newscript;
+    
+    newscript = new Script;
+    newscript->Name = "npc_disciple_of_naralex";
+    newscript->GetAI = &GetAI_npc_disciple_of_naralex;
+    newscript->pGossipHello =  &GossipHello_npc_disciple_of_naralex;
+    newscript->pGossipSelect = &GossipSelect_npc_disciple_of_naralex;
+    newscript->RegisterSelf();
 }

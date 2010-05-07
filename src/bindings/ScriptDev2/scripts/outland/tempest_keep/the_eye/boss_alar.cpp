@@ -381,12 +381,10 @@ struct MANGOS_DLL_DECL boss_alarAI : public ScriptedAI
             {
                 Creature* Summoned = NULL;
                 Summoned = m_creature->SummonCreature(CREATURE_EMBER_OF_ALAR, waypoint[cur_wp][0], waypoint[cur_wp][1], waypoint[cur_wp][2], 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
-                if (Summoned)
+                if (Summoned && Summoned->AI())
                 {
-                    Unit* target = NULL;
-                    target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                    if (target)
-                        Summoned->AI()->AttackStart(target);
+                    if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
+                        Summoned->AI()->AttackStart(pTarget);
                 }
                 if (rand()%100 <= 20)
                 {
@@ -453,14 +451,14 @@ struct MANGOS_DLL_DECL boss_alarAI : public ScriptedAI
 
                 if (Charge_Timer < diff)
                 {
-                    Charge_target = SelectUnit(SELECT_TARGET_RANDOM, 1);
+                    Charge_target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,1);
                     if (Charge_target)
                     {
                         m_creature->SetInFront(Charge_target);
                         Charge_target_threat = m_creature->getThreatManager().getThreat(Charge_target);
-                        m_creature->getThreatManager().addThreat(Charge_target, 100000000.0f);
+                        m_creature->getThreatManager().addThreat(Charge_target, 1000.0f);
                         m_creature->SetSpeedRate(MOVE_RUN, DefaultMoveSpeedRate*5.0f);
-                        DoCast(Charge_target, SPELL_CHARGE);
+                        DoCastSpellIfCan(Charge_target, SPELL_CHARGE);
                         ChargeDelay_Timer = 2000;
                         Charge = true;
                     }
@@ -497,40 +495,36 @@ struct MANGOS_DLL_DECL boss_alarAI : public ScriptedAI
                 m_creature->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
                 m_creature->ApplySpellImmune(0, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, false);
                 m_creature->SetDisplayId(11686);
-                Unit* target = NULL;
-                target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                if (target) DoCast(target, SPELL_DIVE_BOMB);
+                Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0);
+
+                if (!pTarget)
+                    pTarget = m_creature->getVictim();
+                if (!pTarget)
+                    return;
+                DoCastSpellIfCan(pTarget, SPELL_DIVE_BOMB);
                 m_creature->SetFloatValue(OBJECT_FIELD_SCALE_X, DefaultSize);
                 m_creature->RemoveAurasDueToSpell(SPELL_DIVE_BOMB_VISUAL);
                 m_creature->SetSpeedRate(MOVE_RUN, DefaultMoveSpeedRate*2.0f);
-                if (target)
+
+                float fPosX, fPosY, fPosZ;
+                pTarget->GetPosition(fPosX, fPosY, fPosZ);
+                CreaturePointMove(7, fPosX, fPosY, fPosZ);
+                for (int8 i=1; i<=2; i++)
                 {
-                    CreaturePointMove(7, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
-                    Creature* Summoned = NULL;
-                    for (int8 i=1; i<=2; i++)
-                        {
-                            Summoned = m_creature->SummonCreature(CREATURE_EMBER_OF_ALAR, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
-                            if (Summoned)
-                            {
-                                Unit* target1 = NULL;
-                                target1 = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                                if (target1)
-                                    Summoned->AI()->AttackStart(target1);
-                            }
-                        }
+                    if (Creature* pSummoned = m_creature->SummonCreature(CREATURE_EMBER_OF_ALAR, fPosX, fPosY, fPosZ, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000))
+                    {
+                        if (pSummoned->AI())
+                            pSummoned->AI()->AttackStart(pTarget);
+                    }
                 }
                 DiveBombCastDelay_Timer = 9999999;
             }else DiveBombCastDelay_Timer -= diff;
 
             if (FlamePatch_Timer < diff)
             {
-                Unit* target = NULL;
-                target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                if (target)
+                if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
                 {
-                    Creature* Summoned = NULL;
-                    Summoned = m_creature->SummonCreature(CREATURE_FLAME_PATCH_ALAR, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 120000);
-                    if (Summoned)
+                    if (Creature* Summoned = m_creature->SummonCreature(CREATURE_FLAME_PATCH_ALAR, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 120000))
                     {
                         Summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         Summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -545,7 +539,6 @@ struct MANGOS_DLL_DECL boss_alarAI : public ScriptedAI
             }else FlamePatch_Timer -= diff;
 
         }
-
         DoMeleeAttackIfReady();
     }
 };

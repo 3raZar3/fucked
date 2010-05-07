@@ -240,10 +240,10 @@ struct MANGOS_DLL_DECL boss_skeramAI : public ScriptedAI
 
         for (int tryi = 0; tryi < 41; ++tryi)
         {
-            Unit *targetpl = SelectUnit(SELECT_TARGET_RANDOM, 0);
-            if (targetpl && targetpl->GetTypeId() == TYPEID_PLAYER)
+            Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0);
+            if (pTarget && pTarget->GetTypeId() == TYPEID_PLAYER)
             {
-                Group *grp = ((Player *)targetpl)->GetGroup();
+                Group *grp = ((Player *)pTarget)->GetGroup();
                 if (grp)
                 {
                     for (int ici = 0; ici < TARGETICONCOUNT; ++ici)

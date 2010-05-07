@@ -7,9 +7,9 @@
 
 enum
 {
-    MAX_ENCOUNTER						= 1,
+    MAX_ENCOUNTER                       = 1,
 
-    TYPE_STALKER						= 1
+    TYPE_STALKER                        = 1
 };
 
 #endif

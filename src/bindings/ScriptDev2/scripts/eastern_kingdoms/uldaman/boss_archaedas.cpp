@@ -221,11 +221,13 @@ struct MANGOS_DLL_DECL boss_archaedasAI : public ScriptedAI
         }
 
         //Awake Earthen Guardians
-        if (!bGuardiansAwaken && (m_creature->GetHealth() * 100 / m_creature->GetMaxHealth() <= 66))
+        if (!bGuardiansAwaken && m_creature->GetHealthPercent() <= 66)
         {
-            Unit* pUnit = SelectUnit(SELECT_TARGET_RANDOM, 0);
+            Unit* pUnit = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0);
             if (!pUnit)
                 pUnit = m_creature->getVictim();
+            if (!pUnit)
+                return;
             m_pInstance->SetData64(DATA_EVENT_STARTER, pUnit->GetGUID());
 
             DoScriptText(SAY_AWAKE_GUARDIANS, m_creature, NULL);
@@ -236,11 +238,13 @@ struct MANGOS_DLL_DECL boss_archaedasAI : public ScriptedAI
         }
 
         // Awake Warders
-        if (!bWardersAwaken && (m_creature->GetHealth() * 100 / m_creature->GetMaxHealth() <= 33))
+        if (!bWardersAwaken && m_creature->GetHealthPercent() <= 33)
         {
-            Unit* pUnit = SelectUnit(SELECT_TARGET_RANDOM,0);
+            Unit* pUnit = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0);
             if (!pUnit)
                 pUnit = m_creature->getVictim();
+            if (!pUnit)
+                return;
             m_pInstance->SetData64(DATA_EVENT_STARTER, pUnit->GetGUID());
 
             DoScriptText(SAY_AWAKE_WARDERS, m_creature, NULL);

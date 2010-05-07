@@ -205,7 +205,7 @@ struct MANGOS_DLL_DECL boss_ymironAI : public ScriptedAI
         // stor GUIDs in list for easy management
         Summons.push_back(pSummoned->GetGUID());
 
-        if (Unit* pUnit = SelectUnit(SELECT_TARGET_RANDOM, 0))
+        if (Unit* pUnit = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
         {
             if (pSummoned->IsHostileTo(pUnit) && pUnit->isInAccessablePlaceFor(pSummoned))
             {
@@ -301,7 +301,7 @@ struct MANGOS_DLL_DECL boss_ymironAI : public ScriptedAI
 
             if(m_uiFetidRotTimer <= uiDiff)
             {
-                if(Unit* pUnit = SelectUnit(SELECT_TARGET_RANDOM,0))
+                if(Unit* pUnit = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
                     DoCastSpellIfCan(pUnit, m_bIsRegularMode ? SPELL_FETID_ROT : H_SPELL_FETID_ROT);
                 m_uiFetidRotTimer = urand(10000, 15000);
             }else m_uiFetidRotTimer -= uiDiff;

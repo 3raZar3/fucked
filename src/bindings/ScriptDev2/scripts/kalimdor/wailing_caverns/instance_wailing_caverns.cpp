@@ -54,43 +54,43 @@ struct MANGOS_DLL_DECL instance_wailing_caverns : public ScriptedInstance
             case TYPE_ANACONDRA:
                 m_auiEncounter[0] = uiData;
                 break;
-			case TYPE_COBRAHN:
-				m_auiEncounter[1] = uiData;
-				break;
-			case TYPE_PYTHAS:
-				m_auiEncounter[2] = uiData;
-				break;
-			case TYPE_SERPENTIS:
-				m_auiEncounter[3] = uiData;
-				break;
-			case TYPE_DISCIPLE:
-				m_auiEncounter[4] = uiData;
-				break;
+            case TYPE_COBRAHN:
+                m_auiEncounter[1] = uiData;
+                break;
+            case TYPE_PYTHAS:
+                m_auiEncounter[2] = uiData;
+                break;
+            case TYPE_SERPENTIS:
+                m_auiEncounter[3] = uiData;
+                break;
+            case TYPE_DISCIPLE:
+                m_auiEncounter[4] = uiData;
+                break;
             case TYPE_MUTANOUS:
                 m_auiEncounter[5] = uiData;
                 break;
-			default:
+            default:
                 error_log("SD2: Instance Wiling Caverns: ERROR SetData = %u for type %u does not exist/not implemented.",uiType,uiData);
-				break;
+                break;
         }
-		if (m_auiEncounter[0] == DONE && m_auiEncounter[1] == DONE && m_auiEncounter[2] == DONE && m_auiEncounter[3] == DONE && m_auiEncounter[4] == NOT_STARTED)
-		{
-			error_log("Debug:Wailing Caverns encounters done");
-			SetData(TYPE_DISCIPLE,SPECIAL);
-		}
+        if (m_auiEncounter[0] == DONE && m_auiEncounter[1] == DONE && m_auiEncounter[2] == DONE && m_auiEncounter[3] == DONE && m_auiEncounter[4] == NOT_STARTED)
+        {
+            error_log("Debug:Wailing Caverns encounters done");
+            SetData(TYPE_DISCIPLE,SPECIAL);
+        }
     }
 
     uint32 GetData(uint32 uiType)
     {
-		switch (uiType)
-		{
-			case TYPE_ANACONDRA:		return m_auiEncounter[0]; break;
-			case TYPE_COBRAHN:			return m_auiEncounter[1]; break;
-			case TYPE_PYTHAS:			return m_auiEncounter[2]; break;
-			case TYPE_SERPENTIS:		return m_auiEncounter[3]; break;
-			case TYPE_DISCIPLE:			return m_auiEncounter[4]; break;
+        switch (uiType)
+        {
+            case TYPE_ANACONDRA:        return m_auiEncounter[0]; break;
+            case TYPE_COBRAHN:            return m_auiEncounter[1]; break;
+            case TYPE_PYTHAS:            return m_auiEncounter[2]; break;
+            case TYPE_SERPENTIS:        return m_auiEncounter[3]; break;
+            case TYPE_DISCIPLE:            return m_auiEncounter[4]; break;
             case TYPE_MUTANOUS:         return m_auiEncounter[5]; break;
-		}
+        }
         return 0;
     }
 

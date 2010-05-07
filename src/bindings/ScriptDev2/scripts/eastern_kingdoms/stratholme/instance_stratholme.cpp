@@ -38,8 +38,8 @@ enum
     GO_PORT_GAUNTLET            = 175374,                   //port from gauntlet to slaugther
     GO_PORT_SLAUGTHER           = 175373,                   //port at slaugther
     GO_PORT_ELDERS              = 175377,                   //port at elders square
-	GO_SLAUGHTERGATE1			= 175358,					//Slaughter gate after Baron event complete
-	GO_SLAUGHTERGATE2			= 176424,					//Slaughter gate after Baron event complete
+    GO_SLAUGHTERGATE1            = 175358,                    //Slaughter gate after Baron event complete
+    GO_SLAUGHTERGATE2            = 176424,                    //Slaughter gate after Baron event complete
 
     NPC_CRYSTAL                 = 10415,                    //three ziggurat crystals
     NPC_BARON                   = 10440,
@@ -72,8 +72,8 @@ struct MANGOS_DLL_DECL instance_stratholme : public ScriptedInstance
     uint64 m_uiPortGauntletGUID;
     uint64 m_uiPortSlaugtherGUID;
     uint64 m_uiPortElderGUID;
-	uint64 m_uiSlaughterGate1GUID;
-	uint64 m_uiSlaughterGate2GUID;
+    uint64 m_uiSlaughterGate1GUID;
+    uint64 m_uiSlaughterGate2GUID;
 
     uint64 m_uiBaronGUID;
     uint64 m_uiYsidaTriggerGUID;
@@ -100,8 +100,8 @@ struct MANGOS_DLL_DECL instance_stratholme : public ScriptedInstance
         m_uiPortGauntletGUID = 0;
         m_uiPortSlaugtherGUID = 0;
         m_uiPortElderGUID = 0;
-		m_uiSlaughterGate1GUID = 0;
-		m_uiSlaughterGate2GUID = 0;
+        m_uiSlaughterGate1GUID = 0;
+        m_uiSlaughterGate2GUID = 0;
 
         m_uiBaronGUID = 0;
         m_uiYsidaTriggerGUID = 0;
@@ -177,8 +177,8 @@ struct MANGOS_DLL_DECL instance_stratholme : public ScriptedInstance
             case GO_PORT_GAUNTLET:      m_uiPortGauntletGUID = pGo->GetGUID(); break;
             case GO_PORT_SLAUGTHER:     m_uiPortSlaugtherGUID = pGo->GetGUID(); break;
             case GO_PORT_ELDERS:        m_uiPortElderGUID = pGo->GetGUID(); break;
-			case GO_SLAUGHTERGATE1:		m_uiSlaughterGate1GUID = pGo->GetGUID(); break;
-			case GO_SLAUGHTERGATE2:		m_uiSlaughterGate2GUID = pGo->GetGUID(); break;
+            case GO_SLAUGHTERGATE1:        m_uiSlaughterGate1GUID = pGo->GetGUID(); break;
+            case GO_SLAUGHTERGATE2:        m_uiSlaughterGate2GUID = pGo->GetGUID(); break;
         }
     }
 
@@ -291,11 +291,11 @@ struct MANGOS_DLL_DECL instance_stratholme : public ScriptedInstance
                         SetData(TYPE_BARON_RUN,DONE);
                     }
                 }
-				if (uiData == DONE)
-				{
-					UpdateGoState(m_uiSlaughterGate1GUID,GO_STATE_ACTIVE,false);
-					UpdateGoState(m_uiSlaughterGate2GUID,GO_STATE_ACTIVE,false);
-				}
+                if (uiData == DONE)
+                {
+                    UpdateGoState(m_uiSlaughterGate1GUID,GO_STATE_ACTIVE,false);
+                    UpdateGoState(m_uiSlaughterGate2GUID,GO_STATE_ACTIVE,false);
+                }
 
                 m_auiEncounter[5] = uiData;
                 break;

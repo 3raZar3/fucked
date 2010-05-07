@@ -177,7 +177,7 @@ struct MANGOS_DLL_DECL mob_vrykul_skeletonAI : public ScriptedAI
                     case 1:
                         DoResetThreat();
                         SetCombatMovement(true);
-                        if (Unit* pUnit = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* pUnit = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
                             m_creature->GetMotionMaster()->MoveChase(pUnit);
                         m_bIsDead = false;
                         m_uiReviveTimer = 15000;
@@ -285,8 +285,8 @@ struct MANGOS_DLL_DECL boss_kelesethAI : public ScriptedAI
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
-        if (pSummoned->GetEntry() == NPC_VRYKUL_SKELETON)
-            if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+        if (pSummoned->GetEntry() == NPC_VRYKUL_SKELETON && pSummoned->AI())
+            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
                 pSummoned->AI()->AttackStart(pTarget);
 
         if (pSummoned->GetEntry() == NPC_FROST_TOMB)

@@ -7,13 +7,13 @@
 
 enum
 {
-    MAX_ENCOUNTER						= 6,
+    MAX_ENCOUNTER                        = 6,
 
-    TYPE_ANACONDRA						= 0,
-	TYPE_COBRAHN						= 1,
-	TYPE_PYTHAS							= 2,
-	TYPE_SERPENTIS						= 3,
-	TYPE_DISCIPLE						= 4,
+    TYPE_ANACONDRA                        = 0,
+    TYPE_COBRAHN                        = 1,
+    TYPE_PYTHAS                            = 2,
+    TYPE_SERPENTIS                        = 3,
+    TYPE_DISCIPLE                        = 4,
     TYPE_MUTANOUS                       = 5,
 
     DATA_NARALEX                        = 6

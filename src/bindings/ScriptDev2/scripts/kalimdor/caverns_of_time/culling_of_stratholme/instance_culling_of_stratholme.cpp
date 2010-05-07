@@ -35,9 +35,9 @@ EndScriptData */
 struct MANGOS_DLL_DECL instance_culling_of_stratholme : public ScriptedInstance
 {
     instance_culling_of_stratholme(Map* pMap) : ScriptedInstance(pMap) 
-	{
-		Initialize();
-	};
+    {
+        Initialize();
+    };
 
     uint32 m_auiEncounter[MAX_ENCOUNTER];
     std::string strInstData;
@@ -49,9 +49,9 @@ struct MANGOS_DLL_DECL instance_culling_of_stratholme : public ScriptedInstance
 
     uint64 m_uilordEpochGUID;
     uint64 m_uiMeathookGUID;
-	uint64 m_uiSalrammGUID;
-	uint64 m_uiMalganisGUID;
-	uint64 m_uiArthasGUID;
+    uint64 m_uiSalrammGUID;
+    uint64 m_uiMalganisGUID;
+    uint64 m_uiArthasGUID;
 
     void Initialize()
     {
@@ -61,10 +61,10 @@ struct MANGOS_DLL_DECL instance_culling_of_stratholme : public ScriptedInstance
         m_uiMalChestGUID = 0;
 
         m_uilordEpochGUID = 0;
-		m_uiMeathookGUID = 0;
-		m_uiSalrammGUID = 0;
+        m_uiMeathookGUID = 0;
+        m_uiSalrammGUID = 0;
         m_uiMalganisGUID = 0;
-		m_uiArthasGUID = 0;
+        m_uiArthasGUID = 0;
     }
 
     bool IsEncounterInProgress() const
@@ -83,40 +83,40 @@ struct MANGOS_DLL_DECL instance_culling_of_stratholme : public ScriptedInstance
         switch(pCreature->GetEntry())
         {
             case NPC_ARTHAS:
-			{
+            {
                 m_uiArthasGUID = pCreature->GetGUID();
                 break;
-			}
-			case NPC_SALRAMM:
-			{
+            }
+            case NPC_SALRAMM:
+            {
                 m_uiSalrammGUID = pCreature->GetGUID();
-				pCreature->SetVisibility(VISIBILITY_OFF);
-				pCreature->setFaction(35);
+                pCreature->SetVisibility(VISIBILITY_OFF);
+                pCreature->setFaction(35);
                 break;
-			}
+            }
             case NPC_MEATHOOK:
-			{
+            {
                 m_uiMeathookGUID = pCreature->GetGUID();
-				pCreature->SetVisibility(VISIBILITY_OFF);
-				pCreature->setFaction(35);
+                pCreature->SetVisibility(VISIBILITY_OFF);
+                pCreature->setFaction(35);
                 break;
-			}
-			case NPC_EPOCH:
-			{
+            }
+            case NPC_EPOCH:
+            {
                 m_uilordEpochGUID = pCreature->GetGUID();
-				pCreature->SetVisibility(VISIBILITY_OFF);
-				pCreature->setFaction(35);
+                pCreature->SetVisibility(VISIBILITY_OFF);
+                pCreature->setFaction(35);
                 break;
-			}
-			case NPC_MALGANIS:
-			{
+            }
+            case NPC_MALGANIS:
+            {
                 m_uiMalganisGUID = pCreature->GetGUID();
                 break;
-			}
-		}
+            }
+        }
     }
 
-	void OnObjectCreate(GameObject* pGo)
+    void OnObjectCreate(GameObject* pGo)
     {
         if (pGo->GetEntry() == GO_SHKAF_GATE)
             m_uiShkafGateGUID = pGo->GetGUID();
@@ -135,11 +135,11 @@ struct MANGOS_DLL_DECL instance_culling_of_stratholme : public ScriptedInstance
     {
         switch(uiData)
         {
-			case DATA_ARTHAS: return m_uiArthasGUID;
-			case DATA_SALRAMM: return m_uiSalrammGUID;
-			case DATA_MEATHOOK: return m_uiMeathookGUID;
-			case DATA_EPOCH: return m_uilordEpochGUID;
-			case DATA_MALGANIS: return m_uiMalganisGUID;
+            case DATA_ARTHAS: return m_uiArthasGUID;
+            case DATA_SALRAMM: return m_uiSalrammGUID;
+            case DATA_MEATHOOK: return m_uiMeathookGUID;
+            case DATA_EPOCH: return m_uilordEpochGUID;
+            case DATA_MALGANIS: return m_uiMalganisGUID;
             case DATA_GO_SHKAF_GATE: return m_uiShkafGateGUID;
             case DATA_GO_MAL_GATE1: return m_uiMalGate1GUID;
             case DATA_GO_MAL_GATE2: return m_uiMalGate2GUID;
@@ -149,54 +149,54 @@ struct MANGOS_DLL_DECL instance_culling_of_stratholme : public ScriptedInstance
         return 0;
     }
 
-	void SetData(uint32 uiType, uint32 uiData)
+    void SetData(uint32 uiType, uint32 uiData)
     {
-		bool needSave = false;
+        bool needSave = false;
         switch(uiType)
         {
             case TYPE_ARTHAS_EVENT:
-			{
+            {
                 if (m_auiEncounter[0] == IN_PROGRESS)
-					needSave = true;
+                    needSave = true;
 
-				m_auiEncounter[0] = uiData;
+                m_auiEncounter[0] = uiData;
                 break;
-			}
-			case TYPE_SALRAMM_EVENT:
-			{
+            }
+            case TYPE_SALRAMM_EVENT:
+            {
                 if (m_auiEncounter[1] == DONE)
-					needSave = true;
+                    needSave = true;
 
                 m_auiEncounter[1] = uiData;
                 break;
-			}
+            }
             case TYPE_MEATHOOK_EVENT:
-			{
+            {
                 if (m_auiEncounter[2] == DONE)
-					needSave = true;
+                    needSave = true;
 
                 m_auiEncounter[2] = uiData;
                 break;
-			}
+            }
             case TYPE_EPOCH_EVENT:
-			{
+            {
                 if (m_auiEncounter[3] == DONE)
-					needSave = true;
+                    needSave = true;
 
                 m_auiEncounter[3] = uiData;
                 break;
-			}
+            }
             case TYPE_MALGANIS_EVENT:
-			{
-				if (m_auiEncounter[4] == DONE) 
-				{
-					needSave = true;
-					DoRespawnGameObject(m_uiMalChestGUID,86400); //respawn time for the chest 1 day
-				}
+            {
+                if (m_auiEncounter[4] == DONE) 
+                {
+                    needSave = true;
+                    DoRespawnGameObject(m_uiMalChestGUID,86400); //respawn time for the chest 1 day
+                }
                 m_auiEncounter[4] = uiData;
                 break;
-			}
-		}
+            }
+        }
         if (uiData == DONE || needSave)
         {
             OUT_SAVE_INST_DATA;
@@ -211,19 +211,19 @@ struct MANGOS_DLL_DECL instance_culling_of_stratholme : public ScriptedInstance
         }
     }
 
-	uint32 GetData(uint32 uiType)
+    uint32 GetData(uint32 uiType)
     {
         switch(uiType)
         {
             case TYPE_ARTHAS_EVENT:
                 return m_auiEncounter[0];
-			case TYPE_SALRAMM_EVENT:
+            case TYPE_SALRAMM_EVENT:
                 return m_auiEncounter[1];
-			case TYPE_MEATHOOK_EVENT:
+            case TYPE_MEATHOOK_EVENT:
                 return m_auiEncounter[2];
-			case TYPE_EPOCH_EVENT:
+            case TYPE_EPOCH_EVENT:
                 return m_auiEncounter[3];
-			case TYPE_MALGANIS_EVENT:
+            case TYPE_MALGANIS_EVENT:
                 return m_auiEncounter[4];
         }
 

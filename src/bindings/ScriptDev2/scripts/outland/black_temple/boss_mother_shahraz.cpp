@@ -90,7 +90,7 @@ struct MANGOS_DLL_DECL boss_shahrazAI : public ScriptedAI
     uint64 TargetGUID[3];
     uint32 BeamTimer;
     uint32 BeamCount;
-	uint32 SaberLashTimer;
+    uint32 SaberLashTimer;
     uint32 CurrentBeam;
     uint32 PrismaticShieldTimer;
     uint32 FatalAttractionTimer;
@@ -108,7 +108,7 @@ struct MANGOS_DLL_DECL boss_shahrazAI : public ScriptedAI
             TargetGUID[i] = 0;
 
         BeamTimer = 60000;                                  // Timers may be incorrect
-		SaberLashTimer = 60000 + rand()%60 * 1000;
+        SaberLashTimer = 60000 + rand()%60 * 1000;
         BeamCount = 0;
         CurrentBeam = 0;                                    // 0 - Sinister, 1 - Vile, 2 - Wicked, 3 - Sinful
         PrismaticShieldTimer = 0;
@@ -157,19 +157,19 @@ struct MANGOS_DLL_DECL boss_shahrazAI : public ScriptedAI
         float X = TeleportPoint[random].x;
         float Y = TeleportPoint[random].y;
         float Z = TeleportPoint[random].z;
-	
-		Unit *player1 = SelectUnit(SELECT_TARGET_RANDOM, 1);
-		Unit *player2 = SelectUnit(SELECT_TARGET_RANDOM, 1);
-		Unit *player3 = SelectUnit(SELECT_TARGET_RANDOM, 1);
-		
-		if(player1 && player2 && player3 && player1->isAlive() && player2->isAlive() && player3->isAlive() && (player1->GetTypeId() == TYPEID_PLAYER) && (player2->GetTypeId() == TYPEID_PLAYER) && (player3->GetTypeId() == TYPEID_PLAYER))
+    
+        Unit *player1 = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,1);
+        Unit *player2 = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,1);
+        Unit *player3 = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,1);
+        
+        if(player1 && player2 && player3 && player1->isAlive() && player2->isAlive() && player3->isAlive() && (player1->GetTypeId() == TYPEID_PLAYER) && (player2->GetTypeId() == TYPEID_PLAYER) && (player3->GetTypeId() == TYPEID_PLAYER))
             {
-			    DoTeleportPlayer(player1, X, Y, Z, player1->GetOrientation());
-			    DoTeleportPlayer(player2, X, Y, Z, player2->GetOrientation());
-			    DoTeleportPlayer(player3, X, Y, Z, player3->GetOrientation());
+                DoTeleportPlayer(player1, X, Y, Z, player1->GetOrientation());
+                DoTeleportPlayer(player2, X, Y, Z, player2->GetOrientation());
+                DoTeleportPlayer(player3, X, Y, Z, player3->GetOrientation());
             }
-		// Dunno what aramil meaned by this function	
-		//	if(player1->IsInRange())
+        // Dunno what aramil meaned by this function    
+        //    if(player1->IsInRange())
 
     }
 
@@ -231,7 +231,7 @@ struct MANGOS_DLL_DECL boss_shahrazAI : public ScriptedAI
         if (FatalAttractionTimer < diff)
         {
             FatalAttraction();
-			FatalAttractionTimer = 30000;
+            FatalAttractionTimer = 30000;
         }else FatalAttractionTimer -= diff;
 
         if (ShriekTimer < diff)
@@ -243,10 +243,10 @@ struct MANGOS_DLL_DECL boss_shahrazAI : public ScriptedAI
         if (SaberLashTimer < diff)
         {
             DoCast(m_creature->getVictim(), SPELL_SABER_LASH);
-			DoCast(m_creature->getVictim(), SPELL_SABER_LASH_IMM);
+            DoCast(m_creature->getVictim(), SPELL_SABER_LASH_IMM);
             SaberLashTimer = 60000 + rand()%60 * 1000;
         }else SaberLashTimer -= diff;
-		
+        
         //Enrage
         if (!m_creature->HasAura(SPELL_BERSERK, EFFECT_INDEX_0))
         {

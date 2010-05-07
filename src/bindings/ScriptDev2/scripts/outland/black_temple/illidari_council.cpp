@@ -536,8 +536,8 @@ struct MANGOS_DLL_DECL boss_gathios_the_shattererAI : public boss_illidari_counc
 struct MANGOS_DLL_DECL boss_high_nethermancer_zerevorAI : public boss_illidari_councilAI
 {
     boss_high_nethermancer_zerevorAI(Creature* pCreature) : boss_illidari_councilAI(pCreature) { 
-		Reset();
-	}
+        Reset();
+    }
 
     uint32 BlizzardTimer;
     uint32 FlamestrikeTimer;
@@ -556,8 +556,8 @@ struct MANGOS_DLL_DECL boss_high_nethermancer_zerevorAI : public boss_illidari_c
         Cooldown = 0;
     }
 
-	void MoveInLineOfSight(Unit *victim) {}
-	
+    void MoveInLineOfSight(Unit *victim) {}
+    
     void KilledUnit(Unit *victim)
     {
         DoScriptText(SAY_ZERE_SLAY, m_creature);
@@ -573,12 +573,12 @@ struct MANGOS_DLL_DECL boss_high_nethermancer_zerevorAI : public boss_illidari_c
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
-		Unit *who = m_creature->getVictim();
-		if(!who->IsInRange(m_creature, 0.0f, 15.0f, true)){
-			m_creature->CanFreeMove();
-		} else {
-			m_creature->StopMoving();
-		}
+        Unit *who = m_creature->getVictim();
+        if(!who->IsInRange(m_creature, 0.0f, 15.0f, true)){
+            m_creature->CanFreeMove();
+        } else {
+            m_creature->StopMoving();
+        }
 
         if (Cooldown)
         {
@@ -640,8 +640,8 @@ struct MANGOS_DLL_DECL boss_high_nethermancer_zerevorAI : public boss_illidari_c
 struct MANGOS_DLL_DECL boss_lady_malandeAI : public boss_illidari_councilAI
 {
     boss_lady_malandeAI(Creature* pCreature) : boss_illidari_councilAI(pCreature) { 
-		Reset(); 
-	}
+        Reset(); 
+    }
 
     uint32 EmpoweredSmiteTimer;
     uint32 CircleOfHealingTimer;

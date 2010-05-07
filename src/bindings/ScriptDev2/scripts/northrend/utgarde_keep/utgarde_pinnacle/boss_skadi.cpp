@@ -152,7 +152,7 @@ struct MANGOS_DLL_DECL boss_skadiAI : public ScriptedAI
 
     void JustSummoned(Creature* pSummoned)
     {
-        if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+        if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
         {
             if (pSummoned->AI())
                 pSummoned->AI()->AttackStart(pTarget);
@@ -223,23 +223,25 @@ struct MANGOS_DLL_DECL boss_skadiAI : public ScriptedAI
                     case 2: DoScriptText(SAY_DRAKEBREATH_3, m_creature); break;
                 }
                 //breath ID missing
-                if(Unit* pPlayer = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if(Unit* pPlayer = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
                 {
-                    m_creature->CastSpell(pPlayer, m_bIsRegularMode ? SPELL_POISONED_SPEAR : SPELL_POISONED_SPEAR_H, false);
+                    DoCastSpellIfCan(pPlayer, m_bIsRegularMode ? SPELL_POISONED_SPEAR : SPELL_POISONED_SPEAR_H);
                     pPlayer->CastSpell(pPlayer, m_bIsRegularMode ? SPELL_POISONED : SPELL_POISONED_H, true);
                 }
                 //Spell brath id ?
                 m_uiGraufBrathTimer = urand(10000, 20000);
-            }else m_uiGraufBrathTimer -= uiDiff;
+            }
+            else
+                m_uiGraufBrathTimer -= uiDiff;
 
         }
         else
         {
             if(m_uiPoisonedSpearTimer < uiDiff)
             {
-                if(Unit* pPlayer = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if(Unit* pPlayer = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
                 {
-                    m_creature->CastSpell(pPlayer, m_bIsRegularMode ? SPELL_POISONED_SPEAR : SPELL_POISONED_SPEAR_H, false);
+                    DoCastSpellIfCan(pPlayer, m_bIsRegularMode ? SPELL_POISONED_SPEAR : SPELL_POISONED_SPEAR_H);
                     pPlayer->CastSpell(pPlayer, m_bIsRegularMode ? SPELL_POISONED : SPELL_POISONED_H, true);
                 }
                 m_uiPoisonedSpearTimer = urand(5000, 10000);
@@ -248,7 +250,7 @@ struct MANGOS_DLL_DECL boss_skadiAI : public ScriptedAI
             if(m_uiCrushTimer < uiDiff)
             {
                 if(m_creature->getVictim())
-                    m_creature->CastSpell(m_creature->getVictim(), m_bIsRegularMode ? SPELL_CRUSH : SPELL_CRUSH_H, false);
+                    DoCastSpellIfCan(m_creature->getVictim(), m_bIsRegularMode ? SPELL_CRUSH : SPELL_CRUSH_H);
                 m_uiCrushTimer = urand(10000, 15000);
             }else m_uiCrushTimer -= uiDiff;
 

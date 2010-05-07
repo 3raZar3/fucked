@@ -47,7 +47,7 @@ enum
     SPELL_HURL_SPINE                = 39948,
     SPELL_BERSERK                   = 26662,
 
-	ITEM_NAJENTUS_SPINE				= 32408
+    ITEM_NAJENTUS_SPINE                = 32408
 };
 
 struct MANGOS_DLL_DECL boss_najentusAI : public ScriptedAI
@@ -67,12 +67,12 @@ struct MANGOS_DLL_DECL boss_najentusAI : public ScriptedAI
     uint32 m_uiImpalingSpineTimer;
 
     bool IsShielded()
-	{
-		if (m_creature->HasAura(SPELL_TIDAL_SHIELD))
-			return true;
-		else
-			return false;
-	}
+    {
+        if (m_creature->HasAura(SPELL_TIDAL_SHIELD))
+            return true;
+        else
+            return false;
+    }
 
     void Reset()
     {
@@ -86,9 +86,9 @@ struct MANGOS_DLL_DECL boss_najentusAI : public ScriptedAI
     void JustReachedHome()
     {
         if (m_pInstance)
-		{
+        {
             m_pInstance->SetData(TYPE_NAJENTUS, NOT_STARTED);
-			m_pInstance->DestroyItemFromAllPlayers(ITEM_NAJENTUS_SPINE);
+            m_pInstance->DestroyItemFromAllPlayers(ITEM_NAJENTUS_SPINE);
     }
     }
 
@@ -100,10 +100,10 @@ struct MANGOS_DLL_DECL boss_najentusAI : public ScriptedAI
     void JustDied(Unit *victim)
     {
         if (m_pInstance)
-		{
+        {
             m_pInstance->SetData(TYPE_NAJENTUS, DONE);
-			m_pInstance->DestroyItemFromAllPlayers(ITEM_NAJENTUS_SPINE);
-		}
+            m_pInstance->DestroyItemFromAllPlayers(ITEM_NAJENTUS_SPINE);
+        }
 
         DoScriptText(SAY_DEATH, m_creature);
     }
@@ -125,10 +125,10 @@ struct MANGOS_DLL_DECL boss_najentusAI : public ScriptedAI
     void Aggro(Unit* pWho)
     {
         if (m_pInstance)
-		{
+        {
             m_pInstance->SetData(TYPE_NAJENTUS, IN_PROGRESS);
-			m_pInstance->DestroyItemFromAllPlayers(ITEM_NAJENTUS_SPINE);
-		}
+            m_pInstance->DestroyItemFromAllPlayers(ITEM_NAJENTUS_SPINE);
+        }
 
         DoScriptText(SAY_AGGRO, m_creature);
 

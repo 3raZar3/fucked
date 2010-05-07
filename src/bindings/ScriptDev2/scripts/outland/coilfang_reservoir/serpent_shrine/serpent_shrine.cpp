@@ -31,12 +31,12 @@ EndContentData */
 
 void CheckFinalGen(ScriptedInstance* pInstance, Player* pPlayer, GameObject* pGo)
 {
-	error_log("gen check");
-		if ((pInstance->GetData(TYPE_HYDROSS_EVENT) == DONE)
+    error_log("gen check");
+        if ((pInstance->GetData(TYPE_HYDROSS_EVENT) == DONE)
                 && (pInstance->GetData(TYPE_THELURKER_EVENT) == DONE) && (pInstance->GetData(TYPE_LEOTHERAS_EVENT) == DONE)
                 && (pInstance->GetData(TYPE_KARATHRESS_EVENT) == DONE) && (pInstance->GetData(TYPE_MOROGRIM_EVENT) == DONE))
-				if (GameObject* pGoTemp = pGo->GetMap()->GetGameObject(pInstance->GetData64(DATA_BRIDGE_GEN)))
-					pGoTemp->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
+                if (GameObject* pGoTemp = pGo->GetMap()->GetGameObject(pInstance->GetData64(DATA_BRIDGE_GEN)))
+                    pGoTemp->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
 }
 
 bool GOHello_go_serpentshrine_console(Player* pPlayer, GameObject* pGo)
@@ -52,7 +52,7 @@ bool GOHello_go_serpentshrine_console(Player* pPlayer, GameObject* pGo)
             if (pInstance->GetData(TYPE_HYDROSS_EVENT) == SPECIAL)
             {
                 pInstance->SetData(TYPE_HYDROSS_EVENT, DONE);
-				CheckFinalGen(pInstance, pPlayer, pGo);
+                CheckFinalGen(pInstance, pPlayer, pGo);
                 return false;
             }
             break;
@@ -60,30 +60,30 @@ bool GOHello_go_serpentshrine_console(Player* pPlayer, GameObject* pGo)
             if (pInstance->GetData(TYPE_THELURKER_EVENT) == SPECIAL)
             {
                 pInstance->SetData(TYPE_THELURKER_EVENT, DONE);
-				CheckFinalGen(pInstance, pPlayer, pGo);
+                CheckFinalGen(pInstance, pPlayer, pGo);
                 return false;
             }
             break;
         case 185116:
             if (pInstance->GetData(TYPE_LEOTHERAS_EVENT) == SPECIAL)
             {
-				pInstance->SetData(TYPE_LEOTHERAS_EVENT, DONE);
-				CheckFinalGen(pInstance, pPlayer, pGo);
+                pInstance->SetData(TYPE_LEOTHERAS_EVENT, DONE);
+                CheckFinalGen(pInstance, pPlayer, pGo);
                 return false;
             }
             break;
         case 185117:
             if (pInstance->GetData(TYPE_KARATHRESS_EVENT) == SPECIAL)
             {
-				pInstance->SetData(TYPE_KARATHRESS_EVENT, DONE);
-				CheckFinalGen(pInstance, pPlayer, pGo);
+                pInstance->SetData(TYPE_KARATHRESS_EVENT, DONE);
+                CheckFinalGen(pInstance, pPlayer, pGo);
                 return false;
             }
         case 185118:
             if (pInstance->GetData(TYPE_MOROGRIM_EVENT) == SPECIAL)
             {
-				pInstance->SetData(TYPE_MOROGRIM_EVENT, DONE);
-				CheckFinalGen(pInstance, pPlayer, pGo);
+                pInstance->SetData(TYPE_MOROGRIM_EVENT, DONE);
+                CheckFinalGen(pInstance, pPlayer, pGo);
                 return false;
             }
             break;
@@ -209,19 +209,26 @@ struct MANGOS_DLL_DECL mob_underbog_colossusAI : public ScriptedAI
             case 2:
                 for (uint8 i = 0; i < (2+rand()%2); ++i)
                 {
-                    Creature* pSummoned = DoSpawnCreature(NPC_COLOSSUS_LURKER, rand()%5,rand()%5,0,0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
-                    Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
-                    if (pSummoned && pTarget)
-                            pSummoned->AI()->AttackStart(pTarget);
+                    float fPosX, fPosY, fPosZ;
+                    m_creature->GetPosition(fPosX, fPosY, fPosZ);
+                    m_creature->GetRandomPoint(fPosX, fPosY, fPosZ, 10.0f, fPosX, fPosY, fPosZ);
+
+                    Creature* pSummoned = DoSpawnCreature(NPC_COLOSSUS_LURKER, fPosX, fPosY, fPosZ,0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                    Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0);
+                    if (pSummoned && pSummoned->AI() && pTarget)
+                        pSummoned->AI()->AttackStart(pTarget);
                 }
                 break;
             case 3:
                 for (uint8 i = 0; i < (6+rand()%5); ++i)
                 {
-                    Creature* pSummoned = DoSpawnCreature(NPC_COLOSSUS_RAGER, rand()%5,rand()%5,0,0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
-                    Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
-                    if (pSummoned && pTarget)
-                            pSummoned->AI()->AttackStart(pTarget);
+                    float fPosX, fPosY, fPosZ;
+                    m_creature->GetPosition(fPosX, fPosY, fPosZ);
+                    m_creature->GetRandomPoint(fPosX, fPosY, fPosZ, 10.0f, fPosX, fPosY, fPosZ);
+                    Creature* pSummoned = DoSpawnCreature(NPC_COLOSSUS_RAGER, fPosX, fPosY, fPosZ,0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                    Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0);
+                    if (pSummoned && pSummoned->AI() && pTarget)
+                        pSummoned->AI()->AttackStart(pTarget);
                 }
                 break;
             case 4:
@@ -248,8 +255,8 @@ struct MANGOS_DLL_DECL mob_underbog_colossusAI : public ScriptedAI
                     DoCast(m_creature->getVictim(), m_uiSpellId_1);
                     break;
                 case SPELLTARGET_RANDOM:
-                    if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                        DoCast(pTarget, m_uiSpellId_1);
+                    if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
+                        DoCastSpellIfCan(pTarget, m_uiSpellId_1);
                     break;
             }
             m_uiSpellTimer_1 = m_uiSpellTimer_Reset_1 + rand()%m_uiSpellTimer_Random_1;
@@ -267,8 +274,8 @@ struct MANGOS_DLL_DECL mob_underbog_colossusAI : public ScriptedAI
                     DoCast(m_creature->getVictim(), m_uiSpellId_2);
                     break;
                 case SPELLTARGET_RANDOM:
-                    if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                        DoCast(pTarget, m_uiSpellId_2);
+                    if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
+                        DoCastSpellIfCan(pTarget, m_uiSpellId_2);
                     break;
             }
             m_uiSpellTimer_2 = m_uiSpellTimer_Reset_2 + rand()%m_uiSpellTimer_Random_2;

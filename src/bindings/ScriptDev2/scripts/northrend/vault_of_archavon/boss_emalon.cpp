@@ -160,7 +160,7 @@ struct MANGOS_DLL_DECL npc_tempest_minionAI : public ScriptedAI
                 m_creature->MonsterTextEmote("%s appears to defend Emalon!", 0, true);
                 m_creature->SetInCombatWithZone();
                 DoResetThreat();
-                if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
                     m_creature->GetMotionMaster()->MoveChase(pTarget);
 
             }
@@ -206,12 +206,12 @@ struct MANGOS_DLL_DECL boss_emalonAI : public ScriptedAI
     boss_emalonAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
         m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
-        m_bIsNormalMode = pCreature->GetMap()->IsRegularDifficulty();
+        m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
         Reset();
     }
 
     ScriptedInstance* m_pInstance;
-    bool m_bIsNormalMode;
+    bool m_bIsRegularMode;
     uint32 m_uiEvadeCheckCooldown;
 
     uint64 m_auiTempestMinionGUID[4];
@@ -309,16 +309,16 @@ struct MANGOS_DLL_DECL boss_emalonAI : public ScriptedAI
 
         if (m_uiChainLightningTimer < uiDiff)
         {
-            if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                DoCast(pTarget, m_bIsNormalMode ? SPELL_CHAIN_LIGHTNING_N : SPELL_CHAIN_LIGHTNING_H);
-            m_uiChainLightningTimer = 10000 + rand()%15000;
+            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
+                DoCastSpellIfCan(pTarget, m_bIsRegularMode ? SPELL_CHAIN_LIGHTNING_N : SPELL_CHAIN_LIGHTNING_H);
+            m_uiChainLightningTimer = urand(10000, 25000);
         }
         else
             m_uiChainLightningTimer -= uiDiff;
 
         if (m_uiLightningNovaTimer < uiDiff)
         {
-            DoCast(m_creature, m_bIsNormalMode ? SPELL_LIGHTNING_NOVA_N : SPELL_LIGHTNING_NOVA_H);
+            DoCast(m_creature, m_bIsRegularMode ? SPELL_LIGHTNING_NOVA_N : SPELL_LIGHTNING_NOVA_H);
             m_uiLightningNovaTimer = 45000;
         }
         else

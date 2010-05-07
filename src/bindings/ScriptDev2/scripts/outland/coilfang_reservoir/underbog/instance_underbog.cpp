@@ -40,8 +40,8 @@ struct MANGOS_DLL_DECL instance_underbog : public ScriptedInstance
         switch(uiType)
         {
             case TYPE_STALKER:
-				if (uiData == IN_PROGRESS)
-					error_log("Stalker in Progress");
+                if (uiData == IN_PROGRESS)
+                    error_log("Stalker in Progress");
 
                 m_auiEncounter[0] = uiData;
                 break;

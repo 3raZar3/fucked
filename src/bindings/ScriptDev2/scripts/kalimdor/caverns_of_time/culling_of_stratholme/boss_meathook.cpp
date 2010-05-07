@@ -48,45 +48,45 @@ enum
 ######*/
 struct MANGOS_DLL_DECL boss_meathookAI : public ScriptedAI
 {
-	boss_meathookAI(Creature *c) : ScriptedAI(c)
-	{
-		m_pInstance = (ScriptedInstance*)c->GetInstanceData();
-		m_bIsHeroic = c->GetMap()->IsRegularDifficulty();
+    boss_meathookAI(Creature *pCreature) : ScriptedAI(pCreature)
+    {
+        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
         Reset();
-	}
+    }
 
-	ScriptedInstance* m_pInstance;
+    ScriptedInstance* m_pInstance;
 
-	bool m_bIsHeroic;
-	uint32 phaseArthas;
-	uint32 Chain_Timer;
-	uint32 Exploded_Timer;
-	uint32 Frenzy_Timer;
-	
-	void Reset()
-	{
-		phaseArthas = 0;
-		Chain_Timer = 6300;
-		Exploded_Timer = 9300;
-		Frenzy_Timer = 23300;
+    bool m_bIsRegularMode;
+    uint32 phaseArthas;
+    uint32 Chain_Timer;
+    uint32 Exploded_Timer;
+    uint32 Frenzy_Timer;
+    
+    void Reset()
+    {
+        phaseArthas = 0;
+        Chain_Timer = 6300;
+        Exploded_Timer = 9300;
+        Frenzy_Timer = 23300;
 
-	}
-	
-	void Aggro(Unit* who)
-	{
-		DoScriptText(SAY_MEATHOOK_AGGRO, m_creature);
+    }
+    
+    void Aggro(Unit* who)
+    {
+        DoScriptText(SAY_MEATHOOK_AGGRO, m_creature);
 
-		if (m_pInstance)
+        if (m_pInstance)
             m_pInstance->SetData(TYPE_MEATHOOK_EVENT, IN_PROGRESS);
-	}
-	
-	void JustDied(Unit *killer)
-	{
-		DoScriptText(SAY_MEATHOOK_DEATH, m_creature);
+    }
+    
+    void JustDied(Unit *killer)
+    {
+        DoScriptText(SAY_MEATHOOK_DEATH, m_creature);
 
-		if (m_pInstance)
+        if (m_pInstance)
             m_pInstance->SetData(TYPE_MEATHOOK_EVENT, DONE);
-	}
+    }
 
     void KilledUnit(Unit* pVictim)
     {
@@ -104,24 +104,30 @@ struct MANGOS_DLL_DECL boss_meathookAI : public ScriptedAI
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
-		DoMeleeAttackIfReady();
+        if (Chain_Timer < diff)
+        {
+            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
+                DoCastSpellIfCan(pTarget, m_bIsRegularMode ? SPELL_CHAIN_N : SPELL_CHAIN_H);
+            Chain_Timer = 6300;
+        }
+        else
+            Chain_Timer -= diff;
 
-		if (Chain_Timer < diff){
-			if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-				DoCastSpellIfCan(target, m_bIsHeroic ? SPELL_CHAIN_H : SPELL_CHAIN_N);
-			Chain_Timer = 6300;
-        } else Chain_Timer -= diff;
-
-		if (Exploded_Timer < diff){
-			if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-				DoCastSpellIfCan(target, m_bIsHeroic ? SPELL_EXPLODED_H : SPELL_EXPLODED_N);
+        if (Exploded_Timer < diff)
+        {
+            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
+                DoCastSpellIfCan(pTarget, m_bIsRegularMode ? SPELL_EXPLODED_N : SPELL_EXPLODED_H);
             Exploded_Timer = 9300;
-        } else Exploded_Timer -= diff;
+        }
+        else
+            Exploded_Timer -= diff;
 
-		if (Frenzy_Timer < diff){
-			DoCastSpellIfCan(m_creature,SPELL_FRENZY);
-			Frenzy_Timer = 23300;
+        if (Frenzy_Timer < diff){
+            DoCastSpellIfCan(m_creature,SPELL_FRENZY);
+            Frenzy_Timer = 23300;
         } else Frenzy_Timer -= diff;
+
+        DoMeleeAttackIfReady();
    }
 };
 

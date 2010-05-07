@@ -130,7 +130,7 @@ struct MANGOS_DLL_DECL boss_anubarakAI : public ScriptedAI
         {
             if (m_uiImpale_Timer <= uiDiff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
                     DoCastSpellIfCan(pTarget, m_bIsRegularMode ? SPELL_IMPALE : H_SPELL_IMPALE);
                 m_uiImpale_Timer = 9000;
             } else m_uiImpale_Timer -= uiDiff;

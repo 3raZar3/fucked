@@ -44,7 +44,7 @@ struct MANGOS_DLL_DECL npc_cairne_bloodhoofAI : public ScriptedAI
     uint32 Thunderclap_Timer;
     uint32 Uppercut_Timer;
 
-	bool CalledHelp;
+    bool CalledHelp;
 
     void Reset()
     {
@@ -53,7 +53,7 @@ struct MANGOS_DLL_DECL npc_cairne_bloodhoofAI : public ScriptedAI
         MortalStrike_Timer = 10000;
         Thunderclap_Timer = 15000;
         Uppercut_Timer = 10000;
-		CalledHelp = false;
+        CalledHelp = false;
     }
 
     void UpdateAI(const uint32 diff)
@@ -61,11 +61,11 @@ struct MANGOS_DLL_DECL npc_cairne_bloodhoofAI : public ScriptedAI
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
-		if ((m_creature->isInCombat() || m_creature->getVictim() || m_creature->SelectHostileTarget()) && !CalledHelp)
-		{
-			m_creature->CallForHelp(100);
-			CalledHelp = true;
-		}
+        if ((m_creature->isInCombat() || m_creature->getVictim() || m_creature->SelectHostileTarget()) && !CalledHelp)
+        {
+            m_creature->CallForHelp(100);
+            CalledHelp = true;
+        }
 
         if (BerserkerCharge_Timer < diff)
         {

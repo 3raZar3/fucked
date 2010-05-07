@@ -168,7 +168,7 @@ enum creature_ids
     ID_LIADRIN      = 26247, // outro
 
     IF_KILJAEDEN_CONTROLLER = 25608,
-	ID_KILJADEN		= 25315,
+    ID_KILJADEN     = 25315,
     ID_DECIVER      = 25588,
     ID_SHIELDORB    = 25502,
     ID_SINISTER     = 25708, // Sinister Reflection
@@ -401,14 +401,14 @@ struct MANGOS_DLL_DECL boss_kiljadenAI : public Scripted_NoMovementAI
         {
             if(m_uiKJOrdersTimer < diff)
             {
-		        switch (rand()%5)
-		        {
-			        case 0: DoPlaySoundToSet(m_creature, SAY_KJ_OFFCOMBAT1); break;
-			        case 1: DoPlaySoundToSet(m_creature, SAY_KJ_OFFCOMBAT2); break;
-			        case 2: DoPlaySoundToSet(m_creature, SAY_KJ_OFFCOMBAT3); break;
+                switch (rand()%5)
+                {
+                    case 0: DoPlaySoundToSet(m_creature, SAY_KJ_OFFCOMBAT1); break;
+                    case 1: DoPlaySoundToSet(m_creature, SAY_KJ_OFFCOMBAT2); break;
+                    case 2: DoPlaySoundToSet(m_creature, SAY_KJ_OFFCOMBAT3); break;
                     case 3: DoPlaySoundToSet(m_creature, SAY_KJ_OFFCOMBAT4); break;
                     case 4: DoPlaySoundToSet(m_creature, SAY_KJ_OFFCOMBAT5); break;
-		        }
+                }
                 m_uiKJOrdersTimer = 60000;
             }else m_uiKJOrdersTimer -= diff;
         }
@@ -442,12 +442,12 @@ struct MANGOS_DLL_DECL boss_kiljadenAI : public Scripted_NoMovementAI
         if((m_uiOrbTimer < diff) && !m_bBoolOrb)
         {
             switch (rand()%4)
-		        {
-			        case 0: DoPlaySoundToSet(m_creature, SAY_KALEC_ORB_READY1); break;
-			        case 1: DoPlaySoundToSet(m_creature, SAY_KALEC_ORB_READY2); break;
-			        case 2: DoPlaySoundToSet(m_creature, SAY_KALEC_ORB_READY3); break;
+                {
+                    case 0: DoPlaySoundToSet(m_creature, SAY_KALEC_ORB_READY1); break;
+                    case 1: DoPlaySoundToSet(m_creature, SAY_KALEC_ORB_READY2); break;
+                    case 2: DoPlaySoundToSet(m_creature, SAY_KALEC_ORB_READY3); break;
                     case 3: DoPlaySoundToSet(m_creature, SAY_KALEC_ORB_READY4); break;
-		        }
+                }
             uint8 m_uiMaxDragons = 1;
             if(m_bPhase5)
                 m_uiMaxDragons = 4;
@@ -571,9 +571,9 @@ struct MANGOS_DLL_DECL boss_kiljadenAI : public Scripted_NoMovementAI
                 m_uiSinisterCount = 12;
             for(uint8 i=0; i<m_uiSinisterCount; ++i)
                 if(Unit* Sinister = Unit::GetUnit((*m_creature), m_uiSinisterGUID[i][0]))
-					if(Sinister->isAlive())
-						if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-							Sinister->CastSpell(target, m_uiSinisterGUID[i][1], true);
+                    if(Sinister->isAlive())
+                        if(Unit* target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
+                            Sinister->CastSpell(target, m_uiSinisterGUID[i][1], true);
 
             m_uiSinnisterCastTimer = urand(8000,16000);
         }else m_uiSinnisterCastTimer -= diff;
@@ -588,8 +588,8 @@ struct MANGOS_DLL_DECL boss_kiljadenAI : public Scripted_NoMovementAI
                 h=0;
             
             for(uint8 i=0; i<h; ++i)
-                if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-                    Creature* Armagedon = m_creature->SummonCreature(ID_ARMAGEDON, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 15000);
+                if(Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
+                    m_creature->SummonCreature(ID_ARMAGEDON, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 15000);
 
             m_uiAramageddonTimer = urand(20000,30000);
         }else m_uiAramageddonTimer -= diff;
@@ -597,9 +597,9 @@ struct MANGOS_DLL_DECL boss_kiljadenAI : public Scripted_NoMovementAI
         //ShadowSpike Explosions
         if((m_uiShadowSpikeEndsTimer < diff) && m_bShadowSpikeEnds && m_bPhase3)
         {
-            if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+            if(Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
             {
-                if(Creature* cShadowSpike = m_creature->SummonCreature(ID_SHADOWSPIKE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 6000))
+                if(Creature* cShadowSpike = m_creature->SummonCreature(ID_SHADOWSPIKE, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 6000))
                 {
                     cShadowSpike->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     cShadowSpike->setFaction(14);
@@ -632,23 +632,23 @@ struct MANGOS_DLL_DECL boss_kiljadenAI : public Scripted_NoMovementAI
         if(m_uiDarknessOfSoulsTimer < diff && m_bPhase3)
         {
             switch (rand()%3)
-		        {
-			        case 0: DoPlaySoundToSet(m_creature, SAY_KJ_DARKNESS1); break;
-			        case 1: DoPlaySoundToSet(m_creature, SAY_KJ_DARKNESS2); break;
-			        case 2: DoPlaySoundToSet(m_creature, SAY_KJ_DARKNESS3); break;
-		        }
+                {
+                    case 0: DoPlaySoundToSet(m_creature, SAY_KJ_DARKNESS1); break;
+                    case 1: DoPlaySoundToSet(m_creature, SAY_KJ_DARKNESS2); break;
+                    case 2: DoPlaySoundToSet(m_creature, SAY_KJ_DARKNESS3); break;
+                }
             m_creature->CastSpell(m_creature, SPELL_DARKNESS_OF_SOULS, false);
             m_bDarknessOfSoulsCasting = true;
             m_uiDarknessExplosionTimer = 8000;
         }else m_uiDarknessOfSoulsTimer -= diff;
 
         //Phases
-        if(((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) <= 85) && !m_bPhase3)
+        if ((m_creature->GetHealthPercent() <= 85) && !m_bPhase3)
         {      
             DoPlaySoundToSet(m_creature, SAY_KJ_PHASE3);
-            if(Unit* victim = SelectUnit(SELECT_TARGET_RANDOM,0)) 
-                if (victim && (victim->GetTypeId() == TYPEID_PLAYER))
-                    Sinister(((Player*)victim),0,4);
+            if (Unit* pVictim = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
+                if (pVictim && (pVictim->GetTypeId() == TYPEID_PLAYER))
+                    Sinister(((Player*)pVictim),0,4);
 
             //Start Timerow  Dochodzacych w 3 Fazie
             m_uiFlameDartTimer         = 20000;
@@ -667,9 +667,9 @@ struct MANGOS_DLL_DECL boss_kiljadenAI : public Scripted_NoMovementAI
         if(((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) <= 55) && !m_bPhase4)
         {
             DoPlaySoundToSet(m_creature, SAY_KJ_PHASE4);
-            if(Unit* victim = SelectUnit(SELECT_TARGET_RANDOM,0)) 
-                if (victim && (victim->GetTypeId() == TYPEID_PLAYER))
-                    Sinister(((Player*)victim),4,8);
+            if(Unit* pVictim = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
+                if (pVictim && (pVictim->GetTypeId() == TYPEID_PLAYER))
+                    Sinister(((Player*)pVictim),4,8);
 
             //Start Timerow  Dochodzacych w 4 Fazie
             m_uiFlameDartTimer         = 20000;
@@ -684,9 +684,9 @@ struct MANGOS_DLL_DECL boss_kiljadenAI : public Scripted_NoMovementAI
         if(((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) <= 25) && !m_bPhase5)
         {
             DoPlaySoundToSet(m_creature, SAY_KJ_PHASE5);
-            if(Unit* victim = SelectUnit(SELECT_TARGET_RANDOM,0)) 
-                if (victim && (victim->GetTypeId() == TYPEID_PLAYER))
-                    Sinister(((Player*)victim),8,12);
+            if(Unit* pVictim = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
+                if (pVictim && (pVictim->GetTypeId() == TYPEID_PLAYER))
+                    Sinister(((Player*)pVictim),8,12);
             //Start Timerow  Dochodzacych w 5 Fazie
             m_uiAramageddonTimer = urand(20000,30000);
             m_uiFlameDartTimer = 20000;
@@ -739,8 +739,8 @@ struct MANGOS_DLL_DECL boss_kiljadenAI : public Scripted_NoMovementAI
         {
             for(uint8 i=0; i<5; ++i)
             {
-                Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                m_uiFireBloomTarget[i] = target->GetGUID();
+                if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
+                    m_uiFireBloomTarget[i] = pTarget->GetGUID();
                 m_uiFireBloomCount = 0;
                 //DoCast(target, SPELL_FIREBLOOM, true);
             }
@@ -790,11 +790,11 @@ struct MANGOS_DLL_DECL mob_deceiverAI : public ScriptedAI
     
     void Aggro(Unit *who) 
     {
-		if (pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_KILJAEDEN_EVENT, IN_PROGRESS);
 
         if(!m_creature->getVictim())
-			m_creature->AI()->AttackStart(who);
+            m_creature->AI()->AttackStart(who);
     }
 
     void JustDied(Unit* Killer) 
@@ -843,9 +843,9 @@ struct MANGOS_DLL_DECL mob_deceiverAI : public ScriptedAI
             if(m_uiImpCount < 4)
             {
                 Creature* Imp = m_creature->SummonCreature(ID_IMP, m_fxx, m_fyy, m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 60000);
-                if(Imp)
-                    if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-                        Imp->AI()->AttackStart(target);  
+                if(Imp && Imp->AI())
+                    if(Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
+                        Imp->AI()->AttackStart(pTarget);  
             }
             m_uiImpTimer = 5000;
             ++m_uiImpCount;
@@ -889,8 +889,8 @@ struct MANGOS_DLL_DECL mob_orbAI : public Scripted_NoMovementAI
         {
             for(uint8 i=0; i<3; ++i)
             {
-                if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-                    m_creature->CastSpell(target, SPELL_ORB_BOLT, true);
+                if(Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
+                    DoCastSpellIfCan(pTarget, SPELL_ORB_BOLT, CAST_TRIGGERED);
             }
             m_uiSpellTimer = 2000;
         }else m_uiSpellTimer -= diff;
@@ -1002,7 +1002,7 @@ struct MANGOS_DLL_DECL mob_killimpAI : public ScriptedAI
 {
     mob_killimpAI(Creature *c) : ScriptedAI(c) 
     {
-	    Reset(); 
+        Reset(); 
     }
 
     bool m_bIsReached;
@@ -1054,8 +1054,8 @@ struct MANGOS_DLL_DECL mob_kiljaeden_controllerAI : public Scripted_NoMovementAI
 {
     mob_kiljaeden_controllerAI(Creature *c) : Scripted_NoMovementAI(c) 
     {
-	    pInstance = ((ScriptedInstance*)c->GetInstanceData());
-	    Reset(); 
+        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        Reset(); 
     }
     ScriptedInstance* pInstance; 
 
@@ -1084,8 +1084,8 @@ struct MANGOS_DLL_DECL mob_kiljaeden_controllerAI : public Scripted_NoMovementAI
         for(uint8 i=0; i<3; ++i)
         {
             Creature* Deveiver = m_creature->SummonCreature(ID_DECIVER, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 0, TEMPSUMMON_CORPSE_DESPAWN, 10000);
-                if(Deveiver)
-                    if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+                if(Deveiver && Deveiver->AI())
+                    if(Unit* target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
                         Deveiver->AI()->AttackStart(target);
         }
     }

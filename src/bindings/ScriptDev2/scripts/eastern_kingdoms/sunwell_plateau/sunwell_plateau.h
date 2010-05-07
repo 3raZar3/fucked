@@ -29,7 +29,7 @@ enum
     DATA_ALYTHESS               = 11,
     DATA_SACROLASH              = 12,
     DATA_MURU                   = 13,
-    DATA_ENTROPIUS		        = 32,
+    DATA_ENTROPIUS              = 32,
     DATA_KILJAEDEN              = 14,
     DATA_KILJAEDEN_CONTROLLER   = 15,
     DATA_ANVEENA                = 16,

@@ -241,26 +241,34 @@ struct MANGOS_DLL_DECL boss_ingvarAI : public ScriptedAI
                 {
                     DoCastSpellIfCan(m_creature->getVictim(), SPELL_CLEAVE);
                     m_uiCleaveTimer = urand(2500, 7000);
-                } else m_uiCleaveTimer -= uiDiff;
+                }
+                else
+                    m_uiCleaveTimer -= uiDiff;
 
                 if (m_uiSmashTimer <= uiDiff)
                 {
                     DoCastSpellIfCan(m_creature, m_bIsRegularMode ? SPELL_SMASH : SPELL_SMASH_H);
                     m_uiSmashTimer = urand(8000, 15000);
-                } else m_uiSmashTimer -= uiDiff;
+                }
+                else
+                    m_uiSmashTimer -= uiDiff;
 
                 if (m_uiStaggeringRoarTimer <= uiDiff)
                 {
                     DoScriptText(EMOTE_ROAR, m_creature);
                     DoCastSpellIfCan(m_creature, m_bIsRegularMode ? SPELL_STAGGERING_ROAR : SPELL_STAGGERING_ROAR_H);
                     m_uiStaggeringRoarTimer = urand(15000, 30000);
-                } else m_uiStaggeringRoarTimer -= uiDiff;
+                }
+                else
+                    m_uiStaggeringRoarTimer -= uiDiff;
 
                 if (m_uiEnrageTimer <= uiDiff)
                 {
                     DoCastSpellIfCan(m_creature, m_bIsRegularMode ? SPELL_ENRAGE : SPELL_ENRAGE_H);
                     m_uiEnrageTimer = urand(10000, 20000);
-                } else m_uiEnrageTimer -= uiDiff;
+                }
+                else
+                    m_uiEnrageTimer -= uiDiff;
                 break;
 
             case PHASE_RESSURECTED:
@@ -269,32 +277,42 @@ struct MANGOS_DLL_DECL boss_ingvarAI : public ScriptedAI
                     DoScriptText(EMOTE_ROAR, m_creature);
                     DoCastSpellIfCan(m_creature, m_bIsRegularMode ? SPELL_DREADFUL_ROAR : SPELL_DREADFUL_ROAR_H);
                     m_uiDreadfulRoarTimer = 40000;
-                } else m_uiDreadfulRoarTimer -= uiDiff;
+                }
+                else
+                    m_uiDreadfulRoarTimer -= uiDiff;
 
                 if (m_uiDarkSmashTimer <= uiDiff)
                 {
                     DoCastSpellIfCan(m_creature->getVictim(), m_bIsRegularMode ? SPELL_DARK_SMASH : SPELL_DARK_SMASH_H);
                     m_uiDarkSmashTimer = urand(15000, 25000);
-                } else m_uiDarkSmashTimer -= uiDiff;
+                }
+                else
+                    m_uiDarkSmashTimer -= uiDiff;
 
                 if (m_uiWoeStrikeTimer <= uiDiff)
                 {
                     DoCastSpellIfCan(m_creature->getVictim(), m_bIsRegularMode ? SPELL_WOE_STRIKE : SPELL_WOE_STRIKE_H);
                     m_uiWoeStrikeTimer = urand(25000, 40000);
-                } else m_uiWoeStrikeTimer -= uiDiff;
+                }
+                else
+                    m_uiWoeStrikeTimer -= uiDiff;
 
                 if (m_uiShadowAxeTimer <= uiDiff)
                 {
-                    if (Unit* pUnit = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* pUnit = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
                         DoCastSpellIfCan(pUnit, SPELL_SHADOW_AXE);
                     m_uiShadowAxeTimer = urand(30000, 45000);
-                } else m_uiShadowAxeTimer -= uiDiff;
+                }
+                else
+                    m_uiShadowAxeTimer -= uiDiff;
 
                 if (m_uiEnrageTimer <= uiDiff)
                 {
                     DoCastSpellIfCan(m_creature, m_bIsRegularMode ? SPELL_ENRAGE : SPELL_ENRAGE_H);
                     m_uiEnrageTimer = urand(10000, 20000);
-                } else m_uiEnrageTimer -= uiDiff;
+                }
+                else
+                    m_uiEnrageTimer -= uiDiff;
 
                 break;
             default: break;

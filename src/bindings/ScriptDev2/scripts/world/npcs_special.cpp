@@ -1554,18 +1554,18 @@ bool GossipSelect_npc_sayge(Player* pPlayer, Creature* pCreature, uint32 uiSende
 
 bool GossipHello_npc_special(Player* pPlayer, Creature* pCreature)
 {
-	if (pCreature->isTrainer())
+    if (pCreature->isTrainer())
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
 
     if (pPlayer->isGameMaster())
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, "I need to crash server. (mind that using this button will be loged!)", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+11);
 
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to reset my talents without fee", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to earn 1000g", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to reach 80lvl instantly", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
-		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to increase my stats", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+8);
-		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Take me out of here!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
-		pPlayer->SEND_GOSSIP_MENU(1, pCreature->GetGUID());
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to earn 1000g", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to reach 80lvl instantly", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to increase my stats", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+8);
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Take me out of here!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
+        pPlayer->SEND_GOSSIP_MENU(1, pCreature->GetGUID());
     return true;
 }
 
@@ -1575,65 +1575,65 @@ bool GossipSelect_npc_special(Player* pPlayer, Creature* pCreature, uint32 uiSen
     {
         case GOSSIP_ACTION_TRAIN:
             pPlayer->SEND_TRAINERLIST(pCreature->GetGUID());
-            break;		
+            break;        
 
         case GOSSIP_ACTION_INFO_DEF+1:
             pPlayer->CLOSE_GOSSIP_MENU();
-			pPlayer->resetTalents(false);
-			DoScriptText(-1800000,pCreature,pPlayer);
+            pPlayer->resetTalents(false);
+            DoScriptText(-1800000,pCreature,pPlayer);
             break;
 
         case GOSSIP_ACTION_INFO_DEF+2:
             pPlayer->CLOSE_GOSSIP_MENU();
-			pPlayer->ModifyMoney(10000000);
+            pPlayer->ModifyMoney(10000000);
             break;
 
-		case GOSSIP_ACTION_INFO_DEF+3:
-			pPlayer->CLOSE_GOSSIP_MENU();
-			pPlayer->GiveLevel(80);
-			break;
+        case GOSSIP_ACTION_INFO_DEF+3:
+            pPlayer->CLOSE_GOSSIP_MENU();
+            pPlayer->GiveLevel(80);
+            break;
 
-		case GOSSIP_ACTION_INFO_DEF+4:
-			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, "Take me to the Shattrath City", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
-			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, "Take me to Stormwind", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+6);
-			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, "Take me to Orgrimmar", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+7);
-			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, "Take me to Coilfang Reservoir", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+9);
-			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, "Take me to Caverns of Time", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+10);
-			pPlayer->SEND_GOSSIP_MENU(1, pCreature->GetGUID());
-			break;
+        case GOSSIP_ACTION_INFO_DEF+4:
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, "Take me to the Shattrath City", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, "Take me to Stormwind", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+6);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, "Take me to Orgrimmar", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+7);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, "Take me to Coilfang Reservoir", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+9);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, "Take me to Caverns of Time", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+10);
+            pPlayer->SEND_GOSSIP_MENU(1, pCreature->GetGUID());
+            break;
 
-		case GOSSIP_ACTION_INFO_DEF+5:
-			pPlayer->CLOSE_GOSSIP_MENU();
-			pPlayer->TeleportTo(530,-1838.0f,5301.0f,-12.0f,0);
-			break;
+        case GOSSIP_ACTION_INFO_DEF+5:
+            pPlayer->CLOSE_GOSSIP_MENU();
+            pPlayer->TeleportTo(530,-1838.0f,5301.0f,-12.0f,0);
+            break;
 
-		case GOSSIP_ACTION_INFO_DEF+6:
-			pPlayer->CLOSE_GOSSIP_MENU();
-			pPlayer->TeleportTo(0,-8834.0f,629.0f,95.0f,0);
-			break;
+        case GOSSIP_ACTION_INFO_DEF+6:
+            pPlayer->CLOSE_GOSSIP_MENU();
+            pPlayer->TeleportTo(0,-8834.0f,629.0f,95.0f,0);
+            break;
 
-		case GOSSIP_ACTION_INFO_DEF+7:
-			pPlayer->CLOSE_GOSSIP_MENU();
-			pPlayer->TeleportTo(1,1629.0f,-4373.0f,32.0f,0);
-			break;
+        case GOSSIP_ACTION_INFO_DEF+7:
+            pPlayer->CLOSE_GOSSIP_MENU();
+            pPlayer->TeleportTo(1,1629.0f,-4373.0f,32.0f,0);
+            break;
 
-		case GOSSIP_ACTION_INFO_DEF+8:
-			pPlayer->CLOSE_GOSSIP_MENU();
-			pPlayer->SetMaxHealth(50000);
-			pPlayer->SetHealth(pPlayer->GetMaxHealth());
-			pPlayer->SetMaxPower(POWER_MANA,50000);
-			pPlayer->SetPower(POWER_MANA,pPlayer->GetMaxPower(POWER_MANA));
-			break;
-			
-		case GOSSIP_ACTION_INFO_DEF+9:
-			pPlayer->CLOSE_GOSSIP_MENU();
-			pPlayer->TeleportTo(530,742.0f,6863.0f,-63.0f,0);
-			break;
+        case GOSSIP_ACTION_INFO_DEF+8:
+            pPlayer->CLOSE_GOSSIP_MENU();
+            pPlayer->SetMaxHealth(50000);
+            pPlayer->SetHealth(pPlayer->GetMaxHealth());
+            pPlayer->SetMaxPower(POWER_MANA,50000);
+            pPlayer->SetPower(POWER_MANA,pPlayer->GetMaxPower(POWER_MANA));
+            break;
+            
+        case GOSSIP_ACTION_INFO_DEF+9:
+            pPlayer->CLOSE_GOSSIP_MENU();
+            pPlayer->TeleportTo(530,742.0f,6863.0f,-63.0f,0);
+            break;
 
-		case GOSSIP_ACTION_INFO_DEF+10:
-			pPlayer->CLOSE_GOSSIP_MENU();
-			pPlayer->TeleportTo(1,-8495.0f,-4167.0f,-168.0f,5.8f);
-			break;
+        case GOSSIP_ACTION_INFO_DEF+10:
+            pPlayer->CLOSE_GOSSIP_MENU();
+            pPlayer->TeleportTo(1,-8495.0f,-4167.0f,-168.0f,5.8f);
+            break;
 
         case GOSSIP_ACTION_INFO_DEF+11:
             error_log("*******Player %s used option `crash server`*******",pPlayer->GetName());
@@ -2039,7 +2039,7 @@ void AddSC_npcs_special()
     newscript->pGossipSelect = &GossipSelect_npc_sayge;
     newscript->RegisterSelf();
 
-	newscript = new Script;
+    newscript = new Script;
     newscript->Name = "npc_special";
     newscript->pGossipHello = &GossipHello_npc_special;
     newscript->pGossipSelect = &GossipSelect_npc_special;

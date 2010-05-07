@@ -148,7 +148,7 @@ struct MANGOS_DLL_DECL boss_maexxnaAI : public ScriptedAI
 
         for(uint8 i=0; i<PlayersCount; ++i)
         {
-            if(Unit* pPlayer = SelectUnit(SELECT_TARGET_RANDOM, 1))
+            if(Unit* pPlayer = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,1))
             {
                 if (pPlayer && pPlayer->isAlive() && pPlayer->GetTypeId() == TYPEID_PLAYER)
                 {
@@ -213,7 +213,7 @@ struct MANGOS_DLL_DECL boss_maexxnaAI : public ScriptedAI
                 Creature* pSpiderling = m_creature->SummonCreature(CREATURE_SPIRDERLING, m_creature->GetPositionX()+urand(2,6), m_creature->GetPositionY()+urand(2,6), m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
                 if(pSpiderling && pSpiderling->AI())
                 {
-                    if(Unit* pPlayer = SelectUnit(SELECT_TARGET_RANDOM,0))
+                    if(Unit* pPlayer = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
                         pSpiderling->AI()->AttackStart(pPlayer);
                 }
             }

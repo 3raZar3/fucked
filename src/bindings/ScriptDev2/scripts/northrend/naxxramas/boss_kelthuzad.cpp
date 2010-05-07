@@ -100,16 +100,6 @@ enum Phase
     PHASE_TWO,
 };
 
-struct ManaDetonationTargetCheck
-{
-    explicit ManaDetonationTargetCheck() {}
-
-    bool operator()(Unit const* target) const
-    {
-        return target->GetTypeId() == TYPEID_PLAYER && target->isAlive() && target->getPowerType() == POWER_MANA;
-    }
-};
-
 struct MANGOS_DLL_DECL boss_kelthuzadAI : public ScriptedAI
 {
     boss_kelthuzadAI(Creature* pCreature) : ScriptedAI(pCreature)
@@ -368,6 +358,35 @@ struct MANGOS_DLL_DECL boss_kelthuzadAI : public ScriptedAI
             pSummoned->SetInCombatWithZone();
     }
 
+    Unit* SelectTargetWithMana()
+    {
+        ThreatList const& m_threatlist = m_creature->getThreatManager().getThreatList();
+        if (m_threatlist.empty())
+            return NULL;
+
+        std::list<uint64> manaPositive;
+            
+        for (ThreatList::const_iterator itr = m_threatlist.begin(); itr!= m_threatlist.end(); ++itr)
+        {
+            if (Unit* pTemp = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid()))
+            {
+                //player and has mana
+                if ((pTemp->GetTypeId() == TYPEID_PLAYER) && (pTemp->getPowerType() == POWER_MANA))
+                    manaPositive.push_back(pTemp->GetGUID());
+            }
+        }
+
+        if (!manaPositive.empty())
+        {
+            std::list<uint64>::iterator m_uiPlayerGUID;
+            advance(m_uiPlayerGUID, (rand()%manaPositive.size()));
+            if (Unit* pTemp = Unit::GetUnit(*m_creature, *m_uiPlayerGUID))
+                return pTemp;
+        }
+        
+        return NULL;
+    }
+
     void UpdateAI(const uint32 uiDiff)
     {
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
@@ -472,7 +491,7 @@ struct MANGOS_DLL_DECL boss_kelthuzadAI : public ScriptedAI
 
             if (m_uiManaDetonationTimer < uiDiff)
             {
-                if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0, ManaDetonationTargetCheck()))
+                if (Unit* pTarget = SelectTargetWithMana())
                 {
                     if (DoCastSpellIfCan(pTarget, SPELL_MANA_DETONATION) == CAST_OK)
                     {
@@ -488,7 +507,7 @@ struct MANGOS_DLL_DECL boss_kelthuzadAI : public ScriptedAI
 
             if (m_uiShadowFissureTimer < uiDiff)
             {
-                if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
                 {
                     if (DoCastSpellIfCan(pTarget, SPELL_SHADOW_FISSURE) == CAST_OK)
                     {

@@ -130,26 +130,35 @@ struct MANGOS_DLL_DECL boss_tharonjaAI : public ScriptedAI
                         ++Phase;
                         uiPhaseTimer = 6000;
                         break;
-                    } else uiPhaseTimer -= uiDiff;
+                    }
+                    else
+                        uiPhaseTimer -= uiDiff;
                 }
                 if (uiCurseOfLifeTimer <= uiDiff)
                 {
-                    if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
                         DoCastSpellIfCan(pTarget, m_bIsRegularMode ? SPELL_CURSE_OF_LIFE : H_SPELL_CURSE_OF_LIFE);
                     uiCurseOfLifeTimer = urand(10000, 15000);
-                } else uiCurseOfLifeTimer -= uiDiff;
+                }
+                else
+                    uiCurseOfLifeTimer -= uiDiff;
                
                 if (uiShadowVolleyTimer <= uiDiff)
                 {
                     DoCastSpellIfCan(m_creature,  m_bIsRegularMode ? SPELL_SHADOW_VOLLEY : H_SPELL_SHADOW_VOLLEY);
                     uiShadowVolleyTimer = urand(8000, 10000);
-                } else uiShadowVolleyTimer -= uiDiff;
+                }
+                else
+                    uiShadowVolleyTimer -= uiDiff;
                
                 if (uiRainOfFireTimer <= uiDiff)
                 {
                     DoCastSpellIfCan(m_creature, m_bIsRegularMode ? SPELL_RAIN_OF_FIRE : H_SPELL_RAIN_OF_FIRE);
                     uiRainOfFireTimer = urand(14000, 18000);
-                } else uiRainOfFireTimer -= uiDiff;
+                }
+                else
+                    uiRainOfFireTimer -= uiDiff;
+
                 DoMeleeAttackIfReady();
                 break;
             case GOING_FLESH:
@@ -159,35 +168,46 @@ struct MANGOS_DLL_DECL boss_tharonjaAI : public ScriptedAI
                     DoCastSpellIfCan(m_creature, SPELL_GIFT_OF_THARON_JA, CAST_INTERRUPT_PREVIOUS);
                     uiPhaseTimer = 20000;
                     ++Phase;
-                } else uiPhaseTimer -= uiDiff;
+                }
+                else
+                    uiPhaseTimer -= uiDiff;
                 break;
             case FLESH:
                 if (uiLightningBreathTimer <= uiDiff)
                 {
-                    if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
                         DoCastSpellIfCan(pTarget, m_bIsRegularMode ? SPELL_LIGHTNING_BREATH : H_SPELL_LIGHTNING_BREATH);
                     uiLightningBreathTimer = urand(6000, 7000);
-                } else uiLightningBreathTimer -= uiDiff;
+                }
+                else
+                    uiLightningBreathTimer -= uiDiff;
 
                 if (uiEyeBeamTimer <= uiDiff)
                 {
-                    if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
                         DoCastSpellIfCan(pTarget, m_bIsRegularMode ? SPELL_EYE_BEAM : H_SPELL_EYE_BEAM);
                     uiEyeBeamTimer = urand(4000, 6000);
-                } else uiEyeBeamTimer -= uiDiff;
+                }
+                else
+                    uiEyeBeamTimer -= uiDiff;
 
                 if (uiPoisonCloudTimer <= uiDiff)
                 {
                     DoCastSpellIfCan(m_creature, m_bIsRegularMode ? SPELL_POISON_CLOUD : H_SPELL_POISON_CLOUD);
                     uiPoisonCloudTimer = urand(10000, 12000);
-                } else uiPoisonCloudTimer -= uiDiff;
+                }
+                else
+                    uiPoisonCloudTimer -= uiDiff;
                
                 if (uiPhaseTimer <= uiDiff)
                 {
                     DoCastSpellIfCan(m_creature->getVictim(), SPELL_RETURN_FLESH);
                     ++Phase;
                     uiPhaseTimer = 6000;
-                } else uiPhaseTimer -= uiDiff;
+                }
+                else
+                    uiPhaseTimer -= uiDiff;
+
                 DoMeleeAttackIfReady();
                 break;
             case GOING_SKELETAL:
@@ -200,7 +220,9 @@ struct MANGOS_DLL_DECL boss_tharonjaAI : public ScriptedAI
                     DoCastSpellIfCan(m_creature, SPELL_CLEAR_GIFT_OF_THARONJA, CAST_INTERRUPT_PREVIOUS);
                     // since 3.0.2 only one tranformation cycle allowed
                     bFlashPhaseDone = true;
-                } else uiPhaseTimer -= uiDiff;
+                }
+                else
+                    uiPhaseTimer -= uiDiff;
                 break;
         }
     }

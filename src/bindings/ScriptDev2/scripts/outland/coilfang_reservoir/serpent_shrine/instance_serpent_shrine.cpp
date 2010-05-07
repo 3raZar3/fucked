@@ -49,15 +49,15 @@ struct MANGOS_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
     uint64 m_uiLadyVashj;
     uint64 m_uiKarathress;
     uint64 m_uiKarathressEvent_Starter;
-	uint64 m_uiLeotheras;
-	uint64 m_uiLeotherasEvent_Starter;
+    uint64 m_uiLeotheras;
+    uint64 m_uiLeotherasEvent_Starter;
 
-	uint64 m_uiHydrosGen;
-	uint64 m_uiLeotherasGen;
-	uint64 m_uiMorogrimGen;
-	uint64 m_uiKarathressGen;
-	uint64 m_uiLurkerGen;
-	uint64 m_uiBridgeGen;
+    uint64 m_uiHydrosGen;
+    uint64 m_uiLeotherasGen;
+    uint64 m_uiMorogrimGen;
+    uint64 m_uiKarathressGen;
+    uint64 m_uiLurkerGen;
+    uint64 m_uiBridgeGen;
 
     uint64 m_auiCoilfangBridge_GUID[MAX_BRIDGE];
 
@@ -78,15 +78,15 @@ struct MANGOS_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
         m_uiLadyVashj = 0;
         m_uiKarathress = 0;
         m_uiKarathressEvent_Starter = 0;
-		m_uiLeotheras = 0;
-		m_uiLeotherasEvent_Starter = 0;
+        m_uiLeotheras = 0;
+        m_uiLeotherasEvent_Starter = 0;
 
-		m_uiHydrosGen = 0;
-		m_uiLeotherasGen = 0;
-		m_uiMorogrimGen = 0;
-		m_uiKarathressGen = 0;
-		m_uiLurkerGen = 0;
-		m_uiBridgeGen = 0;
+        m_uiHydrosGen = 0;
+        m_uiLeotherasGen = 0;
+        m_uiMorogrimGen = 0;
+        m_uiKarathressGen = 0;
+        m_uiLurkerGen = 0;
+        m_uiBridgeGen = 0;
         m_bBridgeActivated = false;
     }
 
@@ -108,7 +108,7 @@ struct MANGOS_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
             case 21966: m_uiSharkkis   = pCreature->GetGUID(); break;
             case 21965: m_uiTidalvess  = pCreature->GetGUID(); break;
             case 21964: m_uiCaribdis   = pCreature->GetGUID(); break;
-			case 21215: m_uiLeotheras  = pCreature->GetGUID(); break;
+            case 21215: m_uiLeotheras  = pCreature->GetGUID(); break;
         }
     }
 
@@ -117,64 +117,64 @@ struct MANGOS_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
         switch (pGo->GetEntry())
         {
             case 185114:
-				m_uiHydrosGen			= pGo->GetGUID();
+                m_uiHydrosGen            = pGo->GetGUID();
 
-				pGo->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
+                pGo->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
                 if (GetData(TYPE_HYDROSS_EVENT) == DONE)
                     pGo->SetGoState(GO_STATE_ACTIVE);
                 break;
             case 185115:
-				m_uiLurkerGen			= pGo->GetGUID();
+                m_uiLurkerGen            = pGo->GetGUID();
 
-				pGo->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
+                pGo->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
                 if (GetData(TYPE_THELURKER_EVENT) == DONE)
                     pGo->SetGoState(GO_STATE_ACTIVE);
                 break;
             case 185116:
-				m_uiLeotherasGen			= pGo->GetGUID();
+                m_uiLeotherasGen            = pGo->GetGUID();
 
-				pGo->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
+                pGo->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
                 if (GetData(TYPE_LEOTHERAS_EVENT) == DONE)
                     pGo->SetGoState(GO_STATE_ACTIVE);
                 break;
             case 185117:
-				m_uiKarathressGen			= pGo->GetGUID();
+                m_uiKarathressGen            = pGo->GetGUID();
 
-				pGo->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
+                pGo->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
                 if (GetData(TYPE_KARATHRESS_EVENT) == DONE)
                     pGo->SetGoState(GO_STATE_ACTIVE);
                 break;
             case 185118:
-				m_uiMorogrimGen			= pGo->GetGUID();
+                m_uiMorogrimGen            = pGo->GetGUID();
 
-				pGo->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
+                pGo->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
                 if (GetData(TYPE_MOROGRIM_EVENT) == DONE)
                     pGo->SetGoState(GO_STATE_ACTIVE);
                 break;
             case 184203:
-				pGo->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
+                pGo->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
                 m_auiCoilfangBridge_GUID[0] = pGo->GetGUID();
                 if (m_bBridgeActivated)
                     pGo->SetGoState(GO_STATE_ACTIVE);
                 break;
             case 184204:
-				pGo->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
+                pGo->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
                 m_auiCoilfangBridge_GUID[1] = pGo->GetGUID();
                 if (m_bBridgeActivated)
                     pGo->SetGoState(GO_STATE_ACTIVE);
                 break;
             case 184205:
-				pGo->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
+                pGo->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
                 m_auiCoilfangBridge_GUID[2] = pGo->GetGUID();
                 if (m_bBridgeActivated)
                     pGo->SetGoState(GO_STATE_ACTIVE);
                 break;
             case 184568:
-				m_uiBridgeGen			= pGo->GetGUID();
+                m_uiBridgeGen = pGo->GetGUID();
 
-				pGo->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
+                pGo->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
                 
-				if (m_bBridgeActivated)
+                if (m_bBridgeActivated)
                     pGo->SetGoState(GO_STATE_ACTIVE);
                 break;
         }
@@ -182,15 +182,15 @@ struct MANGOS_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
 
     void SetData64(uint32 uiType, uint64 uiData)
     {
-		switch(uiType)
-		{
-			case DATA_KARATHRESS_STARTER:
-				m_uiKarathressEvent_Starter = uiData;
+        switch(uiType)
+        {
+            case DATA_KARATHRESS_STARTER:
+                m_uiKarathressEvent_Starter = uiData;
  
-			case DATA_LEOTHERAS_EVENT_STARTER:
-				m_uiLeotherasEvent_Starter = uiData;
-		}
-	}
+            case DATA_LEOTHERAS_EVENT_STARTER:
+                m_uiLeotherasEvent_Starter = uiData;
+        }
+    }
 
     uint64 GetData64(uint32 uiIdentifier)
     {
@@ -202,14 +202,14 @@ struct MANGOS_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
             case DATA_LADYVASHJ:            return m_uiLadyVashj;
             case DATA_KARATHRESS:           return m_uiKarathress;
             case DATA_KARATHRESS_STARTER:   return m_uiKarathressEvent_Starter;
-			case DATA_LEOTHERAS:			return m_uiLeotheras;
-			case DATA_LEOTHERAS_EVENT_STARTER:	return m_uiLeotherasEvent_Starter;
-			case DATA_HYDROS_GEN:			return m_uiHydrosGen;
-			case DATA_LURKER_GEN:			return m_uiLurkerGen;
-			case DATA_LEOTHERAS_GEN:		return m_uiLeotherasGen;
-			case DATA_MOROGRIM_GEN:			return m_uiMorogrimGen;
-			case DATA_KARATHRESS_GEN:		return m_uiKarathressGen;
-			case DATA_BRIDGE_GEN:			return m_uiBridgeGen;
+            case DATA_LEOTHERAS:            return m_uiLeotheras;
+            case DATA_LEOTHERAS_EVENT_STARTER:    return m_uiLeotherasEvent_Starter;
+            case DATA_HYDROS_GEN:            return m_uiHydrosGen;
+            case DATA_LURKER_GEN:            return m_uiLurkerGen;
+            case DATA_LEOTHERAS_GEN:        return m_uiLeotherasGen;
+            case DATA_MOROGRIM_GEN:            return m_uiMorogrimGen;
+            case DATA_KARATHRESS_GEN:        return m_uiKarathressGen;
+            case DATA_BRIDGE_GEN:            return m_uiBridgeGen;
         }
         return 0;
     }
@@ -218,7 +218,7 @@ struct MANGOS_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
     {
         switch(uiType)
         {
-            case TYPE_HYDROSS_EVENT:		m_auiEncounter[0] = uiData; break;
+            case TYPE_HYDROSS_EVENT:        m_auiEncounter[0] = uiData; break;
             case TYPE_LEOTHERAS_EVENT:      m_auiEncounter[1] = uiData; break;
             case TYPE_THELURKER_EVENT:      m_auiEncounter[2] = uiData; break;
             case TYPE_KARATHRESS_EVENT:     m_auiEncounter[3] = uiData; break;

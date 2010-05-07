@@ -115,18 +115,18 @@ enum
     SPELL_EXORCISM_H                      = 58822,
     SPELL_HOLY_LIGHT                      = 52444,
 
-	SPELL_SUMMON_VISUAL					  = 53708,
+    SPELL_SUMMON_VISUAL                      = 53708,
 
     ENCOUNTER_ZOMBIE_NUMBER               = 4,
     ENCOUNTER_ZOMBIE_NUMBER2              = 50,
-	
-	// Wave Event
-	NPC_PATCHWORK						 = 27736,
-	NPC_GOLEM							 = 28201,
-	NPC_NECROMANCER						 = 27732,
-	NPC_FIEND							 = 27734,
-	NPC_GHOUL							 = 28249,
-	
+    
+    // Wave Event
+    NPC_PATCHWORK                         = 27736,
+    NPC_GOLEM                             = 28201,
+    NPC_NECROMANCER                         = 27732,
+    NPC_FIEND                             = 27734,
+    NPC_GHOUL                             = 28249,
+    
 };
 
 /*######
@@ -137,125 +137,125 @@ struct MANGOS_DLL_DECL npc_arthasAI : public npc_escortAI
     npc_arthasAI(Creature *pCreature) : npc_escortAI(pCreature)
    {
         m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
-        m_bIsHeroic = pCreature->GetMap()->IsRegularDifficulty();
-		ArthasGUID = 0;
-		SalrammGUID = 0;
-		PhaseC = false;
+        m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
+        ArthasGUID = 0;
+        SalrammGUID = 0;
+        PhaseC = false;
         Reset();
    }
 
-	ScriptedInstance* m_pInstance;
+    ScriptedInstance* m_pInstance;
 
-	uint64 ArthasGUID;
-	uint64 MeathookGUID;
-	uint64 SalrammGUID;
-	uint64 EpochGUID;
-	
+    uint64 ArthasGUID;
+    uint64 MeathookGUID;
+    uint64 SalrammGUID;
+    uint64 EpochGUID;
+    
 
-	bool m_bIsHeroic;
-	uint32 Exorcism_Timer;
-	uint32 FinalFight;
-	bool PhaseC;
-	uint32 arthas_event;
-	Unit* culling_faction;
-	Creature* Patricia;
-	Creature* StalkerM;
-	Creature* Crazyman;
-	Creature* Cityman;
-	Creature* Stalker;
-	Creature* TempZombie;
-	Creature* Salramm;
-	Creature* Meathook;
-	Creature* Epoch;
-	Creature* Malganis;
-	Creature* TempMalganis;
-	Creature* Arthas;
-	Creature* Jaina;
-	Creature* Uther;
-	uint32 phase;
-	uint32 phaseAI;
-	uint32 phasetim;
-	uint64 uiZombieGUID[ENCOUNTER_ZOMBIE_NUMBER];
-	uint32 uiZombie_counter;
-	uint32 tmpZombie;
-	uint32 PatriciaEvent;
-	
-	// wave event
-	uint64 WaveCount;
-	uint64 WaveEventTimer;
-	uint64 EscortPoint;
-	bool WaveSpawned;
+    bool m_bIsRegularMode;
+    uint32 Exorcism_Timer;
+    uint32 FinalFight;
+    bool PhaseC;
+    uint32 arthas_event;
+    Unit* culling_faction;
+    Creature* Patricia;
+    Creature* StalkerM;
+    Creature* Crazyman;
+    Creature* Cityman;
+    Creature* Stalker;
+    Creature* TempZombie;
+    Creature* Salramm;
+    Creature* Meathook;
+    Creature* Epoch;
+    Creature* Malganis;
+    Creature* TempMalganis;
+    Creature* Arthas;
+    Creature* Jaina;
+    Creature* Uther;
+    uint32 phase;
+    uint32 phaseAI;
+    uint32 phasetim;
+    uint64 uiZombieGUID[ENCOUNTER_ZOMBIE_NUMBER];
+    uint32 uiZombie_counter;
+    uint32 tmpZombie;
+    uint32 PatriciaEvent;
+    
+    // wave event
+    uint64 WaveCount;
+    uint64 WaveEventTimer;
+    uint64 EscortPoint;
+    bool WaveSpawned;
 
-	// time event
-	uint64 TimeRemain;
-	uint64 TimeEventTimer;
-	
-	void Reset() 
-	{
-		if(arthas_event == 2) { } 
-		else 
-			arthas_event = 0;
-		FinalFight = 1;
-		phase = 1;
-		phasetim = 20000;  
-		Exorcism_Timer = 7300;
-		Arthas = m_creature;
+    // time event
+    uint64 TimeRemain;
+    uint64 TimeEventTimer;
+    
+    void Reset() 
+    {
+        if(arthas_event == 2) { } 
+        else 
+            arthas_event = 0;
+        FinalFight = 1;
+        phase = 1;
+        phasetim = 20000;  
+        Exorcism_Timer = 7300;
+        Arthas = m_creature;
 
-		// wave event
-		WaveCount = 0;
-		WaveEventTimer = 60000;
-		WaveSpawned = false;
+        // wave event
+        WaveCount = 0;
+        WaveEventTimer = 60000;
+        WaveSpawned = false;
 
-		// time event
-		TimeRemain = 15;
-		TimeEventTimer = 60000;
-		
-		if(m_pInstance->GetData(TYPE_ARTHAS_EVENT) == DONE) 
-			Arthas->SetVisibility(VISIBILITY_OFF);
+        // time event
+        TimeRemain = 15;
+        TimeEventTimer = 60000;
+        
+        if(m_pInstance->GetData(TYPE_ARTHAS_EVENT) == DONE) 
+            Arthas->SetVisibility(VISIBILITY_OFF);
 
-		// this is Arthas's start position in the instance he will give gossip only here and in front of the gate at Mal'Ganis
-		if(PhaseC == false && m_pInstance->GetData(TYPE_ARTHAS_EVENT) != DONE)
-		{
-			Arthas->SetVisibility(VISIBILITY_ON);
-			Arthas->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-	        Arthas->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-		}
+        // this is Arthas's start position in the instance he will give gossip only here and in front of the gate at Mal'Ganis
+        if(PhaseC == false && m_pInstance->GetData(TYPE_ARTHAS_EVENT) != DONE)
+        {
+            Arthas->SetVisibility(VISIBILITY_ON);
+            Arthas->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+            Arthas->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+        }
 
-	}
+    }
 
-	void Aggro(Unit* who)
-	{
-		DoCast(m_creature, SPELL_ARTHAS_AURA);
-	}
+    void Aggro(Unit* who)
+    {
+        DoCast(m_creature, SPELL_ARTHAS_AURA);
+    }
 
     void MoveInLineOfSight(Unit* pWho)
     {
         if (!pWho)
             return;
 
-		if (!m_creature->hasUnitState(UNIT_STAT_STUNNED) && pWho->isTargetableForAttack() &&
-			m_creature->IsHostileTo(pWho) && pWho->isInAccessablePlaceFor(m_creature))
-		{
-			if (!m_creature->canFly() && m_creature->GetDistanceZ(pWho) > CREATURE_Z_ATTACK_RANGE)
-				return;
+        if (!m_creature->hasUnitState(UNIT_STAT_STUNNED) && pWho->isTargetableForAttack() &&
+            m_creature->IsHostileTo(pWho) && pWho->isInAccessablePlaceFor(m_creature))
+        {
+            if (!m_creature->canFly() && m_creature->GetDistanceZ(pWho) > CREATURE_Z_ATTACK_RANGE)
+                return;
 
-			float attackRadius = m_creature->GetAttackDistance(pWho);
-			if (m_creature->IsWithinDistInMap(pWho, attackRadius) && m_creature->IsWithinLOSInMap(pWho))
-			{
-				if (!m_creature->getVictim())
-				{
-					AttackStart(pWho);
-					pWho->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
-				}
-				else if (m_creature->GetMap()->IsDungeon())
-				{
-					pWho->SetInCombatWith(m_creature);
-					m_creature->AddThreat(pWho, 0.0f);
-				}
-			}
-		}
-	}
-	
+            float attackRadius = m_creature->GetAttackDistance(pWho);
+            if (m_creature->IsWithinDistInMap(pWho, attackRadius) && m_creature->IsWithinLOSInMap(pWho))
+            {
+                if (!m_creature->getVictim())
+                {
+                    AttackStart(pWho);
+                    pWho->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
+                }
+                else if (m_creature->GetMap()->IsDungeon())
+                {
+                    pWho->SetInCombatWith(m_creature);
+                    m_creature->AddThreat(pWho, 0.0f);
+                }
+            }
+        }
+    }
+    
     void SetWeather(uint32 weather, float grade)
     {
         Map *map = m_creature->GetMap();
@@ -264,121 +264,121 @@ struct MANGOS_DLL_DECL npc_arthasAI : public npc_escortAI
         data << uint32(weather) << (float)grade << uint8(0);
         ((InstanceMap*)map)->SendToPlayers(&data);
     }
-	
-	void JustDied(Unit *killer)
+    
+    void JustDied(Unit *killer)
     {
          if (m_pInstance)
-		 {
+         {
             m_pInstance->SetData(TYPE_ARTHAS_EVENT, FAIL);
-		 }
+         }
     }
 
-	void SpawnWave(int wp) {
-		if(wp == 1) {
-			// 2 Ghouls + 2 Fiends
-				for(uint8 i = 0; i < 2; ++i)
-				{
-					if (Creature* pGhoul = Arthas->SummonCreature(NPC_GHOUL, 2227.03f, 1331.65f, 126.99f,1.30f,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 180000))
-					{
-						pGhoul->AddThreat(Arthas, 0.00f);
-						pGhoul->GetMotionMaster()->MovePoint(0, 2165.10f,1279.00f,133.40f); 
-					}
-					if (Creature* pSpider = Arthas->SummonCreature(NPC_FIEND, 2227.10f, 1331.63f, 126.99f,1.30f,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 180000))
-					{
-						pSpider->AddThreat(Arthas, 0.00f);
-						pSpider->GetMotionMaster()->MovePoint(0, 2165.00f,1279.10f,133.40f); 
-					}
-				}
-			// 2 Necromancers
-				for(uint8 i = 0; i < 1; ++i)
-				{
-					if (Creature* pNecro = Arthas->SummonCreature(NPC_NECROMANCER, 2227.23f, 1331.67f, 126.99f,1.30f,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 180000))
-					{
-						pNecro->AddThreat(Arthas, 0.00f);
-						pNecro->GetMotionMaster()->MovePoint(0, 2165.10f,1279.10f,133.40f); 
-					}
-				}
-			// 1 Patchwork
-				if (Creature* pPatch = Arthas->SummonCreature(NPC_PATCHWORK, 2227.13f, 1331.69f, 126.99f,1.30f,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 180000))
-					{
-						pPatch->AddThreat(Arthas, 0.00f);
-						pPatch->GetMotionMaster()->MovePoint(0, 2165.10f,1279.20f,133.40f); 
-					}
-		} else {
-			// 2 Ghouls + 2 Fiends
-				for(uint8 i = 0; i < 2; ++i)
-				{
-					if (Creature* pGhoul = Arthas->SummonCreature(NPC_GHOUL, 2211.00f, 1338.50f, 129.60f,1.30f,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 180000))
-					{
-						pGhoul->GetMotionMaster()->MovePoint(0, 2165.10f,1279.00f,133.40f); 
-					}
-					if (Creature* pSpider = Arthas->SummonCreature(NPC_FIEND, 2212.00f, 1338.50f, 129.60f,1.30f,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 180000))
-					{
-						pSpider->GetMotionMaster()->MovePoint(0, 2165.00f,1279.10f,133.40f); 
-					}
-				}
-			// 1 Necromancers
-				if (Creature* pNecro = Arthas->SummonCreature(NPC_NECROMANCER, 2211.00f, 1336.50f, 129.60f,2.12f,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 180000))
-					{
-						pNecro->AddThreat(Arthas, 0.00f);
-						pNecro->GetMotionMaster()->MovePoint(0, 2165.10f,1279.10f,133.40f); 
-					}
-				
-			// 1 Patchwork
-				if (Creature* pPatch = Arthas->SummonCreature(NPC_PATCHWORK, 2212.00f, 1336.50f, 129.60f,2.12f,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 180000))
-					{
-						pPatch->AddThreat(Arthas, 0.00f);
-						pPatch->GetMotionMaster()->MovePoint(0, 2165.10f,1279.20f,133.40f); 
-					}
-			}
-		}
+    void SpawnWave(int wp) {
+        if(wp == 1) {
+            // 2 Ghouls + 2 Fiends
+                for(uint8 i = 0; i < 2; ++i)
+                {
+                    if (Creature* pGhoul = Arthas->SummonCreature(NPC_GHOUL, 2227.03f, 1331.65f, 126.99f,1.30f,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 180000))
+                    {
+                        pGhoul->AddThreat(Arthas, 0.00f);
+                        pGhoul->GetMotionMaster()->MovePoint(0, 2165.10f,1279.00f,133.40f); 
+                    }
+                    if (Creature* pSpider = Arthas->SummonCreature(NPC_FIEND, 2227.10f, 1331.63f, 126.99f,1.30f,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 180000))
+                    {
+                        pSpider->AddThreat(Arthas, 0.00f);
+                        pSpider->GetMotionMaster()->MovePoint(0, 2165.00f,1279.10f,133.40f); 
+                    }
+                }
+            // 2 Necromancers
+                for(uint8 i = 0; i < 1; ++i)
+                {
+                    if (Creature* pNecro = Arthas->SummonCreature(NPC_NECROMANCER, 2227.23f, 1331.67f, 126.99f,1.30f,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 180000))
+                    {
+                        pNecro->AddThreat(Arthas, 0.00f);
+                        pNecro->GetMotionMaster()->MovePoint(0, 2165.10f,1279.10f,133.40f); 
+                    }
+                }
+            // 1 Patchwork
+                if (Creature* pPatch = Arthas->SummonCreature(NPC_PATCHWORK, 2227.13f, 1331.69f, 126.99f,1.30f,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 180000))
+                    {
+                        pPatch->AddThreat(Arthas, 0.00f);
+                        pPatch->GetMotionMaster()->MovePoint(0, 2165.10f,1279.20f,133.40f); 
+                    }
+        } else {
+            // 2 Ghouls + 2 Fiends
+                for(uint8 i = 0; i < 2; ++i)
+                {
+                    if (Creature* pGhoul = Arthas->SummonCreature(NPC_GHOUL, 2211.00f, 1338.50f, 129.60f,1.30f,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 180000))
+                    {
+                        pGhoul->GetMotionMaster()->MovePoint(0, 2165.10f,1279.00f,133.40f); 
+                    }
+                    if (Creature* pSpider = Arthas->SummonCreature(NPC_FIEND, 2212.00f, 1338.50f, 129.60f,1.30f,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 180000))
+                    {
+                        pSpider->GetMotionMaster()->MovePoint(0, 2165.00f,1279.10f,133.40f); 
+                    }
+                }
+            // 1 Necromancers
+                if (Creature* pNecro = Arthas->SummonCreature(NPC_NECROMANCER, 2211.00f, 1336.50f, 129.60f,2.12f,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 180000))
+                    {
+                        pNecro->AddThreat(Arthas, 0.00f);
+                        pNecro->GetMotionMaster()->MovePoint(0, 2165.10f,1279.10f,133.40f); 
+                    }
+                
+            // 1 Patchwork
+                if (Creature* pPatch = Arthas->SummonCreature(NPC_PATCHWORK, 2212.00f, 1336.50f, 129.60f,2.12f,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 180000))
+                    {
+                        pPatch->AddThreat(Arthas, 0.00f);
+                        pPatch->GetMotionMaster()->MovePoint(0, 2165.10f,1279.20f,133.40f); 
+                    }
+            }
+        }
 
-	void AttackStart(Unit* pWho)
-	{
-		if (!pWho)
-			return;
+    void AttackStart(Unit* pWho)
+    {
+        if (!pWho)
+            return;
 
-		if (m_creature->Attack(pWho, true))
-		{
-			m_creature->AddThreat(pWho, 0.0f);
-			m_creature->SetInCombatWith(pWho);
-			pWho->SetInCombatWith(m_creature);
+        if (m_creature->Attack(pWho, true))
+        {
+            m_creature->AddThreat(pWho, 0.0f);
+            m_creature->SetInCombatWith(pWho);
+            pWho->SetInCombatWith(m_creature);
 
-			if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
-				m_creature->GetMotionMaster()->MovementExpired();
+            if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
+                m_creature->GetMotionMaster()->MovementExpired();
 
-			if (IsCombatMovement())
-				m_creature->GetMotionMaster()->MoveChase(pWho);
-		}
-	}
+            if (IsCombatMovement())
+                m_creature->GetMotionMaster()->MoveChase(pWho);
+        }
+    }
 
     void WaypointReached(uint32 uiPointId)
     {
-		switch(uiPointId)
+        switch(uiPointId)
         {
-			case 1:
-				DoScriptText(SAY_ENTER09, Arthas);
-				EscortPoint = 1;
-				++WaveCount;
-				SetEscortPaused(true);
-				break;
+            case 1:
+                DoScriptText(SAY_ENTER09, Arthas);
+                EscortPoint = 1;
+                ++WaveCount;
+                SetEscortPaused(true);
+                break;
             case 2:
                 DoScriptText(SAY_PHASE502, Arthas);
                 break;
-			case 3: 
-				Arthas->RemoveSplineFlag(SPLINEFLAG_WALKMODE);
+            case 3: 
+                Arthas->RemoveSplineFlag(SPLINEFLAG_WALKMODE);
                 DoScriptText(SAY_PHASE505, Arthas);
                 break;
-			case 4:
+            case 4:
                 DoScriptText(SAY_PHASE506, Arthas);
                 Arthas->SummonCreature(NPC_TIME_RIFT,2225.388f,1178.470f,136.289f,3.15f,TEMPSUMMON_TIMED_DESPAWN,11000);
                 break;
-			case 5: 
+            case 5: 
                 DoScriptText(SAY_PHASE507, Arthas);
                 Arthas->SummonCreature(NPC_TIME_RIFT,2264.253f,1162.153f,137.919f,3.15f,TEMPSUMMON_TIMED_DESPAWN,11000);
                 Arthas->SummonCreature(NPC_TIME_RIFT,2286.946f,1182.064f,137.986f,3.15f,TEMPSUMMON_TIMED_DESPAWN,11000);
                 break;
-			case 9: 
+            case 9: 
                 DoScriptText(SAY_PHASE509, Arthas);
                 Arthas->SummonCreature(NPC_TIME_RIFT,2410.561f,1187.790f,133.933f,3.15f,TEMPSUMMON_TIMED_DESPAWN,11000);
                 Arthas->SummonCreature(NPC_TIME_RIFT,2388.574f,1214.650f,134.239f,3.15f,TEMPSUMMON_TIMED_DESPAWN,11000);     
@@ -390,7 +390,7 @@ struct MANGOS_DLL_DECL npc_arthasAI : public npc_escortAI
             case 11:
                 Arthas->RemoveSplineFlag(SPLINEFLAG_WALKMODE);
                 break; 
-			case 13: 
+            case 13: 
                 DoScriptText(SAY_PHASE508,Arthas);
                 Arthas->SummonCreature(NPC_TIME_RIFT,2393.985f,1190.519f,148.076f,3.15f,TEMPSUMMON_TIMED_DESPAWN,11000);  
                 Arthas->SummonCreature(NPC_TIME_RIFT,2436.202f,1200.540f,148.077f,3.15f,TEMPSUMMON_TIMED_DESPAWN,11000);  
@@ -398,28 +398,28 @@ struct MANGOS_DLL_DECL npc_arthasAI : public npc_escortAI
             case 15:
                 DoScriptText(SAY_PHASE511,Arthas);
                 Arthas->SummonCreature(NPC_TIME_RIFT_2,2445.629f,1111.500f,148.076f,3.229f,TEMPSUMMON_TIMED_DESPAWN,9000);
-				if (EpochGUID = m_pInstance->GetData64(DATA_EPOCH)) 
-				{
-					// check if it has ben killed already
-					if(m_pInstance->GetData(TYPE_EPOCH_EVENT) != DONE)
-					{
-						Epoch = m_pInstance->instance->GetCreature(EpochGUID);
-						Epoch->SetVisibility(VISIBILITY_ON);
-						Epoch->setFaction(14);
-						Arthas->SetUInt64Value(UNIT_FIELD_TARGET, Epoch->GetGUID());
-					}
-					// already has ben killed as the db says so needs to die
-					if(m_pInstance->GetData(TYPE_EPOCH_EVENT) == DONE)
-					{
-						Epoch = m_pInstance->instance->GetCreature(EpochGUID);
-						Epoch->SetDeadByDefault(true);
-					}
-				}
+                if (EpochGUID = m_pInstance->GetData64(DATA_EPOCH)) 
+                {
+                    // check if it has ben killed already
+                    if(m_pInstance->GetData(TYPE_EPOCH_EVENT) != DONE)
+                    {
+                        Epoch = m_pInstance->instance->GetCreature(EpochGUID);
+                        Epoch->SetVisibility(VISIBILITY_ON);
+                        Epoch->setFaction(14);
+                        Arthas->SetUInt64Value(UNIT_FIELD_TARGET, Epoch->GetGUID());
+                    }
+                    // already has ben killed as the db says so needs to die
+                    if(m_pInstance->GetData(TYPE_EPOCH_EVENT) == DONE)
+                    {
+                        Epoch = m_pInstance->instance->GetCreature(EpochGUID);
+                        Epoch->SetDeadByDefault(true);
+                    }
+                }
                 break;
             case 18:
-				DoScriptText(SAY_EPOCH, Arthas);
-				Epoch->Attack(Arthas, true);
-				Epoch->AddThreat(Arthas, 0.01f);
+                DoScriptText(SAY_EPOCH, Arthas);
+                Epoch->Attack(Arthas, true);
+                Epoch->AddThreat(Arthas, 0.01f);
                 break;
             case 19:
                 break;
@@ -429,7 +429,7 @@ struct MANGOS_DLL_DECL npc_arthasAI : public npc_escortAI
             case 23:
                 DoScriptText(SAY_PHASE503,Arthas);
                 break;
-			case 24: 
+            case 24: 
                 if (m_pInstance)
                 {
                     GameObject* pGate = m_pInstance->instance->GetGameObject(m_pInstance->GetData64(DATA_GO_SHKAF_GATE));
@@ -441,18 +441,18 @@ struct MANGOS_DLL_DECL npc_arthasAI : public npc_escortAI
                 DoScriptText(SAY_PHASE601,Arthas);
                 Arthas->RemoveSplineFlag(SPLINEFLAG_WALKMODE);
                 break;
-			case 34: 
+            case 34: 
                 Arthas->AddSplineFlag(SPLINEFLAG_WALKMODE);
                 DoScriptText(SAY_PHASE602,Arthas);
                 break;
-			case 35: 
+            case 35: 
                 Arthas->RemoveSplineFlag(SPLINEFLAG_WALKMODE);
                 DoScriptText(SAY_PHASE603,Arthas);
                 break;
             case 40:
                 DoScriptText(SAY_PHASE604,Arthas);
                 break;
-			case 41: 
+            case 41: 
                 FinalFight = 1;
                 Arthas->setFaction(35);
                 phaseAI = 94;
@@ -460,214 +460,214 @@ struct MANGOS_DLL_DECL npc_arthasAI : public npc_escortAI
         }
     }
 
-	void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 diff)
     {
         npc_escortAI::UpdateAI(diff);
 
         DoMeleeAttackIfReady();
 
-		// time event
-		if (m_pInstance->GetData(TYPE_TIME_EVENT) == IN_PROGRESS)
+        // time event
+        if (m_pInstance->GetData(TYPE_TIME_EVENT) == IN_PROGRESS)
         {
             if (TimeEventTimer <= diff)
             {
                 if (TimeRemain == 0)
                 {
-					if (m_pInstance)
-						m_pInstance->SetData(TYPE_TIME_EVENT, FAIL);
+                    if (m_pInstance)
+                        m_pInstance->SetData(TYPE_TIME_EVENT, FAIL);
                     return;
                 }
 
                 --TimeRemain;
-				TimeEventTimer = 60000;
+                TimeEventTimer = 60000;
                 m_pInstance->DoUpdateWorldState(WORLD_STATE_REMAIN, TimeRemain);
             }
             else
                 TimeEventTimer -= diff;
         }
 
-		// wave event 
-		if(EscortPoint == 1){
-				switch(WaveCount) {
-					case 1:
-						Arthas->setFaction(culling_faction->getFaction());
-						m_pInstance->DoUpdateWorldState(WORLD_STATE_WAVE, true);
-						m_pInstance->DoUpdateWorldState(WORLD_STATE_WAVE, WaveCount);
-						if (WaveEventTimer < diff){
-							WaveEventTimer = 60000;
-							WaveSpawned = false;
-							++WaveCount;
-						} else WaveEventTimer -= diff;
-						if(!WaveSpawned) {
-							SpawnWave(urand(0,1));
-							WaveSpawned = true;
-						}
-					break;
-					case 2:
-						m_pInstance->DoUpdateWorldState(WORLD_STATE_WAVE, WaveCount);
-						if (WaveEventTimer < diff){
-							WaveEventTimer = 60000;
-							WaveSpawned = false;
-							++WaveCount;
-						} else WaveEventTimer -= diff;
-						if(!WaveSpawned) {
-							SpawnWave(urand(0,1));
-							WaveSpawned = true;
-						}
-					break;
-					case 3:
-						m_pInstance->DoUpdateWorldState(WORLD_STATE_WAVE, WaveCount);
-						if (WaveEventTimer < diff){
-							WaveEventTimer = 60000;
-							WaveSpawned = false;
-							++WaveCount;
-						} else WaveEventTimer -= diff;
-						if(!WaveSpawned) {
-							SpawnWave(urand(0,1));
-							WaveSpawned = true;
-						}
-					break;
-					case 4:
-						m_pInstance->DoUpdateWorldState(WORLD_STATE_WAVE, WaveCount);
-						if (WaveEventTimer < diff){
-							WaveEventTimer = 90000;
-							WaveSpawned = false;
-							++WaveCount;
-						} else WaveEventTimer -= diff;
-						if(!WaveSpawned) {
-							SpawnWave(urand(0,1));
-							WaveSpawned = true;
-						}
-					break;
-					case 5:
-						m_pInstance->DoUpdateWorldState(WORLD_STATE_WAVE, WaveCount);
-							if (MeathookGUID = m_pInstance->GetData64(DATA_MEATHOOK)) 
-							{
-								// check if it has ben killed already
-								if (m_pInstance->GetData(TYPE_MEATHOOK_EVENT) != DONE)
-								{
-									Meathook = m_pInstance->instance->GetCreature(MeathookGUID);
-									Meathook->SetVisibility(VISIBILITY_ON);
-									Meathook->setFaction(14);
-									Meathook->GetMotionMaster()->MovePoint(0, 2165.073f,1279.338f,133.40f); 
-									DoScriptText(SAY_MEATHOOK_SPAWN, Meathook);
-								}
-								// If is on cooldown kill it
-								if(m_pInstance->GetData(TYPE_MEATHOOK_EVENT) == DONE)
-								{
-									Meathook = m_pInstance->instance->GetCreature(MeathookGUID);
-									Meathook->SetDeadByDefault(true);
-								}
-							}
-						if (WaveEventTimer < diff){
-							WaveEventTimer = 60000;
-							++WaveCount;
-							WaveSpawned = false;
-						} else WaveEventTimer -= diff;
-					break;
-					case 6:
-						m_pInstance->DoUpdateWorldState(WORLD_STATE_WAVE, WaveCount);
-						if (WaveEventTimer < diff){
-							WaveEventTimer = 60000;
-							WaveSpawned = false;
-							++WaveCount;
-						} else WaveEventTimer -= diff;
-						if(!WaveSpawned) {
-							SpawnWave(urand(0,1));
-							WaveSpawned = true;
-						}
-					break;
-					case 7:
-						m_pInstance->DoUpdateWorldState(WORLD_STATE_WAVE, WaveCount);
-						if (WaveEventTimer < diff){
-							WaveEventTimer = 60000;
-							WaveSpawned = false;
-							++WaveCount;
-						} else WaveEventTimer -= diff;
-						if(!WaveSpawned) {
-							SpawnWave(urand(0,1));
-							WaveSpawned = true;
-						}
-					break;
-					case 8:
-						m_pInstance->DoUpdateWorldState(WORLD_STATE_WAVE, WaveCount);
-						if (WaveEventTimer < diff){
-							WaveEventTimer = 60000;
-							WaveSpawned = false;
-							++WaveCount;
-						} else WaveEventTimer -= diff;
-						if(!WaveSpawned) {
-							SpawnWave(urand(0,1));
-							WaveSpawned = true;
-						}
-					break;
-					case 9:
-						m_pInstance->DoUpdateWorldState(WORLD_STATE_WAVE, WaveCount);
-						if (WaveEventTimer < diff){
-							WaveEventTimer = 90000;
-							WaveSpawned = false;
-							++WaveCount;
-						} else WaveEventTimer -= diff;
-						if(!WaveSpawned) {
-							SpawnWave(urand(0,1));
-							WaveSpawned = true;
-						}
-					break;
-					case 10:
-						m_pInstance->DoUpdateWorldState(WORLD_STATE_WAVE, WaveCount);
-							if (SalrammGUID = m_pInstance->GetData64(DATA_SALRAMM)) 
-							{
-								// check if it has ben killed already
-								if(m_pInstance->GetData(TYPE_SALRAMM_EVENT) != DONE)
-								{
-									Salramm = m_pInstance->instance->GetCreature(SalrammGUID);
-									// set his flags back to be atackable if there is no cd on this boss
-									Salramm->SetVisibility(VISIBILITY_ON);
-									Salramm->setFaction(14);
-									Salramm->GetMotionMaster()->MovePoint(0, 2165.073f,1279.338f,133.40f); 
-								}
-								// already has ben killed as the db says so needs to die or just leave him with invisible flag
-								if(m_pInstance->GetData(TYPE_SALRAMM_EVENT) == DONE)
-								{
-									Salramm = m_pInstance->instance->GetCreature(SalrammGUID);
-									Salramm->SetDeadByDefault(true);
-								}
-							}
+        // wave event 
+        if(EscortPoint == 1){
+                switch(WaveCount) {
+                    case 1:
+                        Arthas->setFaction(culling_faction->getFaction());
+                        m_pInstance->DoUpdateWorldState(WORLD_STATE_WAVE, true);
+                        m_pInstance->DoUpdateWorldState(WORLD_STATE_WAVE, WaveCount);
+                        if (WaveEventTimer < diff){
+                            WaveEventTimer = 60000;
+                            WaveSpawned = false;
+                            ++WaveCount;
+                        } else WaveEventTimer -= diff;
+                        if(!WaveSpawned) {
+                            SpawnWave(urand(0,1));
+                            WaveSpawned = true;
+                        }
+                    break;
+                    case 2:
+                        m_pInstance->DoUpdateWorldState(WORLD_STATE_WAVE, WaveCount);
+                        if (WaveEventTimer < diff){
+                            WaveEventTimer = 60000;
+                            WaveSpawned = false;
+                            ++WaveCount;
+                        } else WaveEventTimer -= diff;
+                        if(!WaveSpawned) {
+                            SpawnWave(urand(0,1));
+                            WaveSpawned = true;
+                        }
+                    break;
+                    case 3:
+                        m_pInstance->DoUpdateWorldState(WORLD_STATE_WAVE, WaveCount);
+                        if (WaveEventTimer < diff){
+                            WaveEventTimer = 60000;
+                            WaveSpawned = false;
+                            ++WaveCount;
+                        } else WaveEventTimer -= diff;
+                        if(!WaveSpawned) {
+                            SpawnWave(urand(0,1));
+                            WaveSpawned = true;
+                        }
+                    break;
+                    case 4:
+                        m_pInstance->DoUpdateWorldState(WORLD_STATE_WAVE, WaveCount);
+                        if (WaveEventTimer < diff){
+                            WaveEventTimer = 90000;
+                            WaveSpawned = false;
+                            ++WaveCount;
+                        } else WaveEventTimer -= diff;
+                        if(!WaveSpawned) {
+                            SpawnWave(urand(0,1));
+                            WaveSpawned = true;
+                        }
+                    break;
+                    case 5:
+                        m_pInstance->DoUpdateWorldState(WORLD_STATE_WAVE, WaveCount);
+                            if (MeathookGUID = m_pInstance->GetData64(DATA_MEATHOOK)) 
+                            {
+                                // check if it has ben killed already
+                                if (m_pInstance->GetData(TYPE_MEATHOOK_EVENT) != DONE)
+                                {
+                                    Meathook = m_pInstance->instance->GetCreature(MeathookGUID);
+                                    Meathook->SetVisibility(VISIBILITY_ON);
+                                    Meathook->setFaction(14);
+                                    Meathook->GetMotionMaster()->MovePoint(0, 2165.073f,1279.338f,133.40f); 
+                                    DoScriptText(SAY_MEATHOOK_SPAWN, Meathook);
+                                }
+                                // If is on cooldown kill it
+                                if(m_pInstance->GetData(TYPE_MEATHOOK_EVENT) == DONE)
+                                {
+                                    Meathook = m_pInstance->instance->GetCreature(MeathookGUID);
+                                    Meathook->SetDeadByDefault(true);
+                                }
+                            }
+                        if (WaveEventTimer < diff){
+                            WaveEventTimer = 60000;
+                            ++WaveCount;
+                            WaveSpawned = false;
+                        } else WaveEventTimer -= diff;
+                    break;
+                    case 6:
+                        m_pInstance->DoUpdateWorldState(WORLD_STATE_WAVE, WaveCount);
+                        if (WaveEventTimer < diff){
+                            WaveEventTimer = 60000;
+                            WaveSpawned = false;
+                            ++WaveCount;
+                        } else WaveEventTimer -= diff;
+                        if(!WaveSpawned) {
+                            SpawnWave(urand(0,1));
+                            WaveSpawned = true;
+                        }
+                    break;
+                    case 7:
+                        m_pInstance->DoUpdateWorldState(WORLD_STATE_WAVE, WaveCount);
+                        if (WaveEventTimer < diff){
+                            WaveEventTimer = 60000;
+                            WaveSpawned = false;
+                            ++WaveCount;
+                        } else WaveEventTimer -= diff;
+                        if(!WaveSpawned) {
+                            SpawnWave(urand(0,1));
+                            WaveSpawned = true;
+                        }
+                    break;
+                    case 8:
+                        m_pInstance->DoUpdateWorldState(WORLD_STATE_WAVE, WaveCount);
+                        if (WaveEventTimer < diff){
+                            WaveEventTimer = 60000;
+                            WaveSpawned = false;
+                            ++WaveCount;
+                        } else WaveEventTimer -= diff;
+                        if(!WaveSpawned) {
+                            SpawnWave(urand(0,1));
+                            WaveSpawned = true;
+                        }
+                    break;
+                    case 9:
+                        m_pInstance->DoUpdateWorldState(WORLD_STATE_WAVE, WaveCount);
+                        if (WaveEventTimer < diff){
+                            WaveEventTimer = 90000;
+                            WaveSpawned = false;
+                            ++WaveCount;
+                        } else WaveEventTimer -= diff;
+                        if(!WaveSpawned) {
+                            SpawnWave(urand(0,1));
+                            WaveSpawned = true;
+                        }
+                    break;
+                    case 10:
+                        m_pInstance->DoUpdateWorldState(WORLD_STATE_WAVE, WaveCount);
+                            if (SalrammGUID = m_pInstance->GetData64(DATA_SALRAMM)) 
+                            {
+                                // check if it has ben killed already
+                                if(m_pInstance->GetData(TYPE_SALRAMM_EVENT) != DONE)
+                                {
+                                    Salramm = m_pInstance->instance->GetCreature(SalrammGUID);
+                                    // set his flags back to be atackable if there is no cd on this boss
+                                    Salramm->SetVisibility(VISIBILITY_ON);
+                                    Salramm->setFaction(14);
+                                    Salramm->GetMotionMaster()->MovePoint(0, 2165.073f,1279.338f,133.40f); 
+                                }
+                                // already has ben killed as the db says so needs to die or just leave him with invisible flag
+                                if(m_pInstance->GetData(TYPE_SALRAMM_EVENT) == DONE)
+                                {
+                                    Salramm = m_pInstance->instance->GetCreature(SalrammGUID);
+                                    Salramm->SetDeadByDefault(true);
+                                }
+                            }
 
-						if (WaveEventTimer < diff){
-							WaveEventTimer = 60000;
-							++WaveCount;
-							m_pInstance->DoUpdateWorldState(WORLD_STATE_WAVE, false);
-						} else WaveEventTimer -= diff;
-					break;
-					case 11:
-						DoScriptText(SAY_PHASE501, Arthas);
-						EscortPoint = 0;
-						SetEscortPaused(false);
-					break;
-				}
-		}
+                        if (WaveEventTimer < diff){
+                            WaveEventTimer = 60000;
+                            ++WaveCount;
+                            m_pInstance->DoUpdateWorldState(WORLD_STATE_WAVE, false);
+                        } else WaveEventTimer -= diff;
+                    break;
+                    case 11:
+                        DoScriptText(SAY_PHASE501, Arthas);
+                        EscortPoint = 0;
+                        SetEscortPaused(false);
+                    break;
+                }
+        }
  
 
-		if (phaseAI == 94 && FinalFight != 2)
-		{
-			Arthas->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-			Arthas->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-		}
-		if(FinalFight == 2)
+        if (phaseAI == 94 && FinalFight != 2)
         {
-			Arthas->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-			Arthas->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-			switch(phaseAI)
+            Arthas->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+            Arthas->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+        }
+        if(FinalFight == 2)
+        {
+            Arthas->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+            Arthas->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            switch(phaseAI)
             {
               case 95:
-	   			    DoScriptText(SAY_PHASE605, Arthas);
+                       DoScriptText(SAY_PHASE605, Arthas);
                     if (m_pInstance)
                     {
                         GameObject* pGate = m_pInstance->instance->GetGameObject(m_pInstance->GetData64(DATA_GO_MAL_GATE1));
                         pGate->SetGoState(GO_STATE_ACTIVE);
-					}                    
-					++phaseAI;
+                    }                    
+                    ++phaseAI;
                     phasetim = 3000;
                     break;
               case 97:
@@ -677,188 +677,188 @@ struct MANGOS_DLL_DECL npc_arthasAI : public npc_escortAI
                     break;
               case 99:
                     Arthas->setFaction(culling_faction->getFaction());
-					++phaseAI;
+                    ++phaseAI;
                     phasetim = 3000;
                     break;                       
            }
         }
 
-		if(FinalFight == 2)
+        if(FinalFight == 2)
         {
-			if (phasetim <= diff)
-			{
-				++phaseAI;
-				phasetim = 330000;
-			}	
-			phasetim -= diff;
+            if (phasetim <= diff)
+            {
+                ++phaseAI;
+                phasetim = 330000;
+            }    
+            phasetim -= diff;
         }
 
-		if(arthas_event == 2)
-		{
-			if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
-				return;
-         
-			if (Exorcism_Timer < diff)
-			{
-				if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-					DoCast(target, m_bIsHeroic ? SPELL_EXORCISM_H : SPELL_EXORCISM_N);
-
-				Exorcism_Timer = 7300;
-			}
-			else 
-				Exorcism_Timer -= diff;
-
-			if(m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 40)
-				DoCast(m_creature, SPELL_HOLY_LIGHT);
-		}
-            
-		if(arthas_event == 1)
+        if(arthas_event == 2)
         {
-			Arthas->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-			Arthas->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-			switch(phase)
+            if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+                return;
+         
+            if (Exorcism_Timer < diff)
             {
-				case 1:
-					PhaseC = true;
+                if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
+                    DoCastSpellIfCan(pTarget, m_bIsRegularMode ? SPELL_EXORCISM_N : SPELL_EXORCISM_H);
+
+                Exorcism_Timer = 7300;
+            }
+            else 
+                Exorcism_Timer -= diff;
+
+            if(m_creature->GetHealthPercent() < 40)
+                DoCast(m_creature, SPELL_HOLY_LIGHT);
+        }
+            
+        if(arthas_event == 1)
+        {
+            Arthas->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+            Arthas->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            switch(phase)
+            {
+                case 1:
+                    PhaseC = true;
                     SetWeather(WEATHER_STATE_MEDIUM_RAIN, 0.9999f);
-					Arthas = m_creature;                   
+                    Arthas = m_creature;                   
                     Arthas->RemoveSplineFlag(SPLINEFLAG_WALKMODE);
                     Uther = Arthas->SummonCreature(26528, 1794.357f,1272.183f,141.558f,1.37f,TEMPSUMMON_TIMED_DESPAWN,180000);
-					Jaina = Arthas->SummonCreature(26497, 1870.21f, 1303.38f, 146.51f, 1.37f,TEMPSUMMON_TIMED_DESPAWN,180000);
+                    Jaina = Arthas->SummonCreature(26497, 1870.21f, 1303.38f, 146.51f, 1.37f,TEMPSUMMON_TIMED_DESPAWN,180000);
 
-					if (m_pInstance)
-						m_pInstance->SetData(TYPE_TIME_EVENT, NOT_STARTED);
-					if (m_pInstance)
-						m_pInstance->SetData(TYPE_ARTHAS_EVENT, NOT_STARTED);
+                    if (m_pInstance)
+                        m_pInstance->SetData(TYPE_TIME_EVENT, NOT_STARTED);
+                    if (m_pInstance)
+                        m_pInstance->SetData(TYPE_ARTHAS_EVENT, NOT_STARTED);
 
-					Uther->RemoveSplineFlag(SPLINEFLAG_WALKMODE);
+                    Uther->RemoveSplineFlag(SPLINEFLAG_WALKMODE);
                     Arthas->GetMotionMaster()->MovePoint(0, 1903.167f, 1291.573f, 143.32f);
                     Uther->GetMotionMaster()->MovePoint(0, 1897.018f, 1287.487f, 143.481f);
-					Jaina->GetMotionMaster()->MovePoint(0, 1895.48f, 1292.66f, 143.706f);
+                    Jaina->GetMotionMaster()->MovePoint(0, 1895.48f, 1292.66f, 143.706f);
                     Arthas->SetUInt64Value(UNIT_FIELD_TARGET, Uther->GetGUID());
                     Uther->SetUInt64Value(UNIT_FIELD_TARGET, Arthas->GetGUID());
-					Jaina->SetUInt64Value(UNIT_FIELD_TARGET, Arthas->GetGUID());
+                    Jaina->SetUInt64Value(UNIT_FIELD_TARGET, Arthas->GetGUID());
                     ++phase;
                     phasetim = 17000;
                     break;
-				case 3:
+                case 3:
                     DoScriptText(SAY_INTRO01, Arthas);
                     ++phase;
                     phasetim = 2000;
                     break;
-				case 5:
+                case 5:
                     DoScriptText(SAY_INTRO02, Uther);
                     ++phase;
                     phasetim = 8000;
                     break;
-				case 7:
+                case 7:
                     Arthas->AddSplineFlag(SPLINEFLAG_WALKMODE);
                     DoScriptText(SAY_INTRO03, Arthas);
                     Arthas->GetMotionMaster()->MovePoint(0, 1911.087f, 1314.263f, 150.026f);
                     ++phase;
                     phasetim = 9000;
                     break;
-				case 9:
+                case 9:
                     Jaina->SetUInt64Value(UNIT_FIELD_TARGET, Arthas->GetGUID());
                     DoScriptText(SAY_INTRO04, Arthas);
                     ++phase;
                     phasetim = 10000;
                     break;
-				case 11:
+                case 11:
                     DoScriptText(SAY_INTRO05, Uther);
                     ++phase;
                     phasetim = 1000;
                     break;
-				case 13:
+                case 13:
                     DoScriptText(SAY_INTRO06, Arthas);
                     ++phase;
                     phasetim = 4000;
                     break;
-				case 15:
+                case 15:
                     DoScriptText(SAY_INTRO07, Uther);
                     ++phase;
                     phasetim = 6000;
                     break;
-				case 17:
+                case 17:
                     DoScriptText(SAY_INTRO08, Arthas);
                     ++phase;
                     phasetim = 4000;
                     break;
-				case 19:
+                case 19:
                     DoScriptText(SAY_INTRO09, Uther);
                     ++phase;
                     phasetim = 8000;
                     break;
-				case 21:
+                case 21:
                     DoScriptText(SAY_INTRO10, Arthas);
                     ++phase;
                     phasetim = 4000;
                     break;
-				case 23:
+                case 23:
                     DoScriptText(SAY_INTRO11, Uther);
                     ++phase;
                     phasetim = 4000;
                     break;
-				case 25:
+                case 25:
                     DoScriptText(SAY_INTRO12, Arthas);
                     ++phase;
                     phasetim = 11000;
                     break;
-				case 27:
+                case 27:
                     DoScriptText(SAY_INTRO13, Jaina);
                     ++phase;
                     phasetim = 1300;
                     break;
-				case 29:
+                case 29:
                     DoScriptText(SAY_INTRO14, Arthas);
                     ++phase;
                     phasetim = 9000;
                     break;
-				case 31:
+                case 31:
                     DoScriptText(SAY_INTRO15, Uther);
                     ++phase;
                     phasetim = 4000;
                     break;
-				case 33:
+                case 33:
                     Uther->AddSplineFlag(SPLINEFLAG_WALKMODE);
                     Uther->GetMotionMaster()->MovePoint(0, 1794.357f,1272.183f,141.558f);
                     ++phase;
                     phasetim = 1000;
                     break;
-				case 35:
+                case 35:
                     Arthas->SetUInt64Value(UNIT_FIELD_TARGET, Jaina->GetGUID());
                     ++phase;
                     phasetim = 1000;
                     break;
-				case 37:
+                case 37:
                     Jaina->GetMotionMaster()->MovePoint(0, 1794.357f,1272.183f,141.558f);                    
-					DoScriptText(SAY_INTRO16, Arthas);
+                    DoScriptText(SAY_INTRO16, Arthas);
                     ++phase;
                     phasetim = 1000;
                     break;
-				case 39:
+                case 39:
                     DoScriptText(SAY_INTRO17, Jaina);
                     ++phase;
                     phasetim = 3000;
                     break;
-				case 41:
+                case 41:
                     Arthas->SetUInt64Value(UNIT_FIELD_TARGET, 0);
                     Arthas->GetMotionMaster()->MovePoint(0, 1902.959f,1295.127f,143.388f);
                     ++phase;
                     phasetim = 10000;
                     break;
-				case 43:
+                case 43:
                     Arthas->GetMotionMaster()->MovePoint(0, 1913.726f,1287.407f,141.927f);
                     ++phase;
                     phasetim = 6000;
                     break;
-				case 45:
+                case 45:
                     DoScriptText(SAY_INTRO18, Arthas);
                     Arthas->SetUInt64Value(UNIT_FIELD_TARGET, Jaina->GetGUID());
                     ++phase;
                     phasetim = 10000;
                     break;
-				case 47:
+                case 47:
                     Arthas->RemoveSplineFlag(SPLINEFLAG_WALKMODE);
                     Arthas->SetUInt64Value(UNIT_FIELD_TARGET, 0);
                     Jaina->SetVisibility(VISIBILITY_OFF);
@@ -867,48 +867,48 @@ struct MANGOS_DLL_DECL npc_arthasAI : public npc_escortAI
                     ++phase;
                     phasetim = 12000;
                     break;
-				case 49:
+                case 49:
                     Arthas->GetMotionMaster()->MovePoint(0, 1997.003f,1317.776f,142.963f);
                     ++phase;
                     phasetim = 5000;
                     break;
-				case 51:
+                case 51:
                     Arthas->GetMotionMaster()->MovePoint(0, 2019.631f,1326.084f,142.929f);
                     ++phase;
                     phasetim = 4000;
                     break;
-				case 53:
+                case 53:
                     Arthas->GetMotionMaster()->MovePoint(0, 2026.469f,1287.088f,143.596f);
                     ++phase;
                     phasetim = 6000;
                     break;
-				case 55:
+                case 55:
                     Cityman = Arthas->SummonCreature(NPC_CITY_MAN,2091.977f,1275.021f,140.757f,0.558f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,60000);
                     Crazyman = Arthas->SummonCreature(NPC_CRAZY_MAN,2093.514f,1275.842f,140.408f,3.801f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,60000);
                     Arthas->GetMotionMaster()->MovePoint(0, 2050.660f,1287.333f,142.671f);
                     ++phase;
                     phasetim = 6000;
                     break;
-				case 57:
+                case 57:
                     Stalker = Arthas->SummonCreature(20562,2026.469f,1287.088f,143.596f,1.37f,TEMPSUMMON_TIMED_DESPAWN,14000);
-					Stalker->SetVisibility(VISIBILITY_OFF);
+                    Stalker->SetVisibility(VISIBILITY_OFF);
                     Arthas->SetUInt64Value(UNIT_FIELD_TARGET, Stalker->GetGUID());
                     ++phase;
                     phasetim = 1000;
                     break;
-				case 59:
+                case 59:
                     DoScriptText(SAY_ENTER01, Arthas);
                     ++phase;
                     phasetim = 12000;
                     break;
-				case 61:
+                case 61:
                     Arthas->SetUInt64Value(UNIT_FIELD_TARGET, 0);
-					Arthas->AddSplineFlag(SPLINEFLAG_WALKMODE);
+                    Arthas->AddSplineFlag(SPLINEFLAG_WALKMODE);
                     Arthas->GetMotionMaster()->MovePoint(0, 2081.447f,1287.770f,141.3241f);
                     ++phase;
                     phasetim = 15000;
                     break;
-				case 63:
+                case 63:
                     Arthas->SetUInt64Value(UNIT_FIELD_TARGET, Cityman->GetGUID());
                     Cityman->SetUInt64Value(UNIT_FIELD_TARGET, Arthas->GetGUID());
                     Cityman->AddSplineFlag(SPLINEFLAG_WALKMODE);
@@ -916,23 +916,23 @@ struct MANGOS_DLL_DECL npc_arthasAI : public npc_escortAI
                     ++phase;
                     phasetim = 2000;
                     break;
-				case 65:
+                case 65:
                     DoScriptText(SAY_ENTER02, Cityman);
                     ++phase;
                     phasetim = 4000;
                     break;
-				case 67:
+                case 67:
                     Arthas->GetMotionMaster()->MovePoint(0, 2087.689f,1280.344f,140.73f);
                     DoScriptText(SAY_ENTER03, Arthas);
                     ++phase;
                     phasetim = 3000;
                     break;
-				case 69:
+                case 69:
                     Arthas->HandleEmoteCommand(37);
                     ++phase;
                     phasetim = 1000;
                     break;
-				case 71:
+                case 71:
                     DoScriptText(SAY_ENTER04, Crazyman);
                     Crazyman->SetUInt64Value(UNIT_FIELD_TARGET, Arthas->GetGUID());
                     Cityman->DealDamage(Cityman, Cityman->GetMaxHealth(),NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
@@ -941,106 +941,106 @@ struct MANGOS_DLL_DECL npc_arthasAI : public npc_escortAI
                     ++phase;
                     phasetim = 3000;
                     break;
-				case 73:
+                case 73:
                     Arthas->HandleEmoteCommand(37);
                     ++phase;
                     phasetim = 1000;
                     break;
-				case 75:
+                case 75:
                     Crazyman->DealDamage(Crazyman, Crazyman->GetMaxHealth(),NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                     ++phase;
                     phasetim = 1000;
                     break;
-				case 77:
+                case 77:
                     Stalker = Arthas->SummonCreature(20562,2081.447f,1287.770f,141.3241f,1.37f,TEMPSUMMON_TIMED_DESPAWN,70000);
-					Stalker->SetVisibility(VISIBILITY_OFF);
+                    Stalker->SetVisibility(VISIBILITY_OFF);
                     Arthas->SetUInt64Value(UNIT_FIELD_TARGET, Stalker->GetGUID());
                     DoScriptText(SAY_ENTER05, Arthas);
                     ++phase;
                     phasetim = 2000;
                     break;
-				case 79:
+                case 79:
                     StalkerM = Arthas->SummonCreature(20562,2117.349f,1288.624f,136.271f,1.37f,TEMPSUMMON_TIMED_DESPAWN,60000);
-					StalkerM->SetVisibility(VISIBILITY_OFF);
+                    StalkerM->SetVisibility(VISIBILITY_OFF);
                     StalkerM->CastSpell(StalkerM,63793,false);
                     ++phase;
                     phasetim = 1000;
                     break;
-				case 81:
+                case 81:
                     TempMalganis = Arthas->SummonCreature(26533,2117.349f,1288.624f,136.271f,1.37f,TEMPSUMMON_TIMED_DESPAWN,29000);
                     DoScriptText(SAY_ENTER06, TempMalganis);
-					TempMalganis->SetVisibility(VISIBILITY_ON);
-					TempMalganis->CastSpell(TempMalganis, SPELL_SUMMON_VISUAL, true);
+                    TempMalganis->SetVisibility(VISIBILITY_ON);
+                    TempMalganis->CastSpell(TempMalganis, SPELL_SUMMON_VISUAL, true);
                     Arthas->SetUInt64Value(UNIT_FIELD_TARGET, TempMalganis->GetGUID());
                     TempMalganis->SetUInt64Value(UNIT_FIELD_TARGET, Arthas->GetGUID());
                     TempMalganis->setFaction(35);
                     ++phase;
                     phasetim = 11000;
                     break;
-				case 83:
+                case 83:
                     phasetim = 500;
-					++phase;
+                    ++phase;
                     break;
-				case 85:				
+                case 85:                
                     phasetim = 500;
-					++phase;
+                    ++phase;
                     break;
-				case 87: 
+                case 87: 
                     DoScriptText(SAY_ENTER07, TempMalganis);
                     Arthas->RemoveSplineFlag(SPLINEFLAG_WALKMODE);
                     ++phase;
                     phasetim = 17000;
                     break;
-				case 89:
+                case 89:
                     Arthas->SetUInt64Value(UNIT_FIELD_TARGET, StalkerM->GetGUID());
                     DoScriptText(SAY_ENTER08, Arthas);
                     ++phase;
                     phasetim = 7000;
                     break;
-				case 91:
+                case 91:
                     Arthas->SetUInt64Value(UNIT_FIELD_TARGET, Stalker->GetGUID());
                     ++phase;
                     phasetim = 1000;
                     break;
-				case 93:
-					// time event if heroic
-					m_pInstance->DoUpdateWorldState(WORLD_STATE_TIME, true);
-					m_pInstance->DoUpdateWorldState(WORLD_STATE_REMAIN, TimeRemain);
+                case 93:
+                    // time event if heroic
+                    m_pInstance->DoUpdateWorldState(WORLD_STATE_TIME, true);
+                    m_pInstance->DoUpdateWorldState(WORLD_STATE_REMAIN, TimeRemain);
 
-					WaveCount = 0;
+                    WaveCount = 0;
                     phaseAI = 95;
 
 
-					if (m_pInstance)
-						m_pInstance->SetData(TYPE_ARTHAS_EVENT, IN_PROGRESS);
-					if (m_pInstance)
-						m_pInstance->SetData(TYPE_TIME_EVENT, IN_PROGRESS);
-					
-					Arthas->SetUInt64Value(UNIT_FIELD_TARGET, 0);
-					
-					if (npc_arthasAI* pEscortAI = dynamic_cast<npc_arthasAI*>(Arthas->AI())) 
-						pEscortAI->Start(false, false, culling_faction->GetGUID(), NULL, false, false);
+                    if (m_pInstance)
+                        m_pInstance->SetData(TYPE_ARTHAS_EVENT, IN_PROGRESS);
+                    if (m_pInstance)
+                        m_pInstance->SetData(TYPE_TIME_EVENT, IN_PROGRESS);
                     
-					Arthas->setFaction(culling_faction->getFaction());
-					arthas_event = 2;
+                    Arthas->SetUInt64Value(UNIT_FIELD_TARGET, 0);
+                    
+                    if (npc_arthasAI* pEscortAI = dynamic_cast<npc_arthasAI*>(Arthas->AI())) 
+                        pEscortAI->Start(false, false, culling_faction->GetGUID(), NULL, false, false);
+                    
+                    Arthas->setFaction(culling_faction->getFaction());
+                    arthas_event = 2;
 
                     ++phase;
-					phasetim = 1000;
-					break;
+                    phasetim = 1000;
+                    break;
 
             }
         } 
-		else 
-			return;
+        else 
+            return;
 
         if(arthas_event == 1)
         {
-			if (phasetim <= diff)
-			{
-				++phase;
-				phasetim = 330000;
-			} 
-			phasetim -= diff;
+            if (phasetim <= diff)
+            {
+                ++phase;
+                phasetim = 330000;
+            } 
+            phasetim -= diff;
         }
     }
 };
@@ -1053,51 +1053,51 @@ CreatureAI* GetAI_npc_arthas(Creature* pCreature)
 bool GossipHello_npc_arthas(Player *player, Creature *mCreature)
 {
     if (mCreature->isQuestGiver())
-		player->PrepareQuestMenu(mCreature->GetGUID());
+        player->PrepareQuestMenu(mCreature->GetGUID());
 
-	if(((npc_arthasAI*)mCreature->AI())->arthas_event == 0)
-	{
-		if (player->FindQuestSlot(13151)>=25)
-		{
-			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "You don't have the Quest for this instance", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-			player->SEND_GOSSIP_MENU(player->GetGossipTextId(mCreature), mCreature->GetGUID());
-			return true;
-		}
-		if (player->FindQuestSlot(13151)<=25)
-		{
-			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I\'m ready start culling of stratholme", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-			player->SEND_GOSSIP_MENU(player->GetGossipTextId(mCreature), mCreature->GetGUID());
-			return true;
-		}
-	}
+    if(((npc_arthasAI*)mCreature->AI())->arthas_event == 0)
+    {
+        if (player->FindQuestSlot(13151)>=25)
+        {
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "You don't have the Quest for this instance", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+            player->SEND_GOSSIP_MENU(player->GetGossipTextId(mCreature), mCreature->GetGUID());
+            return true;
+        }
+        if (player->FindQuestSlot(13151)<=25)
+        {
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I\'m ready start culling of stratholme", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            player->SEND_GOSSIP_MENU(player->GetGossipTextId(mCreature), mCreature->GetGUID());
+            return true;
+        }
+    }
     if(((npc_arthasAI*)mCreature->AI())->FinalFight == 1)
-	{
+    {
         player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "We are ready to Final Combat!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
-		player->SEND_GOSSIP_MENU(player->GetGossipTextId(mCreature), mCreature->GetGUID());
-		player->hasQuest(13151);
-		return true;
-	}
-	return true;
+        player->SEND_GOSSIP_MENU(player->GetGossipTextId(mCreature), mCreature->GetGUID());
+        player->hasQuest(13151);
+        return true;
+    }
+    return true;
 }
 
 bool GossipSelect_npc_arthas(Player *player, Creature *mCreature, uint32 sender, uint32 uiAction )
 {
-	switch(uiAction)
-	{
-		case GOSSIP_ACTION_INFO_DEF+1:
-			player->CLOSE_GOSSIP_MENU();
-			((npc_arthasAI*)mCreature->AI())->arthas_event = 1;
-			break;
-		case GOSSIP_ACTION_INFO_DEF+2:
-			player->CLOSE_GOSSIP_MENU();
-			break;
-		case GOSSIP_ACTION_INFO_DEF+3:
-			player->CLOSE_GOSSIP_MENU();
-			((npc_arthasAI*)mCreature->AI())->FinalFight = 2;
-	}
+    switch(uiAction)
+    {
+        case GOSSIP_ACTION_INFO_DEF+1:
+            player->CLOSE_GOSSIP_MENU();
+            ((npc_arthasAI*)mCreature->AI())->arthas_event = 1;
+            break;
+        case GOSSIP_ACTION_INFO_DEF+2:
+            player->CLOSE_GOSSIP_MENU();
+            break;
+        case GOSSIP_ACTION_INFO_DEF+3:
+            player->CLOSE_GOSSIP_MENU();
+            ((npc_arthasAI*)mCreature->AI())->FinalFight = 2;
+    }
     ((npc_arthasAI*)mCreature->AI())->culling_faction = player;
 
-	return true;
+    return true;
 }
 
 /*######
@@ -1106,66 +1106,66 @@ bool GossipSelect_npc_arthas(Player *player, Creature *mCreature, uint32 sender,
 struct MANGOS_DLL_DECL npc_patriciaAI : public ScriptedAI
 {
     npc_patriciaAI(Creature *c) : ScriptedAI(c) 
-	{
-		m_pInstance = (ScriptedInstance*)c->GetInstanceData();
-		Reset();
-	}
+    {
+        m_pInstance = (ScriptedInstance*)c->GetInstanceData();
+        Reset();
+    }
 
-	ScriptedInstance* m_pInstance;
+    ScriptedInstance* m_pInstance;
 
-	Unit* Target;
-	Creature* Arthas;
-	Creature* Meathook;
-	Creature* Patricia;
+    Unit* Target;
+    Creature* Arthas;
+    Creature* Meathook;
+    Creature* Patricia;
 
-	uint32 Step;
-	uint32 Steptim;
+    uint32 Step;
+    uint32 Steptim;
 
-	bool Event;
-	bool Event2;
-	bool Event2Com;
+    bool Event;
+    bool Event2;
+    bool Event2Com;
 
-	void Reset() 
-	{
-		Event = false;
-		Event2 = true;
-		Event2Com = false;
-		Step = 1;
-		Steptim = 20000;
-		if(Event == true){}
-		else
-			Event = false;
-	}
+    void Reset() 
+    {
+        Event = false;
+        Event2 = true;
+        Event2Com = false;
+        Step = 1;
+        Steptim = 20000;
+        if(Event == true){}
+        else
+            Event = false;
+    }
 
-	void MoveInLineOfSight(Unit *who)
-	{
-		
-		if (Event2 == false)
-		{
-			Target = who;
-			Event2Com = true;
-		}
+    void MoveInLineOfSight(Unit *who)
+    {
+        
+        if (Event2 == false)
+        {
+            Target = who;
+            Event2Com = true;
+        }
 
-		if (Event == false && m_creature->IsWithinDistInMap(who, 20.0f))
-		{
-			if (m_pInstance->GetData(TYPE_ARTHAS_EVENT) == IN_PROGRESS)
-			{
-				Event = true;
-			}
-		}
+        if (Event == false && m_creature->IsWithinDistInMap(who, 20.0f))
+        {
+            if (m_pInstance->GetData(TYPE_ARTHAS_EVENT) == IN_PROGRESS)
+            {
+                Event = true;
+            }
+        }
         ScriptedAI::MoveInLineOfSight(who);
    }
 
    void UpdateAI(const uint32 diff)
    {
-		DoMeleeAttackIfReady();
+        DoMeleeAttackIfReady();
 
-		if(Event == true)
-		{
-			switch(Step)
+        if(Event == true)
+        {
+            switch(Step)
             {
-				case 1:
-					Patricia = m_creature;
+                case 1:
+                    Patricia = m_creature;
                     DoScriptText(SAY_PEOPLE05, Patricia);
                     ++Step;
                     Steptim = 5000;
@@ -1195,8 +1195,8 @@ struct MANGOS_DLL_DECL npc_patriciaAI : public ScriptedAI
                     break; 
                 case 11:
                     if(Event2Com == false) 
-						return;
-					Patricia->SetUInt64Value(UNIT_FIELD_TARGET, Target->GetGUID());
+                        return;
+                    Patricia->SetUInt64Value(UNIT_FIELD_TARGET, Target->GetGUID());
                     ++Step;
                     Steptim = 1000;
                     break; 
@@ -1223,15 +1223,15 @@ struct MANGOS_DLL_DECL npc_patriciaAI : public ScriptedAI
                     break; 
             }
         }
-		else 
-			return;
+        else 
+            return;
 
-		if (Steptim <= diff)
-		{
-		   ++Step;
-		   Steptim = 330000;
-		} 
-		Steptim -= diff;
+        if (Steptim <= diff)
+        {
+           ++Step;
+           Steptim = 330000;
+        } 
+        Steptim -= diff;
 
     }
 };
@@ -1247,55 +1247,55 @@ CreatureAI* GetAI_npc_patricia(Creature* pCreature)
 struct MANGOS_DLL_DECL dark_conversionAI : public ScriptedAI
 {
     dark_conversionAI(Creature *c) : ScriptedAI(c) 
-	{
-		m_pInstance = (ScriptedInstance*)c->GetInstanceData();
-		Reset();
-	}
+    {
+        m_pInstance = (ScriptedInstance*)c->GetInstanceData();
+        Reset();
+    }
 
-	ScriptedInstance* m_pInstance;
+    ScriptedInstance* m_pInstance;
 
-	Unit* Target;
-	Creature* Arthas;
-	bool Conversion;
-	uint32 Step;
-	uint32 Steptim;
+    Unit* Target;
+    Creature* Arthas;
+    bool Conversion;
+    uint32 Step;
+    uint32 Steptim;
 
-	void Reset() 
-	{
+    void Reset() 
+    {
        m_creature->setFaction(35);
        Conversion = false;
        Step = 1;
        Steptim = 500;
-	}
+    }
 
-	void MoveInLineOfSight(Unit *who)
+    void MoveInLineOfSight(Unit *who)
     {
-		if (Conversion == false && m_creature->IsWithinDistInMap(who, 30.0f))
+        if (Conversion == false && m_creature->IsWithinDistInMap(who, 30.0f))
         {
-			if (m_pInstance->GetData(TYPE_ARTHAS_EVENT) == IN_PROGRESS)
+            if (m_pInstance->GetData(TYPE_ARTHAS_EVENT) == IN_PROGRESS)
             {
-				Target = who;
+                Target = who;
                 Conversion = true;
-			}
-		}
+            }
+        }
         ScriptedAI::MoveInLineOfSight(who);
     }
 
-	void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 diff)
     {
 
-		DoMeleeAttackIfReady();
+        DoMeleeAttackIfReady();
 
-		if(Conversion == true)
+        if(Conversion == true)
         {
-			switch(Step)
-			{
-				case 1:
+            switch(Step)
+            {
+                case 1:
                     m_creature->setFaction(14);  //2078
                     m_creature->CastSpell(m_creature,SPELL_FEAR,false);
                     switch(rand()%12)
                     {
-					    case 0: DoScriptText(SAY_PEOPLE01, m_creature); break;
+                        case 0: DoScriptText(SAY_PEOPLE01, m_creature); break;
                         case 1: DoScriptText(SAY_PEOPLE02, m_creature); break;
                         case 2: DoScriptText(SAY_PEOPLE03, m_creature); break;
                         case 3: DoScriptText(SAY_PEOPLE04, m_creature); break; 
@@ -1307,7 +1307,7 @@ struct MANGOS_DLL_DECL dark_conversionAI : public ScriptedAI
                     ++Step;
                     Steptim = 5000 + rand()%5000;
                     break;
-				case 3:
+                case 3:
                      m_creature->UpdateEntry(NPC_ZOMBIE, 0);
                      m_creature->GetMotionMaster()->MovePoint(0, Target->GetPositionX(), Target->GetPositionY(), Target->GetPositionZ());
                      ++Step;
@@ -1315,15 +1315,15 @@ struct MANGOS_DLL_DECL dark_conversionAI : public ScriptedAI
                      break;     
             }
         }
-		else 
-			return;
+        else 
+            return;
 
- 		if (Steptim <= diff)
-		{
-		   ++Step;
-		   Steptim = 330000;
-		} 
-		Steptim -= diff;
+         if (Steptim <= diff)
+        {
+           ++Step;
+           Steptim = 330000;
+        } 
+        Steptim -= diff;
 
     }
 };
@@ -1339,57 +1339,57 @@ CreatureAI* GetAI_dark_conversion(Creature* pCreature)
 struct MANGOS_DLL_DECL npc_time_riftCSAI : public ScriptedAI
 {
     npc_time_riftCSAI(Creature *c) : ScriptedAI(c) 
-	{
-		Reset();
-	}
-
-	Creature* Drakonian01;
-	Creature* Drakonian02;
-	Creature* Drakonian03;
-	Creature* Arthas;
-	bool Conversion;
-	uint32 Step;
-	uint32 Steptim;
-
-	void Reset()
-	{
-		Conversion = false;
-		Step = 1;
-		Steptim = 500;
-	}
-	void UpdateAI(const uint32 diff)
     {
-		switch(Step)
-		{
-			case 1:
-				if (Creature* pArthas = GetClosestCreatureWithEntry(m_creature, NPC_ARTHAS, 180.0f))
-					Arthas = pArthas;
-				Drakonian01 = m_creature->SummonCreature(NPC_DRAKONIAN,m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ()+1,3.229f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,900000);
-				Drakonian01->AddThreat(Arthas, 0.01f);
-				++Step;
-				Steptim = 3000;
-				break;
-			case 3:
-				Drakonian02 = m_creature->SummonCreature(NPC_DRAKONIAN,m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ()+1,3.229f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,900000);
-				Drakonian02->AddThreat(Arthas, 0.01f);
-				++Step;
-				Steptim = 3000;
-				break;
-			case 5:
-				Drakonian03 = m_creature->SummonCreature(NPC_DRAKONIAN,m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ()+1,3.229f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,900000);
-				Drakonian03->AddThreat(Arthas, 0.01f);
-				++Step;
-				Steptim = 3000;
-				break;
-		}
-		
-		if (Steptim <= diff)
-	    {
-			++Step;
-			Steptim = 330000;
-		}
-		Steptim -= diff;
-	}
+        Reset();
+    }
+
+    Creature* Drakonian01;
+    Creature* Drakonian02;
+    Creature* Drakonian03;
+    Creature* Arthas;
+    bool Conversion;
+    uint32 Step;
+    uint32 Steptim;
+
+    void Reset()
+    {
+        Conversion = false;
+        Step = 1;
+        Steptim = 500;
+    }
+    void UpdateAI(const uint32 diff)
+    {
+        switch(Step)
+        {
+            case 1:
+                if (Creature* pArthas = GetClosestCreatureWithEntry(m_creature, NPC_ARTHAS, 180.0f))
+                    Arthas = pArthas;
+                Drakonian01 = m_creature->SummonCreature(NPC_DRAKONIAN,m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ()+1,3.229f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,900000);
+                Drakonian01->AddThreat(Arthas, 0.01f);
+                ++Step;
+                Steptim = 3000;
+                break;
+            case 3:
+                Drakonian02 = m_creature->SummonCreature(NPC_DRAKONIAN,m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ()+1,3.229f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,900000);
+                Drakonian02->AddThreat(Arthas, 0.01f);
+                ++Step;
+                Steptim = 3000;
+                break;
+            case 5:
+                Drakonian03 = m_creature->SummonCreature(NPC_DRAKONIAN,m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ()+1,3.229f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,900000);
+                Drakonian03->AddThreat(Arthas, 0.01f);
+                ++Step;
+                Steptim = 3000;
+                break;
+        }
+        
+        if (Steptim <= diff)
+        {
+            ++Step;
+            Steptim = 330000;
+        }
+        Steptim -= diff;
+    }
 };
 
 CreatureAI* GetAI_npc_time_riftCS(Creature* pCreature)

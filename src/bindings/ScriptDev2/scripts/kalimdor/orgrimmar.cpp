@@ -287,13 +287,13 @@ struct MANGOS_DLL_DECL npc_thrall_warchiefAI : public ScriptedAI
     uint32 ChainLightning_Timer;
     uint32 Shock_Timer;
 
-	bool CalledHelp;
+    bool CalledHelp;
 
     void Reset()
     {
         ChainLightning_Timer = 2000;
         Shock_Timer = 8000;
-		CalledHelp = false;
+        CalledHelp = false;
     }
 
     void UpdateAI(const uint32 diff)
@@ -301,11 +301,11 @@ struct MANGOS_DLL_DECL npc_thrall_warchiefAI : public ScriptedAI
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim() || m_creature->isInCombat())
             return;
 
-		if (!CalledHelp)
-		{
-			m_creature->CallForHelp(50);
-			CalledHelp = true;
-		}
+        if (!CalledHelp)
+        {
+            m_creature->CallForHelp(50);
+            CalledHelp = true;
+        }
 
         if (ChainLightning_Timer < diff)
         {

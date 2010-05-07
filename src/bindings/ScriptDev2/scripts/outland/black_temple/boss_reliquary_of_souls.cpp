@@ -353,7 +353,7 @@ struct MANGOS_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
                     if (DespawnEssenceTimer < diff)
                     {
                         DoScriptText(SUFF_SAY_AFTER, EssenceSuffering);
-						DespawnEssences();
+                        DespawnEssences();
                         EssenceSuffering->DeleteThreatList();
                         EssenceSuffering->SetDisplayId(11686);
                         EssenceSuffering->setFaction(35);
@@ -460,7 +460,7 @@ struct MANGOS_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
                         {
                             EssenceDesire->DeleteThreatList();
                             EssenceDesire->setFaction(35);
-							DespawnEssences();
+                            DespawnEssences();
                             DoScriptText(DESI_SAY_AFTER, EssenceDesire);
                             EssenceDesire->SetDisplayId(11686);
                             m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE,0);
@@ -624,9 +624,9 @@ struct MANGOS_DLL_DECL boss_essence_of_sufferingAI : public ScriptedAI
         targets.sort(ObjectDistanceOrder(m_creature));      // Sort players by distance.
         targets.resize(1);                                  // Only need closest target.
         Unit* target = targets.front();                     // Get the first target.
-		if(target){
-			m_creature->AddThreat(target, 50000000.0f);
-		}
+        if(target){
+            m_creature->AddThreat(target, 50000000.0f);
+        }
         DoCastSpellIfCan(target, SPELL_FIXATE);
     }
 
@@ -666,7 +666,7 @@ struct MANGOS_DLL_DECL boss_essence_of_sufferingAI : public ScriptedAI
         //Supposed to be cast on nearest target
         if (FixateTimer < diff)
         {
-			DoResetThreat();
+            DoResetThreat();
             CastFixate();
             FixateTimer = 5000;
         }else FixateTimer -= diff;
@@ -725,7 +725,7 @@ struct MANGOS_DLL_DECL boss_essence_of_desireAI : public ScriptedAI
     void Aggro(Unit* pWho)
     {
         m_creature->SetInCombatWithZone();
-		DoCast(pWho, AURA_OF_DESIRE, true);
+        DoCast(pWho, AURA_OF_DESIRE, true);
     }
 
     void KilledUnit(Unit *victim)

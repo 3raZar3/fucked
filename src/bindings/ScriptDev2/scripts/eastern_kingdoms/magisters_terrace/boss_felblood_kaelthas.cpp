@@ -288,18 +288,18 @@ struct MANGOS_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
 
                     if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,1))
                     {
-                    uint32 random = urand(1, 2);
-                    float x = KaelLocations[random][0];
-                    float y = KaelLocations[random][1];
+                        uint32 random = urand(1, 2);
+                        float x = KaelLocations[random][0];
+                        float y = KaelLocations[random][1];
 
-                    Creature* Phoenix = m_creature->SummonCreature(CREATURE_PHOENIX, x, y, LOCATION_Z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
-                    if (Phoenix && target)
-                    {
-                        Phoenix->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE + UNIT_FLAG_NON_ATTACKABLE);
-                        SetThreatList(Phoenix);
-                            Phoenix->AI()->AttackStart(pTarget);
-                            DoScriptText(SAY_PHOENIX, m_creature);
-                    }
+                        Creature* Phoenix = m_creature->SummonCreature(CREATURE_PHOENIX, x, y, LOCATION_Z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
+                        if (Phoenix && pTarget)
+                        {
+                            Phoenix->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE + UNIT_FLAG_NON_ATTACKABLE);
+                            SetThreatList(Phoenix);
+                                Phoenix->AI()->AttackStart(pTarget);
+                                DoScriptText(SAY_PHOENIX, m_creature);
+                        }
                     }
 
                     PhoenixTimer = 60000;

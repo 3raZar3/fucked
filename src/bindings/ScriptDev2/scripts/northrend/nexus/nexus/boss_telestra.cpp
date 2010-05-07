@@ -175,7 +175,7 @@ struct MANGOS_DLL_DECL boss_telestraAI : public ScriptedAI
             case NPC_TELEST_FROST: pSummoned->CastSpell(pSummoned, SPELL_FROST_VISUAL, true); break;
         }
 
-        if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+        if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
             if (pSummoned->AI() && pTarget->isInAccessablePlaceFor(pSummoned) && pSummoned->IsHostileTo(pTarget))
                 pSummoned->AI()->AttackStart(pTarget);
     }
@@ -193,7 +193,7 @@ struct MANGOS_DLL_DECL boss_telestraAI : public ScriptedAI
                 {
                     if (m_uiFirebombTimer < uiDiff)
                     {
-                        if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
                         {
                             float x, y, z;
                             pTarget->GetPosition(x, y, z);

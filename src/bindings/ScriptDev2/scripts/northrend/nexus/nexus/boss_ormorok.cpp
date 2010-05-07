@@ -46,7 +46,7 @@ enum
     SPELL_TRAMPLE_N                            = 48016,
     SPELL_TRAMPLE_H                            = 57066,
     SPELL_FRENZY_H                             = 48017,
-	SPELL_FRENZY_N                             = 57086,
+    SPELL_FRENZY_N                             = 57086,
     SPELL_SUMMON_CRYSTALLINE_TANGLER           = 61564, //summons npc 32665
     SPELL_ROOTS                                = 28858, //proper spell id is unknown
 };
@@ -141,11 +141,13 @@ struct MANGOS_DLL_DECL boss_ormorokAI : public ScriptedAI
                 if (++m_uiCrystalSpikesCount >= 13)
                     m_bIsCrystalSpikes = false;
                 m_uiCrystalSpikesTimer = 200;
-            }else m_uiCrystalSpikesTimer -= diff;
+            }
+            else
+                m_uiCrystalSpikesTimer -= diff;
 
         if (!m_bIsFrenzy && (m_creature->GetHealthPercent() < 25.0f))
         {
-			DoCast(m_creature, m_bIsRegularMode ? SPELL_FRENZY_N : SPELL_FRENZY_H);
+            DoCast(m_creature, m_bIsRegularMode ? SPELL_FRENZY_N : SPELL_FRENZY_H);
             m_bIsFrenzy = true;
         }
 
@@ -153,14 +155,18 @@ struct MANGOS_DLL_DECL boss_ormorokAI : public ScriptedAI
         {
             DoCastSpellIfCan(m_creature, m_bIsRegularMode ? SPELL_TRAMPLE_N : SPELL_TRAMPLE_H);
             m_uiTrampleTimer = urand(10000, 35000);
-        }else m_uiTrampleTimer -= diff;
+        }
+        else
+            m_uiTrampleTimer -= diff;
 
         if (m_uiReflectionTimer < diff)
         {
             DoScriptText(SAY_REFLECT, m_creature);
             DoCast(m_creature, SPELL_SPELL_REFLECTION);
             m_uiReflectionTimer = 15000;
-        }else m_uiReflectionTimer -= diff;
+        }
+        else
+            m_uiReflectionTimer -= diff;
 
         if (m_uiSpellCrystalSpikesTimer < diff)
         {
@@ -173,17 +179,21 @@ struct MANGOS_DLL_DECL boss_ormorokAI : public ScriptedAI
             m_fBaseZ = m_creature->GetPositionZ();
             m_fBaseO = m_creature->GetOrientation();
             m_uiSpellCrystalSpikesTimer = 20000;
-        }else m_uiSpellCrystalSpikesTimer -=diff;
+        }
+        else
+            m_uiSpellCrystalSpikesTimer -=diff;
 
         if (!m_bIsRegularMode && (m_uiSummonTanglerTimer < diff))
         {
             Creature* CrystallineTangler = m_creature->SummonCreature(MOB_CRYSTALLINE_TANGLER, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
-            if (CrystallineTangler)
-				if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                    CrystallineTangler->AI()->AttackStart(target);
+            if (CrystallineTangler && CrystallineTangler->AI())
+                if(Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
+                    CrystallineTangler->AI()->AttackStart(pTarget);
 
             m_uiSummonTanglerTimer = 17000;
-        }else m_uiSummonTanglerTimer -=diff;
+        }
+        else
+            m_uiSummonTanglerTimer -=diff;
 
         DoMeleeAttackIfReady();    
     }
@@ -230,7 +240,7 @@ struct MANGOS_DLL_DECL mob_crystal_spikeAI : public Scripted_NoMovementAI
 
 struct MANGOS_DLL_DECL mob_crystalline_tanglerAI : public ScriptedAI
 {
-    mob_crystalline_tanglerAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_crystalline_tanglerAI(Creature *pCreature) : ScriptedAI(pCreature) {Reset();}
 
     uint32 SPELL_ROOTS_Timer;
 
@@ -240,11 +250,13 @@ struct MANGOS_DLL_DECL mob_crystalline_tanglerAI : public ScriptedAI
     {
         if (SPELL_ROOTS_Timer < diff)
         {
-			if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-				DoCast(target, SPELL_ROOTS, true);
+            if(Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
+                DoCastSpellIfCan(pTarget, SPELL_ROOTS, CAST_TRIGGERED);
             SPELL_ROOTS_Timer = 15000;
-        }else SPELL_ROOTS_Timer -=diff;
-		DoMeleeAttackIfReady();   
+        }
+        else
+            SPELL_ROOTS_Timer -= diff;
+        DoMeleeAttackIfReady();   
     } 
 }; 
 

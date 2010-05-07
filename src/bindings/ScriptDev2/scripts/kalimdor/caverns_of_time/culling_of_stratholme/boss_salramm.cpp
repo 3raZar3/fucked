@@ -50,47 +50,47 @@ enum
 ######*/
 struct MANGOS_DLL_DECL boss_salrammAI : public ScriptedAI
 {
-	boss_salrammAI(Creature *c) : ScriptedAI(c)
-	{
-		m_pInstance = (ScriptedInstance*)c->GetInstanceData();
-		m_bIsHeroic = c->GetMap()->IsRegularDifficulty();
+    boss_salrammAI(Creature *pCreature) : ScriptedAI(pCreature)
+    {
+        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
         Reset();
-	}
+    }
 
-	ScriptedInstance* m_pInstance;
+    ScriptedInstance* m_pInstance;
 
-	bool m_bIsHeroic;
-	uint32 Step;
-	uint32 Steptim;
-	uint32 Motion;
-	uint32 ShadowBolt_Timer;
-	uint32 Flesh_Timer;
-	uint32 Steal_Timer;
-	
-	void Reset()
-	{
-		Step = 1;
-		Steptim = 7000;
-		ShadowBolt_Timer = 5300;
-		Flesh_Timer = 7300;
-		Steal_Timer = 17300;
-	}
-	
-	void Aggro(Unit* who)
-	{
-		Motion = 0;
-		DoScriptText(SAY_SALRAMM_AGGRO, m_creature);
-		m_creature->GetMotionMaster()->Clear(false);
+    bool m_bIsRegularMode;
+    uint32 Step;
+    uint32 Steptim;
+    uint32 Motion;
+    uint32 ShadowBolt_Timer;
+    uint32 Flesh_Timer;
+    uint32 Steal_Timer;
+    
+    void Reset()
+    {
+        Step = 1;
+        Steptim = 7000;
+        ShadowBolt_Timer = 5300;
+        Flesh_Timer = 7300;
+        Steal_Timer = 17300;
+    }
+    
+    void Aggro(Unit* who)
+    {
+        Motion = 0;
+        DoScriptText(SAY_SALRAMM_AGGRO, m_creature);
+        m_creature->GetMotionMaster()->Clear(false);
 
-		if (m_pInstance)
+        if (m_pInstance)
             m_pInstance->SetData(TYPE_SALRAMM_EVENT, IN_PROGRESS);
-	}
-	
-	void JustDied(Unit *killer)
-	{
-		DoScriptText(SAY_SALRAMM_DEATH, m_creature);
+    }
+    
+    void JustDied(Unit *killer)
+    {
+        DoScriptText(SAY_SALRAMM_DEATH, m_creature);
 
-		if (m_pInstance)
+        if (m_pInstance)
             m_pInstance->SetData(TYPE_SALRAMM_EVENT, DONE);
     }
 
@@ -104,16 +104,14 @@ struct MANGOS_DLL_DECL boss_salrammAI : public ScriptedAI
         }
     }
 
-	void UpdateAI(const uint32 diff)
-	{
-		DoMeleeAttackIfReady();
-		
-		if(Motion == 0)
-		{
-			switch(Step)
-			{
-				case 1:
-					DoScriptText(SAY_SALRAMM_SPAWN, m_creature); 
+    void UpdateAI(const uint32 diff)
+    {       
+        if(Motion == 0)
+        {
+            switch(Step)
+            {
+                case 1:
+                    DoScriptText(SAY_SALRAMM_SPAWN, m_creature); 
                     ++Step;
                     Steptim = 7000;
                     break;
@@ -122,46 +120,57 @@ struct MANGOS_DLL_DECL boss_salrammAI : public ScriptedAI
                     ++Step;
                     Steptim = 7000;
                     break;
-			}
-		}
-		else
-			return;
-		
-		if (Steptim <= diff)
-		{
-			++Step;
-			Steptim = 330000;
-		}
-		Steptim -= diff;
-		
-		if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
-			return;
-		
-		if (ShadowBolt_Timer < diff) {
-			if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-				DoCastSpellIfCan(target, m_bIsHeroic ? SPELL_SB_H : SPELL_SB_N);
+            }
+        }
+        else
+            return;
+        
+        if (Steptim <= diff)
+        {
+            ++Step;
+            Steptim = 330000;
+        }
+        Steptim -= diff;
+        
+        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+            return;
+        
+        if (ShadowBolt_Timer < diff)
+        {
+            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
+                DoCastSpellIfCan(pTarget, m_bIsRegularMode ? SPELL_SB_N : SPELL_SB_H);
             ShadowBolt_Timer = 5300;
-        } else  ShadowBolt_Timer -= diff;
+        }
+        else
+            ShadowBolt_Timer -= diff;
 
-		if (Flesh_Timer < diff) {
-            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-                DoCastSpellIfCan(target,SPELL_FLESH);
+        if (Flesh_Timer < diff) 
+        {
+            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
+                DoCastSpellIfCan(pTarget,SPELL_FLESH);
             Flesh_Timer = 7300;
-        } else Flesh_Timer -= diff;
+        }
+        else
+            Flesh_Timer -= diff;
 
-		if (Steal_Timer < diff) {
-            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-                DoCastSpellIfCan(target,SPELL_STEAL);
-			
-			switch(rand()%3)
-			{
-				case 0: DoScriptText(SAY_SALRAMM_STEAL01, m_creature); break;
-				case 1: DoScriptText(SAY_SALRAMM_STEAL02, m_creature); break;
-				case 2: DoScriptText(SAY_SALRAMM_STEAL03, m_creature); break;
-			}
+        if (Steal_Timer < diff)
+        {
+            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
+                DoCastSpellIfCan(pTarget, SPELL_STEAL);
+            
+            switch(urand(0, 2))
+            {
+                case 0: DoScriptText(SAY_SALRAMM_STEAL01, m_creature); break;
+                case 1: DoScriptText(SAY_SALRAMM_STEAL02, m_creature); break;
+                case 2: DoScriptText(SAY_SALRAMM_STEAL03, m_creature); break;
+            }
             Steal_Timer = 17300;
-        } else Steal_Timer -= diff;
-	}
+        }
+        else
+            Steal_Timer -= diff;
+
+        DoMeleeAttackIfReady();
+    }
 };
 
 CreatureAI* GetAI_boss_salramm(Creature *_Creature)

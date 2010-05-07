@@ -90,41 +90,53 @@ struct MANGOS_DLL_DECL boss_dredAI : public ScriptedAI
         {
             DoCastSpellIfCan(m_creature, SPELL_BELLOWING_ROAR);
             BellowingRoarTimer = 40000;
-        } else BellowingRoarTimer -= uiDiff;
+        }
+        else
+            BellowingRoarTimer -= uiDiff;
 
         if (GrievousBiteTimer <= uiDiff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_GRIEVOUS_BITE);
             GrievousBiteTimer = 20000;
-        } else GrievousBiteTimer -= uiDiff;
+        }
+        else
+            GrievousBiteTimer -= uiDiff;
 
         if (ManglingSlashTimer <= uiDiff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_MANGLING_SLASH);
             ManglingSlashTimer = 20000;
-        } else ManglingSlashTimer -= uiDiff;
+        }
+        else
+            ManglingSlashTimer -= uiDiff;
 
         if (FearsomeRoarTimer <= uiDiff)
         {
             DoCastSpellIfCan(m_creature, m_bIsRegularMode ? SPELL_FEARSOME_ROAR : H_SPELL_FEARSOME_ROAR);
             FearsomeRoarTimer = urand(16000, 18000);
-        } else FearsomeRoarTimer -=uiDiff;
+        }
+        else
+            FearsomeRoarTimer -=uiDiff;
 
         if (PiercingSlashTimer <= uiDiff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_PIERCING_SLASH);
             PiercingSlashTimer = 20000;
-        } else PiercingSlashTimer -= uiDiff;
+        }
+        else
+            PiercingSlashTimer -= uiDiff;
 
         if (RaptorCallTimer <= uiDiff)
         {
-            if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
             {
                 DoScriptText(RAID_EMOTE_RISE_TALOON, m_creature);
                 DoCastSpellIfCan(pTarget, SPELL_RAPTOR_CALL);
             }
             RaptorCallTimer = urand(20000, 25000);
-        } else RaptorCallTimer -= uiDiff;
+        }
+        else
+            RaptorCallTimer -= uiDiff;
 
         DoMeleeAttackIfReady();
     }

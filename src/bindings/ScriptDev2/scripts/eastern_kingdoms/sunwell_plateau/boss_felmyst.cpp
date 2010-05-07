@@ -269,13 +269,11 @@ struct MANGOS_DLL_DECL boss_felmystAI : public ScriptedAI
                 m_uiMaxBreathCount      = 0;
                 m_bIsFlyPhase           = true;
 
-                if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if(Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
                 {
-                    m_fPosX = target->GetPositionX();
-                    m_fPosY = target->GetPositionY();
-                    m_fPosZ = target->GetPositionZ();
+                    pTarget->GetPosition(m_fPosX, m_fPosY, m_fPosZ);
+                    return;
                 }
-                return;
             }else m_uiFlyPhaseTimer -= diff;
  
             //100%
@@ -306,10 +304,10 @@ struct MANGOS_DLL_DECL boss_felmystAI : public ScriptedAI
             //100%
             if(m_uiEncapsulateTimer < diff)
             {
-                if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if(Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
                 {
-                    m_uiEncapsulateGUID = target->GetGUID();
-                    DoCast(target, SPELL_ENCAPSULATE_CHANNEL);
+                    m_uiEncapsulateGUID = pTarget->GetGUID();
+                    DoCastSpellIfCan(pTarget, SPELL_ENCAPSULATE_CHANNEL);
                 }
                 m_uiEncapsulateTimer = 18000;
                 m_uiEncapsulateAOETimer = 3000;
@@ -343,15 +341,15 @@ struct MANGOS_DLL_DECL boss_felmystAI : public ScriptedAI
             {
                 if(m_uiMaxBreathCount < 2)
                 {
-                    if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    if(Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
                     {
-                        m_uiVictimGUID = target->GetGUID();
-                        DoCast(target, SPELL_VAPOR_DAMAGE, true);
+                        m_uiVictimGUID = pTarget->GetGUID();
+                        DoCastSpellIfCan(pTarget, SPELL_VAPOR_DAMAGE, CAST_TRIGGERED);
                         for(uint8 i=0; i<10; ++i) // i<10
                         {
-                            Creature *Undead = m_creature->SummonCreature(MOB_DEAD, target->GetPositionX()+urand(1,20), target->GetPositionY()+urand(1,20), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 20000);
-                            if(Undead)
-                                Undead->AI()->AttackStart(target);
+                            Creature *Undead = m_creature->SummonCreature(MOB_DEAD, pTarget->GetPositionX()+urand(1,20), pTarget->GetPositionY()+urand(1,20), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 20000);
+                            if(Undead && Undead->AI())
+                                Undead->AI()->AttackStart(pTarget);
                         }
                     }
                     ++m_uiMaxBreathCount;
@@ -490,16 +488,16 @@ struct MANGOS_DLL_DECL mob_deathcloudAI : public Scripted_NoMovementAI
         if(m_uiImageCastTimer < diff)
         {
             for(uint8 i=0; i<m_uiImageCount; ++i)
-			{
+            {
                 if(Unit* cImage = Unit::GetUnit((*m_creature), m_uiImageGUID[i][0]))
-				{
-					if(!cImage->isDead())
-					{
-						if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-							cImage->CastSpell(target, m_uiImageGUID[i][1], true);
-					}
-				}
-			}
+                {
+                    if(!cImage->isDead())
+                    {
+                        if(Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
+                            cImage->CastSpell(pTarget, m_uiImageGUID[i][1], true);
+                    }
+                }
+            }
             m_uiImageCastTimer = 8000;
         }else m_uiImageCastTimer -= diff;
 

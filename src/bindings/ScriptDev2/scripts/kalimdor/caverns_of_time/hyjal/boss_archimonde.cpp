@@ -33,47 +33,47 @@ Ancient Whisp kicked out from code
 //text id -1534018 are the text used when previous events complete. Not part of this script.
 enum
 {
-		SAY_AGGRO                   = -1534019,
-		SAY_DOOMFIRE1               = -1534020,
-		SAY_DOOMFIRE2               = -1534021,
-		SAY_AIR_BURST1              = -1534022,
-		SAY_AIR_BURST2              = -1534023,
-		SAY_SLAY1                   = -1534024,
-		SAY_SLAY2                   = -1534025,
-		SAY_SLAY3                   = -1534026,
-		SAY_ENRAGE                  = -1534027,
-		SAY_DEATH                   = -1534028,
-		SAY_SOUL_CHARGE1            = -1534029,
-		SAY_SOUL_CHARGE2            = -1534030,
+        SAY_AGGRO                   = -1534019,
+        SAY_DOOMFIRE1               = -1534020,
+        SAY_DOOMFIRE2               = -1534021,
+        SAY_AIR_BURST1              = -1534022,
+        SAY_AIR_BURST2              = -1534023,
+        SAY_SLAY1                   = -1534024,
+        SAY_SLAY2                   = -1534025,
+        SAY_SLAY3                   = -1534026,
+        SAY_ENRAGE                  = -1534027,
+        SAY_DEATH                   = -1534028,
+        SAY_SOUL_CHARGE1            = -1534029,
+        SAY_SOUL_CHARGE2            = -1534030,
 
-		SPELL_DENOUEMENT_WISP      = 32124,
-		SPELL_ANCIENT_SPARK        = 39349,
-		SPELL_PROTECTION_OF_ELUNE  = 38528,
+        SPELL_DENOUEMENT_WISP       = 32124,
+        SPELL_ANCIENT_SPARK         = 39349,
+        SPELL_PROTECTION_OF_ELUNE   = 38528,
 
-		SPELL_DRAIN_WORLD_TREE     = 39140,
-		SPELL_DRAIN_WORLD_TREE_2   = 39141,
+        SPELL_DRAIN_WORLD_TREE      = 39140,
+        SPELL_DRAIN_WORLD_TREE_2    = 39141,
 
-		SPELL_FINGER_OF_DEATH      = 31984,
-		SPELL_HAND_OF_DEATH        = 35354,
-		SPELL_AIR_BURST            = 32014,
-		SPELL_GRIP_OF_THE_LEGION   = 31972,
-		SPELL_DOOMFIRE_STRIKE      = 31903,
-		SPELL_DOOMFIRE_SPAWN       = 32074,
-        SPELL_DOOMFIRE_DEV		   = 31944,
-		SPELL_DOOMFIRE             = 31945,
-		SPELL_SOUL_CHARGE_YELLOW   = 32045,
-		SPELL_SOUL_CHARGE_GREEN    = 32051,
-		SPELL_SOUL_CHARGE_RED      = 32052,
-		SPELL_UNLEASH_SOUL_YELLOW  = 32054,
-		SPELL_UNLEASH_SOUL_GREEN   = 32057,
-		SPELL_UNLEASH_SOUL_RED     = 32053,
-		SPELL_FEAR                 = 31970,
+        SPELL_FINGER_OF_DEATH       = 31984,
+        SPELL_HAND_OF_DEATH         = 35354,
+        SPELL_AIR_BURST             = 32014,
+        SPELL_GRIP_OF_THE_LEGION    = 31972,
+        SPELL_DOOMFIRE_STRIKE       = 31903,
+        SPELL_DOOMFIRE_SPAWN        = 32074,
+        SPELL_DOOMFIRE_DEV          = 31944,
+        SPELL_DOOMFIRE              = 31945,
+        SPELL_SOUL_CHARGE_YELLOW    = 32045,
+        SPELL_SOUL_CHARGE_GREEN     = 32051,
+        SPELL_SOUL_CHARGE_RED       = 32052,
+        SPELL_UNLEASH_SOUL_YELLOW   = 32054,
+        SPELL_UNLEASH_SOUL_GREEN    = 32057,
+        SPELL_UNLEASH_SOUL_RED      = 32053,
+        SPELL_FEAR                  = 31970,
 
-		CREATURE_ARCHIMONDE            = 17968,
-		CREATURE_DOOMFIRE              = 18095,
-		CREATURE_DOOMFIRE_SPIRIT       = 18104,
-		CREATURE_ANCIENT_WISP          = 17946,
-		CREATURE_CHANNEL_TARGET        = 22418,
+        CREATURE_ARCHIMONDE         = 17968,
+        CREATURE_DOOMFIRE           = 18095,
+        CREATURE_DOOMFIRE_SPIRIT    = 18104,
+        CREATURE_ANCIENT_WISP       = 17946,
+        CREATURE_CHANNEL_TARGET     = 22418
 };
 
 #define NORDRASSIL_X        5503.713f
@@ -128,42 +128,42 @@ struct MANGOS_DLL_DECL mob_doomfireAI : public Scripted_NoMovementAI
     }
 
     ScriptedInstance* m_pInstance;
-	uint32 FireTimer;
-	uint64 ArchimondeGUID;
+    uint32 FireTimer;
+    uint64 ArchimondeGUID;
 
     void Reset() 
-	{ 
-		FireTimer = 1000;
+    { 
+        FireTimer = 1000;
 
-		if(m_pInstance)
-			ArchimondeGUID = m_pInstance->GetData64(DATA_ARCHIMONDE);
-	}
+        if(m_pInstance)
+            ArchimondeGUID = m_pInstance->GetData64(DATA_ARCHIMONDE);
+    }
     void MoveInLineOfSight(Unit* who) { }
     void DamageTaken(Unit *done_by, uint32 &damage) { damage = 0; }
-	void UpdateAI(const uint32 diff)
-	{
-		if(FireTimer < diff)
-		{
-			Unit* Archimonde = Unit::GetUnit((*m_creature), ArchimondeGUID);
+    void UpdateAI(const uint32 diff)
+    {
+        if(FireTimer < diff)
+        {
+            Unit* Archimonde = Unit::GetUnit((*m_creature), ArchimondeGUID);
 
             if (!Archimonde)
                 return;
 
-			std::list<HostileReference *> t_list = Archimonde->getThreatManager().getThreatList();
-			for(std::list<HostileReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
-			{
-				if(Unit *target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid()))
-					if(target && target->GetTypeId() == TYPEID_PLAYER)
-					{
-						if(m_creature->IsWithinDistInMap(target, 3))
-							target->CastSpell(target, SPELL_DOOMFIRE_DEV, true);
-						else if(target->HasAura(SPELL_DOOMFIRE_DEV))
-							target->RemoveAurasDueToSpell(SPELL_DOOMFIRE_DEV);
-					}
-			}
-			FireTimer = 3000;
-		}FireTimer -= diff;
-	}
+            std::list<HostileReference *> t_list = Archimonde->getThreatManager().getThreatList();
+            for(std::list<HostileReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+            {
+                if(Unit *target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid()))
+                    if(target && target->GetTypeId() == TYPEID_PLAYER)
+                    {
+                        if(m_creature->IsWithinDistInMap(target, 3))
+                            target->CastSpell(target, SPELL_DOOMFIRE_DEV, true);
+                        else if(target->HasAura(SPELL_DOOMFIRE_DEV))
+                            target->RemoveAurasDueToSpell(SPELL_DOOMFIRE_DEV);
+                    }
+            }
+            FireTimer = 3000;
+        }FireTimer -= diff;
+    }
 };
 
 /* This is the script for the Doomfire Spirit Mob. This mob simply follow players or

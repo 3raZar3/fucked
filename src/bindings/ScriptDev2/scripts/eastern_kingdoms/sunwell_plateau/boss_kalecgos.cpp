@@ -193,8 +193,8 @@ struct MANGOS_DLL_DECL boss_kalecgosAI : public ScriptedAI
     {
         SpellEntry* pSpellInfo = (SpellEntry*)GetSpellStore()->LookupEntry(WildMagic[urand(1,6)]);
         if (pSpellInfo)
-            if(Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-        {
+            if(Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
+            {
                 if (pTarget && pTarget->IsWithinDistInMap(m_creature, 50))
                 {
                     for(uint8 i=0 ;i< MAX_EFFECT_INDEX; ++i)
@@ -206,7 +206,7 @@ struct MANGOS_DLL_DECL boss_kalecgosAI : public ScriptedAI
                     }
                     m_uiWildMagicTimer = 19000;
                 }else m_uiWildMagicTimer = 1000;
-        }
+            }
     }
 
     void KilledUnit(Unit* pVictim)
@@ -271,7 +271,7 @@ struct MANGOS_DLL_DECL boss_kalecgosAI : public ScriptedAI
         if(pWho && !pWho->IsInRange(m_creature, 0.0f, 50.0f, true))
         {
             m_creature->AddThreat(pWho, -100000.0f);
-            if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1))
+            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1))
             {
                 m_creature->AddThreat(pTarget, 100000.0f);
                 m_creature->AI()->AttackStart(pTarget);
@@ -378,7 +378,7 @@ struct MANGOS_DLL_DECL boss_kalecgosAI : public ScriptedAI
                 }
                 else
                 {
-                    if (Unit* pTarget = SelectUnit(SELECT_TARGET_TOPAGGRO, 0))
+                    if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_TOPAGGRO, 0))
                         if ( pTarget == (*i))
                             return; 
 
@@ -557,7 +557,7 @@ struct MANGOS_DLL_DECL boss_sathrovarrAI : public ScriptedAI
                 m_creature->AI()->AttackStart(pKalec);
                 m_creature->AddThreat(pKalec, 100000.0f);
             }
-            else if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1))
+            else if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
             {
                 m_creature->AddThreat(pTarget, 100000.0f);
                 m_creature->AI()->AttackStart(pTarget);
@@ -640,8 +640,8 @@ struct MANGOS_DLL_DECL boss_sathrovarrAI : public ScriptedAI
             {    
                 DoScriptText(SAY_SATH_SPELL1, m_creature);
             }
-            if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                DoCast(pTarget, SPELL_SHADOW_BOLT_VOLLEY,true);
+            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
+                DoCast(pTarget, SPELL_SHADOW_BOLT_VOLLEY, true);
             m_uiShadowBoltVolleyTimer = 15000;
         }else m_uiShadowBoltVolleyTimer -= uiDiff;
 

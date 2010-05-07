@@ -147,20 +147,20 @@ struct MANGOS_DLL_DECL boss_akilzonAI : public ScriptedAI
                     m_creature->InterruptNonMeleeSpells(false);
 
                 DoScriptText(EMOTE_STORM, m_creature);
-                DoCast(pTarget, SPELL_ELECTRICAL_STORM, false);                
-            }                                                       
+                DoCastSpellIfCan(pTarget, SPELL_ELECTRICAL_STORM);
+            }
             m_uiStormTimer = urand(45000, 65000);
         }else m_uiStormTimer -= uiDiff;
 
         if (m_uiGustOfWindTimer <= uiDiff)
         {
             if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1))
-                m_creature->CastSpell(pTarget, SPELL_GUST_OF_WIND, false);
+                DoCastSpellIfCan(pTarget, SPELL_GUST_OF_WIND);
 
             // Trigger call of lightning
             // maybe should be placed in dummy effect in MaNGOS?
-            if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                m_creature->CastSpell(pTarget, SPELL_CALL_LIGHTNING, true);
+            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
+                DoCastSpellIfCan(pTarget, SPELL_CALL_LIGHTNING);
             
             m_uiGustOfWindTimer = urand(9000, 17000);
         }else m_uiGustOfWindTimer -= uiDiff;

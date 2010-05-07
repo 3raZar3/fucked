@@ -283,7 +283,9 @@ struct MANGOS_DLL_DECL boss_lady_blaumeuxAI : public ScriptedAI
             {
                 DoCastSpellIfCan(m_creature, SPELL_UNYILDING_PAIN);
                 m_uiPainTimer = 2000;
-            } else m_uiPainTimer -= uiDiff;
+            }
+            else
+                m_uiPainTimer -= uiDiff;
             return;
         }
 
@@ -297,15 +299,19 @@ struct MANGOS_DLL_DECL boss_lady_blaumeuxAI : public ScriptedAI
                 DoCastSpellIfCan(m_creature, SPELL_BESERK);
 
             m_uiMarkTimer = 15000;
-        }else m_uiMarkTimer -= uiDiff;
+        }
+        else
+            m_uiMarkTimer -= uiDiff;
 
         // Void Zone
         if (m_uiVoidZoneTimer <= uiDiff)
         {
-            if (Unit* pUnit = SelectUnit(SELECT_TARGET_RANDOM, 0))
+            if (Unit* pUnit = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
                 DoCastSpellIfCan(pUnit, m_bIsRegularMode ? SPELL_VOIDZONE : SPELL_VOIDZONE_H);
             m_uiVoidZoneTimer = 15000;
-        }else m_uiVoidZoneTimer -= uiDiff;
+        }
+        else
+            m_uiVoidZoneTimer -= uiDiff;
 
         // Shadow Bolt
         if (m_uiShadowBoltTimer <= uiDiff)
@@ -313,7 +319,9 @@ struct MANGOS_DLL_DECL boss_lady_blaumeuxAI : public ScriptedAI
             if (Player* pPlayer = GetClosestPlayer(m_creature))
                 DoCastSpellIfCan(pPlayer, m_bIsRegularMode ? SPELL_SHADOW_BOLT : SPELL_SHADOW_BOLT_H);
             m_uiShadowBoltTimer = 3000;
-        }else m_uiShadowBoltTimer -= uiDiff;
+        }
+        else
+            m_uiShadowBoltTimer -= uiDiff;
 
         DoMeleeAttackIfReady();
     }
@@ -416,17 +424,20 @@ struct MANGOS_DLL_DECL boss_rivendare_naxxAI : public ScriptedAI
             ++m_uiMarksCasted;
             if (m_uiMarksCasted >= 100)
                 DoCastSpellIfCan(m_creature, SPELL_BESERK);
-
             m_uiMarkTimer = 12000;
-        }else m_uiMarkTimer -= uiDiff;
+        }
+        else
+            m_uiMarkTimer -= uiDiff;
 
         // Unholy Shadow
         if (m_uiUnholyShadow <= uiDiff)
         {
-            if (Unit* pUnit = SelectUnit(SELECT_TARGET_RANDOM, 0))
+            if (Unit* pUnit = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
                 DoCastSpellIfCan(pUnit, m_bIsRegularMode ? SPELL_UNHOLY_SHADOW : SPELL_UNHOLY_SHADOW_H);
             m_uiUnholyShadow = 15000;
-        }else m_uiUnholyShadow -= uiDiff;
+        }
+        else
+            m_uiUnholyShadow -= uiDiff;
  
         DoMeleeAttackIfReady();
     }
@@ -524,17 +535,20 @@ struct MANGOS_DLL_DECL boss_thane_korthazzAI : public ScriptedAI
             ++m_uiMarksCasted;
             if (m_uiMarksCasted >= 100)
                 DoCastSpellIfCan(m_creature, SPELL_BESERK);
-
             m_uiMarkTimer = 12000;
-        }else m_uiMarkTimer -= uiDiff;
+        }
+        else
+            m_uiMarkTimer -= uiDiff;
 
         // Meteor
         if (m_uiMeteorTimer <= uiDiff)
         {
-            if (Unit* pUnit = SelectUnit(SELECT_TARGET_RANDOM, 0))
+            if (Unit* pUnit = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
                 DoCastSpellIfCan(pUnit, m_bIsRegularMode ?  SPELL_METEOR : SPELL_METEOR_H);
             m_uiMeteorTimer = 15000;
-        }else m_uiMeteorTimer -= uiDiff;
+        }
+        else
+            m_uiMeteorTimer -= uiDiff;
 
         DoMeleeAttackIfReady();
     }
@@ -634,7 +648,9 @@ struct MANGOS_DLL_DECL boss_sir_zeliekAI : public ScriptedAI
             {
                 DoCastSpellIfCan(m_creature, SPELL_CONDEMANTION);
                 m_uiCondemnationTimer = 2000;
-            } else m_uiCondemnationTimer -= uiDiff;
+            }
+            else
+                m_uiCondemnationTimer -= uiDiff;
             return;
         }
 
@@ -648,15 +664,19 @@ struct MANGOS_DLL_DECL boss_sir_zeliekAI : public ScriptedAI
                 DoCastSpellIfCan(m_creature, SPELL_BESERK);
 
             m_uiMarkTimer = 15000;
-        }else m_uiMarkTimer -= uiDiff;
+        }
+        else
+            m_uiMarkTimer -= uiDiff;
 
         // Holy Wrath
         if (m_uiHolyWrathTimer <= uiDiff)
         {
-            if (Unit* pUnit = SelectUnit(SELECT_TARGET_RANDOM, 0))
+            if (Unit* pUnit = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
                 DoCastSpellIfCan(pUnit, m_bIsRegularMode ? SPELL_HOLY_WRATH : SPELL_HOLY_WRATH_H);
             m_uiHolyWrathTimer = 12000;
-        }else m_uiHolyWrathTimer -= uiDiff;
+        }
+        else
+            m_uiHolyWrathTimer -= uiDiff;
 
         // Shadow Bolt
         if (m_uiHolyBoltTimer <= uiDiff)
@@ -664,7 +684,9 @@ struct MANGOS_DLL_DECL boss_sir_zeliekAI : public ScriptedAI
             if (Player* pPlayer = GetClosestPlayer(m_creature))
                 DoCastSpellIfCan(pPlayer, m_bIsRegularMode ? SPELL_HOLY_BOLT : SPELL_HOLY_BOLT_H);
             m_uiHolyBoltTimer = 3000;
-        }else m_uiHolyBoltTimer -= uiDiff;
+        }
+        else
+            m_uiHolyBoltTimer -= uiDiff;
 
         DoMeleeAttackIfReady();
     }

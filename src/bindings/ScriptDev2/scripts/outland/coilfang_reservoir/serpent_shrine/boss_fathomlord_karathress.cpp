@@ -106,9 +106,9 @@ struct MANGOS_DLL_DECL boss_fathomlord_karathressAI : public ScriptedAI
                 if (pAdvisor->getVictim())
                     pAdvisor->AI()->EnterEvadeMode();
                 else if (!pAdvisor->isAlive())
-				{
+                {
                     pAdvisor->Respawn();
-					pAdvisor->GetMotionMaster()->MoveTargetedHome();
+                    pAdvisor->GetMotionMaster()->MoveTargetedHome();
             }
         }
         }
@@ -187,12 +187,12 @@ struct MANGOS_DLL_DECL boss_fathomlord_karathressAI : public ScriptedAI
         DoScriptText(SAY_DEATH, m_creature);
 
         if (m_pInstance)
-		{
-			if (GameObject* pGo = m_creature->GetMap()->GetGameObject(m_pInstance->GetData64(DATA_KARATHRESS_GEN)))
-				pGo->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
+        {
+            if (GameObject* pGo = m_creature->GetMap()->GetGameObject(m_pInstance->GetData64(DATA_KARATHRESS_GEN)))
+                pGo->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
 
             m_pInstance->SetData(TYPE_KARATHRESS_EVENT, SPECIAL);
-		}
+        }
 
         //support for quest 10944
         m_creature->SummonCreature(NPC_SEER_OLUM, afCoords_Olum[0], afCoords_Olum[1], afCoords_Olum[2], afCoords_Olum[3], TEMPSUMMON_TIMED_DESPAWN, 3600000);
@@ -225,16 +225,15 @@ struct MANGOS_DLL_DECL boss_fathomlord_karathressAI : public ScriptedAI
         //m_uiCataclysmicBolt_Timer
         if (m_uiCataclysmicBolt_Timer < uiDiff)
         {
-			Unit* pTarget;
+            Unit* pTarget;
 
-			ThreatList const& m_threatlist = m_creature->getThreatManager().getThreatList();
+            ThreatList const& m_threatlist = m_creature->getThreatManager().getThreatList();
             if (m_threatlist.empty())
                 return;
-			
-			for (ThreatList::const_iterator itr = m_threatlist.begin(); itr!= m_threatlist.end();++itr)
-			{
-                error_log("Debug: Petla Cataclysmic Bolt (Fathom Lord Karathress)");
-				if (Unit* pTemp = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid()))
+            
+            for (ThreatList::const_iterator itr = m_threatlist.begin(); itr!= m_threatlist.end();++itr)
+            {
+                if (Unit* pTemp = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid()))
                 {
                     //player and has mana
                     if ((pTemp->GetTypeId() == TYPEID_PLAYER) && (pTemp->getPowerType() == POWER_MANA))
@@ -243,10 +242,12 @@ struct MANGOS_DLL_DECL boss_fathomlord_karathressAI : public ScriptedAI
                         break;
                     }
                 }
-			}
+            }
             // in case no player with mana or victim is not a player choose current victim
             if (!pTarget)
                 pTarget = m_creature->getVictim();
+            if (!pTarget)
+                return;
 
             m_creature->CastSpell(pTarget, SPELL_CATACLYSMIC_BOLT, false);
             m_uiCataclysmicBolt_Timer = 10000;
@@ -458,16 +459,16 @@ struct MANGOS_DLL_DECL boss_fathomguard_tidalvessAI : public Advisor_Base_AI
 
     // timers
     uint32 m_uiFrostShock_Timer;
-	uint32 m_uiPoison_Cleansing_Totem_Timer;
-	uint32 m_uiEarthbinding_Totem_Timer;
-	uint32 m_uiSpitfire_Totem_Timer;
+    uint32 m_uiPoison_Cleansing_Totem_Timer;
+    uint32 m_uiEarthbinding_Totem_Timer;
+    uint32 m_uiSpitfire_Totem_Timer;
 
     void Reset()
     {
         m_uiFrostShock_Timer = 25000;
-		uint32 m_uiPoison_Cleansing_Totem_Timer = 5000;
-		uint32 m_uiEarthbinding_Totem_Timer = 10000;
-		uint32 m_uiSpitfire_Totem_Timer = 20000;
+        uint32 m_uiPoison_Cleansing_Totem_Timer = 5000;
+        uint32 m_uiEarthbinding_Totem_Timer = 10000;
+        uint32 m_uiSpitfire_Totem_Timer = 20000;
 
     }
 
@@ -499,23 +500,23 @@ struct MANGOS_DLL_DECL boss_fathomguard_tidalvessAI : public Advisor_Base_AI
             m_uiFrostShock_Timer = urand(25000, 30000);
         }else m_uiFrostShock_Timer -= uiDiff;
 
-		if (m_uiPoison_Cleansing_Totem_Timer < uiDiff)
-		{
-			DoCast(m_creature,SPELL_POISON_CLEANSING_TOTEM,false);
-			m_uiPoison_Cleansing_Totem_Timer = 20000;
-		}else m_uiPoison_Cleansing_Totem_Timer -= uiDiff;
+        if (m_uiPoison_Cleansing_Totem_Timer < uiDiff)
+        {
+            DoCast(m_creature,SPELL_POISON_CLEANSING_TOTEM,false);
+            m_uiPoison_Cleansing_Totem_Timer = 20000;
+        }else m_uiPoison_Cleansing_Totem_Timer -= uiDiff;
 
-		if (m_uiEarthbinding_Totem_Timer < uiDiff)
-		{
-			DoCast(m_creature,SPELL_EARTHBIND_TOTEM,false);
-			m_uiEarthbinding_Totem_Timer = 20000;
-		}else m_uiEarthbinding_Totem_Timer -= uiDiff;
+        if (m_uiEarthbinding_Totem_Timer < uiDiff)
+        {
+            DoCast(m_creature,SPELL_EARTHBIND_TOTEM,false);
+            m_uiEarthbinding_Totem_Timer = 20000;
+        }else m_uiEarthbinding_Totem_Timer -= uiDiff;
 
-		if (m_uiSpitfire_Totem_Timer < uiDiff)
-		{
-			DoCast(m_creature,SPELL_SPITFIRE_TOTEM,false);
-			m_uiSpitfire_Totem_Timer = 20000;
-		}else m_uiSpitfire_Totem_Timer -= uiDiff;
+        if (m_uiSpitfire_Totem_Timer < uiDiff)
+        {
+            DoCast(m_creature,SPELL_SPITFIRE_TOTEM,false);
+            m_uiSpitfire_Totem_Timer = 20000;
+        }else m_uiSpitfire_Totem_Timer -= uiDiff;
 
         DoMeleeAttackIfReady();
     }

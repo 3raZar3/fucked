@@ -111,7 +111,7 @@ struct MANGOS_DLL_DECL boss_black_stalkerAI : public ScriptedAI
         
         if (m_uiLevitate_Timer < uiDiff)
         {
-            Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1);
+            Unit* target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1);
 
             if (target)
                 m_creature->CastSpell(target, SPELL_LEVITATE,false);                                
@@ -142,7 +142,7 @@ struct MANGOS_DLL_DECL boss_black_stalkerAI : public ScriptedAI
                     {
                         pStrider->setFaction(m_creature->getFaction());
                         SporeStriderGUID[i] = pStrider->GetGUID();
-                        if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
                         {
                             pStrider->AI()->AttackStart(pTarget);
                             pStrider->GetMotionMaster()->MoveChase(pTarget,10.0f);

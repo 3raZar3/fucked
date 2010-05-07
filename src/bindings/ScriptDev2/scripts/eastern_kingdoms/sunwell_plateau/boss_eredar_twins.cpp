@@ -25,25 +25,25 @@ EndScriptData */
 #include "sunwell_plateau.h"
 
 // texts
-#define YELL_TWINS_AGGRO			-1940001
-#define YELL_TWINS_BOTH_DEATH		-1940002
-#define YELL_TWINS_SINGLE_DEATH		-1940003
-#define YELL_TWINS_ENRAGE			-1940004
+#define YELL_TWINS_AGGRO            -1940001
+#define YELL_TWINS_BOTH_DEATH        -1940002
+#define YELL_TWINS_SINGLE_DEATH        -1940003
+#define YELL_TWINS_ENRAGE            -1940004
 
-#define YELL_TWINS_SPELL_STURMKNOCKBACK	    -1940010 
-#define YELL_TWINS_SPELL_STURMKNOCKBACK0	-1940005 
-#define YELL_TWINS_SPELL_STURMKNOCKBACK1	-1940006
-#define YELL_TWINS_SPELL_STURMKNOCKBACK2	-1940007
-#define YELL_TWINS_SPELL_STURMKNOCKBACK3	-1940008
-#define YELL_TWINS_SPELL_STURMKNOCKBACK4	-1940009 
+#define YELL_TWINS_SPELL_STURMKNOCKBACK        -1940010 
+#define YELL_TWINS_SPELL_STURMKNOCKBACK0    -1940005 
+#define YELL_TWINS_SPELL_STURMKNOCKBACK1    -1940006
+#define YELL_TWINS_SPELL_STURMKNOCKBACK2    -1940007
+#define YELL_TWINS_SPELL_STURMKNOCKBACK3    -1940008
+#define YELL_TWINS_SPELL_STURMKNOCKBACK4    -1940009 
 
-#define YELL_ALY_SLAY			             -1941000
-#define YELL_TWINS_SPELL_LOHE		         -1941001
+#define YELL_ALY_SLAY                         -1941000
+#define YELL_TWINS_SPELL_LOHE                 -1941001
 #define YELL_TWINS_SPELL_SCHATTENKLINGEN     -1941002
 
-#define YELL_SACRO_SLAY			             -1942000
-#define YELL_TWINS_SPELL_SCHATTENNOVA	     -1942001
-#define YELL_TWINS_SPELL_VERWIRRENDERS	     -1942002
+#define YELL_SACRO_SLAY                         -1942000
+#define YELL_TWINS_SPELL_SCHATTENNOVA         -1942001
+#define YELL_TWINS_SPELL_VERWIRRENDERS         -1942002
 
 enum Spells
 {
@@ -96,29 +96,29 @@ struct MANGOS_DLL_DECL boss_alythessAI : public ScriptedAI
         Reset();
     }
 
-	ScriptedInstance* pInstance;  
+    ScriptedInstance* pInstance;  
 
-	uint32 m_uiPyrogenicsTimer;
-	uint32 m_uiFlameTouchedTimer;
-	uint32 m_uiConflagrationTimer;
+    uint32 m_uiPyrogenicsTimer;
+    uint32 m_uiFlameTouchedTimer;
+    uint32 m_uiConflagrationTimer;
     uint32 m_uiConfCount;
     uint32 m_uiConfTimer;
-	uint32 m_uiBlazeTimer;
-	uint32 m_uiFlameSearTimer;
-	uint32 m_uiEnrageTimer;
+    uint32 m_uiBlazeTimer;
+    uint32 m_uiFlameSearTimer;
+    uint32 m_uiEnrageTimer;
     uint64 m_uiConfTargetGUID;
-	bool m_bIsEnraged;
+    bool m_bIsEnraged;
     bool m_bIsBanished;
 
     void Reset()
-	{	
+    {    
         m_bIsBanished = false;
-		m_uiPyrogenicsTimer = 100; 
-		m_uiFlameTouchedTimer = 30000; 
-		m_uiConflagrationTimer = 25000 + rand()%15000;
-		m_uiBlazeTimer = 1000; 
-		m_uiFlameSearTimer = 15000; 
-		m_uiEnrageTimer = 360000; 
+        m_uiPyrogenicsTimer = 100; 
+        m_uiFlameTouchedTimer = 30000; 
+        m_uiConflagrationTimer = 25000 + rand()%15000;
+        m_uiBlazeTimer = 1000; 
+        m_uiFlameSearTimer = 15000; 
+        m_uiEnrageTimer = 360000; 
         m_uiConfTimer = 300000;
         m_uiConfCount = 10;
         m_uiConfTargetGUID = 0;
@@ -139,8 +139,8 @@ struct MANGOS_DLL_DECL boss_alythessAI : public ScriptedAI
                     Sacrolash->Respawn();
         }
         */
-		m_bIsEnraged = false;
-	}
+        m_bIsEnraged = false;
+    }
 
     void DamageDeal(Unit* pDoneTo, uint32& uiDamage) 
     {
@@ -148,42 +148,42 @@ struct MANGOS_DLL_DECL boss_alythessAI : public ScriptedAI
             pDoneTo->RemoveAurasDueToSpell(SPELL_DARK_TOUCHED,0);
     }
 
-	void Aggro(Unit *who)
-	{
+    void Aggro(Unit *who)
+    {
         if(pInstance)
             pInstance->SetData(DATA_EREDAR_TWINS_EVENT, IN_PROGRESS);
         m_creature->SetInCombatWithZone();
-		DoScriptText(YELL_TWINS_AGGRO, m_creature);
-		DoPlaySoundToSet(m_creature, 12484);
-	}
-	
-	void KilledUnit(Unit* victim)
-	{
+        DoScriptText(YELL_TWINS_AGGRO, m_creature);
+        DoPlaySoundToSet(m_creature, 12484);
+    }
+    
+    void KilledUnit(Unit* victim)
+    {
        DoScriptText(YELL_ALY_SLAY, m_creature);
        switch(rand()%3)
        {
-        	case 0: DoPlaySoundToSet(m_creature, 12490); break;
-        	case 1: DoPlaySoundToSet(m_creature, 12491); break;
+            case 0: DoPlaySoundToSet(m_creature, 12490); break;
+            case 1: DoPlaySoundToSet(m_creature, 12491); break;
         }
-	}
+    }
 
-	void JustDied(Unit* Killer)
-	{
-		DoScriptText(YELL_TWINS_SINGLE_DEATH, m_creature);
-		DoPlaySoundToSet(m_creature, 12488);
+    void JustDied(Unit* Killer)
+    {
+        DoScriptText(YELL_TWINS_SINGLE_DEATH, m_creature);
+        DoPlaySoundToSet(m_creature, 12488);
         if (pInstance)
         {
             pInstance->SetData(DATA_ALYSTHESS_EVENT, DONE);
         }
-	}
+    }
 
-	void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 diff)
     {       
-		
-		// return since we have no target
+        
+        // return since we have no target
         if(!m_creature->SelectHostileTarget() || !m_creature->getVictim())
            return;
-		
+        
         if (m_creature->HasAura(SPELL_BANISH))
         {
             if (pInstance && pInstance->GetData(DATA_SACROLASH_EVENT) == DONE)
@@ -244,13 +244,13 @@ struct MANGOS_DLL_DECL boss_alythessAI : public ScriptedAI
             }else m_uiConfTimer -= diff;
         }
 
-		// does alysthes stand and cast spells, after someone is out of range she follows victim
-		if(Unit *who = m_creature->getVictim())
+        // does alysthes stand and cast spells, after someone is out of range she follows victim
+        if(Unit *who = m_creature->getVictim())
         {
-		    if(who && who->IsInRange(m_creature, 0.0f, 15.0f, false))
-			    m_creature->StopMoving();
+            if(who && who->IsInRange(m_creature, 0.0f, 15.0f, false))
+                m_creature->StopMoving();
             else 
-			    m_creature->CanFreeMove();
+                m_creature->CanFreeMove();
         }
 
         // enrage
@@ -260,55 +260,55 @@ struct MANGOS_DLL_DECL boss_alythessAI : public ScriptedAI
             DoCast(m_creature, SPELL_TWINS_ENRAGE);
             m_bIsEnraged = true;
         }else m_uiEnrageTimer -= diff;
-		
-		// 100%
+        
+        // 100%
         if(m_uiPyrogenicsTimer < diff)
         {
             DoCast(m_creature, SPELL_PYROGENICS);
             m_uiPyrogenicsTimer = 35000;
         }else m_uiPyrogenicsTimer -= diff;
-		
-		// 100%
-		if(m_uiFlameTouchedTimer < diff)
+        
+        // 100%
+        if(m_uiFlameTouchedTimer < diff)
         {
-			if(Unit* victim = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                victim->CastSpell(victim, SPELL_FLAME_TOUCHED, true);
+            if(Unit* pVictim = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
+                pVictim->CastSpell(pVictim, SPELL_FLAME_TOUCHED, true);
             m_uiFlameTouchedTimer = 30000;
         }else m_uiFlameTouchedTimer -= diff;
-		
-		// in progress
+        
+        // in progress
         if(m_uiConflagrationTimer < diff)
         {
             m_uiConfTargetGUID = 0;
-			if (Unit *victim = SelectUnit(SELECT_TARGET_RANDOM, 0))
+            if (Unit *pVictim = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
             {
-                m_uiConfTargetGUID = victim->GetGUID();
-                victim->CastSpell(victim, AURA_CONF, true);
-                victim->CastSpell(victim, SPELL_CONFLAGRATION_DEV, true);
+                m_uiConfTargetGUID = pVictim->GetGUID();
+                pVictim->CastSpell(pVictim, AURA_CONF, true);
+                pVictim->CastSpell(pVictim, SPELL_CONFLAGRATION_DEV, true);
             }
             m_uiConfTimer = 1000;
             m_uiConfCount = 0;
-            m_uiConflagrationTimer = 20000 + rand()%1000;
+            m_uiConflagrationTimer = urand(20000, 21000);
         }else m_uiConflagrationTimer -= diff;
-		
-		// 50% nie zostawia sumona pod soba
+        
+        // 50% nie zostawia sumona pod soba
         if(m_uiBlazeTimer < diff)
         {
-			if(Unit *victim = m_creature->getVictim())
-				DoCast(victim, SPELL_BLAZE);
+            if(Unit *victim = m_creature->getVictim())
+                DoCast(victim, SPELL_BLAZE);
             m_uiBlazeTimer = urand(5000,10000);
         }else m_uiBlazeTimer -= diff;
-		
-		// 100%
+        
+        // 100%
         if(m_uiFlameSearTimer < diff)
         {
             uint8 i = urand(3,5);
             for(uint8 k=0; k<i; ++k)
-			    if(Unit* victim = SelectUnit(SELECT_TARGET_RANDOM, 0))
-				    m_creature->CastSpell(victim, SPELL_FLAME_SEAR, true);	
+                if(Unit* pVictim = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0) )
+                    DoCastSpellIfCan(pVictim, SPELL_FLAME_SEAR, CAST_TRIGGERED);
             m_uiFlameSearTimer = 30000;
         }else m_uiFlameSearTimer -= diff;
-		
+        
         DoMeleeAttackIfReady();
     }
 };
@@ -324,29 +324,29 @@ struct MANGOS_DLL_DECL boss_sacrolashAI : public ScriptedAI
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         Reset();
     }
-			
-	ScriptedInstance* pInstance;
-	
-	uint32 m_uiEnrageTimer;
-	uint32 m_uiDarkTouchedTimer;
-	uint32 m_uiShadowNovaTimer;
-	uint32 m_uiConfoundingBlowTimer;
-	uint32 m_uiShadowBladesTimer;
-	uint32 m_uiSummonShadowImage;
-	uint64 m_uiTargetGUID[3];
-	bool m_bIsEnraged;
+            
+    ScriptedInstance* pInstance;
+    
+    uint32 m_uiEnrageTimer;
+    uint32 m_uiDarkTouchedTimer;
+    uint32 m_uiShadowNovaTimer;
+    uint32 m_uiConfoundingBlowTimer;
+    uint32 m_uiShadowBladesTimer;
+    uint32 m_uiSummonShadowImage;
+    uint64 m_uiTargetGUID[3];
+    bool m_bIsEnraged;
     bool m_bIsBanished;
 
-	void Reset()
-	{	
+    void Reset()
+    {    
         m_bIsBanished = false;
-		m_uiEnrageTimer = 360000; 
-		m_uiDarkTouchedTimer = 30000;
-		m_uiShadowNovaTimer = 15000;
-		m_uiConfoundingBlowTimer = 3000;
-		m_uiShadowBladesTimer = 10000;
-		m_uiSummonShadowImage = 30000;
-		m_bIsEnraged = false;
+        m_uiEnrageTimer = 360000; 
+        m_uiDarkTouchedTimer = 30000;
+        m_uiShadowNovaTimer = 15000;
+        m_uiConfoundingBlowTimer = 3000;
+        m_uiShadowBladesTimer = 10000;
+        m_uiSummonShadowImage = 30000;
+        m_bIsEnraged = false;
 
         if (pInstance)
         {
@@ -363,7 +363,7 @@ struct MANGOS_DLL_DECL boss_sacrolashAI : public ScriptedAI
                     Alythess->Respawn();
         }
         */
-	}
+    }
 
     void DamageDeal(Unit* pDoneTo, uint32& uiDamage) 
     {
@@ -371,42 +371,42 @@ struct MANGOS_DLL_DECL boss_sacrolashAI : public ScriptedAI
             pDoneTo->RemoveAurasDueToSpell(SPELL_FLAME_TOUCHED,0);
     }
 
-	void Aggro(Unit *who)
-	{
+    void Aggro(Unit *who)
+    {
         if(pInstance)
             pInstance->SetData(DATA_EREDAR_TWINS_EVENT, IN_PROGRESS);
         m_creature->SetInCombatWithZone();
-		DoScriptText(YELL_TWINS_AGGRO, m_creature);
-	}
+        DoScriptText(YELL_TWINS_AGGRO, m_creature);
+    }
 
-	void KilledUnit(Unit* victim)
-	{
+    void KilledUnit(Unit* victim)
+    {
        DoScriptText(YELL_SACRO_SLAY, m_creature);
-	   switch(rand()%2)
+       switch(rand()%2)
        {
-        	case 0: DoPlaySoundToSet(m_creature, 12486); break;
-        	case 1: DoPlaySoundToSet(m_creature, 12487); break;
+            case 0: DoPlaySoundToSet(m_creature, 12486); break;
+            case 1: DoPlaySoundToSet(m_creature, 12487); break;
        }
-	}
+    }
 
-	void JustDied(Unit* Killer)
-	{
-		DoScriptText(YELL_TWINS_SINGLE_DEATH, m_creature);
-		DoPlaySoundToSet(m_creature, 12492);
+    void JustDied(Unit* Killer)
+    {
+        DoScriptText(YELL_TWINS_SINGLE_DEATH, m_creature);
+        DoPlaySoundToSet(m_creature, 12492);
 
         if (pInstance)
         {
             pInstance->SetData(DATA_SACROLASH_EVENT, DONE);
         }
-	}
+    }
 
     void UpdateAI(const uint32 diff)
     {
-	
+    
         // return since we have no target
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
-		
+        
         if (m_creature->HasAura(SPELL_BANISH))
         {
             if (pInstance && pInstance->GetData(DATA_ALYSTHESS_EVENT) == DONE)
@@ -437,63 +437,64 @@ struct MANGOS_DLL_DECL boss_sacrolashAI : public ScriptedAI
             m_bIsBanished = true;
         }
 
-		// enrage
-		if(m_uiEnrageTimer < diff && !m_bIsEnraged)
+        // enrage
+        if(m_uiEnrageTimer < diff && !m_bIsEnraged)
         {
             DoScriptText(YELL_TWINS_ENRAGE, m_creature);
             DoCast(m_creature, SPELL_TWINS_ENRAGE);
             m_bIsEnraged = true;
         }else m_uiEnrageTimer -= diff;
-		
-		// 100%
+        
+        // 100%
         if(m_uiDarkTouchedTimer < diff)
         {
-			if(Unit* victim = SelectUnit(SELECT_TARGET_RANDOM, 0))
-				victim->CastSpell(victim, SPELL_DARK_TOUCHED,true);
-            m_uiDarkTouchedTimer = urand(10000,13000);
+            if(Unit* pVictim = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0) )
+                pVictim->CastSpell(pVictim, SPELL_DARK_TOUCHED, true);
+            m_uiDarkTouchedTimer = urand(10000, 13000);
         }else m_uiDarkTouchedTimer -= diff;
 
-		// 100%
+        // 100%
         if(m_uiShadowBladesTimer < diff)
         {
-		    if(Unit* victim = SelectUnit(SELECT_TARGET_RANDOM, 0))
+            if(Unit* pVictim = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
             {
-                m_creature->CastSpell(victim, SPELL_DARK_STRIKE, false);
-                m_creature->CastSpell(victim, SPELL_SHADOW_BLADES, true);
+                DoCastSpellIfCan(pVictim, SPELL_DARK_STRIKE);
+                DoCastSpellIfCan(pVictim, SPELL_SHADOW_BLADES, CAST_TRIGGERED);
             }
             m_uiShadowBladesTimer = urand(10000,13000);
         }else m_uiShadowBladesTimer -= diff;
-		
-		// 100%
+        
+        // 100%
         if(m_uiShadowNovaTimer < diff)
         {
-            if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-                DoCast(target, SPELL_SHADOW_NOVA);
+            if(Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
+                DoCastSpellIfCan(pTarget, SPELL_SHADOW_NOVA);
             m_uiShadowNovaTimer = urand(30000,40000);
         }else m_uiShadowNovaTimer -= diff;
-		
-		// 100%
+        
+        // 100%
         if(m_uiConfoundingBlowTimer < diff)
         {
-			if(Unit *victim = m_creature->getVictim())
-				DoCast(victim, SPELL_CONFOUNDING_BLOW);
+            if(Unit *victim = m_creature->getVictim())
+                DoCast(victim, SPELL_CONFOUNDING_BLOW);
             m_uiConfoundingBlowTimer = urand(25000,30000);
         }else m_uiConfoundingBlowTimer -= diff;
-		
-		// 100%
-		if (m_uiSummonShadowImage < diff)
+        
+        // 100%
+        if (m_uiSummonShadowImage < diff)
         {
             for(uint8 i=0; i<3; ++i)
             {
-			    if(Creature *image = m_creature->SummonCreature(MOB_SHADOW_IMAGE, m_creature->GetPositionX()+urand(4,10), m_creature->GetPositionY()+urand(4,10), m_creature->GetPositionZ(), 0.0,TEMPSUMMON_TIMED_DESPAWN, 10000))
-			    {
+                if(Creature *image = m_creature->SummonCreature(MOB_SHADOW_IMAGE, m_creature->GetPositionX()+urand(4,10), m_creature->GetPositionY()+urand(4,10), m_creature->GetPositionZ(), 0.0,TEMPSUMMON_TIMED_DESPAWN, 10000))
+                {
                     image->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     image->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     image->setFaction(14); 
 
-                    if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-                        image->AI()->AttackStart(target);
-			    }
+                    Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0);
+                    if (image->AI() && pTarget)
+                        image->AI()->AttackStart(pTarget);
+                }
             }
             m_uiSummonShadowImage = urand(30000,40000);
         } else m_uiSummonShadowImage -= diff;
@@ -512,41 +513,41 @@ struct MANGOS_DLL_DECL npc_shadow_imageAI : public ScriptedAI
         Reset();
     }
 
-	ScriptedInstance* pInstance; 
-	
-	uint32 m_uiDarkStrikeTimer;
-	uint32 m_uiShadowfuryTimer;
-	
-	void Aggro(Unit* target) 
+    ScriptedInstance* pInstance; 
+    
+    uint32 m_uiDarkStrikeTimer;
+    uint32 m_uiShadowfuryTimer;
+    
+    void Aggro(Unit* target) 
     {
-		m_creature->SetInCombatWithZone();
-	}
-	
+        m_creature->SetInCombatWithZone();
+    }
+    
     void Reset()
-	{	
+    {    
         DoCast(m_creature,SPELL_IMAGE_VISUAL,true);
 
-		m_uiDarkStrikeTimer = 1000;
-		m_uiShadowfuryTimer = 7000;
-	}
-	
-	void UpdateAI(const uint32 diff)
-    {       	
-	    if(m_uiDarkStrikeTimer < diff)
+        m_uiDarkStrikeTimer = 1000;
+        m_uiShadowfuryTimer = 7000;
+    }
+    
+    void UpdateAI(const uint32 diff)
+    {           
+        if(m_uiDarkStrikeTimer < diff)
         {
-			if(Unit *victim = m_creature->getVictim())
+            if(Unit *victim = m_creature->getVictim())
             {
-				m_creature->CastSpell(victim, SPELL_DARK_STRIKE, false);
+                m_creature->CastSpell(victim, SPELL_DARK_STRIKE, false);
                 victim->CastSpell(victim, SPELL_DARK_TOUCHED, true);
             }
             m_uiDarkStrikeTimer = 2000;
         }else m_uiDarkStrikeTimer -= diff;
-		
-		if(m_uiShadowfuryTimer < diff)
+        
+        if(m_uiShadowfuryTimer < diff)
         {
-            if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+            if(Unit* target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
                 m_creature->CastSpell(target, SPELL_SHADOWFURY, false);
-			m_uiShadowfuryTimer = 8000;	
+            m_uiShadowfuryTimer = 8000;    
         }else m_uiShadowfuryTimer -= diff;
 
         DoMeleeAttackIfReady();
@@ -572,12 +573,12 @@ CreatureAI* GetAI_boss_sacrolash(Creature *_Creature)
 void AddSC_boss_eredar_twins()
 {
     Script *newscript;
-	
-	newscript = new Script;
+    
+    newscript = new Script;
     newscript->Name = "npc_shadow_image";
     newscript->GetAI = &GetAI_npc_shadow_image;
     newscript->RegisterSelf();
-	
+    
     newscript = new Script;
     newscript->Name = "boss_alythess";
     newscript->GetAI = &GetAI_boss_alythess;
