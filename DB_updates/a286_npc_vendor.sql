@@ -1,4 +1,74 @@
 ####################################################################################
+
+-- Missing items Tatiana <Master Jewelcrafting Trainer> by Grandres
+DELETE FROM npc_vendor WHERE entry = 18774;
+INSERT INTO npc_vendor VALUES
+(18774,28458,0,0,0), -- Bold Tourmaline
+(18774,28462,0,0,0), -- Bright Tourmaline
+(18774,28466,0,0,0), -- Brilliant Amber
+(18774,28459,0,0,0), -- Delicate Tourmaline
+(18774,23131,0,0,0), -- Design: Bold Blood Garnet
+(18774,28596,0,0,0), -- Design: Bright Blood Garnet
+(18774,23148,0,0,0), -- Design: Brilliant Golden Draenite
+(18774,23137,0,0,0), -- Design: Glinting Flame Spessarite
+(18774,23144,0,0,0), -- Design: Glowing Shadow Draenite
+(18774,23135,0,0,0), -- Design: Inscribed Flame Spessarite
+(18774,23141,0,0,0), -- Design: Jagged Deep Peridot
+(18774,23140,0,0,0), -- Design: Radiant Deep Peridot
+(18774,23151,0,0,0), -- Design: Rigid Golden Draenite
+(18774,28291,0,0,0), -- Design: Smooth Golden Draenite
+(18774,23152,0,0,0), -- Design: Solid Azure Moonstone
+(18774,23147,0,0,0), -- Design: Sovereign Shadow Draenite
+(18774,23153,0,0,0), -- Design: Sparkling Azure Moonstone
+(18774,23130,0,0,0), -- Design: Teardrop Blood Garnet
+(18774,28469,0,0,0), -- Gleaming Amber
+(18774,20815,0,0,0), -- Jeweler's Kite
+(18774,20824,0,0,0), -- Simple Grinder
+(18774,28465,0,0,0), -- Lustrous Zircon
+(18774,28468,0,0,0), -- Rigid Amber
+(18774,28461,0,0,0), -- Runed Tourmaline
+(18774,28467,0,0,0), -- Smooth Amber
+(18774,28463,0,0,0), -- Solid Zircon
+(18774,28464,0,0,0), -- Sparkling Zircon
+(18774,28460,0,0,0), -- Teardrop Tourmaline
+(18774,28470,0,0,0); -- Thick Amber 
+
+####################################################################################
+
+-- Missing items Kalaen <Master Jewelcrafting Trainer> by Grandres
+DELETE FROM npc_vendor WHERE entry = 18751;
+INSERT INTO npc_vendor VALUES
+(18751,28458,0,0,0), -- Bold Tourmaline
+(18751,28462,0,0,0), -- Bright Tourmaline
+(18751,28466,0,0,0), -- Brilliant Amber
+(18751,28459,0,0,0), -- Delicate Tourmaline
+(18751,23131,0,0,0), -- Design: Bold Blood Garnet
+(18751,28596,0,0,0), -- Design: Bright Blood Garnet
+(18751,23148,0,0,0), -- Design: Brilliant Golden Draenite
+(18751,23137,0,0,0), -- Design: Glinting Flame Spessarite
+(18751,23144,0,0,0), -- Design: Glowing Shadow Draenite
+(18751,23135,0,0,0), -- Design: Inscribed Flame Spessarite
+(18751,23141,0,0,0), -- Design: Jagged Deep Peridot
+(18751,23140,0,0,0), -- Design: Radiant Deep Peridot
+(18751,23151,0,0,0), -- Design: Rigid Golden Draenite
+(18751,28291,0,0,0), -- Design: Smooth Golden Draenite
+(18751,23152,0,0,0), -- Design: Solid Azure Moonstone
+(18751,23147,0,0,0), -- Design: Sovereign Shadow Draenite
+(18751,23153,0,0,0), -- Design: Sparkling Azure Moonstone
+(18751,23130,0,0,0), -- Design: Teardrop Blood Garnet
+(18751,28469,0,0,0), -- Gleaming Amber
+(18751,20815,0,0,0), -- Jeweler's Kite
+(18751,20824,0,0,0), -- Simple Grinder
+(18751,28465,0,0,0), -- Lustrous Zircon
+(18751,28468,0,0,0), -- Rigid Amber
+(18751,28461,0,0,0), -- Runed Tourmaline
+(18751,28467,0,0,0), -- Smooth Amber
+(18751,28463,0,0,0), -- Solid Zircon
+(18751,28464,0,0,0), -- Sparkling Zircon
+(18751,28460,0,0,0), -- Teardrop Tourmaline
+(18751,28470,0,0,0); -- Thick Amber
+
+####################################################################################
 -- Arcanum Enhancements replace items with required reputation 
 -- Note! Nowadays MaNGOS doesn't support required reputation while buying
 DELETE FROM npc_vendor WHERE item IN 
