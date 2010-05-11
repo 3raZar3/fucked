@@ -1,3 +1,15 @@
+####################################################################################
+-- Add Missing gossip menu options into Tatiana (18774), Kalaen (18751) 
+DELETE FROM gossip_menu_option WHERE menu_id IN (7815,7818);
+INSERT INTO gossip_menu_option (menu_id,id,option_icon,option_text,option_id,npc_option_npcflag) VALUES
+(7815,0,0,'GOSSIP_OPTION_QUESTGIVER',2,2),
+(7815,1,3,'Train me.',5,16),
+(7815,2,1,'I want to browse your goods.',3,128),
+(7818,0,0,'GOSSIP_OPTION_QUESTGIVER',2,2),
+(7818,1,3,'Train me.',5,16),
+(7818,2,1,'I want to browse your goods.',3,128);
+
+####################################################################################
 # Dual Talent Specialization - Achievement - patch provided by Steve_o 			
 # Missing gossip_menu option in class trainers - patch provided by Grandres and Koksneo 
 -- Note! I'm not sure of this patch.It is sometimes possible, that we can active 'Learn about Dual Talent Specialization' when we have already learned Dual Specialization.
