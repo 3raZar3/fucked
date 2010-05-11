@@ -303,6 +303,11 @@ MapUpdate.Threads = 2
 #        Default: 0 - don't include dumping chars to log
 #                 1 - include dumping chars to log
 #
+#	CharLogCommand
+#		Save log command used by players
+#		Default: 1 (Enable)
+#                0 (Disabled)
+#
 #    GmLogFile
 #        GM Log file of gm commands
 #        Default: "" (Disable)
@@ -350,6 +355,7 @@ DBErrorLogFile = "DBErrors.log"
 CharLogFile = "Char.log"
 CharLogTimestamp = 0
 CharLogDump = 0
+CharLogCommand = 1
 GmLogFile = ""
 GmLogTimestamp = 0
 GmLogPerAccount = 0
