@@ -6894,6 +6894,7 @@ void Aura::HandleSpellSpecificBoosts(bool apply)
                     {
                         cast_at_remove = true;
                         spellId1 = 61394;
+                    }
                 }
                 else
                     return;
@@ -7010,7 +7011,7 @@ void Aura::HandleSpellSpecificBoosts(bool apply)
                                 {
                                     heal_pct = (*itr)->GetModifier()->m_amount;
                                     break;
-            }
+                                }
                             }
                         }
 
@@ -7036,8 +7037,8 @@ void Aura::HandleSpellSpecificBoosts(bool apply)
                                     (*itr)->GetSpellProto()->SpellIconID == 2633)
                                 {
                                     power_pct = (*itr)->GetModifier()->m_amount;
-            break;
-        }
+                                    break;
+                                }
                             }
                         }
 
@@ -7088,9 +7089,9 @@ void Aura::HandleSpellSpecificBoosts(bool apply)
                                     (*itr)->GetSpellProto()->SpellIconID == 2633)
                                 {
                                     power_pct = (*itr)->GetModifier()->m_amount;
-                    break;
-                }
-            }
+                                    break;
+                                }
+                            }
                         }
 
                         if (power_pct)
