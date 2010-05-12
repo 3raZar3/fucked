@@ -2431,6 +2431,9 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                             // not use ammo and not allow use
                             ((Player*)m_target)->RemoveAmmo();
                         return;
+                    case 48025:                             // Headless Horseman's Mount
+                        Spell::SelectMountByAreaAndSkill(m_target, 51621, 48024, 51617, 48023, 0);
+                        return;
                     case 55328:                                 // Stoneclaw Totem I
                         m_target->CastSpell(m_target, 5728, true);
                         return;
@@ -2479,6 +2482,15 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                         // Teach Learn Talent Specialization Switches, remove
                         if (m_target->GetTypeId() == TYPEID_PLAYER)
                             ((Player*)m_target)->removeSpell(63680);
+                        return;
+                    case 72286:                             // Invincible
+                        Spell::SelectMountByAreaAndSkill(m_target, 72281, 72282, 72283, 72284, 0);
+                        return;
+                    case 74856:                             // Blazing Hippogryph
+                        Spell::SelectMountByAreaAndSkill(m_target, 0, 0, 74854, 74855, 0);
+                        return;
+                    case 75614:                             // Celestial Steed
+                        Spell::SelectMountByAreaAndSkill(m_target, 75619, 75620, 75617, 75618, 76153);
                         return;
                 }
                 break;
@@ -4684,16 +4696,13 @@ void Aura::HandleModTaunt(bool apply, bool Real)
 /*********************************************************/
 /***                  MODIFY SPEED                     ***/
 /*********************************************************/
-void Aura::HandleAuraModIncreaseSpeed(bool apply, bool Real)
+void Aura::HandleAuraModIncreaseSpeed(bool /*apply*/, bool Real)
 {
     // all applied/removed only at real aura add/remove
     if(!Real)
         return;
 
     m_target->UpdateSpeed(MOVE_RUN, true);
-
-    if (apply && GetSpellProto()->Id == 58875)
-        m_target->CastSpell(m_target, 58876, true);
 }
 
 void Aura::HandleAuraModIncreaseMountedSpeed(bool apply, bool Real)
@@ -5198,8 +5207,9 @@ void Aura::HandlePeriodicHeal(bool apply, bool /*Real*/)
         if (m_spellProto->SpellIconID == 329 && m_spellProto->SpellVisual[0] == 7625)
         {
             int32 ap = int32 (0.22f * caster->GetTotalAttackPowerValue(BASE_ATTACK));
-            int32 holy = caster->SpellBaseDamageBonusDone(GetSpellSchoolMask(m_spellProto))
-                + m_target->SpellBaseDamageBonusTaken(GetSpellSchoolMask(m_spellProto));
+            int32 holy = caster->SpellBaseDamageBonusDone(GetSpellSchoolMask(m_spellProto));
+            if  (holy < 0)
+                holy = 0;
             holy = int32(holy * 377 / 1000);
             m_modifier.m_amount += ap > holy ? ap : holy;
         }
@@ -5235,11 +5245,8 @@ void Aura::HandlePeriodicDamage(bool apply, bool Real)
             {
                 // Pounce Bleed
                 if ( m_spellProto->SpellIconID == 147 && m_spellProto->SpellVisual[0] == 0 )
-                {
                     // $AP*0.18/6 bonus per tick
                     m_modifier.m_amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * 3 / 100);
-                    return;
-                }
                 break;
             }
             case SPELLFAMILY_WARRIOR:
@@ -5257,7 +5264,6 @@ void Aura::HandlePeriodicDamage(bool apply, bool Real)
                     if (m_spellProto->CalculateSimpleValue(EFFECT_INDEX_1) !=0 &&
                         m_target->GetHealth() > m_target->GetMaxHealth() * m_spellProto->CalculateSimpleValue(EFFECT_INDEX_1) / 100)
                         m_modifier.m_amount += m_modifier.m_amount * m_spellProto->CalculateSimpleValue(EFFECT_INDEX_2) / 100;
-                    return;
                 }
                 break;
             }
@@ -5265,24 +5271,18 @@ void Aura::HandlePeriodicDamage(bool apply, bool Real)
             {
                 // Rake
                 if (m_spellProto->SpellFamilyFlags & UI64LIT(0x0000000000001000) && m_spellProto->Effect[EFFECT_INDEX_2] == SPELL_EFFECT_ADD_COMBO_POINTS)
-                {
                     // $AP*0.18/3 bonus per tick
                     m_modifier.m_amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * 6 / 100);
-                    return;
-                }
                 // Lacerate
                 if (m_spellProto->SpellFamilyFlags & UI64LIT(0x000000010000000000))
-                {
                     // $AP*0.05/5 bonus per tick
                     m_modifier.m_amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) / 100);
-                    return;
-                }
                 // Rip
                 if (m_spellProto->SpellFamilyFlags & UI64LIT(0x000000000000800000))
                 {
                     // 0.01*$AP*cp
                     if (caster->GetTypeId() != TYPEID_PLAYER)
-                        return;
+                        break;
 
                     uint8 cp = ((Player*)caster)->GetComboPoints();
 
@@ -5297,15 +5297,11 @@ void Aura::HandlePeriodicDamage(bool apply, bool Real)
                         }
                     }
                     m_modifier.m_amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * cp / 100);
-                    return;
                 }
                 // Lock Jaw
                 if (m_spellProto->SpellFamilyFlags & UI64LIT(0x1000000000000000))
-                {
                     // 0.15*$AP
                     m_modifier.m_amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * 15 / 100);
-                    return;
-                }
                 break;
             }
             case SPELLFAMILY_ROGUE:
@@ -5314,7 +5310,7 @@ void Aura::HandlePeriodicDamage(bool apply, bool Real)
                 if (m_spellProto->SpellFamilyFlags & UI64LIT(0x000000000000100000))
                 {
                     if (caster->GetTypeId() != TYPEID_PLAYER)
-                        return;
+                        break;
                     //1 point : ${($m1+$b1*1+0.015*$AP)*4} damage over 8 secs
                     //2 points: ${($m1+$b1*2+0.024*$AP)*5} damage over 10 secs
                     //3 points: ${($m1+$b1*3+0.03*$AP)*6} damage over 12 secs
@@ -5324,40 +5320,27 @@ void Aura::HandlePeriodicDamage(bool apply, bool Real)
                     uint8 cp = ((Player*)caster)->GetComboPoints();
                     if (cp > 5) cp = 5;
                     m_modifier.m_amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * AP_per_combo[cp]);
-                    return;
                 }
                 // Garrote
                 if (m_spellProto->SpellFamilyFlags & UI64LIT(0x000000000000000100))
-                {
                     // $AP*0.07 bonus per tick
                     m_modifier.m_amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * 7 / 100);
-                    return;
-                }
                 // Deadly Poison
                 if (m_spellProto->SpellFamilyFlags & UI64LIT(0x0000000000010000))
-                {
                     // 0.12*$AP / 4 * amount of stack
                     m_modifier.m_amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * 3 * GetStackAmount() / 100);
-                    return;
-                }
                 break;
             }
             case SPELLFAMILY_HUNTER:
             {
                 // Serpent Sting
                 if (m_spellProto->SpellFamilyFlags & UI64LIT(0x0000000000004000))
-                {
                     // $RAP*0.2/5 bonus per tick
                     m_modifier.m_amount += int32(caster->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.2 / 5);
-                    return;
-                }
                 // Immolation Trap
                 if ((m_spellProto->SpellFamilyFlags & UI64LIT(0x0000000000000004)) && m_spellProto->SpellIconID == 678)
-                {
                     // $RAP*0.1/5 bonus per tick
                     m_modifier.m_amount += int32(caster->GetTotalAttackPowerValue(RANGED_ATTACK) * 10 / 500);
-                    return;
-                }
                 break;
             }
             case SPELLFAMILY_PALADIN:
@@ -5367,10 +5350,10 @@ void Aura::HandlePeriodicDamage(bool apply, bool Real)
                 {
                     // AP * 0.025 + SPH * 0.013 bonus per tick
                     float ap = caster->GetTotalAttackPowerValue(BASE_ATTACK);
-                    int32 holy = caster->SpellBaseDamageBonusDone(GetSpellSchoolMask(m_spellProto)) +
-                                 GetTarget()->SpellBaseDamageBonusTaken(GetSpellSchoolMask(m_spellProto));
+                    int32 holy = caster->SpellBaseDamageBonusDone(GetSpellSchoolMask(m_spellProto));
+                    if (holy < 0)
+                        holy = 0;
                     m_modifier.m_amount += int32(GetStackAmount()) * (int32(ap * 0.025f) + int32(holy * 13 / 1000));
-                    return;
                 }
                 break;
             }
@@ -6900,8 +6883,23 @@ void Aura::HandleSpellSpecificBoosts(bool apply)
                 default:
                     break;
             }
+            // Freezing Trap Effect
+            if (m_spellProto->SpellFamilyFlags & UI64LIT(0x0000000000000008))
+            {
+                if(!apply)
+                {
+                    Unit *caster = GetCaster();
+                    // Glyph of Freezing Trap
+                    if (caster && caster->HasAura(56845))
+                    {
+                        cast_at_remove = true;
+                        spellId1 = 61394;
+                }
+                else
+                    return;
+            }
             // Aspect of the Dragonhawk dodge
-            if (GetSpellProto()->SpellFamilyFlags2 & 0x00001000)
+            else if (GetSpellProto()->SpellFamilyFlags2 & 0x00001000)
             {
                 spellId1 = 61848;
 
@@ -6909,19 +6907,8 @@ void Aura::HandleSpellSpecificBoosts(bool apply)
                 if (apply && m_target->GetTypeId()==TYPEID_PLAYER)
                     ((Player*)m_target)->RemoveSpellCooldown(61848);
             }
-            // Freezing Trap Effect
-            else if (m_spellProto->SpellFamilyFlags & UI64LIT(0x0000000000000008))
-            {
-                if(!apply)
-                {
-                    // Glyph of Freezing Trap
-                    if (Unit *caster = GetCaster())
-                        if (caster->HasAura(56845))
-                            m_target->CastSpell(m_target, 61394, true, NULL, this, GetCasterGUID());
-                }
-                else
-                    return;
-            }
+            else
+                return;
             break;
         }
         case SPELLFAMILY_PALADIN:
@@ -8977,29 +8964,6 @@ void Aura::HandleAuraModAllCritChance(bool apply, bool Real)
     ((Player*)m_target)->UpdateAllSpellCritChances();
 }
 
-void Aura::HandleAllowOnlyAbility(bool apply, bool Real)
-{
-    if(!Real)
-       return;
-
-    if(apply)
-    {
-       m_target->setAttackTimer(BASE_ATTACK,m_duration);
-       m_target->setAttackTimer(RANGED_ATTACK,m_duration);
-       m_target->setAttackTimer(OFF_ATTACK,m_duration);
-    }
-    else
-    {
-       m_target->resetAttackTimer(BASE_ATTACK);
-       m_target->resetAttackTimer(RANGED_ATTACK);
-       m_target->resetAttackTimer(OFF_ATTACK);
-    }
-
-    m_target->UpdateDamagePhysical(BASE_ATTACK);
-    m_target->UpdateDamagePhysical(RANGED_ATTACK);
-    m_target->UpdateDamagePhysical(OFF_ATTACK);
-}
-
 void Aura::HandleAuraInitializeImages(bool Apply, bool Real)
 {
     if (!Real || !Apply || !m_target || m_target->GetTypeId() != TYPEID_UNIT)
@@ -9071,3 +9035,25 @@ void Aura::HandleAuraOpenStable(bool apply, bool Real)
     ((Player*)caster)->GetSession()->HandleListStabledPetsOpcode(data);
 }
 
+void Aura::HandleAllowOnlyAbility(bool apply, bool Real)
+{
+    if(!Real)
+        return;
+
+    if(apply)
+    {
+        m_target->setAttackTimer(BASE_ATTACK,m_duration);
+        m_target->setAttackTimer(RANGED_ATTACK,m_duration);
+        m_target->setAttackTimer(OFF_ATTACK,m_duration);
+    }
+    else
+    {
+        m_target->resetAttackTimer(BASE_ATTACK);
+        m_target->resetAttackTimer(RANGED_ATTACK);
+        m_target->resetAttackTimer(OFF_ATTACK);
+    }
+
+    m_target->UpdateDamagePhysical(BASE_ATTACK);
+    m_target->UpdateDamagePhysical(RANGED_ATTACK);
+    m_target->UpdateDamagePhysical(OFF_ATTACK);
+}
