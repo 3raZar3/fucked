@@ -12,8 +12,3 @@ UPDATE creature_template SET
 ScriptName='',
 AIName='EventAI'
 WHERE entry=28416;
-
--- item required target for Tormentor's Incense(38696)
-DELETE FROM item_required_target WHERE entry=38696;
-INSERT INTO item_required_target VALUES
-(38696,1,28416);
