@@ -16,14 +16,10 @@
 
 /* ScriptData
 SDName: Boss Loken
-SD%Complete: 90%
-SDComment: Originaly by sd2 modified by ScrappyDoo (c) Andeeria
+SD%Complete: 60%
+SDComment: Missing intro. Remove hack of Pulsing Shockwave when core supports. Aura is not working (59414)
 SDCategory: Halls of Lightning
 EndScriptData */
-
-/* todo
-arc ligting  aoe hit everyone?
-*/
 
 #include "precompiled.h"
 #include "halls_of_lightning.h"
@@ -71,10 +67,7 @@ struct MANGOS_DLL_DECL boss_lokenAI : public ScriptedAI
 
     bool m_bIsRegularMode;
     bool m_bIsAura;
-    bool m_bHasTaunted;
 
-    uint8  m_uiIntroCount;
-    uint32 m_uiIntroTimer;
     uint32 m_uiArcLightning_Timer;
     uint32 m_uiLightningNova_Timer;
     uint32 m_uiPulsingShockwave_Timer;
@@ -85,10 +78,7 @@ struct MANGOS_DLL_DECL boss_lokenAI : public ScriptedAI
     void Reset()
     {
         m_bIsAura = false;
-        m_bHasTaunted = false;
 
-        m_uiIntroCount = 0;
-        m_uiIntroTimer = 10000;
         m_uiArcLightning_Timer = 15000;
         m_uiLightningNova_Timer = 20000;
         m_uiPulsingShockwave_Timer = 2000;
@@ -98,16 +88,6 @@ struct MANGOS_DLL_DECL boss_lokenAI : public ScriptedAI
 
         if (m_pInstance)
             m_pInstance->SetData(TYPE_LOKEN, NOT_STARTED);
-    }
-
-    void MoveInLineOfSight(Unit* pWho)
-    {
-        if (!m_bHasTaunted && m_creature->IsWithinDistInMap(pWho, 120.0f))
-        {
-            m_bHasTaunted = true;
-        }
-
-        ScriptedAI::MoveInLineOfSight(pWho);
     }
 
     void Aggro(Unit* pWho)
@@ -138,20 +118,6 @@ struct MANGOS_DLL_DECL boss_lokenAI : public ScriptedAI
 
     void UpdateAI(const uint32 uiDiff)
     {
-        if(m_bHasTaunted)
-            if(m_uiIntroTimer < uiDiff)
-            {
-                switch(m_uiIntroCount)
-                {
-                    case 0:DoScriptText(SAY_INTRO_1, m_creature);break;
-                    case 1:DoScriptText(SAY_INTRO_2, m_creature);break;
-                    default: break;
-                }
-                if(m_uiIntroCount < 3)
-                ++m_uiIntroCount;
-                m_uiIntroTimer = 20000;
-            }else m_uiIntroTimer -= uiDiff;
-
         //Return since we have no target
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
@@ -159,7 +125,7 @@ struct MANGOS_DLL_DECL boss_lokenAI : public ScriptedAI
         if (m_bIsAura)
         {
             // workaround for PULSING_SHOCKWAVE
-            if (m_uiPulsingShockwave_Timer < uiDiff)
+            /*if (m_uiPulsingShockwave_Timer < uiDiff)
             {
                 Map *map = m_creature->GetMap();
                 if (map->IsDungeon())
@@ -178,13 +144,13 @@ struct MANGOS_DLL_DECL boss_lokenAI : public ScriptedAI
                             if (m_fDist <= 1.0f) // Less than 1 yard
                                 dmg = (m_bIsRegularMode ? 800 : 850); // need to correct damage
                             else // Further from 1 yard
-                                dmg = ((m_bIsRegularMode ? 200 : 250) * m_fDist) + (m_bIsRegularMode ? 800 : 850); // need to correct damage
+                                dmg = round((m_bIsRegularMode ? 200 : 250) * m_fDist) + (m_bIsRegularMode ? 800 : 850); // need to correct damage
 
                             m_creature->CastCustomSpell(i->getSource(), (m_bIsRegularMode ? 52942 : 59837), &dmg, 0, 0, false);
                         }
                 }
                 m_uiPulsingShockwave_Timer = 2000;
-            }else m_uiPulsingShockwave_Timer -= uiDiff;
+            }else m_uiPulsingShockwave_Timer -= uiDiff;*/
         }
         else
         {
