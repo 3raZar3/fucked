@@ -22,6 +22,50 @@ UPDATE quest_template SET
 PrevQuestId = 910,
 RequiredRaces = 690
 WHERE entry IN (925,915);
+
+###############   BE and Draenei version (TBC)    #########################################################################
+-- All 3 are availeble after finishing Children's Week (horde TBC)
+UPDATE quest_template SET
+PrevQuestId = 10942,
+ExclusiveGroup = -10951,
+RequiredRaces = 690
+WHERE entry IN (10945,10953,10951);
+
+-- Both availeble after finishing Hch'uu and the Mushroom People, Visit the Throne of the Elements, A Trip to the Dark Portal (horde TBC)
+UPDATE quest_template SET
+PrevQuestId = 10951,
+ExclusiveGroup = -10963,
+RequiredRaces = 690
+WHERE entry IN (11975,10963);
+
+UPDATE quest_template SET
+PrevQuestId = 10963,
+RequiredRaces = 690
+WHERE entry = 10967;
+
+-- according to wowhead comments this is no longer valid quest (replaced by 11975)
+DELETE FROM creature_questrelation WHERE quest = 10960;
+DELETE FROM creature_involvedrelation WHERE quest = 10960;
+
+-- All 3 are availeble after finishing Children's Week (alliance TBC)
+UPDATE quest_template SET
+PrevQuestId = 10943,
+ExclusiveGroup = -10950,
+RequiredRaces = 1101
+WHERE entry IN (10950,10952,10954);
+
+-- Both availeble after finishing Auchindoun and the Ring of Observance, Jheel is at Aeris Landing!, A Trip to the Dark Portal (alliance TBC)
+UPDATE quest_template SET
+PrevQuestId = 10950,
+ExclusiveGroup = -10956,
+RequiredRaces = 1101
+WHERE entry IN (10956,10962);
+
+UPDATE quest_template SET
+PrevQuestId = 10956,
+RequiredRaces = 1101
+WHERE entry = 10966;
+
    
 DELETE FROM gossip_menu_option WHERE menu_id IN (5849,5848,20002,5851);
 INSERT INTO gossip_menu_option VALUES
@@ -91,6 +135,10 @@ INSERT INTO areatrigger_scripts VALUES
 DELETE FROM character_queststatus WHERE quest IN (172,1800,910,911,925,925,5502);
 -- human chain
 DELETE FROM character_queststatus WHERE quest IN (1468,1687,1558,1479,4822,558,171);
+-- BE chain (TBC)
+DELETE FROM character_queststatus WHERE quest IN (10942,10945,10953,10951,11975,10963,10967,10960);
+-- Draenei chain (TBC)
+DELETE FROM character_queststatus WHERE quest IN (10943,10950,10952,10954,10956,10962,10966);
 -- whistles
-DELETE FROM character_inventory WHERE item_template IN (18598,18597);
+DELETE FROM character_inventory WHERE item_template IN (18598,18597,31880,31881);
 */
