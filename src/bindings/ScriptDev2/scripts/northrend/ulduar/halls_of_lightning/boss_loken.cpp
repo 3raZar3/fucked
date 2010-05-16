@@ -113,7 +113,7 @@ struct MANGOS_DLL_DECL boss_lokenAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit* pWho)
     {
-        if (pWho && !pWho->HasAura(SPELL_PULSING_SHOCKWAVE_AURA))
+        if (m_creature->isInCombat() && pWho && !pWho->HasAura(SPELL_PULSING_SHOCKWAVE_AURA))
             DoCastSpellIfCan(m_creature, SPELL_PULSING_SHOCKWAVE_AURA, CAST_TRIGGERED);
 
         ScriptedAI::MoveInLineOfSight(pWho);

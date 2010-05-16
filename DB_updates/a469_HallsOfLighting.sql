@@ -43,7 +43,7 @@ INSERT INTO `creature_movement` (`id`, `point`, `position_x`, `position_y`, `pos
 #################### Volkhan ####################################################################################
 
 -- Anvil trap (visual) - will be summoned using propper spell
-DELETE FROM gameobject WHERE id  = 190858
+DELETE FROM gameobject WHERE id  = 190858;
 
 DELETE FROM spell_script_target WHERE entry IN (52238,52661,52654,52387,59528);
 INSERT INTO spell_script_target VALUES
@@ -56,6 +56,11 @@ INSERT INTO spell_script_target VALUES
 -- Heat & Molten Golem
 (52387, 1, 28695),
 (59528, 1, 28695);
+
+-- Pulsing Shockwave Aura should be removed outside Halls of Lightning (maybe even when Loken's encounter != IN_PROGRESS ?)
+DELETE FROM spell_area WHERE spell = 59414;
+INSERT INTO spell_area VALUES
+(59414,4272,0,0,0,0,0,2,0);
 
 /*-- HallsOfLighting::Bengram
 UPDATE creature_template SET `mechanic_immune_mask` = mechanic_immune_mask|1073463287 WHERE `entry` IN (31533,28586);
