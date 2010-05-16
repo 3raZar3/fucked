@@ -378,7 +378,7 @@ struct MANGOS_DLL_DECL boss_kelthuzadAI : public ScriptedAI
 
         if (!manaPositive.empty())
         {
-            std::list<uint64>::iterator m_uiPlayerGUID;
+            std::list<uint64>::iterator m_uiPlayerGUID = manaPositive.begin();
             advance(m_uiPlayerGUID, (rand()%manaPositive.size()));
             if (Unit* pTemp = Unit::GetUnit(*m_creature, *m_uiPlayerGUID))
                 return pTemp;
@@ -497,10 +497,9 @@ struct MANGOS_DLL_DECL boss_kelthuzadAI : public ScriptedAI
                     {
                         if (urand(0, 1))
                             DoScriptText(SAY_SPECIAL1_MANA_DET, m_creature);
-
-                        m_uiManaDetonationTimer = 20000;
                     }
                 }
+                m_uiManaDetonationTimer = 20000;
             }
             else
                 m_uiManaDetonationTimer -= uiDiff;
@@ -513,10 +512,9 @@ struct MANGOS_DLL_DECL boss_kelthuzadAI : public ScriptedAI
                     {
                         if (urand(0, 1))
                             DoScriptText(SAY_SPECIAL3_MANA_DET, m_creature);
-
-                        m_uiShadowFissureTimer = 25000;
                     }
                 }
+                m_uiShadowFissureTimer = 25000;
             }
             else
                 m_uiShadowFissureTimer -= uiDiff;
