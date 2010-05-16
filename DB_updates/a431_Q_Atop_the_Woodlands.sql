@@ -15,7 +15,7 @@ WHERE entry=26831;
 
 DELETE FROM creature_ai_scripts WHERE id=2683101;
 INSERT INTO creature_ai_scripts VALUES
-(2683101,26831,8,0,100,0,50547,-1,0,0,16,26831,50547,6,41,0,0,0,0,0,0,0,'Atop the Woodlands Kill Credit Bunny - Quest Credit after spell hit');
+(2683101,26831,8,0,100,1,47469,-1,0,0,16,26831,50547,6,0,0,0,0,0,0,0,0,'Atop the Woodlands Kill Credit Bunny - Quest Credit after spell hit');
 
 DELETE FROM spell_script_target WHERE entry=50547;
 INSERT INTO spell_script_target VALUES
