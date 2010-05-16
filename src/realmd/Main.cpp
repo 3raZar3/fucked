@@ -91,6 +91,7 @@ extern int main(int argc, char **argv)
             {
                 sLog.outError("Runtime-Error: -c option requires an input argument");
                 usage(argv[0]);
+                Log::WaitBeforeContinueIfNeed();
                 return 1;
             }
             else
@@ -113,6 +114,7 @@ extern int main(int argc, char **argv)
             {
                 sLog.outError("Runtime-Error: -s option requires an input argument");
                 usage(argv[0]);
+                Log::WaitBeforeContinueIfNeed();
                 return 1;
             }
             if( strcmp(argv[c],"install") == 0)
@@ -131,6 +133,7 @@ extern int main(int argc, char **argv)
             {
                 sLog.outError("Runtime-Error: unsupported option %s",argv[c]);
                 usage(argv[0]);
+                Log::WaitBeforeContinueIfNeed();
                 return 1;
             }
         }
@@ -146,6 +149,7 @@ extern int main(int argc, char **argv)
     if (!sConfig.SetSource(cfg_file))
     {
         sLog.outError("Could not find configuration file %s.", cfg_file);
+        Log::WaitBeforeContinueIfNeed();
         return 1;
     }
     sLog.Initialize();
@@ -163,9 +167,7 @@ extern int main(int argc, char **argv)
         sLog.outError("          Please check for updates, as your current default values may cause");
         sLog.outError("          strange behavior.");
         sLog.outError("*****************************************************************************");
-        clock_t pause = 3000 + clock();
-
-        while (pause > clock()) {}
+        Log::WaitBeforeContinueIfNeed();
     }
 
     DETAIL_LOG("%s (Library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
@@ -183,6 +185,7 @@ extern int main(int argc, char **argv)
         if( !pid )
         {
             sLog.outError( "Cannot create PID file %s.\n", pidfile.c_str() );
+            Log::WaitBeforeContinueIfNeed();
             return 1;
         }
 
@@ -191,13 +194,17 @@ extern int main(int argc, char **argv)
 
     ///- Initialize the database connection
     if(!StartDB())
+    {
+        Log::WaitBeforeContinueIfNeed();
         return 1;
+    }
 
     ///- Get the list of realms for the server
     sRealmList.Initialize(sConfig.GetIntDefault("RealmsStateUpdateDelay", 20));
     if (sRealmList.size() == 0)
     {
         sLog.outError("No valid realms specified.");
+        Log::WaitBeforeContinueIfNeed();
         return 1;
     }
 
@@ -210,6 +217,7 @@ extern int main(int argc, char **argv)
     if ( authListenSocket.Bind(bind_ip.c_str(),rmport))
     {
         sLog.outError( "MaNGOS realmd can not bind to %s:%d",bind_ip.c_str(), rmport );
+        Log::WaitBeforeContinueIfNeed();
         return 1;
     }
 
