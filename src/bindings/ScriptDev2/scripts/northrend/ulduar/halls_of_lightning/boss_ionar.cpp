@@ -109,7 +109,7 @@ struct MANGOS_DLL_DECL boss_ionarAI : public ScriptedAI
         AttackStart(pAttacker);
     }
 
-    void Aggro(Unit* who)
+    void Aggro(Unit* pWho)
     {
         DoScriptText(SAY_AGGRO, m_creature);
 
@@ -136,7 +136,7 @@ struct MANGOS_DLL_DECL boss_ionarAI : public ScriptedAI
         }
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* pKiller)
     {
         DoScriptText(SAY_DEATH, m_creature);
         DespawnSpark();
@@ -145,7 +145,7 @@ struct MANGOS_DLL_DECL boss_ionarAI : public ScriptedAI
             m_pInstance->SetData(TYPE_IONAR, DONE);
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit *pVictim)
     {
         switch(urand(0, 2))
         {
@@ -275,7 +275,8 @@ struct MANGOS_DLL_DECL boss_ionarAI : public ScriptedAI
 
         if (m_uiBallLightning_Timer < uiDiff)
         {
-            DoCastSpellIfCan(m_creature->getVictim(), m_bIsRegularMode ? SPELL_BALL_LIGHTNING_N : SPELL_BALL_LIGHTNING_H);
+            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
+                m_creature->CastSpell(pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), m_bIsRegularMode ? SPELL_BALL_LIGHTNING_N : SPELL_BALL_LIGHTNING_H, false, NULL, NULL, m_creature->GetGUID());
             m_uiBallLightning_Timer = urand(10000, 11000);
         }
         else
@@ -364,6 +365,8 @@ struct MANGOS_DLL_DECL mob_spark_of_ionarAI : public ScriptedAI
                 m_creature->ForcedDespawn();
         }
     }
+
+    void UpdateAI(const uint32 uiDiff) {}
 };
 
 CreatureAI* GetAI_mob_spark_of_ionar(Creature* pCreature)
