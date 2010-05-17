@@ -701,16 +701,24 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
         bool bRewardIsAllowed = true;
         if (pVictim->GetTypeId() == TYPEID_UNIT)
         {
+            bRewardIsAllowed = ((Creature*)pVictim)->AreLootAndRewardAllowed();
+            if(!bRewardIsAllowed)
+                ((Creature*)pVictim)->SetLootRecipient(NULL);
+        }
+        if (bRewardIsAllowed && pVictim->GetTypeId() == TYPEID_UNIT)
+        {
             group_tap = ((Creature*)pVictim)->GetGroupLootRecipient();
 
             if (Player* recipient = ((Creature*)pVictim)->GetOriginalLootRecipient())
-				if (bRewardIsAllowed)
-                    player_tap = recipient;
+                player_tap = recipient;
         }
 
         if (pVictim->GetTypeId() == TYPEID_PLAYER)
         {
-            ((Player*)pVictim)->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_TOTAL_DAMAGE_RECEIVED, health);
+            if(GetTypeId() == TYPEID_PLAYER)
+                group_tap = ((Player*)this)->GetGroup();
+
+			((Player*)pVictim)->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_TOTAL_DAMAGE_RECEIVED, health);
             if (player_tap)
                 player_tap->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_SPECIAL_PVP_KILL,1,0,pVictim);
         }
