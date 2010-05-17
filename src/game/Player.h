@@ -120,7 +120,6 @@ struct PlayerTalent
 
 typedef UNORDERED_MAP<uint32, PlayerSpell> PlayerSpellMap;
 typedef UNORDERED_MAP<uint32, PlayerTalent> PlayerTalentMap;
-
 // Spell modifier (used for modify other spells)
 struct SpellModifier
 {
@@ -1094,7 +1093,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         std::string afkMsg;
         std::string dndMsg;
 
-        uint32 GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 newfacialhair);
+        uint32 GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 newfacialhair, BarberShopStyleEntry const* newSkin=NULL);
 
         PlayerSocial *GetSocial() { return m_social; }
 
@@ -1367,7 +1366,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         void AddArmorProficiency(uint32 newflag) { m_ArmorProficiency |= newflag; }
         uint32 GetWeaponProficiency() const { return m_WeaponProficiency; }
         uint32 GetArmorProficiency() const { return m_ArmorProficiency; }
-        bool IsUseEquipedWeapon( bool mainhand ) const
+		bool IsUseEquipedWeapon( bool mainhand ) const
         {
             // disarm applied only to mainhand weapon
             return !IsInFeralForm() && (!mainhand || !HasFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_DISARMED) );
@@ -2495,7 +2494,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         /***                   LOAD SYSTEM                     ***/
         /*********************************************************/
 
-        void _LoadActions(QueryResult *result);
+        void _LoadActions(QueryResult *result, bool startup);
         void _LoadAuras(QueryResult *result, uint32 timediff);
         void _LoadBoundInstances(QueryResult *result);
         void _LoadInventory(QueryResult *result, uint32 timediff);

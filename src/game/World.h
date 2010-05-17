@@ -107,7 +107,7 @@ enum eConfigUInt32Values
     CONFIG_UINT32_MIN_LEVEL_FOR_HEROIC_CHARACTER_CREATING,
     CONFIG_UINT32_SKIP_CINEMATICS,
     CONFIG_UINT32_MAX_PLAYER_LEVEL,
-    CONFIG_UINT32_START_PLAYER_LEVEL,
+	CONFIG_UINT32_START_PLAYER_LEVEL,
     CONFIG_UINT32_START_HEROIC_PLAYER_LEVEL,
     CONFIG_UINT32_START_PLAYER_MONEY,
     CONFIG_UINT32_MAX_HONOR_POINTS,
@@ -334,9 +334,10 @@ enum eConfigFloatValues
 enum eConfigBoolValues
 {
     CONFIG_BOOL_GRID_UNLOAD = 0,
-    CONFIG_BOOL_SAVE_RESPAWN_TIME_IMMEDIATLY,
+	CONFIG_BOOL_SAVE_RESPAWN_TIME_IMMEDIATLY,
     CONFIG_BOOL_OFFHAND_CHECK_AT_TALENTS_RESET,
     CONFIG_BOOL_ARENA_SEASON_IN_PROGRESS,
+	CONFIG_OFFHAND_CHECK_AT_SPELL_UNLEARN,
     CONFIG_BOOL_ALLOW_TWO_SIDE_ACCOUNTS,
     CONFIG_BOOL_ALLOW_TWO_SIDE_INTERACTION_CHAT,
     CONFIG_BOOL_ALLOW_TWO_SIDE_INTERACTION_CHANNEL,
@@ -662,6 +663,7 @@ class World
         bool IsFFAPvPRealm() { return getConfig(CONFIG_UINT32_GAME_TYPE) == REALM_TYPE_FFA_PVP; }
 
         void KickAll();
+        void ResetRealmId();
         void KickAllLess(AccountTypes sec);
         BanReturn BanAccount(BanMode mode, std::string nameOrIP, std::string duration, std::string reason, std::string author);
         bool RemoveBanAccount(BanMode mode, std::string nameOrIP);
@@ -721,6 +723,7 @@ class World
         //used Script version
         void SetScriptsVersion(char const* version) { m_ScriptsVersion = version ? version : "unknown scripting library"; }
         char const* GetScriptsVersion() { return m_ScriptsVersion.c_str(); }
+        ACE_Thread_Mutex m_spellUpdateLock;
 
     protected:
         void _UpdateGameTime();

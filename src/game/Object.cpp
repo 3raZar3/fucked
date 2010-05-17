@@ -1090,7 +1090,7 @@ void Object::BuildUpdateData( UpdateDataMapType& /*update_players */)
 }
 
 WorldObject::WorldObject()
-    : m_currMap(NULL), m_zoneScript(NULL), m_mapId(0), m_InstanceId(0), m_phaseMask(PHASEMASK_NORMAL),
+    : m_currMap(NULL), m_zoneScript(NULL), m_mapId(0), m_InstanceId(0), m_phaseMask(PHASEMASK_NORMAL), m_groupLootTimer(0), m_groupLootId(0),
     m_positionX(0.0f), m_positionY(0.0f), m_positionZ(0.0f), m_orientation(0.0f)
 {
 }
@@ -1248,8 +1248,32 @@ bool WorldObject::IsWithinLOS(float ox, float oy, float oz) const
 {
     float x,y,z;
     GetPosition(x,y,z);
+
+    z += 2.0f;
+    oz += 2.0f;
+
+    // check for line of sight because of terrain height differences
+    Map const *map = GetBaseMap();
+    float dx = ox - x, dy = oy - y, dz = oz - z;
+    float dist = sqrt(dx*dx + dy*dy + dz*dz);
+    if (dist > ATTACK_DISTANCE && dist < MAX_VISIBILITY_DISTANCE)
+    {
+        uint32 steps = uint32(dist / TERRAIN_LOS_STEP_DISTANCE);
+        float step_dist = dist / (float)steps;  // to make sampling intervals symmetric in both directions
+        float inc_factor = step_dist / dist;
+        float incx = dx*inc_factor, incy = dy*inc_factor, incz = dz*inc_factor;
+        float px = x, py = y, pz = z;
+        for (; steps; --steps)
+        {
+            if (map->GetHeight(px, py, pz, false) > pz)
+                return false;  // found intersection with ground
+            px += incx;
+            py += incy;
+            pz += incz;
+        }
+    }
     VMAP::IVMapManager *vMapManager = VMAP::VMapFactory::createOrGetVMapManager();
-    return vMapManager->isInLineOfSight(GetMapId(), x, y, z+2.0f, ox, oy, oz+2.0f);
+    return vMapManager->isInLineOfSight(GetMapId(), x, y, z, ox, oy, oz);
 }
 
 bool WorldObject::GetDistanceOrder(WorldObject const* obj1, WorldObject const* obj2, bool is3D /* = true */) const
@@ -2011,6 +2035,24 @@ void WorldObject::BuildUpdateData( UpdateDataMapType & update_players)
     Cell::VisitWorldObjects(this, notifier, GetMap()->GetVisibilityDistance());
 
     ClearUpdateMask(false);
+}
+
+void WorldObject::StartGroupLoot( Group* group, uint32 timer )
+{
+    m_groupLootId = group->GetId();
+    m_groupLootTimer = timer;
+}
+
+void WorldObject::StopGroupLoot()
+{
+    if (!m_groupLootId)
+        return;
+
+    if (Group* group = sObjectMgr.GetGroupById(m_groupLootId))
+        group->EndRoll();
+
+    m_groupLootTimer = 0;
+    m_groupLootId = 0;
 }
 
 bool WorldObject::IsControlledByPlayer() const

@@ -564,8 +564,10 @@ void World::LoadConfigSettings(bool reload)
     if (reload)
         sMapMgr.SetGridCleanUpDelay(getConfig(CONFIG_UINT32_INTERVAL_GRIDCLEAN));
 
+    setConfig(CONFIG_UINT32_NUMTHREADS, "MapUpdate.Threads", 2);
+
     setConfigMin(CONFIG_UINT32_INTERVAL_MAPUPDATE, "MapUpdateInterval", 100, MIN_MAP_UPDATE_DELAY);
-    if (reload)
+    if(reload)
         sMapMgr.SetMapUpdateInterval(getConfig(CONFIG_UINT32_INTERVAL_MAPUPDATE));
 
     setConfig(CONFIG_UINT32_INTERVAL_CHANGEWEATHER, "ChangeWeatherInterval", 10 * MINUTE * IN_MILLISECONDS);
@@ -661,7 +663,7 @@ void World::LoadConfigSettings(bool reload)
     setConfig(CONFIG_UINT32_MAIL_DELIVERY_DELAY, "MailDeliveryDelay", HOUR);
 
     setConfigPos(CONFIG_UINT32_UPTIME_UPDATE, "UpdateUptimeInterval", 10);
-    if (reload)
+    if(reload)
     {
         m_timers[WUPDATE_UPTIME].SetInterval(getConfig(CONFIG_UINT32_UPTIME_UPDATE)*MINUTE*IN_MILLISECONDS);
         m_timers[WUPDATE_UPTIME].Reset();
@@ -800,7 +802,7 @@ void World::LoadConfigSettings(bool reload)
         else
             sLog.outError("ClientCacheVersion can't be negative %d, ignored.", clientCacheId);
     }
-
+	
     setConfig(CONFIG_UINT32_INSTANT_LOGOUT, "InstantLogout", SEC_MODERATOR);
 
     setConfigMin(CONFIG_UINT32_GUILD_EVENT_LOG_COUNT, "Guild.EventLogRecordsCount", GUILD_EVENTLOG_MAX_RECORDS, GUILD_EVENTLOG_MAX_RECORDS);
@@ -1781,6 +1783,12 @@ void World::KickAll()
     // session not removed at kick and will removed in next update tick
     for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
         itr->second->KickPlayer();
+}
+
+// Reset active_realm_id from account table
+void World::ResetRealmId()
+{
+    loginDatabase.PQuery("UPDATE account SET active_realm_id = 0 WHERE active_realm_id = %d", realmID);
 }
 
 /// Kick (and save) all players with security level less `sec`

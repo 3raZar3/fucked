@@ -485,7 +485,7 @@ void WorldSession::HandleQueryQuestsCompleted( WorldPacket & /*recv_data */)
     SendPacket(&data);
 }
 
-void WorldSession::HandleQuestPOIQuery(WorldPacket& recv_data)
+void WorldSession::HandleQuestPOIQuery(WorldPacket & recv_data)
 {
     uint32 count;
     recv_data >> count;                                     // quest count, max=25

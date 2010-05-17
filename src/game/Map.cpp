@@ -2463,7 +2463,10 @@ bool InstanceMap::Add(Player *player)
                                 sLog.outError("GroupBind save players: %d, group count: %d", groupBind->save->GetPlayerCount(), groupBind->save->GetGroupCount());
                             else
                                 sLog.outError("GroupBind save NULL");
-                            player->RepopAtGraveyard();
+                            if (WorldSafeLocsEntry const *ClosestGrave = sObjectMgr.GetClosestGraveYard(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), player->GetTeam() ))
+                                player->RepopAtGraveyard();
+                            else player->RelocateToHomebind();
+                            //assert(false);
                         }
                         // if the group/leader is permanently bound to the instance
                         // players also become permanently bound when they enter
@@ -2481,9 +2484,16 @@ bool InstanceMap::Add(Player *player)
                     // set up a solo bind or continue using it
                     if(!playerBind)
                         player->BindToInstance(mapSave, false);
-                    else
+                    else if (playerBind->save != mapSave)
+                    {
                         // cannot jump to a different instance without resetting it
-                        ASSERT(playerBind->save == mapSave);
+                        // lets send him to nearest graveyard or homebind
+                        if (WorldSafeLocsEntry const *ClosestGrave = sObjectMgr.GetClosestGraveYard(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), player->GetTeam() ))
+                            player->RepopAtGraveyard();
+                        else player->RelocateToHomebind();
+                        error_log("Player %s (GUID %u) logged into instance which is not bound to. Cheat, exploit?",player->GetName(),player->GetGUID());
+                        //assert(playerBind->save == mapSave);
+                    }
                 }
             }
         }
@@ -3644,19 +3654,15 @@ WorldObject* Map::GetWorldObject(ObjectGuid guid)
 void Map::SendObjectUpdates()
 {
     UpdateDataMapType update_players;
+    for(std::set<Object*>::const_iterator it = i_objectsToClientUpdate.begin();it!= i_objectsToClientUpdate.end();++it)
+        (*it)->BuildUpdateData(update_players);
 
-    while(!i_objectsToClientUpdate.empty())
-    {
-        Object* obj = *i_objectsToClientUpdate.begin();
-        i_objectsToClientUpdate.erase(i_objectsToClientUpdate.begin());
-        obj->BuildUpdateData(update_players);
-    }
-
+    i_objectsToClientUpdate.clear();
     WorldPacket packet;                                     // here we allocate a std::vector with a size of 0x10000
     for(UpdateDataMapType::iterator iter = update_players.begin(); iter != update_players.end(); ++iter)
     {
-        iter->second.BuildPacket(&packet);
-        iter->first->GetSession()->SendPacket(&packet);
+        if (iter->second.BuildPacket(&packet))
+            iter->first->GetSession()->SendPacket(&packet);
         packet.clear();                                     // clean the string
     }
 }

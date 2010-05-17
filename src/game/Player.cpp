@@ -1357,6 +1357,7 @@ void Player::Update( uint32 p_time )
             RegenerateAll();
     }
 
+    // make dead players realy dead
     if (!isAlive() && !HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
         SetHealth(0);
 
@@ -2214,14 +2215,11 @@ Creature* Player::GetNPCIfCanInteractWith(ObjectGuid guid, uint32 npcflagmask)
     if (guid.IsEmpty() || !IsInWorld() || isInFlight())
         return NULL;
 
-    // needed by Aura 292
-    if (GetGUID() == guid.GetRawValue())
-        return ((Creature*)this);
     // not in interactive state
     if (hasUnitState(UNIT_STAT_CAN_NOT_REACT))
         return NULL;
 
-    // needed by Aura 292
+    //needed for call stabled pet
     if (GetGUID() == guid.GetRawValue())
         return ((Creature*)this);
 
@@ -2966,7 +2964,7 @@ bool Player::addSpell(uint32 spell_id, bool active, bool learning, bool dependen
     if (!spellInfo)
     {
         // do character spell book cleanup (all characters)
-        if(!IsInWorld() && !learning)                       // spell load case
+        if (!IsInWorld() && !learning)                      // spell load case
         {
             sLog.outError("Player::addSpell: Non-existed in SpellStore spell #%u request, deleting for all characters in `character_spell`.",spell_id);
             CharacterDatabase.PExecute("DELETE FROM character_spell WHERE spell = '%u'",spell_id);
@@ -3567,8 +3565,8 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank, bo
             }
         }
     }
-
-    if (m_canTitanGrip)
+    
+   if (m_canTitanGrip)
     {
         SpellEntry const *spellInfo = sSpellStore.LookupEntry(spell_id);
         if (IsSpellHaveEffect(spellInfo, SPELL_EFFECT_TITAN_GRIP))
@@ -5888,7 +5886,7 @@ void Player::SendInitialActionButtons() const
     DETAIL_LOG( "Initializing Action Buttons for '%u' spec '%u'", GetGUIDLow(), m_activeSpec);
 
     WorldPacket data(SMSG_ACTION_BUTTONS, 1+(MAX_ACTION_BUTTONS*4));
-    data << uint8(1);                                       // talent spec amount (in packet)
+    data << uint8(1); // talent spec amount (in packet)
     ActionButtonList const& currentActionButtonList = m_actionButtons[m_activeSpec];
     for(uint8 button = 0; button < MAX_ACTION_BUTTONS; ++button)
     {
@@ -7304,7 +7302,7 @@ void Player::_ApplyItemBonuses(ItemPrototype const *proto, uint8 slot, bool appl
             ApplyFeralAPBonus(feral_bonus, apply);
     }
 
-    if(!IsUseEquipedWeapon(slot==EQUIPMENT_SLOT_MAINHAND))
+    if(!IsUseEquipedWeapon(attType))
         return;
 
     if (proto->Delay)
@@ -7603,7 +7601,7 @@ void Player::CastItemUseSpell(Item *item,SpellCastTargets const& targets,uint8 c
         uint32 learning_spell_id = proto->Spells[1].SpellId;
 
         SpellEntry const *spellInfo = sSpellStore.LookupEntry(learn_spell_id);
-        if (!spellInfo)
+        if(!spellInfo)
         {
             sLog.outError("Player::CastItemUseSpell: Item (Entry: %u) in have wrong spell id %u, ignoring ",proto->ItemId, learn_spell_id);
             SendEquipError(EQUIP_ERR_NONE, item);
@@ -9257,7 +9255,7 @@ Item* Player::GetWeaponForAttack(WeaponAttackType attackType, bool nonbroken, bo
     if (!item || item->GetProto()->Class != ITEM_CLASS_WEAPON)
         return NULL;
 
-    if (useable && !IsUseEquipedWeapon(attackType==BASE_ATTACK))
+    if( useable && !IsUseEquipedWeapon(attackType) )
         return NULL;
 
     if (nonbroken && item->IsBroken())
@@ -9275,7 +9273,7 @@ Item* Player::GetShield(bool useable) const
     if(!useable)
         return item;
 
-    if( item->IsBroken())
+    if( item->IsBroken() || !IsUseEquipedWeapon(OFF_ATTACK))
         return NULL;
 
     return item;
@@ -11094,10 +11092,10 @@ void Player::SetAmmo( uint32 item )
         return;
 
     // check ammo
-    if (item)
+    if(item)
     {
         uint8 msg = CanUseAmmo( item );
-        if (msg != EQUIP_ERR_OK)
+        if( msg != EQUIP_ERR_OK )
         {
             SendEquipError(msg, NULL, NULL, item);
             return;
@@ -11115,7 +11113,7 @@ void Player::RemoveAmmo()
 
     m_ammoDPS = 0.0f;
 
-    if (CanModifyStats())
+    if(CanModifyStats())
         UpdateDamagePhysical(RANGED_ATTACK);
 }
 
@@ -12376,28 +12374,28 @@ void Player::SendEquipError( uint8 msg, Item* pItem, Item *pItem2, uint32 itemid
         {
             case EQUIP_ERR_CANT_EQUIP_LEVEL_I:
             case EQUIP_ERR_PURCHASE_LEVEL_TOO_LOW:
-            {
+                {
                 ItemPrototype const* proto = pItem ? pItem->GetProto() : sObjectMgr.GetItemPrototype(itemid);
-                data << uint32(proto ? proto->RequiredLevel : 0);
+                    data << uint32(proto ? proto->RequiredLevel : 0);
                 break;
             }
             case EQUIP_ERR_EVENT_AUTOEQUIP_BIND_CONFIRM:    // no idea about this one...
-            {
-                data << uint64(0);
-                data << uint32(0);
-                data << uint64(0);
+                {
+                    data << uint64(0);
+                    data << uint32(0);
+                    data << uint64(0);
                 break;
             }
             case EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_COUNT_EXCEEDED_IS:
             case EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_SOCKETED_EXCEEDED_IS:
             case EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_EQUIPPED_EXCEEDED_IS:
-            {
+                {
                 ItemPrototype const* proto = pItem ? pItem->GetProto() : sObjectMgr.GetItemPrototype(itemid);
-                data << uint32(proto ? proto->ItemLimitCategory : 0);
+                    data << uint32(proto ? proto->ItemLimitCategory : 0);
                 break;
             }
-            default:
-                break;
+                default:
+                    break;
         }
     }
     GetSession()->SendPacket(&data);
@@ -15777,7 +15775,7 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
     // update items with duration and realtime
     UpdateItemDuration(time_diff, true);
 
-    _LoadActions(holder->GetResult(PLAYER_LOGIN_QUERY_LOADACTIONS));
+    _LoadActions(holder->GetResult(PLAYER_LOGIN_QUERY_LOADACTIONS), true);
 
     m_social = sSocialMgr.LoadFromDB(holder->GetResult(PLAYER_LOGIN_QUERY_LOADSOCIALLIST), GetGUIDLow());
 
@@ -15959,7 +15957,7 @@ bool Player::isAllowedToLoot(Creature* creature)
         return !creature->HasLootRecipient();
 }
 
-void Player::_LoadActions(QueryResult *result)
+void Player::_LoadActions(QueryResult *result, bool startup)
 {
     for(int i = 0; i < MAX_TALENT_SPEC_COUNT; ++i)
         m_actionButtons[i].clear();
@@ -21088,7 +21086,7 @@ bool Player::CanCaptureTowerPoint()
            );
 }
 
-uint32 Player::GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 newfacialhair)
+uint32 Player::GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 newfacialhair, BarberShopStyleEntry const* newSkin)
 {
     uint32 level = getLevel();
 
@@ -21098,6 +21096,7 @@ uint32 Player::GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 n
     uint8 hairstyle = GetByteValue(PLAYER_BYTES, 2);
     uint8 haircolor = GetByteValue(PLAYER_BYTES, 3);
     uint8 facialhair = GetByteValue(PLAYER_BYTES_2, 0);
+    uint8 skincolor = GetByteValue(PLAYER_BYTES, 0);
 
     if((hairstyle == newhairstyle) && (haircolor == newhaircolor) && (facialhair == newfacialhair))
         return 0;
@@ -21117,6 +21116,9 @@ uint32 Player::GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 n
 
     if(facialhair != newfacialhair)
         cost += bsc->cost * 0.75f;                          // +3/4 of price
+
+    if(newSkin && skincolor != newSkin->hair_id)
+        cost += bsc->cost * 0.75f;                          // ??
 
     return uint32(cost);
 }

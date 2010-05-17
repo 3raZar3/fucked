@@ -445,7 +445,7 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, fl
         weapon_mindamage = lvl*0.85f*att_speed;
         weapon_maxdamage = lvl*1.25f*att_speed;
     }
-    else if(!IsUseEquipedWeapon(attType==BASE_ATTACK))      //check if player not in form but still can't use weapon (broken/etc)
+    else if(!IsUseEquipedWeapon(attType))      //check if player not in form but still can't use weapon (broken/etc)
     {
         weapon_mindamage = BASE_MINDAMAGE;
         weapon_maxdamage = BASE_MAXDAMAGE;
@@ -878,29 +878,6 @@ bool Pet::UpdateStats(Stats stat)
 
     // value = ((base_value * base_pct) + total_value) * total_pct
     float value  = GetTotalStatValue(stat);
-
-    Unit *owner = GetOwner();
-    if ( stat == STAT_STAMINA )
-    {
-        if(owner && owner->GetTypeId() == TYPEID_PLAYER  && owner->getClass() == CLASS_WARLOCK)
-            value += float(owner->GetStat(stat)) * 0.75f;
-        else if (owner)
-            value += float(owner->GetStat(stat)) * 0.3f;
-    }
-	else if ( stat == STAT_STRENGTH && getPetType() == SUMMON_PET )
-    {
-        if (owner && (owner->getClass() == CLASS_DEATH_KNIGHT))
-        {
-            value += float(owner->GetStat(stat)) * 1.0f;
-        }
-    }
-                                                            //warlock's and mage's pets gain 30% of owner's intellect
-    else if ( stat == STAT_INTELLECT && getPetType() == SUMMON_PET )
-    {
-        if(owner && (owner->getClass() == CLASS_WARLOCK || owner->getClass() == CLASS_MAGE) )
-            value += float(owner->GetStat(stat)) * 0.3f;
-    }
-
     SetStat(stat, int32(value));
 
     switch(stat)
@@ -973,15 +950,16 @@ void Pet::UpdateMaxHealth()
     UnitMods unitMod = UNIT_MOD_HEALTH;
     float stamina = GetStat(STAT_STAMINA) - GetCreateStat(STAT_STAMINA);
     float multiplicator;
+    float healthPrc = GetHealthPercent();
 
-    // nesocips warlock pet stats calculation
+    // some pets don't gain 10 hp per stamina
     switch(GetEntry())
     {
         case 416:   multiplicator = 8.4f;  break; // imp
+        case 417:   multiplicator = 9.5f;  break; // felhunter
+        case 1863:  multiplicator = 9.1f;  break; // succubus
         case 1860:                                // voidwalker
         case 17252: multiplicator = 11.0f; break; // felguard
-        case 1863:  multiplicator = 9.1f;  break; // succubus
-        case 417:   multiplicator = 9.5f;  break; // felhunter
         default:    multiplicator = 10.0f; break;
     }
 
@@ -991,6 +969,7 @@ void Pet::UpdateMaxHealth()
     value  *= GetModifierValue(unitMod, TOTAL_PCT);
 
     SetMaxHealth((uint32)value);
+    SetHealth(uint32(value * healthPrc / 100));
 }
 
 void Pet::UpdateMaxPower(Powers power)
@@ -1000,13 +979,13 @@ void Pet::UpdateMaxPower(Powers power)
     float addValue = (power == POWER_MANA) ? GetStat(STAT_INTELLECT) - GetCreateStat(STAT_INTELLECT) : 0.0f;
     float multiplicator;
 
-    // nesocips warlock pet stats calculation
+    // some pets don't gain 15 mana per intellect
     switch(GetEntry())
     {
         case 416:   multiplicator = 4.95f; break; // imp
+        case 417:                                 // felhunter
         case 1860:                                // voidwalker
         case 1863:                                // succubus
-        case 417:                                 // felhunter
         case 17252: multiplicator = 11.5f; break; // felguard
         default:    multiplicator = 15.0f; break;
     }

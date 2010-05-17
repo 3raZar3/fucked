@@ -389,16 +389,9 @@ void GameObject::Update(uint32 p_time)
                     if (m_groupLootTimer && m_groupLootId)
                     {
                         if(p_time <= m_groupLootTimer)
-                        {
                             m_groupLootTimer -= p_time;
-                        }
                         else
-                        {
-                            if (Group* group = sObjectMgr.GetGroupById(m_groupLootId))
-                                group->EndRoll();
-                            m_groupLootTimer = 0;
-                            m_groupLootId = 0;
-                        }
+                            StopGroupLoot();
                     }
                     break;
                 default:

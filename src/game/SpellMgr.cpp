@@ -680,6 +680,8 @@ bool IsPositiveEffect(uint32 spellId, SpellEffectIndex effIndex)
                         case 58600:                         // Restricted Flight Area
                             return false;
                         // some spells have unclear target modes for selection, so just make effect positive
+                        case 10252:                                         // Awaken Earthen Guardians
+                        case 10258:                                         // Awaken Vault Warder
                         case 27184:
                         case 27190:
                         case 27191:
@@ -1648,9 +1650,31 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                         (spellInfo_2->Id == 57055 && spellInfo_1->Id == 56648))
                         return true;
 
+					// Spell Grow and Poison Aura (Ahn'Kahet - Amanitars mashrooms)
+                    if ( (spellInfo_1->Id == 62559 && spellInfo_2->Id == 56741) ||
+                        (spellInfo_2->Id == 62559 && spellInfo_1->Id == 56741) )
+                        return false;
+
+                    // Headless Horseman regen spells should stack with any other spells
+                    if (spellInfo_1->Id == 42556 || spellInfo_1->Id == 42403 || spellInfo_1->Id == 43105)
+                        return false;
+
+                    // Ymiron - channel spirit to ymiron should stack with everything
+                    if (spellInfo_1->Id == 48316 || spellInfo_2->Id == 48316)
+                        return false;
+
+                    // Pulsing Pumpkin visual auras (Headless Horseman event)
+                    if ((spellInfo_1->Id == 42280 && spellInfo_2->Id == 42294) ||
+                        (spellInfo_2->Id == 42280 && spellInfo_1->Id == 42294))
+                        return false;
+
                     // Thunderfury
                     if ((spellInfo_1->Id == 21992 && spellInfo_2->Id == 27648) ||
                         (spellInfo_2->Id == 21992 && spellInfo_1->Id == 27648))
+                        return false;
+
+                    // Fel Rage (Gurtog Bloodboil spell)
+                    if( spellInfo_1->SpellIconID == 1930 && spellInfo_2->SpellIconID == 1930)
                         return false;
 
                     // Lightning Speed (Mongoose) and Fury of the Crashing Waves (Tsunami Talisman)
@@ -1705,6 +1729,11 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     if(spellInfo_1->SpellIconID == 3087 && spellInfo_2->SpellIconID == 3087)
                         return false;
 
+					// Blue Flame Shield and Blue Power Focus (more generic rule needed for all spells with dummy auras)
+                    if( (spellInfo_1->Id == 46796 && spellInfo_2->Id == 46789) ||
+                        (spellInfo_2->Id == 46796 && spellInfo_1->Id == 46789) )
+                         return false;
+
                     break;
                 }
                 case SPELLFAMILY_MAGE:
@@ -1756,6 +1785,10 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     // Leeching Swarm and Insect Swarm
                     if ( spellInfo_1->SpellIconID == 1771 && spellInfo_1->SpellVisual[0] == 0 && spellInfo_2->SpellIconID == 1771 )
                         return false;
+                    //  Moonfire and Lacarate
+                    if ((spellInfo_1->SpellIconID == 225 && spellInfo_2->SpellIconID == 2246) ||
+                        (spellInfo_2->SpellIconID == 225 && spellInfo_1->SpellIconID == 2246))
+                        return false;
 
                     break;
                 }
@@ -1803,6 +1836,11 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
             if(spellInfo_1->SpellIconID == 1691 && spellInfo_2->SpellIconID == 1691)
                 return false;
             break;
+
+            // BloodBoil and other spells with the same icon like BloodPact
+            if (spellInfo_1->Id == 42005 && spellInfo_2->SpellIconID == 541)
+                return false;
+
         case SPELLFAMILY_MAGE:
             if( spellInfo_2->SpellFamilyName == SPELLFAMILY_MAGE )
             {
@@ -1913,6 +1951,11 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
             // Detect Invisibility and Mana Shield (multi-family check)
             if( spellInfo_1->Id == 132 && spellInfo_2->SpellIconID == 209 && spellInfo_2->SpellVisual[0] == 968 )
                 return false;
+
+            // BloodPact & Bloodboil
+            if (spellInfo_1->SpellIconID == 541 && spellInfo_2->Id == 42005)
+                return false;
+
             break;
         case SPELLFAMILY_WARRIOR:
             if( spellInfo_2->SpellFamilyName == SPELLFAMILY_WARRIOR )
@@ -2093,6 +2136,10 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     return false;
 					
 				// Deterrence
+                if( spellInfo_1->SpellIconID == 83 && spellInfo_2->SpellIconID == 83 )
+                    return false;
+
+                // Deterrence
                 if( spellInfo_1->SpellIconID == 83 && spellInfo_2->SpellIconID == 83 )
                     return false;
 
