@@ -823,7 +823,10 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
         {
             switch(m_spellInfo->Id)
             {
-                case 8063:                                  // Deviate Fish
+               	// Magic Pull
+				case 51336: m_caster->CastSpell(unitTarget,50770,true); break; 
+				
+				case 8063:                                  // Deviate Fish
                 {
                     if (m_caster->GetTypeId() != TYPEID_PLAYER)
                         return;
