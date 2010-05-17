@@ -818,7 +818,7 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
 
     // selection by spell family
     switch(m_spellInfo->SpellFamilyName)
-    {
+	{
         case SPELLFAMILY_GENERIC:
         {
             switch(m_spellInfo->Id )
@@ -2073,6 +2073,7 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                             break;
                         }
                     }
+                }
 
                 m_caster->SetPower(POWER_RAGE, new_rage);
                 return;
@@ -6671,15 +6672,6 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                         unitTarget->RemoveAurasDueToSpell(51967);
 					return;
 				}
-                // Clear Gift of Tharonja
-                case 53242:
-                {
-                    if (!unitTarget || !unitTarget->HasAura(52509))
-                        return;
-
-                    unitTarget->RemoveAurasDueToSpell(52509);
-                    return;
-                }
                 case 54729:                                 // Winged Steed of the Ebon Blade
                 {
                     if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
