@@ -178,17 +178,17 @@ enum AccountTypes
     SEC_VIP2			= 2,
     SEC_VIP3			= 3,
     SEC_TRIALGM			= 4,
-    SEC_MODERATOR		= 4,
-    SEC_GAMEMASTER		= 5,
-    SEC_LEADGAMEMASTER	= 6,
-    SEC_ADMINISTRATOR	= 7,
-    SEC_HEADADMIN		= 8,
-    SEC_DEVELOPER		= 9,
-    SEC_LEADDEVELOPER	= 10,
-    SEC_ENGINEER		= 11,
-    SEC_COOWNER			= 12,
-    SEC_OWNER			= 13,
-    SEC_CONSOLE			= 14	// has to be last in list, all accounts must have a lower security level than this one as well
+    SEC_MODERATOR		= 5,
+    SEC_GAMEMASTER		= 6,
+    SEC_LEADGAMEMASTER	= 7,
+    SEC_ADMINISTRATOR	= 8,
+    SEC_HEADADMIN		= 9,
+    SEC_DEVELOPER		= 10,
+    SEC_LEADDEVELOPER	= 11,
+    SEC_ENGINEER		= 12,
+    SEC_COOWNER			= 13,
+    SEC_OWNER			= 14,
+    SEC_CONSOLE			= 15	// has to be last in list, all accounts must have a lower security level than this one as well
 };
 
 // Used in mangosd/realmd
