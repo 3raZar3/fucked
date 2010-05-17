@@ -1,5 +1,25 @@
 #########################################################################################
-a289
+
+-- Lieutenant Ta'zinni (Support for quest Atop the Woodlands)
+DELETE FROM creature_loot_template WHERE entry=26815;
+INSERT INTO creature_loot_template VALUES
+(26815,36779,-100,3,1,1,16,36779,1),		-- Ley Line Focus Control Amulet
+(26815,36780,-100,2,1,1,6,67,0), 		-- Lieutenant Ta'zinni's Letter
+(26815,3,10,1,-42003,1,0,0,0),			-- Salted Venison
+(26815,2,15,1,-24726,1,0,0,0),			-- Scrolls
+(26815,1,75,0,-30000,1,0,0,0);			-- Some stuff
+
+#########################################################################################
+
+-- Apprentice Osterkilgr (Support for quest The Sum is Greater than the Parts)
+DELETE FROM creature_loot_template WHERE entry=30409 AND NOT item=45912;
+INSERT INTO creature_loot_template VALUES
+(30409,43089,100,1,1,1,0,0,0), 			-- Vrykul Bones
+(30409,42772,87,3,1,1,0,0,0),			-- Dr. Terrible's "Building a Better Flesh Giant"
+(30409,0,100,0,-30000,1,0,0,0);			-- Some stuff
+
+#########################################################################################
+
 -- Wolves Across the Border (33) missing quest item
 DELETE FROM creature_loot_template WHERE item=50432;
 INSERT INTO creature_loot_template VALUES

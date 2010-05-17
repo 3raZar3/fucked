@@ -87,6 +87,12 @@ ConfVersion=2007062001
 #        Default: 20
 #                 0  (Disabled)
 #
+#    AccountBanUpdateDelay
+#        Updating ban (exclusion is not active ban)
+#        Default: 20
+#                 0  (Disabled)
+#
+#
 #    WrongPass.MaxCount
 #        Number of login attemps with wrong password before the account or IP is banned
 #        Default: 0  (Never ban)
@@ -118,6 +124,7 @@ UseProcessors = 0
 ProcessPriority = 1
 WaitAtStartupError = 0
 RealmsStateUpdateDelay = 20
+AccountBanUpdateDelay = 20
 WrongPass.MaxCount = 0
 WrongPass.BanTime = 600
 WrongPass.BanType = 0

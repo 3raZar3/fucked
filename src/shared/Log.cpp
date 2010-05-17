@@ -22,8 +22,8 @@
 #include "Config/ConfigEnv.h"
 #include "Util.h"
 #include "ByteBuffer.h"
+#include "Database/DatabaseEnv.h"
 #include "ProgressBar.h"
-
 #include <stdarg.h>
 #include <fstream>
 #include <iostream>
@@ -273,6 +273,7 @@ void Log::Initialize()
 
     // Char log settings
     m_charLog_Dump = sConfig.GetBoolDefault("CharLogDump", false);
+    m_charLog_commnad = sConfig.GetBoolDefault("CharLogCommand", false);
 }
 
 FILE* Log::openLogFile(char const* configFileName,char const* configTimeStampFlag, char const* mode)
@@ -734,6 +735,15 @@ void Log::outChar(const char * str, ... )
         va_end(ap);
         fflush(charLogfile);
     }
+}
+
+void Log::outCharCommand( uint32 account_id, uint32 guid, std::string command, const std::string remote )
+{
+    if(!m_charLog_commnad)
+        return;
+
+    loginDatabase.PQuery("INSERT INTO account_command (account_id, character_id, command_name, time_used, remote) VALUES('%d', '%d', '%s', UNIX_TIMESTAMP(NOW()), '%s')",
+        account_id, guid, command.c_str(), remote.c_str());
 }
 
 void Log::outWorldPacketDump( uint32 socket, uint32 opcode, char const* opcodeName, ByteBuffer const* packet, bool incoming )

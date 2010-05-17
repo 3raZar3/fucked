@@ -1613,13 +1613,13 @@ inline ZLiquidStatus GridMap::getLiquidStatus(float x, float y, float z, uint8 R
     int delta = int((liquid_level - z) * 10);
 
     // Get position delta
-    if (delta > 20)                                         // Under water
+    if (delta > 20)                   // Under water
         return LIQUID_MAP_UNDER_WATER;
-    if (delta > 0 )                                         // In water
+    if (delta > 0 )                   // In water
         return LIQUID_MAP_IN_WATER;
-    if (delta > -1)                                         // Walk on water
+    if (delta > -1)                   // Walk on water
         return LIQUID_MAP_WATER_WALK;
-                                                            // Above water
+                                      // Above water
     return LIQUID_MAP_ABOVE_WATER;
 }
 
@@ -2463,10 +2463,11 @@ bool InstanceMap::Add(Player *player)
                                 sLog.outError("GroupBind save players: %d, group count: %d", groupBind->save->GetPlayerCount(), groupBind->save->GetGroupCount());
                             else
                                 sLog.outError("GroupBind save NULL");
+                            
                             if (WorldSafeLocsEntry const *ClosestGrave = sObjectMgr.GetClosestGraveYard(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), player->GetTeam() ))
                                 player->RepopAtGraveyard();
                             else player->RelocateToHomebind();
-                            //assert(false);
+                            //ASSERT(false);
                         }
                         // if the group/leader is permanently bound to the instance
                         // players also become permanently bound when they enter
@@ -2492,7 +2493,7 @@ bool InstanceMap::Add(Player *player)
                             player->RepopAtGraveyard();
                         else player->RelocateToHomebind();
                         error_log("Player %s (GUID %u) logged into instance which is not bound to. Cheat, exploit?",player->GetName(),player->GetGUID());
-                        //assert(playerBind->save == mapSave);
+                        //ASSERT(playerBind->save == mapSave);
                     }
                 }
             }

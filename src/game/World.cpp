@@ -561,7 +561,7 @@ void World::LoadConfigSettings(bool reload)
     setConfig(CONFIG_BOOL_STATS_SAVE_ONLY_ON_LOGOUT, "PlayerSave.Stats.SaveOnlyOnLogout", true);
 
     setConfigMin(CONFIG_UINT32_INTERVAL_GRIDCLEAN, "GridCleanUpDelay", 5 * MINUTE * IN_MILLISECONDS, MIN_GRID_DELAY);
-    if (reload)
+    if(reload)
         sMapMgr.SetGridCleanUpDelay(getConfig(CONFIG_UINT32_INTERVAL_GRIDCLEAN));
 
     setConfig(CONFIG_UINT32_NUMTHREADS, "MapUpdate.Threads", 2);
@@ -802,7 +802,7 @@ void World::LoadConfigSettings(bool reload)
         else
             sLog.outError("ClientCacheVersion can't be negative %d, ignored.", clientCacheId);
     }
-	
+
     setConfig(CONFIG_UINT32_INSTANT_LOGOUT, "InstantLogout", SEC_MODERATOR);
 
     setConfigMin(CONFIG_UINT32_GUILD_EVENT_LOG_COUNT, "Guild.EventLogRecordsCount", GUILD_EVENTLOG_MAX_RECORDS, GUILD_EVENTLOG_MAX_RECORDS);

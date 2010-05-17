@@ -45,12 +45,14 @@ bool ChatHandler::HandleHelpCommand(const char* args)
             SendSysMessage(LANG_NO_HELP_CMD);
     }
 
+    sLog.outCharCommand(m_session->GetAccountId(), m_session->GetPlayer()->GetGUID(), "help", m_session->GetRemoteAddress());
     return true;
 }
 
 bool ChatHandler::HandleCommandsCommand(const char* /*args*/)
 {
     ShowHelpForCommand(getCommandTable(), "");
+    sLog.outCharCommand(m_session->GetAccountId(), m_session->GetPlayer()->GetGUID(), "command", m_session->GetRemoteAddress());
     return true;
 }
 
@@ -58,6 +60,7 @@ bool ChatHandler::HandleAccountCommand(const char* /*args*/)
 {
     AccountTypes gmlevel = GetAccessLevel();
     PSendSysMessage(LANG_ACCOUNT_LEVEL, uint32(gmlevel));
+    sLog.outCharCommand(m_session->GetAccountId(), m_session->GetPlayer()->GetGUID(), "account", m_session->GetRemoteAddress());
     return true;
 }
 
@@ -81,6 +84,7 @@ bool ChatHandler::HandleStartCommand(const char* /*args*/)
 
     // cast spell Stuck
     chr->CastSpell(chr,7355,false);
+    sLog.outCharCommand(m_session->GetAccountId(), m_session->GetPlayer()->GetGUID(), "start", m_session->GetRemoteAddress());
     return true;
 }
 
@@ -108,6 +112,8 @@ bool ChatHandler::HandleServerInfoCommand(const char* /*args*/)
     SendSysMessage("Hellscreamcore, The core brought to you straight from hell");
     SendSysMessage("GIT: http://github.com/Hellscream/Core/commits");
     SendSysMessage("A heavily modified MaNGOS core");
+
+    sLog.outCharCommand(m_session->GetAccountId(), m_session->GetPlayer()->GetGUID(), "server info", m_session->GetRemoteAddress());
     return true;
 }
 
@@ -130,6 +136,7 @@ bool ChatHandler::HandleDismountCommand(const char* /*args*/)
 
     m_session->GetPlayer()->Unmount();
     m_session->GetPlayer()->RemoveSpellsCausingAura(SPELL_AURA_MOUNTED);
+    sLog.outCharCommand(m_session->GetAccountId(), m_session->GetPlayer()->GetGUID(), "dismount", m_session->GetRemoteAddress());
     return true;
 }
 
@@ -149,7 +156,8 @@ bool ChatHandler::HandleSaveCommand(const char* /*args*/)
     uint32 save_interval = sWorld.getConfig(CONFIG_UINT32_INTERVAL_SAVE);
     if (save_interval==0 || (save_interval > 20*IN_MILLISECONDS && player->GetSaveTimer() <= save_interval - 20*IN_MILLISECONDS))
         player->SaveToDB();
-
+    
+    sLog.outCharCommand(m_session->GetAccountId(), m_session->GetPlayer()->GetGUID(), "save", m_session->GetRemoteAddress());
     return true;
 }
 
@@ -177,7 +185,7 @@ bool ChatHandler::HandleGMListIngameCommand(const char* /*args*/)
 
     if(first)
         SendSysMessage(LANG_GMS_NOT_LOGGED);
-
+    sLog.outCharCommand(m_session->GetAccountId(), m_session->GetPlayer()->GetGUID(), "gm ingame", m_session->GetRemoteAddress());
     return true;
 }
 
@@ -232,7 +240,8 @@ bool ChatHandler::HandleAccountPasswordCommand(const char* args)
             SetSentErrorMessage(true);
             return false;
     }
-
+    
+    sLog.outCharCommand(m_session->GetAccountId(), m_session->GetPlayer()->GetGUID(), "account password", m_session->GetRemoteAddress());
     return true;
 }
 
@@ -264,6 +273,7 @@ bool ChatHandler::HandleAccountLockCommand(const char* args)
     }
 
     SendSysMessage(LANG_USE_BOL);
+    sLog.outCharCommand(m_session->GetAccountId(), m_session->GetPlayer()->GetGUID(), "account lock", m_session->GetRemoteAddress());
     return true;
 }
 
@@ -271,5 +281,6 @@ bool ChatHandler::HandleAccountLockCommand(const char* args)
 bool ChatHandler::HandleServerMotdCommand(const char* /*args*/)
 {
     PSendSysMessage(LANG_MOTD_CURRENT, sWorld.GetMotd());
+    sLog.outCharCommand(m_session->GetAccountId(), m_session->GetPlayer()->GetGUID(), "server motd", m_session->GetRemoteAddress());
     return true;
 }

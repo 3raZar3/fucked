@@ -44,7 +44,7 @@ void dump_sql();
 int main()
 {
     std::cout << "*****************************************************************************\n";
-    std::cout << "DBCtoSQL v" << DBCTOSQL_VER << "\n<" << DBCTOSQL_WEB <<">\n";
+    std::cout << "DBCtoSQL tool. Expected client build: " << EXPECTED_CLIENT_BUILT << "\n<";
     std::cout << "*****************************************************************************\n\n\n";
 
     std::cout << "Supported DBCs:\n";
@@ -96,16 +96,16 @@ bool check_dbc()
         std::cout << SPELL_DBC << " - Opened successful." << std::endl << SPELL_DBC << " - fields: "
         << DBCSpell.getNumFields() << ", rows: " << DBCSpell.getNumRows() << std::endl;
 
-    /*if(DBCSpell.getNumFields() != SPELL_DBC_COLUMN_NUMS)
+    if(DBCSpell.getNumFields() != SPELL_DBC_COLUMN_NUMS)
     {
         std::cout << SPELL_DBC << " - ERROR: Column numbers do not match with the supported DBC format." << std::endl;
         return false;
-    } */
-    /*if(DBCSpell.getNumRows() != SPELL_DBC_ROWS_NUMS)
+    }
+    if(DBCSpell.getNumRows() != SPELL_DBC_ROWS_NUMS)
     {
         std::cout << SPELL_DBC << " - ERROR: Rows numbers do not match with the supported DBC format." << std::endl;
         return false;
-    }*/
+    }
     std::cout << SPELL_DBC << " - DBC format: OK." << "\n\n";
 
     /********** Achievement.dbc **********//*
@@ -187,8 +187,7 @@ void dump_sql()
 
     std::cout << SPELL_DBC << " - Creating the SQL table struct...\n";
 
-    fprintf(fSpellSql, "-- DBCtoSQL v%s\n\n", DBCTOSQL_VER);
-    fprintf(fSpellSql, "-- Web: %s\n\n\n", DBCTOSQL_WEB);
+    fprintf(fSpellSql, "-- DBCtoSQL tool. Expected client build: %s\n\n", EXPECTED_CLIENT_BUILT);
 
     fprintf(fSpellSql, "DROP TABLE IF EXISTS `%s`;\n", SPELL_TABLE);
     fprintf(fSpellSql, "CREATE TABLE `%s` (\n", SPELL_TABLE);
@@ -305,8 +304,7 @@ void dump_sql()
 
     std::cout << ACHIEVEMENT_DBC << " - Creating the SQL table struct...\n";
 
-    fprintf(fAchievementSql, "-- DBCtoSQL v%s\n\n", DBCTOSQL_VER);
-    fprintf(fAchievementSql, "-- Web: %s\n\n\n", DBCTOSQL_WEB);
+    fprintf(fAchievementSql, "-- DBCtoSQL tool. Expected client build: %s\n\n", EXPECTED_CLIENT_BUILT);
 
     fprintf(fAchievementSql, "DROP TABLE IF EXISTS `%s`;\n", ACHIEVEMENT_TABLE);
     fprintf(fAchievementSql, "CREATE TABLE `%s` (\n", ACHIEVEMENT_TABLE);
@@ -421,8 +419,7 @@ void dump_sql()
 
     std::cout << ACHIEVEMENT_CATEGORY_DBC << " - Creating the SQL table struct...\n";
 
-    fprintf(fAchievementCategorySql, "-- DBCtoSQL v%s\n\n", DBCTOSQL_VER);
-    fprintf(fAchievementCategorySql, "-- Web: %s\n\n\n", DBCTOSQL_WEB);
+    fprintf(fAchievementCategorySql, "-- DBCtoSQL tool. Expected client build: %s\n\n", EXPECTED_CLIENT_BUILT);
 
     fprintf(fAchievementCategorySql, "DROP TABLE IF EXISTS `%s`;\n", ACHIEVEMENT_CATEGORY_TABLE);
     fprintf(fAchievementCategorySql, "CREATE TABLE `%s` (\n", ACHIEVEMENT_CATEGORY_TABLE);
@@ -537,8 +534,7 @@ void dump_sql()
 
     std::cout << ACHIEVEMENT_CRITERIA_DBC << " - Creating the SQL table struct...\n";
 
-    fprintf(fAchievementCriteriaSql, "-- DBCtoSQL v%s\n\n", DBCTOSQL_VER);
-    fprintf(fAchievementCriteriaSql, "-- Web: %s\n\n\n", DBCTOSQL_WEB);
+    fprintf(fAchievementCriteriaSql, "-- DBCtoSQL tool. Expected client build: %s\n\n", EXPECTED_CLIENT_BUILT);
 
     fprintf(fAchievementCriteriaSql, "DROP TABLE IF EXISTS `%s`;\n", ACHIEVEMENT_CRITERIA_TABLE);
     fprintf(fAchievementCriteriaSql, "CREATE TABLE `%s` (\n", ACHIEVEMENT_CRITERIA_TABLE);

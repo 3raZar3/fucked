@@ -56,6 +56,9 @@ void HookSignals();
 
 bool stopEvent = false;                                     ///< Setting it to true stops the server
 
+uint32 m_AccountBanDelay = 0;
+time_t m_AccountBanNext = time(NULL);
+
 DatabaseType loginDatabase;                                 ///< Accessor to the realm server database
 
 /// Print out the usage string for this program on the console.
@@ -217,10 +220,8 @@ extern int main(int argc, char **argv)
         return 1;
     }
 
-    // cleanup query
-    //set expired bans to inactive
-    loginDatabase.Execute("UPDATE account_banned SET active = 0 WHERE unbandate<=UNIX_TIMESTAMP() AND unbandate<>bandate");
-    loginDatabase.Execute("DELETE FROM ip_banned WHERE unbandate<=UNIX_TIMESTAMP() AND unbandate<>bandate");
+    m_AccountBanDelay = sConfig.GetIntDefault( "AccountBanUpdateDelay", 20);
+    m_AccountBanNext  = time(NULL) + m_AccountBanDelay;
 
     h.Add(&authListenSocket);
 
@@ -277,6 +278,14 @@ extern int main(int argc, char **argv)
     ///- Wait for termination signal
     while (!stopEvent)
     {
+        
+        if(m_AccountBanDelay > 0 && m_AccountBanNext < time(NULL)){
+            sLog.outDetail("Delete old account ban...");
+            loginDatabase.Execute("UPDATE account_banned SET active = 0 WHERE unbandate<=UNIX_TIMESTAMP() AND unbandate<>bandate");
+            loginDatabase.Execute("DELETE FROM ip_banned WHERE unbandate<=UNIX_TIMESTAMP() AND unbandate<>bandate");
+
+            m_AccountBanNext = time(NULL) + m_AccountBanDelay;
+        }
 
         h.Select(0, 100000);
 
