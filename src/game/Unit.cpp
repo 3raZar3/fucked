@@ -787,15 +787,11 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
             }
         }
 
-<<<<<<< HEAD
 	if(((Creature*)pVictim)->isTemporarySummon())//if charm dies too far from charmer(other loc, map) for summons only
 	if(pOwner)
 	pVictim->GetMap()->CreatureRelocation(((Creature*)pVictim), pOwner->GetPositionX(), pOwner->GetPositionY(), pOwner->GetPositionZ(), pOwner->GetOrientation());		
 
-        DEBUG_LOG("SET JUST_DIED");
-=======
         DEBUG_FILTER_LOG(LOG_FILTER_DAMAGE,"SET JUST_DIED");
->>>>>>> b595094c161600060de8971837c379303028b440
         if(!spiritOfRedemtionTalentReady)
             pVictim->setDeathState(JUST_DIED);
 
