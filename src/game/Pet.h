@@ -180,7 +180,7 @@ class Pet : public Creature
 
         int32 GetBonusDamage() { return m_bonusdamage; }
         void SetBonusDamage(int32 damage) { m_bonusdamage = damage; }
-		float GetHappinessDamageMod();
+        float GetHappinessDamageMod();
 
         bool UpdateStats(Stats stat);
         bool UpdateAllStats();

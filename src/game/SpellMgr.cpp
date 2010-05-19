@@ -1664,7 +1664,7 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                         (spellInfo_2->Id == 65684 && spellInfo_1->Id == 65686))
                         return true;
 
-					// Potent Fungus and Mini must remove each other (Amanitar encounter, Ahn'kahet)
+                    // Potent Fungus and Mini must remove each other (Amanitar encounter, Ahn'kahet)
                     if ((spellInfo_1->Id == 57055 && spellInfo_2->Id == 56648) ||
                         (spellInfo_2->Id == 57055 && spellInfo_1->Id == 56648))
                         return true;
@@ -1748,12 +1748,12 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     if( (spellInfo_1->Id == 67696 && spellInfo_2->Id == 67750) ||
                         (spellInfo_2->Id == 67696 && spellInfo_1->Id == 67750) )
                         return false;
-					
-					// All flame tsunami spells (Obsidian Sanctum)
+                    
+                    // All flame tsunami spells (Obsidian Sanctum)
                     if(spellInfo_1->SpellIconID == 3087 && spellInfo_2->SpellIconID == 3087)
                         return false;
 
-					// Blue Flame Shield and Blue Power Focus (more generic rule needed for all spells with dummy auras)
+                    // Blue Flame Shield and Blue Power Focus (more generic rule needed for all spells with dummy auras)
                     if( (spellInfo_1->Id == 46796 && spellInfo_2->Id == 46789) ||
                         (spellInfo_2->Id == 46796 && spellInfo_1->Id == 46789) )
                          return false;
@@ -1881,7 +1881,7 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
         case SPELLFAMILY_MAGE:
             if( spellInfo_2->SpellFamilyName == SPELLFAMILY_MAGE )
             {
-				// Living Bomb & Ignite
+                // Living Bomb & Ignite
                 if( (spellInfo_1->SpellIconID == 3000) && (spellInfo_2->SpellIconID == 937) ||
                     (spellInfo_2->SpellIconID == 3000) && (spellInfo_1->SpellIconID == 937) )
                     return false;
@@ -1910,7 +1910,7 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                 if( (spellInfo_1->SpellFamilyFlags & UI64LIT(0x400)) && (spellInfo_2->SpellFamilyFlags & UI64LIT(0x400)) )
                     return true;
 
-				//Focus magic 30min buff and 10s proc
+                //Focus magic 30min buff and 10s proc
                 if( (spellInfo_1->Id == 54648) && (spellInfo_2->Id == 54646) ||
                     (spellInfo_2->Id == 54648) && (spellInfo_1->Id == 54646) )
                     return false;
@@ -2036,7 +2036,7 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                 // Berserking/Enrage PvE spells and Mind Trauma
                 if(spellInfo_1->SpellIconID == 95 && spellInfo_2->Id == 48301)
                     return false;
-			
+            
                 //Devouring Plague and Shadow Vulnerability
                 if ((spellInfo_1->SpellFamilyFlags & UI64LIT(0x2000000)) && (spellInfo_2->SpellFamilyFlags & UI64LIT(0x800000000)) ||
                     (spellInfo_2->SpellFamilyFlags & UI64LIT(0x2000000)) && (spellInfo_1->SpellFamilyFlags & UI64LIT(0x800000000)))
@@ -2171,8 +2171,8 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                 if( (spellInfo_1->SpellFamilyFlags & UI64LIT(0x4)) && (spellInfo_2->SpellFamilyFlags & UI64LIT(0x00000004000)) ||
                     (spellInfo_2->SpellFamilyFlags & UI64LIT(0x4)) && (spellInfo_1->SpellFamilyFlags & UI64LIT(0x00000004000)) )
                     return false;
-					
-				// Deterrence
+                    
+                // Deterrence
                 if( spellInfo_1->SpellIconID == 83 && spellInfo_2->SpellIconID == 83 )
                     return false;
 
@@ -2188,8 +2188,8 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                 if( spellInfo_1->SpellIconID == 1680 && spellInfo_2->SpellIconID == 1680 )
                     return false;
             }
-			// Repentance and Track Humanoids
-			if (spellInfo_2->SpellFamilyName == SPELLFAMILY_PALADIN && spellInfo_1->SpellIconID == 316 && spellInfo_2->SpellIconID == 316)
+            // Repentance and Track Humanoids
+            if (spellInfo_2->SpellFamilyName == SPELLFAMILY_PALADIN && spellInfo_1->SpellIconID == 316 && spellInfo_2->SpellIconID == 316)
                     return false;			
 
             // Wing Clip -> Improved Wing Clip (multi-family check)
@@ -2238,8 +2238,8 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     (( spellInfo_2->SpellFamilyFlags & UI64LIT(0x0008000000000000))
                     && (spellInfo_1->Id == 25899 || spellInfo_1->Id == 20911)))
                     return false;
-					
-				// Seal of Corruption/Vengeance DoT and Righteouss Fury
+                    
+                // Seal of Corruption/Vengeance DoT and Righteouss Fury
                 if ((spellInfo_1->SpellIconID == 3025 && spellInfo_2->SpellIconID == 2292) ||
                     (spellInfo_1->SpellIconID == 2292 && spellInfo_2->SpellIconID == 3025))
                     return false;
@@ -2247,8 +2247,8 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                 // Repentance removes Righteous Vengeance
                 if (spellInfo_1->Id == 20066 && spellInfo_2->Id == 61840)
                     return true;				
-					
-				// Seal of Vengeance/Corruption and Righteous Vengeance
+                    
+                // Seal of Vengeance/Corruption and Righteous Vengeance
                 if (spellInfo_1->SpellIconID == 2292 && spellInfo_2->SpellIconID == 3025 ||
                     spellInfo_2->SpellIconID == 2292 && spellInfo_1->SpellIconID == 3025)
                     return false;
@@ -2274,18 +2274,18 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
             // *Seal of Command and Band of Eternal Champion (multi-family check)
             if( spellInfo_1->SpellIconID==561 && spellInfo_1->SpellVisual[0]==7992 && spellId_2 == 35081)
                 return false;
-			
+            
             // Devotion Aura and Essence of Gossamer
             if (spellInfo_1->SpellIconID == 291 && spellInfo_2->SpellIconID == 291 && spellInfo_2->SpellFamilyName == SPELLFAMILY_GENERIC)
-				return false;
-			
+                return false;
+            
             // Inner Fire and Consecration
             if (spellInfo_1->SpellIconID == 51 && spellInfo_2->SpellIconID == 51 && spellInfo_2->SpellFamilyName == SPELLFAMILY_PRIEST)
-				return false;
-			
+                return false;
+            
             // Repentance and Track Humanoids
             if (spellInfo_2->SpellFamilyName == SPELLFAMILY_HUNTER && spellInfo_1->SpellIconID == 316 && spellInfo_2->SpellIconID == 316)
-				return false;			
+                return false;			
 
             // [Greater] Blessing of Kings and Blessing of Forgotten Kings
             if ((spellId_1 == 20217 || spellId_1 == 25898) && spellId_2 == 69378)
