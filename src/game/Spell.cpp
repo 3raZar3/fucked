@@ -901,8 +901,8 @@ void Spell::AddUnitTarget(Unit* pVictim, SpellEffectIndex effIndex)
     // Lookup target in already in list
     for(tbb::concurrent_vector<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
     {
-     if (ihit->deleted == true)
-         continue;
+        if (ihit->deleted == true)
+            continue;
 
         if (targetGUID == ihit->targetGUID)                 // Found in list
         {
@@ -1049,7 +1049,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         return;
 
     if (!target || target == (TargetInfo*)0x10 || target->processed)
-return;
+        return;
 
     target->processed = true;                               // Target checked in apply effects procedure
 
@@ -3298,7 +3298,7 @@ void Spell::handle_immediate()
 
     SpellEntry const* spellInfo = sSpellStore.LookupEntry(m_spellInfo->Id);
     if (!spellInfo)
-        return;
+	    return;
 
     // start channeling if applicable
     if(IsChanneledSpell(m_spellInfo))
@@ -4050,6 +4050,7 @@ void Spell::WriteSpellGoTargets( WorldPacket * data )
             m_needAliveTargetMask |=ihit->effectMask;
         }
     }
+
     for(tbb::concurrent_vector<GOTargetInfo>::const_iterator ighit = m_UniqueGOTargetInfo.begin(); ighit != m_UniqueGOTargetInfo.end(); ++ighit)
         *data << ighit->targetGUID;                         // Always hits
 
