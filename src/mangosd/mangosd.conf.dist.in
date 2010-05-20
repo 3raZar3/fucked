@@ -2125,3 +2125,4 @@ Custom.AllowedMount3 = 0
 Custom.AllWeaponSkillsAtMax = 0
 Custom.AutoRessPlayersOnDeath = 0
 Custom.AllWeaponSkillsForClassAtMax = 0
+Custom.NoFlightRequirements = 0

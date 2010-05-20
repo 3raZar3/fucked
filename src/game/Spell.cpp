@@ -5694,7 +5694,7 @@ SpellCastResult Spell::CheckCast(bool strict)
             {
                 // not allow cast fly spells if not have req. skills  (all spells is self target)
                 // allow always ghost flight spells
-                if (m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->isAlive())
+                if (m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->isAlive() && (!(sWorld.getConfig(CONFIG_BOOL_ALWAYS_ALLOW_FLY))))
                 {
                     if (!((Player*)m_caster)->IsKnowHowFlyIn(m_caster->GetMapId(), zone, area))
                         return m_IsTriggeredSpell ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_NOT_HERE;
