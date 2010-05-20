@@ -718,6 +718,11 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                 {
                     damage += int32(m_caster->GetTotalAttackPowerValue(RANGED_ATTACK)*0.1f);
                 }
+                // Volley
+                else if (m_spellInfo->SpellFamilyFlags & UI64LIT(0x00002000))
+                {
+                    damage += int32(m_caster->GetTotalAttackPowerValue(RANGED_ATTACK)*0.084f);
+                }
                 break;
             }
             case SPELLFAMILY_PALADIN:
@@ -7606,6 +7611,9 @@ void Spell::DoSummonTotem(SpellEffectIndex eff_idx, uint8 slot_dbc)
     if (Player* modOwner = m_caster->GetSpellModOwner())
         modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_DURATION, duration);
     pTotem->SetDuration(duration);
+
+    if (m_spellInfo->Id == 16190)
+        damage = m_caster->GetMaxHealth() * m_spellInfo->CalculateSimpleValue(EFFECT_INDEX_1) / 100;
 
     if (damage)                                             // if not spell info, DB values used
     {
