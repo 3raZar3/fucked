@@ -2787,13 +2787,30 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
 void Spell::EffectTriggerSpellWithValue(SpellEffectIndex eff_idx)
 {
     uint32 triggered_spell_id = m_spellInfo->EffectTriggerSpell[eff_idx];
+	
+	switch(m_spellInfo->Id)
+	{
+	    // Heat
+		case 62343:
+		{
+		   if (unitTarget->HasAura(62373) || unitTarget->HasAura(62382))
+		       return;
+		}
+		// Strength of the Creator
+		case 64474:
+		{
+		   unitTarget->CastSpell(unitTarget, triggered_spell_id, true);
+		   return;
+		}
+	};	
+	
 
     // normal case
     SpellEntry const *spellInfo = sSpellStore.LookupEntry( triggered_spell_id );
 
     if(!spellInfo)
     {
-        sLog.outError("EffectTriggerSpellWithValue of spell %u: triggering unknown spell id %i", m_spellInfo->Id,triggered_spell_id);
+        DEBUG_LOG("EffectTriggerSpellWithValue of spell %u: triggering unknown spell id %i", m_spellInfo->Id,triggered_spell_id);
         return;
     }
 
@@ -2808,7 +2825,7 @@ void Spell::EffectTriggerRitualOfSummoning(SpellEffectIndex eff_idx)
 
     if(!spellInfo)
     {
-        sLog.outError("EffectTriggerRitualOfSummoning of spell %u: triggering unknown spell id %i", m_spellInfo->Id,triggered_spell_id);
+        DEBUG_LOG("EffectTriggerRitualOfSummoning of spell %u: triggering unknown spell id %i", m_spellInfo->Id,triggered_spell_id);
         return;
     }
 
@@ -2829,7 +2846,7 @@ void Spell::EffectForceCast(SpellEffectIndex eff_idx)
 
     if(!spellInfo)
     {
-        sLog.outError("EffectForceCast of spell %u: triggering unknown spell id %i", m_spellInfo->Id,triggered_spell_id);
+        DEBUG_LOG("EffectForceCast of spell %u: triggering unknown spell id %i", m_spellInfo->Id,triggered_spell_id);
         return;
     }
 
@@ -2842,7 +2859,7 @@ void Spell::EffectTriggerSpell(SpellEffectIndex effIndex)
     if (!unitTarget)
     {
         if(gameObjTarget || itemTarget)
-            sLog.outError("Spell::EffectTriggerSpell (Spell: %u): Unsupported non-unit case!",m_spellInfo->Id);
+            DEBUG_LOG("Spell::EffectTriggerSpell (Spell: %u): Unsupported non-unit case!",m_spellInfo->Id);
         return;
     }
 
@@ -6877,6 +6894,13 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     m_caster->CastSpell(m_caster, spellId, true);
                     return;
                 }
+				case 64475:                                 // Strength of the Creator
+				{
+				   if(!unitTarget)
+				       return;
+					   
+				   return;
+				}				
                 case 62688: // Summon Wave - 10 Mob
                 {
                     for(int8 i = 0; i < 12; i++)
