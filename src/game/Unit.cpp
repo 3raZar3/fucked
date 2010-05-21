@@ -7398,7 +7398,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
             // Improved Water Shield
             if (dummySpell->SpellIconID == 2287)
             {
-                uint8 rank = sSpellMgr.GetSpellRank(dummySpell->Id);
+                uint32 rank = GetTalentSpellCost(dummySpell->Id);
                 // Lesser Healing Wave need aditional 20/40/60% roll
                 if ((procSpell->SpellFamilyFlags & UI64LIT(0x0000000000000080)) && !roll_chance_i(20*rank))
                     return false;
@@ -7414,8 +7414,6 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     {
                         uint32 spell = (*itr)->GetSpellProto()->EffectTriggerSpell[(*itr)->GetEffIndex()];
                         CastSpell(this, spell, true, castItem, triggeredByAura);
-                        if ((*itr)->DropAuraCharge())
-                            RemoveSingleSpellAurasFromStack((*itr)->GetId());
                         return true;
                     }
                 }
