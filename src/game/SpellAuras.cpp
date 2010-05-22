@@ -2559,9 +2559,9 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                         Spell::SelectMountByAreaAndSkill(m_target, 75619, 75620, 75617, 75618, 76153);
                         return;
                     case 25860:                             // Reindeer Transformation
-                        if (!m_caster->HasAuraType(SPELL_AURA_MOUNTED))
+                        if (!m_target->HasAuraType(SPELL_AURA_MOUNTED))
                             return;
-                        m_caster->RemoveSpellsCausingAura(SPELL_AURA_MOUNTED);
+                        m_target->RemoveSpellsCausingAura(SPELL_AURA_MOUNTED);
                         Spell::SelectMountByAreaAndSkill(m_target, 25858, 25859, 44824, 44825, 44827);
                         return;
                 }
