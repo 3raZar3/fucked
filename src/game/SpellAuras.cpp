@@ -2558,6 +2558,12 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                     case 75614:                             // Celestial Steed
                         Spell::SelectMountByAreaAndSkill(m_target, 75619, 75620, 75617, 75618, 76153);
                         return;
+                    case 25860:                             // Reindeer Transformation
+                        if (!m_caster->HasAuraType(SPELL_AURA_MOUNTED))
+                            return;
+                        m_caster->RemoveSpellsCausingAura(SPELL_AURA_MOUNTED);
+                        Spell::SelectMountByAreaAndSkill(m_target, 25858, 25859, 44824, 44825, 44827);
+                        return;
                 }
                 break;
             }
