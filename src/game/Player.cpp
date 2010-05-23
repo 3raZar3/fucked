@@ -19282,6 +19282,7 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
         }
 
         ModifyMoney( -(int32)price );
+		uint32 extCostId = 0;
         if (uint32 extendedCostId = crItem->GetExtendedCostId())
         {
             ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(extendedCostId);
