@@ -3257,9 +3257,9 @@ void Spell::cast(bool skipCheck)
         }
         case SPELLFAMILY_DEATHKNIGHT:
         {
-            // Frost Fever at Chains of Ice
+            // Chains of Ice
             if (m_spellInfo->Id == 45524)
-                AddTriggeredSpell(55095);
+                AddTriggeredSpell(55095);                   // Frost Fever
             break;
         }
         default:
