@@ -9,7 +9,7 @@
 ╠═══════════╦══════════════════════════════════════════════════╣
 ║ The list: ║    "Pay your respects to these fine people!"     ║
 ╟─────┬─────╨──────────────────────────────────────────────────╢
-║   1.│ Hellscream Network development team.                   ║
+║   1.│ Project Dark-iCE Network development team.                   ║
 ║   2.│ MaNGOS development team.                               ║
 ║   3.│ YTDB/Yurity/UDB development team.                      ║
 ║   4.│ ScriptDev2/ScriptDevZero development team.             ║
@@ -38,7 +38,7 @@
 ║ Darkrulerz for being here with us and guiding us through the ║
 ║ rough roads towards the heart of the Force itself. Thank you.║
 ╠══════════════╦═══════════════════════════════════════════════╣
-║ Final notes: ║ You can find us at < www.hellscream-wow.com > ║
+║ Final notes: ║ You can find us at <http://projectdarkice.clanice.com/ > ║
 ╟──────────────╨───────────────────────────────────────────────╢
 ║ This document is a work in progress as the list of names gets║
 ║ bigger every passing day. If for some reason you are not here║
