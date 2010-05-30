@@ -149,9 +149,9 @@ bool BattleGroundQueue::SelectionPool::AddGroup(GroupQueueInfo *ginfo, uint32 de
 /*********************************************************/
 
 // add group or player (grp == NULL) to bg queue with the given leader and bg specifications
-GroupQueueInfo * BattleGroundQueue::AddGroup(Player *leader, Group* grp, BattleGroundTypeId BgTypeId, PvPDifficultyEntry const*  backetEntry, uint8 ArenaType, bool isRated, bool isPremade, uint32 arenaRating, uint32 arenateamid)
+GroupQueueInfo * BattleGroundQueue::AddGroup(Player *leader, Group* grp, BattleGroundTypeId BgTypeId, PvPDifficultyEntry const*  bracketEntry, uint8 ArenaType, bool isRated, bool isPremade, uint32 arenaRating, uint32 arenateamid)
 {
-    BattleGroundBracketId bracketId =  backetEntry->GetBracketId();
+    BattleGroundBracketId bracketId =  bracketEntry->GetBracketId();
 
     // create new ginfo
     GroupQueueInfo* ginfo = new GroupQueueInfo;
@@ -222,8 +222,8 @@ GroupQueueInfo * BattleGroundQueue::AddGroup(Player *leader, Group* grp, BattleG
                 uint32 MinPlayers = bg->GetMinPlayersPerTeam();
                 uint32 qHorde = 0;
                 uint32 qAlliance = 0;
-                uint32 q_min_level = backetEntry->minLevel;
-                uint32 q_max_level = backetEntry->maxLevel;
+                uint32 q_min_level = bracketEntry->minLevel;
+                uint32 q_max_level = bracketEntry->maxLevel;
                 GroupsQueueType::const_iterator itr;
                 for(itr = m_QueuedGroups[bracketId][BG_QUEUE_NORMAL_ALLIANCE].begin(); itr != m_QueuedGroups[bracketId][BG_QUEUE_NORMAL_ALLIANCE].end(); ++itr)
                     if (!(*itr)->IsInvitedToBGInstanceGUID)
@@ -1279,17 +1279,17 @@ void BattleGroundMgr::BuildPvpLogDataPacket(WorldPacket *data, BattleGround *bg)
 
     if(type)                                                // arena
     {
-        // it seems this must be according to BG_WINNER_A/H and _NOT_ BG_TEAM_A/H
-        for(int i = 1; i >= 0; --i)
+        // Rating Changes and Arena Team names seems to be correct for 3.3
+        for(int i = 0; i < BG_TEAMS_COUNT; ++i)
         {
-            *data << uint32(bg->m_ArenaTeamRatingChanges[i]);
-            *data << uint32(3999);                          // huge thanks for TOM_RUS for this!
-            *data << uint32(0);                             // added again in 3.1
+            *data << uint32(bg->m_ArenaTeamRatingChanges[(bg->GetWinner()+i)%BG_TEAMS_COUNT]);
+            *data << uint32(0);                             // seems it should be 0 since 3.0
+            *data << uint32(0);                             // matchmaking value
             DEBUG_LOG("rating change: %d", bg->m_ArenaTeamRatingChanges[i]);
         }
-        for(int i = 1; i >= 0; --i)
+        for(int i = 1; i <= BG_TEAMS_COUNT; ++i)
         {
-            uint32 at_id = bg->m_ArenaTeamIds[i];
+            uint32 at_id = bg->m_ArenaTeamIds[(bg->GetWinner()+i)%BG_TEAMS_COUNT];
             ArenaTeam * at = sObjectMgr.GetArenaTeamById(at_id);
             if (at)
                 *data << at->GetName();
@@ -1305,7 +1305,7 @@ void BattleGroundMgr::BuildPvpLogDataPacket(WorldPacket *data, BattleGround *bg)
     else
     {
         *data << uint8(1);                                  // bg ended
-        *data << uint8(bg->GetWinner());                    // who win
+        *data << uint8(0);                                  // ???
     }
 
     int32 scoresize = 0;
@@ -1339,7 +1339,7 @@ void BattleGroundMgr::BuildPvpLogDataPacket(WorldPacket *data, BattleGround *bg)
             }
             *data << (int32)itr->second->HonorableKills;
             *data << (int32)itr->second->Deaths;
-            *data << (int32)(itr->second->BonusHonor);
+            *data << (int32)itr->second->BonusHonor;
         }
         else
         {
@@ -1347,7 +1347,7 @@ void BattleGroundMgr::BuildPvpLogDataPacket(WorldPacket *data, BattleGround *bg)
             uint32 team = bg->GetPlayerTeam(itr->first);
             if (!team && plr)
                 team = plr->GetTeam();
-            if (( bg->GetWinner()==0 && team == ALLIANCE ) || ( bg->GetWinner()==1 && team==HORDE ))
+            if (( bg->GetWinner()== BG_TEAM_ALLIANCE && team == ALLIANCE ) || ( bg->GetWinner()== BG_TEAM_HORDE && team==HORDE ))
                 *data << uint8(1);
             else
                 *data << uint8(0);
@@ -1588,6 +1588,9 @@ BattleGround * BattleGroundMgr::CreateNewBattleGround(BattleGroundTypeId bgTypeI
             return 0;
     }
 
+    // set before Map creating for let use proper difficulty
+    bg->SetBracket(bracketEntry);
+
     // will also set m_bgMap, instanceid
     sMapMgr.CreateBgMap(bg->GetMapId(), bg);
 
@@ -1598,7 +1601,6 @@ BattleGround * BattleGroundMgr::CreateNewBattleGround(BattleGroundTypeId bgTypeI
 
     // start the joining of the bg
     bg->SetStatus(STATUS_WAIT_JOIN);
-    bg->SetBracket(bracketEntry);
     bg->SetArenaType(arenaType);
     bg->SetRated(isRated);
     bg->SetRandom(isRandom);

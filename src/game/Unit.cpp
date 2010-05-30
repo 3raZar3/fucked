@@ -441,20 +441,14 @@ void Unit::SendMonsterMoveWithSpeed(float x, float y, float z, uint32 transitTim
 
 void Unit::BuildHeartBeatMsg(WorldPacket *data) const
 {
-    MovementFlags move_flags = GetTypeId()==TYPEID_PLAYER
-        ? ((Player const*)this)->m_movementInfo.GetMovementFlags()
-        : MOVEFLAG_NONE;
+    //Hack for flying creatures, but it works!
+    if(GetTypeId()!=TYPEID_PLAYER && ((Creature*)this)->canFly() &&
+        !m_movementInfo.HasMovementFlag(MOVEFLAG_FLYING))
+        ((Unit*)this)->m_movementInfo.AddMovementFlag(MOVEFLAG_FLYING);
 
-    data->Initialize(MSG_MOVE_HEARTBEAT, 32);
+    data->Initialize(MSG_MOVE_HEARTBEAT);
     *data << GetPackGUID();
-    *data << uint32(move_flags);                            // movement flags
-    *data << uint16(0);                                     // 2.3.0
-    *data << uint32(getMSTime());                           // time
-    *data << float(GetPositionX());
-    *data << float(GetPositionY());
-    *data << float(GetPositionZ());
-    *data << float(GetOrientation());
-    *data << uint32(0);
+    ((Unit*)this)->m_movementInfo.Write(*data);
 }
 
 void Unit::resetAttackTimer(WeaponAttackType type)
@@ -785,9 +779,9 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
             }
         }
 
-    if(((Creature*)pVictim)->isTemporarySummon())//if charm dies too far from charmer(other loc, map) for summons only
-    if(pOwner)
-    pVictim->GetMap()->CreatureRelocation(((Creature*)pVictim), pOwner->GetPositionX(), pOwner->GetPositionY(), pOwner->GetPositionZ(), pOwner->GetOrientation());		
+        if(((Creature*)pVictim)->isTemporarySummon())//if charm dies too far from charmer(other loc, map) for summons only
+            if(pOwner)
+                pVictim->GetMap()->CreatureRelocation(((Creature*)pVictim), pOwner->GetPositionX(), pOwner->GetPositionY(), pOwner->GetPositionZ(), pOwner->GetOrientation());		
 
         DEBUG_FILTER_LOG(LOG_FILTER_DAMAGE,"SET JUST_DIED");
         if(!spiritOfRedemtionTalentReady)
@@ -2132,37 +2126,35 @@ void Unit::CalculateAbsorbAndResist(Unit *pCaster, SpellSchoolMask schoolMask, D
                 // Ardent Defender
                 if (spellProto->SpellIconID == 2135 && GetTypeId() == TYPEID_PLAYER)
                 {
-                    // count HP after this attack
-                    int32 remainingHealth = int32(GetHealth()) - RemainingDamage;
-                    // count how much HP required to turn on absorb effect
-                    int32 allowedHealth = int32(GetMaxHealth() * 0.35f);
-                    // If current processed attack would kill us
-                    if (remainingHealth <= 0 && !((Player*)this)->HasAura(66233))
+                    int32 remainingHealth = GetHealth() - RemainingDamage;
+                    uint32 allowedHealth = GetMaxHealth() * 0.35f;
+                    // If damage kills us
+                    if (remainingHealth <= 0 && !HasAura(66233))
                     {
                         // Cast healing spell, completely avoid damage
                         RemainingDamage = 0;
-                      
+                        
                         uint32 defenseSkillValue = GetDefenseSkillValue();
-                        uint32 baseLevelSkillValue = getLevel() * 5;
-                        // If player does not achieve even lvl cap of defense return 0%
-                        float pctFromDefense = (defenseSkillValue <= baseLevelSkillValue) ? 0.0f :
-                        // If player overexeceded maxlevelcap+140 return 100%
-                        (((defenseSkillValue - baseLevelSkillValue) >= 140) ? 1.0f : 
-                        // else scale pct
-                        ((float(defenseSkillValue) - float(baseLevelSkillValue)) / 140));
-                        int32 healAmount = int32(GetMaxHealth() * (*i)->GetSpellProto()->EffectBasePoints[EFFECT_INDEX_1] *  pctFromDefense / 100);
-                        CastCustomSpell(this, 66235, &healAmount, NULL, NULL, true);
+                        // Max heal when defense skill denies critical hits from raid bosses
+                        // Formula: max defense at level + 140 (raiting from gear)
+                        uint32 reqDefForMaxHeal  = getLevel() * 5 + 140;
+                        float pctFromDefense = (defenseSkillValue >= reqDefForMaxHeal)
+                            ? 1.0f
+                            : float(defenseSkillValue) / float(reqDefForMaxHeal);
+
+                        int32 healAmount = GetMaxHealth() * ((*i)->GetSpellProto()->EffectBasePoints[1] + 1) / 100.0f * pctFromDefense;
                         CastSpell(this, 66233, true);
+                        CastCustomSpell(this, 66235, &healAmount, NULL, NULL, true);
                     }
-                    else if (remainingHealth < allowedHealth)
+                    else if (remainingHealth < int32(allowedHealth))
                     {
                         // Reduce damage that brings us under 35% (or full damage if we are already under 35%) by x%
-                        int32 damageToReduce = (int32(GetHealth()) < allowedHealth)
+                        uint32 damageToReduce = (GetHealth() < allowedHealth)
                             ? RemainingDamage
                             : allowedHealth - remainingHealth;
                         RemainingDamage -= damageToReduce * currentAbsorb / 100;
                     }
-                    continue;    
+                    continue;
                 }
                 break;
             }
@@ -6018,9 +6010,9 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
             }
             // Gag Order
             if (dummySpell->SpellIconID == 280)
-            { 
-                triggered_spell_id = 18498; 
-                break; 
+            {
+                triggered_spell_id = 18498;                 // Silenced - Gag Order
+                break;
             }
             // Second Wind
             if (dummySpell->SpellIconID == 1697)
@@ -6977,6 +6969,9 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     if (!beacon)
                         return false;
 
+                    if (procSpell->Id == 20267)
+                        return false;
+
                     // find caster main aura at beacon
                     Aura* dummy = NULL;
                     Unit::AuraList const& baa = beacon->GetAurasByType(SPELL_AURA_PERIODIC_TRIGGER_SPELL);
@@ -7417,7 +7412,6 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     }
                 }
                 return false;
-                break;
             }
             // Lightning Overload
             if (dummySpell->SpellIconID == 2018)            // only this spell have SpellFamily Shaman SpellIconID == 2018 and dummy aura
@@ -7589,7 +7583,8 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
             // Necrosis
             if (dummySpell->SpellIconID == 2709)
             {
-                if(!(procFlag & PROC_FLAG_SUCCESSFUL_MELEE_HIT))
+                // only melee auto attack affected
+                if (!(procFlag & PROC_FLAG_SUCCESSFUL_MELEE_HIT) && procSpell->Id != 56815)
                     return false;
 
                 basepoints[0] = triggerAmount * damage / 100;
@@ -7729,6 +7724,10 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
             // Blood-Caked Blade
             if (dummySpell->SpellIconID == 138)
             {
+                // only melee auto attack affected
+                if (!(procFlag & PROC_FLAG_SUCCESSFUL_MELEE_HIT) && procSpell->Id != 56815)
+                    return false;
+
                 triggered_spell_id = dummySpell->EffectTriggerSpell[effIndex];
                 break;
             }
@@ -8643,6 +8642,12 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, Aura* triggeredB
             basepoints[0] = int32(GetTotalAttackPowerValue(BASE_ATTACK) * triggerAmount / 100);
             break;
         }
+        //Twilight Torment
+        case 57988:
+        {
+            pVictim->CastSpell(pVictim, 57988, true, NULL, NULL, GetGUID());
+            return true;
+        }
     }
 
     if( cooldown && GetTypeId()==TYPEID_PLAYER && ((Player*)this)->HasSpellCooldown(trigger_spell_id))
@@ -8740,9 +8745,6 @@ bool Unit::HandleOverrideClassScriptAuraProc(Unit *pVictim, uint32 /*damage*/, A
         case 5497:                                          // Improved Mana Gems (Serpent-Coil Braid)
             triggered_spell_id = 37445;                     // Mana Surge
             break;
-        case 6953:                                          // Warbringer
-            RemoveAurasAtMechanicImmunity(IMMUNE_TO_ROOT_AND_SNARE_MASK,0,true);
-            return true;
         case 7010:                                          // Revitalize (rank 1)
         case 7011:                                          // Revitalize (rank 2)
         case 7012:                                          // Revitalize (rank 3)
@@ -9660,7 +9662,12 @@ Unit* Unit::SelectMagnetTarget(Unit *victim, SpellEntry const *spellInfo)
             if(Unit* magnet = (*i)->GetCaster())
                 if(magnet->isAlive() && magnet->IsWithinLOSInMap(this))
                     if(roll_chance_i((*i)->GetModifier()->m_amount))
-                        return magnet;
+                        if ((*i)->GetAuraCharges())
+                        {
+                            if((*i)->DropAuraCharge())
+                                victim->RemoveAura((*i),AURA_REMOVE_BY_DEFAULT);
+                            return magnet;
+                        }
     }
 
     return victim;
@@ -9756,6 +9763,7 @@ int32 Unit::SpellBonusWithCoeffs(SpellEntry const *spellProto, int32 total, int3
  * Calculates caster part of spell damage bonuses,
  * also includes different bonuses dependent from target auras
  */
+
 uint32 Unit::SpellDamageBonusDone(Unit *pVictim, SpellEntry const *spellProto, uint32 pdamage, DamageEffectType damagetype, uint32 stack)
 {
     if(!spellProto || !pVictim || damagetype==DIRECT_DAMAGE )
@@ -9988,13 +9996,8 @@ uint32 Unit::SpellDamageBonusDone(Unit *pVictim, SpellEntry const *spellProto, u
                 if (pVictim->GetHealth() * 100 / pVictim->GetMaxHealth() <= 25)
                   DoneTotalMod *= 4;
             }
-
-            //conflagrate coef
-            if (spellProto->TargetAuraState == AURA_STATE_CONFLAGRATE)
-                return pdamage;
-
             break;
-		}	
+        }
         case SPELLFAMILY_PRIEST:
         {
             // Glyph of Smite
@@ -13238,7 +13241,10 @@ void Unit::CleanupsBeforeDelete()
         CombatStop();
         ClearComboPointHolders();
         DeleteThreatList();
-        getHostileRefManager().setOnlineOfflineState(false);
+        if (GetTypeId()==TYPEID_PLAYER)
+            getHostileRefManager().setOnlineOfflineState(false);
+        else
+            getHostileRefManager().deleteReferences();
         RemoveAllAuras(AURA_REMOVE_BY_DELETE);
         GetMotionMaster()->Clear(false);                    // remove different non-standard movement generators.
     }
@@ -14741,15 +14747,12 @@ void Unit::EnterVehicle(Vehicle *vehicle, int8 seat_id, bool force)
     if(!veSeat)
         return;
 
-    m_SeatData.OffsetX = (veSeat->m_attachmentOffsetX + v->GetObjectSize()) * GetFloatValue(OBJECT_FIELD_SCALE_X);      // transport offsetX
-    m_SeatData.OffsetY = (veSeat->m_attachmentOffsetY + v->GetObjectSize()) * GetFloatValue(OBJECT_FIELD_SCALE_X);      // transport offsetY
-    m_SeatData.OffsetZ = (veSeat->m_attachmentOffsetZ + v->GetObjectSize()) * GetFloatValue(OBJECT_FIELD_SCALE_X);      // transport offsetZ
-    m_SeatData.Orientation = veSeat->m_passengerYaw;                                                                    // NOTE : needs confirmation
-    m_SeatData.c_time = v->GetCreationTime();
-    m_SeatData.dbc_seat = veSeat->m_ID;
-    m_SeatData.seat = seat_id;
-    m_SeatData.s_flags = sObjectMgr.GetSeatFlags(veSeat->m_ID);
-    m_SeatData.v_flags = v->GetVehicleFlags();
+    m_movementInfo.SetTransportData(v->GetGUID(),
+        (veSeat->m_attachmentOffsetX + v->GetObjectSize()) * GetFloatValue(OBJECT_FIELD_SCALE_X),
+        (veSeat->m_attachmentOffsetY + v->GetObjectSize()) * GetFloatValue(OBJECT_FIELD_SCALE_X),
+        (veSeat->m_attachmentOffsetZ + v->GetObjectSize()) * GetFloatValue(OBJECT_FIELD_SCALE_X),
+        veSeat->m_passengerYaw, v->GetCreationTime(), seat_id, veSeat->m_ID,
+        sObjectMgr.GetSeatFlags(veSeat->m_ID), v->GetVehicleFlags());
 
     addUnitState(UNIT_STAT_ON_VEHICLE);
     InterruptNonMeleeSpells(false);
@@ -14763,7 +14766,7 @@ void Unit::EnterVehicle(Vehicle *vehicle, int8 seat_id, bool force)
     WorldPacket data(SMSG_MONSTER_MOVE_TRANSPORT, 60);
     data << GetPackGUID();
     data << v->GetPackGUID();
-    data << uint8(m_SeatData.seat);
+    data << uint8(seat_id);
     data << uint8(0);                                       // new in 3.1
     data << v->GetPositionX() << v->GetPositionY() << v->GetPositionZ();
     data << uint32(getMSTime());
@@ -14775,9 +14778,9 @@ void Unit::EnterVehicle(Vehicle *vehicle, int8 seat_id, bool force)
 
     data << uint32(0);                                      // Time in between points
     data << uint32(1);                                      // 1 single waypoint
-    data << m_SeatData.OffsetX;
-    data << m_SeatData.OffsetY;
-    data << m_SeatData.OffsetZ;
+    data << m_movementInfo.GetTransportPos()->x;
+    data << m_movementInfo.GetTransportPos()->y;
+    data << m_movementInfo.GetTransportPos()->z;
     SendMessageToSet(&data, true);
 
     v->AddPassenger(this, seat_id, force);
@@ -14790,7 +14793,7 @@ void Unit::ExitVehicle()
         float v_size = 0.0f;
         if(Vehicle *vehicle = ObjectAccessor::GetVehicle(vehicleGUID))
         {
-            if(m_SeatData.s_flags & SF_MAIN_RIDER)
+            if(m_movementInfo.GetVehicleSeatFlags() & SF_MAIN_RIDER)
             {
                 if(vehicle->GetVehicleFlags() & VF_DESPAWN_AT_LEAVE)
                 {
@@ -14808,7 +14811,6 @@ void Unit::ExitVehicle()
         if(GetTypeId() == TYPEID_PLAYER)
         {
             ((Player*)this)->ResummonPetTemporaryUnSummonedIfAny();
-            ((Player*)this)->m_movementInfo.RemoveMovementFlag(MOVEFLAG_ONTRANSPORT);
             ((Player*)this)->m_movementInfo.RemoveMovementFlag(MOVEFLAG_ROOT);
         }
 
@@ -14818,35 +14820,6 @@ void Unit::ExitVehicle()
         GetClosePoint(x, y, z, 2.0f + v_size);
         SendMonsterMove(x, y, z, SPLINETYPE_NORMAL, SPLINEFLAG_WALKMODE, 0);
     }
-}
-
-void Unit::BuildVehicleInfo(Unit *target)
-{
-    if(!target)
-        return;
-
-    if(!target->GetVehicleGUID())
-        return;
-
-    uint32 veh_time = getMSTimeDiff(target->m_SeatData.c_time,getMSTime());
-    WorldPacket data(MSG_MOVE_HEARTBEAT, 100);
-    data << target->GetPackGUID();
-    data << uint32(MOVEFLAG_ONTRANSPORT | MOVEFLAG_ROOT);
-    data << uint16(0);
-    data << uint32(getMSTime());
-    data << float(target->GetPositionX());
-    data << float(target->GetPositionY());
-    data << float(target->GetPositionZ());
-    data << float(target->GetOrientation());
-    data.appendPackGUID(target->GetVehicleGUID());
-    data << float(target->m_SeatData.OffsetX);
-    data << float(target->m_SeatData.OffsetY);
-    data << float(target->m_SeatData.OffsetZ);
-    data << float(target->m_SeatData.Orientation);
-    data << uint32(veh_time);
-    data << uint8 (target->m_SeatData.seat);
-    data << uint32(m_movementInfo.GetFallTime());
-    SendMessageToSet(&data, GetTypeId() == TYPEID_PLAYER ? true : false);
 }
 
 void Unit::SetPvP( bool state )

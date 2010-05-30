@@ -138,6 +138,8 @@ libmangosgame_a_SOURCES = \
 	GossipDef.cpp \
 	GossipDef.h \
 	GridDefines.h \
+	GridMap.cpp \
+	GridMap.h \
 	GridNotifiers.cpp \
 	GridNotifiers.h \
 	GridNotifiersImpl.h \
@@ -184,8 +186,8 @@ libmangosgame_a_SOURCES = \
 	MapInstanced.h \
 	MapManager.cpp \
 	MapManager.h \
-	MapUpdater.cpp \
-	MapUpdater.h \
+    MapUpdater.cpp \
+    MapUpdater.h \
 	MapReference.h \
 	MapRefManager.h \
 	MiscHandler.cpp \
@@ -289,6 +291,7 @@ libmangosgame_a_SOURCES = \
 	SpellAuras.cpp \
 	SpellAuras.h \
 	Spell.cpp \
+	SpellDBCHacks.cpp \
 	SpellEffects.cpp \
 	Spell.h \
 	SkillDiscovery.cpp \

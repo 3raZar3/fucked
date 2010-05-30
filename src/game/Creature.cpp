@@ -517,7 +517,6 @@ void Creature::Update(uint32 diff)
     }
 }
 
-
 void Creature::StartGroupLoot( Group* group, uint32 timer )
 {
     m_groupLootId = group->GetId();
@@ -846,7 +845,7 @@ void Creature::PrepareBodyLootState()
     // if not have normal loot allow skinning if need
     if (!isAlive() && !lootForSkin && GetCreatureInfo()->SkinLootId)
     {
-        lootForBody = true;                                 // pass this loot mode
+        lootForBody = true; // pass this loot mode
 
         RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
@@ -856,7 +855,6 @@ void Creature::PrepareBodyLootState()
     RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
 }
-
 
 /**
  * Return original player who tap creature, it can be different from player/group allowed to loot so not use it for loot code

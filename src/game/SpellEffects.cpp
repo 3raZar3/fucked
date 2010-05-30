@@ -413,6 +413,12 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                 }
                 break;
             }
+            case SPELLFAMILY_MAGE:
+                // remove Arcane Blast buffs at any non-Arcane Blast arcane damage spell.
+                // NOTE: it removed at hit instead cast because currently spell done-damage calculated at hit instead cast
+                if ((m_spellInfo->SchoolMask & SPELL_SCHOOL_MASK_ARCANE) && !(m_spellInfo->SpellFamilyFlags & UI64LIT(0x20000000)))
+                    m_caster->RemoveAurasDueToSpell(36032); // Arcane Blast buff
+                break;
             case SPELLFAMILY_WARRIOR:
             {
                 // Bloodthirst
@@ -830,7 +836,6 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
             {
                    // Magic Pull
                 case 51336: m_caster->CastSpell(unitTarget,50770,true); break; 
-                
                 case 8063:                                  // Deviate Fish
                 {
                     if (m_caster->GetTypeId() != TYPEID_PLAYER)
@@ -1265,8 +1270,10 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
 
                     creatureTarget->ForcedDespawn();
 
-                    // cast spell Raptor Capture Credit
-                    m_caster->CastSpell(m_caster, 42337, true, NULL);
+                    //cast spell Raptor Capture Credit
+                    if(Unit * pCaster = m_originalCaster)
+					    pCaster->CastSpell(pCaster, 42337, true);
+						
                     return;
                 }
                 case 44997:                                 // Converting Sentry
@@ -1827,6 +1834,17 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     if (m_caster->GetMap() && m_caster->GetMap()->IsDungeon())
                         m_caster->CastSpell(unitTarget, m_caster->GetMap()->IsRegularDifficulty() ? 55959 : 59513, false);
                     return;
+				}	
+                case 57908:                                 // Stain Cloth
+                {
+                    // nothing do more
+                    finish();
+
+                    m_caster->CastSpell(m_caster, 57915, false, m_CastItem);
+
+                    // cast item deleted
+                    ClearCastItem();
+                    break;
                 }
                 case 58418:                                 // Portal to Orgrimmar
                 case 58420:                                 // Portal to Stormwind
@@ -2616,7 +2634,8 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                 }
                 else
                 {
-                    int32 bp = damage;
+                    int32 bp = m_caster->SpellDamageBonusDone(unitTarget, m_spellInfo, uint32(damage), SPELL_DIRECT_DAMAGE);
+                    bp = unitTarget->SpellDamageBonusTaken(m_caster, m_spellInfo, uint32(bp), SPELL_DIRECT_DAMAGE);
                     m_caster->CastCustomSpell(unitTarget, 47632, &bp, NULL, NULL, true);
                 }
                 return;
@@ -2704,32 +2723,23 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                 }
                 return;
             }
-            switch(m_spellInfo->Id)
+            // Death Grip
+            else if (m_spellInfo->Id == 49576)
             {
-                // Death Grip
-                case 49560:
-                case 49576:
-                {
-                    if (!unitTarget || !m_caster)
-                        return;
-
-                    float x = m_caster->GetPositionX();
-                    float y = m_caster->GetPositionY();
-                    float z = m_caster->GetPositionZ()+1;
-                    float orientation = unitTarget->GetOrientation();
-
-                    m_caster->CastSpell(unitTarget,51399,true,NULL);
-
-                    if(unitTarget->GetTypeId() != TYPEID_PLAYER)
-                    {
-                        unitTarget->GetMap()->CreatureRelocation((Creature*)unitTarget,x,y,z,orientation);
-                        ((Creature*)unitTarget)->SendMonsterMove(x, y, z, SPLINETYPE_NORMAL, SPLINEFLAG_UNKNOWN11, 1);
-                    }
-                    else
-                        unitTarget->NearTeleportTo(x,y,z,orientation,false);
-
+                if (!unitTarget)
                     return;
-                }
+
+                m_caster->CastSpell(unitTarget, 49560, true);
+                return;
+            }
+            else if (m_spellInfo->Id == 49560)
+            {
+                if (!unitTarget)
+                    return;
+
+                uint32 spellId = m_spellInfo->CalculateSimpleValue(EFFECT_INDEX_0);
+                unitTarget->CastSpell(m_caster->GetPositionX(), m_caster->GetPositionY(), m_caster->GetPositionZ(), spellId, true);
+                return;
             }
             break;
         }
@@ -2839,6 +2849,10 @@ void Spell::EffectTriggerSpell(SpellEffectIndex effIndex)
         // Vanish (not exist)
         case 18461:
         {
+            // Stop combat and remove attackers
+            unitTarget->CombatStop();
+            unitTarget->getHostileRefManager().deleteReferences();
+
             unitTarget->RemoveSpellsCausingAura(SPELL_AURA_MOD_ROOT);
             unitTarget->RemoveSpellsCausingAura(SPELL_AURA_MOD_DECREASE_SPEED);
             unitTarget->RemoveSpellsCausingAura(SPELL_AURA_MOD_STALKED);
@@ -3554,6 +3568,7 @@ void Spell::EffectHealMechanical(SpellEffectIndex /*eff_idx*/)
 
         uint32 addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, damage, HEAL);
         addhealth = unitTarget->SpellHealingBonusTaken(caster, m_spellInfo, addhealth, HEAL);
+
         caster->DealHeal(unitTarget, addhealth, m_spellInfo);
     }
 }
@@ -3584,6 +3599,7 @@ void Spell::EffectHealthLeech(SpellEffectIndex eff_idx)
     if (m_caster->isAlive())
     {
         heal = m_caster->SpellHealingBonusTaken(m_caster, m_spellInfo, heal, HEAL);
+
         m_caster->DealHeal(m_caster, heal, m_spellInfo);
     }
 }
@@ -4050,10 +4066,7 @@ void Spell::EffectSummonChangeItem(SpellEffectIndex eff_idx)
             player->DestroyItem(m_CastItem->GetBagSlot(), m_CastItem->GetSlot(), true);
 
             // prevent crash at access and unexpected charges counting with item update queue corrupt
-            if (m_CastItem==m_targets.getItemTarget())
-                m_targets.setItemTarget(NULL);
-
-            m_CastItem = NULL;
+            ClearCastItem();
 
             player->StoreItem( dest, pNewItem, true);
             return;
@@ -4068,10 +4081,7 @@ void Spell::EffectSummonChangeItem(SpellEffectIndex eff_idx)
             player->DestroyItem(m_CastItem->GetBagSlot(), m_CastItem->GetSlot(), true);
 
             // prevent crash at access and unexpected charges counting with item update queue corrupt
-            if (m_CastItem==m_targets.getItemTarget())
-                m_targets.setItemTarget(NULL);
-
-            m_CastItem = NULL;
+            ClearCastItem();
 
             player->BankItem( dest, pNewItem, true);
             return;
@@ -4086,10 +4096,7 @@ void Spell::EffectSummonChangeItem(SpellEffectIndex eff_idx)
             player->DestroyItem(m_CastItem->GetBagSlot(), m_CastItem->GetSlot(), true);
 
             // prevent crash at access and unexpected charges counting with item update queue corrupt
-            if (m_CastItem==m_targets.getItemTarget())
-                m_targets.setItemTarget(NULL);
-
-            m_CastItem = NULL;
+            ClearCastItem();
 
             player->EquipItem( dest, pNewItem, true);
             player->AutoUnequipOffhandIfNeed();
@@ -4464,7 +4471,7 @@ void Spell::EffectLearnSpell(SpellEffectIndex eff_idx)
     Player *player = (Player*)unitTarget;
 
     uint32 spellToLearn = ((m_spellInfo->Id==SPELL_ID_GENERIC_LEARN) || (m_spellInfo->Id==SPELL_ID_GENERIC_LEARN_PET)) ? damage : m_spellInfo->EffectTriggerSpell[eff_idx];
-    player->learnSpell(spellToLearn,false);
+    player->learnSpell(spellToLearn, false);
 
     if ((sWorld.getConfig(CONFIG_BOOL_ALLOW_FLYING_MOUNTS_EVERYWHERE)) && (m_spellInfo->Id==55884))
     {
@@ -5496,7 +5503,7 @@ void Spell::EffectWeaponDmg(SpellEffectIndex eff_idx)
                 case 72624: case 72625: // Ooze Eruption
                 {
                     uint32 count = 0;
-                    for(tbb::concurrent_vector<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit) 
+                    for(tbb::concurrent_vector<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin();ihit != m_UniqueTargetInfo.end();++ihit)
                         if(ihit->effectMask & (1<<eff_idx))
                             ++count;
 
@@ -5824,6 +5831,12 @@ void Spell::EffectWeaponDmg(SpellEffectIndex eff_idx)
     // prevent negative damage
     m_damage+= uint32(bonus > 0 ? bonus : 0);
 
+    // Hemorrhage
+    if (m_spellInfo->SpellFamilyName==SPELLFAMILY_ROGUE && (m_spellInfo->SpellFamilyFlags & UI64LIT(0x2000000)))
+    {
+        if(m_caster->GetTypeId()==TYPEID_PLAYER)
+            ((Player*)m_caster)->AddComboPoints(unitTarget, 1);
+    }
     // Mangle (Cat): CP
     if (m_spellInfo->SpellFamilyName==SPELLFAMILY_DRUID && (m_spellInfo->SpellFamilyFlags==UI64LIT(0x0000040000000000)))
     {
@@ -6204,6 +6217,24 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     unitTarget->RemoveAurasAtMechanicImmunity(IMMUNE_TO_ROOT_AND_SNARE_MASK,30918,true);
                     break;
                 }
+                case 41055:                                 // Copy Weapon
+                {
+                    if (m_caster->GetTypeId() != TYPEID_UNIT || !unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    if (Item* pItem = ((Player*)unitTarget)->GetWeaponForAttack(BASE_ATTACK))
+                    {
+                        if (const ItemEntry *dbcitem = sItemStore.LookupEntry(pItem->GetProto()->ItemId))
+                        {
+                            m_caster->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, dbcitem->ID);
+
+                            // Unclear what this spell should do
+                            unitTarget->CastSpell(m_caster, m_spellInfo->CalculateSimpleValue(eff_idx), true);
+                        }
+                    }
+
+                    return;
+                }
                 case 41126:                                 // Flame Crash
                 {
                     if(!unitTarget)
@@ -6218,6 +6249,15 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                         return;
 
                     unitTarget->CastSpell(unitTarget, 42285, true);
+                    return;
+                }
+                case 43365:                                 // The Cleansing: Shrine Cast
+                {
+                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    // Script Effect Player Cast Mirror Image
+                    m_caster->CastSpell(m_caster, 50217, true);
                     return;
                 }
                 case 43648:                                 // Electrical Storm
@@ -6321,6 +6361,23 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
 
                     unitTarget->CastSpell(unitTarget, 46394, true);
                     break;
+                }
+                case 45206:                                 // Copy Off-hand Weapon
+                {
+                    if (m_caster->GetTypeId() != TYPEID_UNIT || !unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    if (Item* pItem = ((Player*)unitTarget)->GetWeaponForAttack(OFF_ATTACK))
+                    {
+                        if (const ItemEntry *dbcitem = sItemStore.LookupEntry(pItem->GetProto()->ItemId))
+                        {
+                            m_caster->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, dbcitem->ID);
+
+                            // Unclear what this spell should do
+                            unitTarget->CastSpell(m_caster, m_spellInfo->CalculateSimpleValue(eff_idx), true);
+                        }
+                    }
+                    return;
                 }
                 case 45625:                                 // Arcane Chains: Character Force Cast
                 {
@@ -6523,16 +6580,57 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     unitTarget->CastSpell(m_caster, 49406, true);
                     return;
                 }
-                case 59803:                                 // Consume (heroic mode Trollgore - Drak'Tharok Keep)
+                case 50217:                                 // The Cleansing: Script Effect Player Cast Mirror Image
                 {
-                    if (!unitTarget)
+                    // Summon Your Inner Turmoil
+                    m_caster->CastSpell(m_caster, 50167, true);
+
+                    // Spell 50218 has TARGET_SCRIPT, but other wild summons near may exist, and then target can become wrong
+                    // Only way to make this safe is to get the actual summoned by m_caster
+
+                    // Your Inner Turmoil's Mirror Image Aura
+                    m_caster->CastSpell(m_caster, 50218, true);
+
+                    return;
+                }
+                case 50218:                                 // The Cleansing: Your Inner Turmoil's Mirror Image Aura
+                {
+                    if (!m_originalCaster || m_originalCaster->GetTypeId() != TYPEID_PLAYER || !unitTarget)
                         return;
 
-                    // apply Consume buff
-                    unitTarget->CastSpell(m_caster, 59805, false);
+                    // determine if and what weapons can be copied
+                    switch(eff_idx)
+                    {
+                        case EFFECT_INDEX_1:
+                            if (((Player*)m_originalCaster)->GetWeaponForAttack(BASE_ATTACK))
+                                unitTarget->CastSpell(m_originalCaster, m_spellInfo->CalculateSimpleValue(eff_idx), true);
 
-                    // Corpse Explode (prepare corpse to explode)
-                    m_caster->CastSpell(unitTarget, 59807, false);
+                            return;
+                        case EFFECT_INDEX_2:
+                            if (((Player*)m_originalCaster)->GetWeaponForAttack(OFF_ATTACK))
+                                unitTarget->CastSpell(m_originalCaster, m_spellInfo->CalculateSimpleValue(eff_idx), true);
+
+                            return;
+                        default:
+                            return;
+                    }
+                    return;
+                }
+                case 50238:                                 // The Cleansing: Your Inner Turmoil's On Death Cast on Master
+                {
+                    if (m_caster->GetTypeId() != TYPEID_UNIT)
+                        return;
+
+                    if (((Creature*)m_caster)->isTemporarySummon())
+                    {
+                        TemporarySummon* pSummon = (TemporarySummon*)m_caster;
+
+                        if (pSummon->GetSummonerGuid().IsPlayer())
+                        {
+                            if (Player* pSummoner = sObjectMgr.GetPlayer(pSummon->GetSummonerGuid()))
+                                pSummoner->CastSpell(pSummoner, m_spellInfo->CalculateSimpleValue(eff_idx), true);
+                        }
+                    }
                     return;
                 }
                 case 51770:                                 // Emblazon Runeblade
@@ -6773,6 +6871,18 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     else
                         unitTarget->CastSpell(unitTarget, 59314, true);
 
+                    return;
+                }
+                case 59803:                                 // Consume (heroic mode Trollgore - Drak'Tharok Keep)
+                {
+                    if (!unitTarget)
+                        return;
+
+                    // apply Consume buff
+                    unitTarget->CastSpell(m_caster, 59805, false);
+
+                    // Corpse Explode (prepare corpse to explode)
+                    m_caster->CastSpell(unitTarget, 59807, false);
                     return;
                 }
                 case 59910:                                 // Summon Minions
@@ -7382,6 +7492,9 @@ void Spell::EffectSanctuary(SpellEffectIndex /*eff_idx*/)
 void Spell::EffectAddComboPoints(SpellEffectIndex /*eff_idx*/)
 {
     if(!unitTarget)
+        return;
+
+    if(m_caster->GetTypeId() != TYPEID_PLAYER)
         return;
 
     if(damage <= 0)
@@ -8103,7 +8216,12 @@ void Spell::EffectCharge(SpellEffectIndex /*eff_idx*/)
     unitTarget->GetContactPoint(m_caster, x, y, z, 3.6f);
 
     // Try to normalize Z coord cuz GetContactPoint do nothing with Z axis
-    unitTarget->UpdateGroundPositionZ(x, y, z, 5.0f);
+    if(!m_caster->GetMap()->IsNextZcoordOK(x, y, z, 30.0f))
+    {
+        SendCastResult(SPELL_FAILED_TRY_AGAIN);
+        return;
+    }
+    m_caster->UpdateGroundPositionZ(x, y, z, 30.0f);
 
     // Try to normalize Z coord cuz GetContactPoint do nothing with Z axis
     unitTarget->UpdateGroundPositionZ(x, y, z, 5.0f);
@@ -8141,7 +8259,12 @@ void Spell::EffectCharge2(SpellEffectIndex /*eff_idx*/)
         return;
 
     // Try to normalize Z coord cuz GetContactPoint do nothing with Z axis
-    unitTarget->UpdateGroundPositionZ(x, y, z, 5.0f);
+    if(!m_caster->GetMap()->IsNextZcoordOK(x, y, z, 30.0f))
+    {
+        SendCastResult(SPELL_FAILED_TRY_AGAIN);
+        return;
+    }
+    m_caster->UpdateGroundPositionZ(x, y, z, 30.0f);
 
     // Only send MOVEMENTFLAG_WALK_MODE, client has strange issues with other move flags
     m_caster->MonsterMove(x, y, z, 1);

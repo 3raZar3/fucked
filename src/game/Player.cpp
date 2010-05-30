@@ -1757,7 +1757,7 @@ bool Player::ToggleAFK()
     bool state = HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_AFK);
 
     // afk player not allowed in battleground
-    if(state && InBattleGround())
+    if (state && InBattleGround() && !InArena())
         LeaveBattleground();
 
     return state;
@@ -8067,7 +8067,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
     {
         case HIGHGUID_GAMEOBJECT:
         {
-            DEBUG_LOG("IS_GAMEOBJECT_GUID(guid)");
+            DEBUG_LOG(" IS_GAMEOBJECT_GUID(guid)");
             GameObject *go = GetMap()->GetGameObject(guid);
 
             // not check distance for GO in case owned GO (fishing bobber case, for example)
@@ -8094,7 +8094,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
 
                 if (lootid)
                 {
-                    DEBUG_LOG("if(lootid)");
+                    DEBUG_LOG(" if(lootid)");
                     loot->clear();
                     loot->FillLoot(lootid, LootTemplates_Gameobject, this, false);
                     loot->generateMoneyLoot(go->GetGOInfo()->MinMoneyLoot, go->GetGOInfo()->MaxMoneyLoot);
@@ -17847,6 +17847,12 @@ void Player::_SaveStats()
     // check if stat saving is enabled and if char level is high enough
     if(!sWorld.getConfig(CONFIG_UINT32_MIN_LEVEL_STAT_SAVE) || getLevel() < sWorld.getConfig(CONFIG_UINT32_MIN_LEVEL_STAT_SAVE))
         return;
+		
+	std::ostringstream data_armory;
+	for(uint16 i = 0; i < m_valuesCount; i++)
+	{
+	    data_armory << GetUInt32Value(i) << " ";
+	}	
 
     CharacterDatabase.PExecute("DELETE FROM character_stats WHERE guid = '%u'", GetGUIDLow());
     std::ostringstream ss;
@@ -17857,7 +17863,7 @@ void Player::_SaveStats()
         "a_melee_hitrating, a_melee_critrating, a_melee_hasterating, a_melee_mainmindmg, a_melee_mainmaxdmg, "
         "a_melee_offmindmg, a_melee_offmaxdmg, a_melee_maintime, a_melee_offtime, a_ranged_critrating, a_ranged_hasterating, "
         "a_ranged_hitrating, a_ranged_mindmg, a_ranged_maxdmg, a_ranged_attacktime, "
-        "a_spell_hitrating, a_spell_critrating, a_spell_hasterating, a_spell_bonusdmg, a_spell_bonusheal, a_spell_critproc) VALUES ("
+        "a_spell_hitrating, a_spell_critrating, a_spell_hasterating, a_spell_bonusdmg, a_spell_bonusheal, a_spell_critproc, data) VALUES ("
         << GetGUIDLow() << ", "
         << GetMaxHealth() << ", ";
     for(int i = 0; i < MAX_POWERS; ++i)
@@ -17904,7 +17910,8 @@ void Player::_SaveStats()
        << GetUInt32Value(ANDEERIA_SPELL_HASTERATING) << ", "
        << GetUInt32Value(ANDEERIA_SPELL_BONUSDMG) << ", "
        << GetUInt32Value(ANDEERIA_SPELL_BONUSHEAL) << ", "
-       << GetFloatValue(ANDEERIA_SPELL_CRITPROC) << ")";
+       << GetFloatValue(ANDEERIA_SPELL_CRITPROC) << ", '"
+	   << data_armory.str().c_str() << "')";
     CharacterDatabase.Execute( ss.str().c_str() );
 }
 
@@ -18761,7 +18768,9 @@ void Player::HandleStealthedUnitsDetection()
                 if((*i)!=this && (*i)->isType(TYPEMASK_UNIT))
                 {
                     SendAurasForTarget(*i);
-                    BuildVehicleInfo(*i);
+                    WorldPacket data;
+                    (*i)->BuildHeartBeatMsg(&data);
+                    GetSession()->SendPacket(&data);
                 }
             }
         }
@@ -19265,7 +19274,7 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
         }
 
         ModifyMoney( -(int32)price );
-		uint32 extCostId = 0;
+        uint32 extCostId = 0;
         if (uint32 extendedCostId = crItem->GetExtendedCostId())
         {
             ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(extendedCostId);
@@ -19966,7 +19975,9 @@ void Player::UpdateVisibilityOf(WorldObject const* viewPoint, WorldObject* targe
             if(target!=this && target->isType(TYPEMASK_UNIT))
             {
                 SendAurasForTarget((Unit*)target);
-                BuildVehicleInfo((Unit*)target);
+                WorldPacket data;
+                ((Unit*)target)->BuildHeartBeatMsg(&data);
+                GetSession()->SendPacket(&data);
             }
 
             if(target->GetTypeId()==TYPEID_UNIT && ((Creature*)target)->isAlive())
@@ -20220,7 +20231,7 @@ void Player::SendInitialPacketsAfterAddToMap()
     {
         WorldPacket data3(SMSG_FORCE_MOVE_ROOT, 10);
         data3 << GetPackGUID();
-        data3 << (uint32)((m_SeatData.s_flags & SF_CAN_CAST) ? 2 : 0);
+        data3 << (uint32)((m_movementInfo.GetVehicleSeatFlags() & SF_CAN_CAST) ? 2 : 0);
         SendMessageToSet(&data3,true);
     }
 
@@ -20963,6 +20974,9 @@ bool Player::RewardSinglePlayerAtKill(Unit* pVictim)
         if(pVictim->GetTypeId()==TYPEID_UNIT)
             KilledMonster(((Creature*)pVictim)->GetCreatureInfo(), pVictim->GetObjectGuid());
     }
+    if(GetVehicleGUID() && !(m_movementInfo.GetVehicleFlags() & VF_GIVE_EXP))
+        xp = 0;
+
     return xp || honored_kill;
 }
 
@@ -21246,8 +21260,8 @@ void Player::SetOriginalGroup(Group *group, int8 subgroup)
 
 void Player::UpdateUnderwaterState( Map* m, float x, float y, float z )
 {
-    LiquidData liquid_status;
-    ZLiquidStatus res = m->getLiquidStatus(x, y, z, MAP_ALL_LIQUIDS, &liquid_status);
+    GridMapLiquidData liquid_status;
+    GridMapLiquidStatus res = m->getLiquidStatus(x, y, z, MAP_ALL_LIQUIDS, &liquid_status);
     if (!res)
     {
         m_MirrorTimerFlags &= ~(UNDERWATER_INWATER|UNDERWATER_INLAVA|UNDERWATER_INSLIME|UNDERWATER_INDARKWATER);

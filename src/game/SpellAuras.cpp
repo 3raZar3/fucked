@@ -2551,6 +2551,16 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                             // Reindeer Transformation
                             m_target->CastSpell(m_target, 25860, true, NULL, this);
                         return;
+                    case 63322:
+                    {
+                        int32 multiplier = pow(2.0f,  GetStackAmount());
+                        int32 damage = 50 * multiplier;
+                        int32 energize = 100 * multiplier;
+
+                        m_target->CastCustomSpell(m_target, 63338, &damage, 0, 0 ,true);
+                        m_target->CastCustomSpell(m_target, 63337, &energize, 0, 0, true);
+                        return;
+                    }
                     case 63624:                             // Learn a Second Talent Specialization
                         // Teach Learn Talent Specialization Switches, required for client triggered casts, allow after 30 sec delay
                         if (m_target->GetTypeId() == TYPEID_PLAYER)
@@ -2572,9 +2582,6 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                         return;
                     case 75614:                             // Celestial Steed
                         Spell::SelectMountByAreaAndSkill(m_target, 75619, 75620, 75617, 75618, 76153);
-                        return;
-                    case 75973:                             // X-53 Touring Rocket 
-                        Spell::SelectMountByAreaAndSkill(m_target, 0, 0, 75957, 75972, 76154);
                         return;
                 }
                 break;
@@ -2612,42 +2619,6 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                             break;
                         }
                     }
-                    return;
-                }
-                break;
-            }
-            case SPELLFAMILY_HUNTER:
-            {
-                if (m_spellProto->Id == 34026)              // kill command, cast spell
-                {
-                    Unit* p_caster = GetCaster();
-                    if(!p_caster || p_caster->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
-                    // check pet
-                    if( !p_caster->GetPet() )
-                    {
-                        Spell::SendCastResult((Player*)p_caster, m_spellProto, 0, SPELL_FAILED_NO_PET);
-                        // Removed this part - it can lead to exploit with spells procing on spell cast
-                        ((Player*)p_caster)->RemoveSpellCooldown(m_spellProto->Id, true);
-                        SetAuraDuration(0);
-                        return;
-                    }
-                    // caster spellmods (+ pet's dummy aura)
-                    p_caster->CastSpell(p_caster,34027,true,NULL,this);
-
-                    // set 3 stacks for all auras
-                    if (Aura* owner_aura = p_caster->GetAura(34027,EFFECT_INDEX_0))
-                        owner_aura->SetStackAmount(3);
-                    if (Aura* owner_aura = p_caster->GetAura(34027,EFFECT_INDEX_1))
-                        owner_aura->SetStackAmount(3);
-                    if (Aura* pet_aura = p_caster->GetPet()->GetDummyAura(58914))
-                        pet_aura->SetStackAmount(3);
-                    // check for Focused Fire
-                    if (p_caster->GetDummyAura(35029))
-                        p_caster->CastSpell(p_caster, 60110,true);
-                    else if (p_caster->GetDummyAura(35030))
-                        p_caster->CastSpell(p_caster, 60113, true);
                     return;
                 }
                 break;
@@ -2861,16 +2832,6 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                 m_target->CastSpell(m_target, 58601, true);
                 // Parachute
                 m_target->CastSpell(m_target, 45472, true);
-                return;
-            }
-            case 58914:                                     // kill command, pet aura
-            {
-                // remove owner auras
-                Unit* caster = GetCaster();
-                if(!caster)
-                    return;
-                // the spellmod aura (owner)
-                caster->RemoveAurasDueToSpell(34027);
                 return;
             }
             case 59907:                                     // Lightwell charges - despawn creature if no charges remain
@@ -3925,8 +3886,8 @@ void Aura::HandleChannelDeathItem(bool apply, bool Real)
         if (spellInfo->EffectItemType[m_effIndex] == 6265)
         {
             // Only from non-grey units
-            if ((victim->getLevel() <= MaNGOS::XP::GetGrayLevel(caster->getLevel()) ||
-                victim->GetTypeId() == TYPEID_UNIT && !((Player*)caster)->isAllowedToLoot((Creature*)victim)))
+            if (!((Player*)caster)->isHonorOrXPTarget(victim) ||
+                victim->GetTypeId() == TYPEID_UNIT && !((Player*)caster)->isAllowedToLoot((Creature*)victim))
                 return;
         }
 
@@ -4991,7 +4952,7 @@ void Aura::HandleModMechanicImmunity(bool apply, bool /*Real*/)
         uint32 mechanic = 1 << (misc-1);
 
         //immune movement impairment and loss of control
-        if(GetId()==42292 || GetId()==59752 || GetId()==53490)
+        if(GetId()==42292 || GetId()==59752 || GetId()==53490 || GetId()==65547)
             mechanic=IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK;
 
         m_target->RemoveAurasAtMechanicImmunity(mechanic,GetId());
@@ -5196,7 +5157,7 @@ void Aura::HandlePeriodicTriggerSpell(bool apply, bool /*Real*/)
             case 46221:                                     // Animal Blood
                 if (m_removeMode == AURA_REMOVE_BY_DEFAULT && m_target->IsInWater())
                 {
-                    LiquidData liquid_status;
+                    GridMapLiquidData liquid_status;
 
                     if (m_target->GetMap()->getLiquidStatus(m_target->GetPositionX(), m_target->GetPositionY(), m_target->GetPositionZ(), MAP_ALL_LIQUIDS, &liquid_status))
                         m_target->CastSpell(m_target->GetPositionX(), m_target->GetPositionY(), liquid_status.level, 63471, true, NULL, this);
@@ -5474,11 +5435,11 @@ void Aura::HandlePeriodicDamage(bool apply, bool Real)
                     // $AP*0.18/3 bonus per tick
                     m_modifier.m_amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * 6 / 100);
                 // Lacerate
-                if (m_spellProto->SpellFamilyFlags & UI64LIT(0x000000010000000000))
+                else if (m_spellProto->SpellFamilyFlags & UI64LIT(0x000000010000000000))
                     // $AP*0.05/5 bonus per tick
                     m_modifier.m_amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) / 100);
                 // Rip
-                if (m_spellProto->SpellFamilyFlags & UI64LIT(0x000000000000800000))
+                else if (m_spellProto->SpellFamilyFlags & UI64LIT(0x000000000000800000))
                 {
                     // 0.01*$AP*cp
                     if (caster->GetTypeId() != TYPEID_PLAYER)
@@ -5499,7 +5460,7 @@ void Aura::HandlePeriodicDamage(bool apply, bool Real)
                     m_modifier.m_amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * cp / 100);
                 }
                 // Lock Jaw
-                if (m_spellProto->SpellFamilyFlags & UI64LIT(0x1000000000000000))
+                else if (m_spellProto->SpellFamilyFlags & UI64LIT(0x1000000000000000))
                     // 0.15*$AP
                     m_modifier.m_amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * 15 / 100);
                 break;
@@ -5522,11 +5483,11 @@ void Aura::HandlePeriodicDamage(bool apply, bool Real)
                     m_modifier.m_amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * AP_per_combo[cp]);
                 }
                 // Garrote
-                if (m_spellProto->SpellFamilyFlags & UI64LIT(0x000000000000000100))
+                else if (m_spellProto->SpellFamilyFlags & UI64LIT(0x000000000000000100))
                     // $AP*0.07 bonus per tick
                     m_modifier.m_amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * 7 / 100);
                 // Deadly Poison
-                if (m_spellProto->SpellFamilyFlags & UI64LIT(0x0000000000010000))
+                else if (m_spellProto->SpellFamilyFlags & UI64LIT(0x0000000000010000))
                     // 0.12*$AP / 4 * amount of stack
                     m_modifier.m_amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * 3 * GetStackAmount() / 100);
                 break;
@@ -5538,7 +5499,7 @@ void Aura::HandlePeriodicDamage(bool apply, bool Real)
                     // $RAP*0.2/5 bonus per tick
                     m_modifier.m_amount += int32(caster->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.2 / 5);
                 // Immolation Trap
-                if ((m_spellProto->SpellFamilyFlags & UI64LIT(0x0000000000000004)) && m_spellProto->SpellIconID == 678)
+                else if ((m_spellProto->SpellFamilyFlags & UI64LIT(0x0000000000000004)) && m_spellProto->SpellIconID == 678)
                     // $RAP*0.1/5 bonus per tick
                     m_modifier.m_amount += int32(caster->GetTotalAttackPowerValue(RANGED_ATTACK) * 10 / 500);
                 break;
@@ -5559,16 +5520,23 @@ void Aura::HandlePeriodicDamage(bool apply, bool Real)
             }
             case SPELLFAMILY_DEATHKNIGHT:
             {
-                // Frost Fever and Blood Plague damage calculation
-                if(GetSpellProto()->SpellFamilyFlags2 & 0x2)
+                //Frost Fever and Blood Plague AP scale
+                if (m_spellProto->SpellFamilyFlags & UI64LIT(0x400080000000000))
                 {
-                    m_modifier.m_amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.08525 /* orginally* 0.055 * 1.55*/);
-                    return;
+                    m_modifier.m_amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.055f * 1.15f);
                 }
                 break;
             }
             default:
                 break;
+        }
+
+        if(m_modifier.m_auraname == SPELL_AURA_PERIODIC_DAMAGE)
+        {
+            // SpellDamageBonusDone for magic spells
+            if(GetSpellProto()->DmgClass == SPELL_DAMAGE_CLASS_NONE || GetSpellProto()->DmgClass == SPELL_DAMAGE_CLASS_MAGIC)
+                m_modifier.m_amount = caster->SpellDamageBonusDone(m_target, GetSpellProto(), m_modifier.m_amount, DOT, GetStackAmount());
+            // MeleeDamagebonusDone for weapon based spells
         }
     }
     // remove time effects
@@ -5973,6 +5941,7 @@ void Aura::HandleAuraModIncreaseHealth(bool apply, bool Real)
         case 34511:                                         // Valor (Bulwark of Kings, Bulwark of the Ancient Kings)
         case 44055: case 55915: case 55917: case 67596:     // Tremendous Fortitude (Battlemaster's Alacrity)
         case 50322:                                         // Survival Instincts
+        case 53479:                                         // Hunter pet - Last Stand
         case 54443:                                         // Demonic Empowerment (Voidwalker)
         case 55233:                                         // Vampiric Blood
         case 59465:                                         // Brood Rage (Ahn'Kahet)
@@ -7115,35 +7084,16 @@ void Aura::HandleSpellSpecificBoosts(bool apply)
             break;
         case SPELLFAMILY_HUNTER:
         {
-            switch (GetId())
+            // The Beast Within and Bestial Wrath - immunity
+            if (GetId() == 19574 || GetId() == 34471)
             {
-                case 19574:                                 // Bestial Wrath - immunity
-                case 34471:                                 // The Beast Within - immunity
-                {
-                    spellId1 = 24395;
-                    spellId2 = 24396;
-                    spellId3 = 24397;
-                    spellId4 = 26592;
-                    break;
-                }
-                case 34027:                                 // Kill Command, owner aura (spellmods)
-                {
-                    if (apply)
-                        return;
-                    spellId1 = 34026;                       // Kill Command, owner casting aura
-                    spellId2 = 60110;                       // Kill Command, Focused Fire addition
-                    spellId3 = 60113;
-                    Unit* pet = m_target->GetPet();
-                    if(!pet)
-                        break;
-                    pet->RemoveAurasDueToSpell(58914);
-                    break;
-                }
-                default:
-                    break;
+                spellId1 = 24395;
+                spellId2 = 24396;
+                spellId3 = 24397;
+                spellId4 = 26592;
             }
             // Freezing Trap Effect
-            if (m_spellProto->SpellFamilyFlags & UI64LIT(0x0000000000000008))
+            else if (m_spellProto->SpellFamilyFlags & UI64LIT(0x0000000000000008))
             {
                 if(!apply)
                 {
@@ -7972,7 +7922,7 @@ void Aura::PeriodicTick()
             {
                 // Only from non-grey units
                 if (roll_chance_i(10) &&                    // 1-2 from drain with final and without glyph, 0-1 from damage
-                    m_target->getLevel() > MaNGOS::XP::GetGrayLevel(pCaster->getLevel()) &&
+                    ((Player*)pCaster)->isHonorOrXPTarget(m_target) &&
                     (m_target->GetTypeId() != TYPEID_UNIT || ((Player*)pCaster)->isAllowedToLoot((Creature*)m_target)))
                 {
                     pCaster->CastSpell(pCaster, 43836, true, NULL, this);
@@ -8713,6 +8663,16 @@ void Aura::PeriodicDummyTick()
                         case 2: m_target->CastSpell(m_target, 55739, true); break;
                     }
                     return;
+                case 63276:
+                {
+                    Unit* caster = GetCaster();
+                    if(!caster)
+                        return;
+
+                    int32 bp1 = m_spellProto->CalculateSimpleValue(EFFECT_INDEX_0);
+                    caster->CastCustomSpell(m_target, 63278, 0, &bp1, 0, true);
+                    return;
+                }
                 case 66118:                                 // Leeching Swarm 10 man
                 case 68646:
                 {

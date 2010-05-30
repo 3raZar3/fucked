@@ -680,7 +680,7 @@ class MANGOS_DLL_SPEC Creature : public Unit
         bool CreateFromProto(uint32 guidlow,uint32 Entry,uint32 team, const CreatureData *data = NULL);
         bool InitEntry(uint32 entry, uint32 team=ALLIANCE, const CreatureData* data=NULL);
         void RelocationNotify();
-
+        
         uint32 m_unPlayerDamageDone;
         uint32 m_unUnitDamageDone;
 

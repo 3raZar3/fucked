@@ -285,9 +285,8 @@ void Object::BuildMovementUpdate(ByteBuffer * data, uint16 updateFlags) const
                         }
                     }
                 }
-                if(((Unit*)this)->GetVehicleGUID())
-                    moveFlags2 |= (MOVEFLAG_ONTRANSPORT | MOVEFLAG_ROOT);
-
+                if(unit->GetVehicleGUID())
+                   unit->m_movementInfo.AddMovementFlag(MOVEFLAG_ONTRANSPORT);
             }
             break;
             case TYPEID_PLAYER:
@@ -303,8 +302,9 @@ void Object::BuildMovementUpdate(ByteBuffer * data, uint16 updateFlags) const
                 player->m_movementInfo.RemoveMovementFlag(MOVEFLAG_SPLINE_ENABLED);
 
                 if(((Unit*)this)->GetVehicleGUID())
-                    moveFlags2 |= (MOVEFLAG_ONTRANSPORT | MOVEFLAG_ROOT);
-                if(player->isInFlight())
+                    player->m_movementInfo.AddMovementFlag(MOVEFLAG_ONTRANSPORT);
+
+                if(((Player*)this)->isInFlight())
                 {
                     ASSERT(player->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE);
                     player->m_movementInfo.AddMovementFlag(MOVEFLAG_FORWARD);
@@ -1090,7 +1090,7 @@ void Object::BuildUpdateData( UpdateDataMapType& /*update_players */)
 }
 
 WorldObject::WorldObject()
-    : m_currMap(NULL), m_mapId(0), m_InstanceId(0), m_phaseMask(PHASEMASK_NORMAL),
+    : m_currMap(NULL), m_zoneScript(NULL), m_mapId(0), m_InstanceId(0), m_phaseMask(PHASEMASK_NORMAL),
     m_positionX(0.0f), m_positionY(0.0f), m_positionZ(0.0f), m_orientation(0.0f)
 {
 }
@@ -1114,7 +1114,11 @@ void WorldObject::Relocate(float x, float y, float z, float orientation)
     m_orientation = orientation;
 
     if(isType(TYPEMASK_UNIT))
+    {
         ((Unit*)this)->m_movementInfo.ChangePosition(x, y, z, orientation);
+        if(((Creature*)this)->isVehicle())
+            ((Vehicle*)this)->RelocatePassengers(GetMap());
+    }
 }
 
 void WorldObject::Relocate(float x, float y, float z)
@@ -1124,7 +1128,11 @@ void WorldObject::Relocate(float x, float y, float z)
     m_positionZ = z;
 
     if(isType(TYPEMASK_UNIT))
+    {
         ((Unit*)this)->m_movementInfo.ChangePosition(x, y, z, GetOrientation());
+        if(((Creature*)this)->isVehicle())
+            ((Vehicle*)this)->RelocatePassengers(GetMap());
+    }
 }
 
 uint32 WorldObject::GetZoneId() const
@@ -1457,15 +1465,15 @@ void WorldObject::UpdateGroundPositionZ(float x, float y, float &z, float maxDif
 {
     maxDiff = maxDiff >= 100.0f ? 10.0f : sqrtf(maxDiff);
     bool useVmaps = false;
-    if( GetBaseMap()->GetHeight(x, y, z, false) <  GetBaseMap()->GetHeight(x, y, z, true) ) // check use of vmaps
+    if( GetBaseMap()->GetHeight(x, y, z+2.0f, false) <  GetBaseMap()->GetHeight(x, y, z+2.0f, true) ) // check use of vmaps
         useVmaps = true;
 
-    float normalizedZ = GetBaseMap()->GetHeight(x, y, z, useVmaps);
+    float normalizedZ = GetBaseMap()->GetHeight(x, y, z+2.0f, useVmaps);
     // check if its reacheable
     if(normalizedZ <= INVALID_HEIGHT || fabs(normalizedZ-z) > maxDiff)
     {
         useVmaps = !useVmaps;                                // try change vmap use
-        normalizedZ = GetBaseMap()->GetHeight(x, y, z, useVmaps);
+        normalizedZ = GetBaseMap()->GetHeight(x, y, z+2.0f, useVmaps);
         if(normalizedZ <= INVALID_HEIGHT || fabs(normalizedZ-z) > maxDiff)
             return;                                        // Do nothing in case of another bad result 
     }

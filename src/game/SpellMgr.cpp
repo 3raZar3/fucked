@@ -1624,24 +1624,14 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
     if ((spellInfo_1->Attributes & SPELL_ATTR_PASSIVE)!=(spellInfo_2->Attributes & SPELL_ATTR_PASSIVE))
         return false;
 
-    // My rules! :D
-    if (spellInfo_1->AttributesEx6 & SPELL_ATTR_EX6_UNK26 && spellInfo_2->AttributesEx6 & SPELL_ATTR_EX6_UNK26)
-    {
-        // Marks and Gifts of the Wild
-        if (spellInfo_1->EffectApplyAuraName[EFFECT_INDEX_2] == SPELL_AURA_MOD_RESISTANCE_EXCLUSIVE &&
-            spellInfo_2->EffectApplyAuraName[EFFECT_INDEX_2] == SPELL_AURA_MOD_RESISTANCE_EXCLUSIVE)
-            return true;
+    //NOTHING can remove 66233 
+    if (spellInfo_1->Id == 66233 || spellInfo_2->Id == 66233) 
+        return false;
 
-        // Blessings of Kings and Blessing of Forgotten Kings
-        if (spellInfo_1->EffectApplyAuraName[EFFECT_INDEX_0] == SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE &&
-            spellInfo_2->EffectApplyAuraName[EFFECT_INDEX_0] == SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE)
-            return true;
-
-        // Battle Shout and Blessings of Might
-        if (spellInfo_1->EffectApplyAuraName[EFFECT_INDEX_1] == SPELL_AURA_MOD_RANGED_ATTACK_POWER &&
-            spellInfo_2->EffectApplyAuraName[EFFECT_INDEX_1] == SPELL_AURA_MOD_RANGED_ATTACK_POWER)
-            return true;
-    }
+    //Renewed hope and gift of the naaru(have diff spell families)
+    if (spellInfo_2->SpellIconID == 329 && spellInfo_2->SpellFamilyName == SPELLFAMILY_PRIEST &&
+        spellInfo_1->SpellIconID == 329 && spellInfo_1->SpellVisual[0] == 7625)
+        return false;
 
     // Specific spell family spells
     switch(spellInfo_1->SpellFamilyName)
@@ -1659,39 +1649,6 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     if (spellInfo_1->Id == 47710 || spellInfo_2->Id == 47710)
                         return false;
  
-                    // Dark Essence & Light Essence
-                    if ((spellInfo_1->Id == 65684 && spellInfo_2->Id == 65686) ||
-                        (spellInfo_2->Id == 65684 && spellInfo_1->Id == 65686))
-                        return true;
-
-                    // Potent Fungus and Mini must remove each other (Amanitar encounter, Ahn'kahet)
-                    if ((spellInfo_1->Id == 57055 && spellInfo_2->Id == 56648) ||
-                        (spellInfo_2->Id == 57055 && spellInfo_1->Id == 56648))
-                        return true;
-
-                    // Scourge Resurrection - instance Utgarde Keep
-                    if (spellInfo_1->Id == 42704 || spellInfo_1->Id == 42862 || spellInfo_1->Id == 42857 ||
-                        spellInfo_2->Id == 42704 || spellInfo_2->Id == 42862 || spellInfo_2->Id == 42857)
-                        return false;
-
-                    // Spell Grow and Poison Aura (Ahn'Kahet - Amanitars mashrooms)
-                    if ( (spellInfo_1->Id == 62559 && spellInfo_2->Id == 56741) ||
-                        (spellInfo_2->Id == 62559 && spellInfo_1->Id == 56741) )
-                        return false;
-
-                    // Headless Horseman regen spells should stack with any other spells
-                    if (spellInfo_1->Id == 42556 || spellInfo_1->Id == 42403 || spellInfo_1->Id == 43105)
-                        return false;
-
-                    // Ymiron - channel spirit to ymiron should stack with everything
-                    if (spellInfo_1->Id == 48316 || spellInfo_2->Id == 48316)
-                        return false;
-
-                    // Pulsing Pumpkin visual auras (Headless Horseman event)
-                    if ((spellInfo_1->Id == 42280 && spellInfo_2->Id == 42294) ||
-                        (spellInfo_2->Id == 42280 && spellInfo_1->Id == 42294))
-                        return false;
-
                     // Thunderfury
                     if ((spellInfo_1->Id == 21992 && spellInfo_2->Id == 27648) ||
                         (spellInfo_2->Id == 21992 && spellInfo_1->Id == 27648))
@@ -1914,10 +1871,6 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     (spellInfo_2->SpellFamilyFlags & UI64LIT(0x1)) && (spellInfo_1->SpellFamilyFlags & UI64LIT(0x400000)) )
                     return false;
 
-                // Arcane Intellect and Dalaran Intellect
-                if( (spellInfo_1->SpellFamilyFlags & UI64LIT(0x400)) && (spellInfo_2->SpellFamilyFlags & UI64LIT(0x400)) )
-                    return true;
-
                 //Focus magic 30min buff and 10s proc
                 if( (spellInfo_1->Id == 54648) && (spellInfo_2->Id == 54646) ||
                     (spellInfo_2->Id == 54648) && (spellInfo_1->Id == 54646) )
@@ -1949,10 +1902,7 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
             // Arcane Intellect and Insight
             if( spellInfo_1->SpellIconID == 125 && spellInfo_2->Id == 18820 )
                 return false;
-			
-			// Ignite and Molten
-			if (spellInfo_1->Id == 12654 && spellInfo_2->SpellIconID == 937)
-			    return false;
+            
             break;
         case SPELLFAMILY_WARLOCK:
             if( spellInfo_2->SpellFamilyName == SPELLFAMILY_WARLOCK )
@@ -1996,14 +1946,6 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                 if( spellInfo_2->SpellIconID == 1985 && spellInfo_1->SpellIconID == 1985 && spellInfo_1->SpellVisual[0] == 9750 )
                     return false;
             }
-            // Detect Invisibility and Mana Shield (multi-family check)
-            if( spellInfo_1->Id == 132 && spellInfo_2->SpellIconID == 209 && spellInfo_2->SpellVisual[0] == 968 )
-                return false;
-
-            // BloodPact & Bloodboil
-            if (spellInfo_1->SpellIconID == 541 && spellInfo_2->Id == 42005)
-                return false;
-
             break;
         case SPELLFAMILY_WARRIOR:
             if( spellInfo_2->SpellFamilyName == SPELLFAMILY_WARRIOR )
@@ -2090,6 +2032,9 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
             }
             // Weakened Soul and Last Stand (multi-family check)
             if (spellInfo_1->Id == 6788 && spellInfo_2->Id == 12976)
+                return false;
+            //Renewed hope and gift of the naaru(have diff spell families)
+            else if (spellInfo_1->SpellIconID == 329 && spellInfo_2->SpellIconID == 329 && spellInfo_2->SpellVisual[0] == 7625)
                 return false;
             break;
         case SPELLFAMILY_DRUID:
@@ -2191,10 +2136,6 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                 if( spellInfo_1->SpellIconID == 83 && spellInfo_2->SpellIconID == 83 )
                     return false;
 
-                // Deterrence
-                if( spellInfo_1->SpellIconID == 83 && spellInfo_2->SpellIconID == 83 )
-                    return false;
-
                 // Bestial Wrath
                 if( spellInfo_1->SpellIconID == 1680 && spellInfo_2->SpellIconID == 1680 )
                     return false;
@@ -2263,45 +2204,41 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                 if (spellInfo_1->SpellIconID == 2292 && spellInfo_2->SpellIconID == 3025 ||
                     spellInfo_2->SpellIconID == 2292 && spellInfo_1->SpellIconID == 3025)
                     return false;
+
+                // Blessing of Sanctuary (multi-family check, some from 16 spell icon spells)
+                if (spellInfo_2->Id == 67480 && spellInfo_1->Id == 20911)
+                    return false;
+
+                // Combustion and Fire Protection Aura (multi-family check)
+                if( spellInfo_2->Id == 11129 && spellInfo_1->SpellIconID == 33 && spellInfo_1->SpellVisual[0] == 321 )
+                    return false;
+
+                // *Sanctity Aura -> Unstable Currents and other (multi-family check)
+                if( spellInfo_1->SpellIconID==502 && spellInfo_2->SpellFamilyName == SPELLFAMILY_GENERIC && spellInfo_2->SpellIconID==502 && spellInfo_2->SpellVisual[0]==969 )
+                    return false;
+
+                // *Seal of Command and Band of Eternal Champion (multi-family check)
+                if( spellInfo_1->SpellIconID==561 && spellInfo_1->SpellVisual[0]==7992 && spellId_2 == 35081)
+                    return false;
+                
+                // Devotion Aura and Essence of Gossamer
+                if (spellInfo_1->SpellIconID == 291 && spellInfo_2->SpellIconID == 291 && spellInfo_2->SpellFamilyName == SPELLFAMILY_GENERIC)
+                    return false;
+                
+                // Inner Fire and Consecration
+                if (spellInfo_1->SpellIconID == 51 && spellInfo_2->SpellIconID == 51 && spellInfo_2->SpellFamilyName == SPELLFAMILY_PRIEST)
+                    return false;
+                
+                // Repentance and Track Humanoids
+                if (spellInfo_2->SpellFamilyName == SPELLFAMILY_HUNTER && spellInfo_1->SpellIconID == 316 && spellInfo_2->SpellIconID == 316)
+                    return false;			
+
+                // [Greater] Blessing of Kings and Blessing of Forgotten Kings
+                if ((spellId_1 == 20217 || spellId_1 == 25898) && spellId_2 == 69378)
+                  return true;
+                  break; 
             }
-
-            // Blessing of Sanctuary (multi-family check, some from 16 spell icon spells)
-            if (spellInfo_2->Id == 67480 && spellInfo_1->Id == 20911)
-                return false;
-
-            // Inner Fire and Consecration
-            if(spellInfo_2->SpellFamilyName == SPELLFAMILY_PRIEST)
-                if(spellInfo_1->SpellIconID == 51 && spellInfo_2->SpellIconID == 51)
-                return false;
-
-            // Combustion and Fire Protection Aura (multi-family check)
-            if( spellInfo_2->Id == 11129 && spellInfo_1->SpellIconID == 33 && spellInfo_1->SpellVisual[0] == 321 )
-                return false;
-
-            // *Sanctity Aura -> Unstable Currents and other (multi-family check)
-            if( spellInfo_1->SpellIconID==502 && spellInfo_2->SpellFamilyName == SPELLFAMILY_GENERIC && spellInfo_2->SpellIconID==502 && spellInfo_2->SpellVisual[0]==969 )
-                return false;
-
-            // *Seal of Command and Band of Eternal Champion (multi-family check)
-            if( spellInfo_1->SpellIconID==561 && spellInfo_1->SpellVisual[0]==7992 && spellId_2 == 35081)
-                return false;
-            
-            // Devotion Aura and Essence of Gossamer
-            if (spellInfo_1->SpellIconID == 291 && spellInfo_2->SpellIconID == 291 && spellInfo_2->SpellFamilyName == SPELLFAMILY_GENERIC)
-                return false;
-            
-            // Inner Fire and Consecration
-            if (spellInfo_1->SpellIconID == 51 && spellInfo_2->SpellIconID == 51 && spellInfo_2->SpellFamilyName == SPELLFAMILY_PRIEST)
-                return false;
-            
-            // Repentance and Track Humanoids
-            if (spellInfo_2->SpellFamilyName == SPELLFAMILY_HUNTER && spellInfo_1->SpellIconID == 316 && spellInfo_2->SpellIconID == 316)
-                return false;			
-
-            // [Greater] Blessing of Kings and Blessing of Forgotten Kings
-            if ((spellId_1 == 20217 || spellId_1 == 25898) && spellId_2 == 69378)
-                return true;
-            break; 
+            break;
         case SPELLFAMILY_SHAMAN:
             if( spellInfo_2->SpellFamilyName == SPELLFAMILY_SHAMAN )
             {
@@ -3590,9 +3527,8 @@ SpellCastResult SpellMgr::GetSpellAllowedInLocationError(SpellEntry const *spell
         // - with SPELL_ATTR_EX4_NOT_USABLE_IN_ARENA flag
         // - with greater than 15 min CD
         if ((spellInfo->AttributesEx4 & SPELL_ATTR_EX4_NOT_USABLE_IN_ARENA) ||
-            (GetSpellRecoveryTime(spellInfo) > 10 * MINUTE * IN_MILLISECONDS && !(spellInfo->AttributesEx4 & SPELL_ATTR_EX4_USABLE_IN_ARENA)))
-            if (player && player->InArena())
-			    return SPELL_FAILED_NOT_IN_ARENA;
+            (GetSpellRecoveryTime(spellInfo) > 15 * MINUTE * IN_MILLISECONDS && !(spellInfo->AttributesEx4 & SPELL_ATTR_EX4_USABLE_IN_ARENA)))   
+            return SPELL_FAILED_NOT_IN_ARENA;
 
         for(int i = EFFECT_INDEX_0; i < MAX_EFFECT_INDEX; ++i)
         {

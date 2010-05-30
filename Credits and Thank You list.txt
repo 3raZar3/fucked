@@ -1,15 +1,11 @@
-﻿╔═══════╦══════════════════════════════════════════════════════╗
-║ Info: ║ "Even Hell itself tremble before our mighty march!"  ║
-╟───────╨──────────────────────────────────────────────────────╢
+﻿╔══════════════════════════════════════════════════════════════╗
 ║ This text document holds the list of names of those people   ║
 ║ who have helped and/or worked on scripts/portions of code    ║
 ║ that we are using now. Its their hard work that made this    ║
 ║ core and this whole project to what it is now. Respect them  ║
 ║ and thank them for it is their fault you are reading this.   ║
-╠═══════════╦══════════════════════════════════════════════════╣
-║ The list: ║    "Pay your respects to these fine people!"     ║
-╟─────┬─────╨──────────────────────────────────────────────────╢
-║   1.│ Project Dark-iCE Network development team.                   ║
+╟─────┬────────────────────────────────────────────────────────╢
+║   1.│ Project Dark-iCE development team.                      ║
 ║   2.│ MaNGOS development team.                               ║
 ║   3.│ YTDB/Yurity/UDB development team.                      ║
 ║   4.│ ScriptDev2/ScriptDevZero development team.             ║
@@ -31,19 +27,13 @@
 ║  18.│ GriffonHeart.                                          ║
 ║  19.│ MrLama.                                                ║
 ║  20.│ Selector.                                              ║
-║  21.│ udbuser93                                              ║
-║  22.│ fandor                                                 ║
-╟─────┴────────────────────────────────────────────────────────╢
-║ Very special thanks flies out to:                            ║
-║ Darkrulerz for being here with us and guiding us through the ║
-║ rough roads towards the heart of the Force itself. Thank you.║
-╠══════════════╦═══════════════════════════════════════════════╣
-║ Final notes: ║ You can find us at <http://projectdarkice.clanice.com/ > ║
-╟──────────────╨───────────────────────────────────────────────╢
-║ This document is a work in progress as the list of names gets║
-║ bigger every passing day. If for some reason you are not here║
-║ and your code is included, contact us via E-Mail at:         ║
-║                support@hellscream-wow.com                    ║
-╟────────────────────┬─────────────────────────────────────────╢
-║ File last updated: │ on Thursday, May 20, 2010 (05/20/2010)  ║
+║  21.│ Udbuser93.                                             ║
+║  22.│ Fandor.                                                ║
+║  23.│ Darkiss.                                               ║
+╠═════╧════════╦═══════════════════════════════════════════════╣
+║              ║             You can find us at:               ║
+║ Final notes: ║    < http://projectdarkice.clanice.com/ >     ║
+║              ║ © 2010 Project Dark-iCE. All Rights Reserved. ║
+╟──────────────╨─────┬─────────────────────────────────────────╢
+║ File last updated: │  on Friday, May 28, 2010 (05/28/2010)   ║
 ╚════════════════════╧═════════════════════════════════════════╝

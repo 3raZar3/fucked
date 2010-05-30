@@ -317,11 +317,7 @@ void SpellCastTargets::write( ByteBuffer& data ) const
 
     if( m_targetMask & TARGET_FLAG_DEST_LOCATION )
     {
-        if(m_unitTarget)
-            data << m_unitTarget->GetPackGUID();
-        else
-            data << uint8(0);
-
+        data << uint8(0);                                   // no known cases with target pguid
         data << m_destX << m_destY << m_destZ;
     }
 
@@ -345,6 +341,7 @@ Spell::Spell( Unit* caster, SpellEntry const *info, bool triggered, ObjectGuid o
     else
         m_spellInfo = info;
 
+    m_destroyed = false;
     m_caster = caster;
     m_selfContainer = NULL;
     m_triggeringContainer = triggeringContainer;
@@ -902,7 +899,6 @@ void Spell::CleanupTargetList()
 
     for(tbb::concurrent_vector<GOTargetInfo>::iterator itr = m_UniqueGOTargetInfo.begin(); itr != m_UniqueGOTargetInfo.end(); ++itr)
         itr->deleted = true;
-
     m_UniqueItemInfo.clear();
     m_delayMoment = 0;
 }
@@ -926,7 +922,6 @@ void Spell::AddUnitTarget(Unit* pVictim, SpellEffectIndex effIndex)
     {
         if (ihit->deleted == true)
             continue;
-
         if (targetGUID == ihit->targetGUID)                 // Found in list
         {
             if (!immuned)
@@ -942,7 +937,7 @@ void Spell::AddUnitTarget(Unit* pVictim, SpellEffectIndex effIndex)
     target.targetGUID = targetGUID;                         // Store target GUID
     target.effectMask = immuned ? 0 : (1 << effIndex);      // Store index of effect if not immuned
     target.processed  = false;                              // Effects not apply on target
-    target.deleted = false;
+    target.deleted    = false;
 
     // Calculate hit result
 
@@ -1003,7 +998,6 @@ void Spell::AddGOTarget(GameObject* pVictim, SpellEffectIndex effIndex)
     {
         if (ihit->deleted == true)
             continue;
-
         if (targetGUID == ihit->targetGUID)                 // Found in list
         {
             ihit->effectMask |= (1 << effIndex);            // Add only effect mask
@@ -1070,6 +1064,11 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
 {
     if (this->m_spellInfo->Id <= 0 || this->m_spellInfo->Id > MAX_SPELL_ID ||  m_spellInfo->Id == 32 || m_spellInfo->Id == 80)
         return;
+
+    if (!target || target == (TargetInfo*)0x10 || target->processed)
+        return;
+
+    target->processed = true;                               // Target checked in apply effects procedure
 
     if (!target || target == (TargetInfo*)0x10 || target->processed)
         return;
@@ -1552,7 +1551,6 @@ bool Spell::IsAliveUnitPresentInTargetList()
     {
         if (ihit->deleted == true)
             continue;
-
         if( ihit->missCondition == SPELL_MISS_NONE && (needAliveTargetMask & ihit->effectMask) )
         {
             Unit *unit = m_caster->GetObjectGuid() == ihit->targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, ihit->targetGUID);
@@ -1654,6 +1652,8 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 31347:                                 // Doom TODO: exclude top threat target from target selection
                 case 33711:                                 // Murmur's Touch
                 case 38794:                                 // Murmur's Touch (h)
+                case 50988:                                 // Glare of the Tribunal (Halls of Stone)
+                case 59870:                                 // Glare of the Tribunal (h) (Halls of Stone)
 				case 63018:                                 // XT002's Light Bomb
 				case 65121:                                 // XT002's Light Bomb (h)
 				case 63024:                                 // XT002's Gravitiy Bomb
@@ -2887,7 +2887,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
         if (removed_utarget && m_targets.getUnitTarget())
             targetUnitMap.push_back(m_targets.getUnitTarget());
     }
-}
+    }
 
 void Spell::prepare(SpellCastTargets const* targets, Aura* triggeredByAura)
 {
@@ -3000,7 +3000,6 @@ void Spell::cancel()
             {
                 if (ihit->deleted == true)
                     continue;
-
                 if( ihit->missCondition == SPELL_MISS_NONE )
                 {
                     Unit* unit = m_caster->GetObjectGuid() == (*ihit).targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, ihit->targetGUID);
@@ -3089,6 +3088,10 @@ void Spell::cast(bool skipCheck)
         }
     }
 
+    if (m_spellInfo->Id == 27827)
+        if(const SpellEntry* spellInfo = sSpellStore.LookupEntry(m_spellInfo->Id))
+            const_cast<SpellEntry*>(spellInfo)->AuraInterruptFlags = 0;
+
     if (m_spellInfo->Id == 32592)
         if(const SpellEntry* spellInfo = sSpellStore.LookupEntry(m_spellInfo->Id))
             const_cast<SpellEntry*>(spellInfo)->Attributes |= SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY;
@@ -3100,12 +3103,16 @@ void Spell::cast(bool skipCheck)
         {
             if (m_spellInfo->Mechanic == MECHANIC_BANDAGE)  // Bandages
                 AddPrecastSpell(11196);                     // Recently Bandaged
+            else if(m_spellInfo->Id == 7744)                // Will of the Forsaken
+                AddTriggeredSpell(72757);                   // PvP trinket Cooldown
             else if(m_spellInfo->Id == 20594)               // Stoneskin
                 AddTriggeredSpell(65116);                   // Stoneskin - armor 10% for 8 sec
             else if(m_spellInfo->Id == 71904)               // Chaos Bane strength buff
                 AddTriggeredSpell(73422);
             else if(m_spellInfo->Id == 47345)               // Create Dark Brewmaiden's Brew
                 AddPrecastSpell(47331);                     // Has Dark Brewmaiden's Brew
+            else if(m_spellInfo->Id == 42292)               // PvP trinket
+                AddTriggeredSpell(72752);                   // Will of the Forsaken Cooldown
             break;
         }
         case SPELLFAMILY_MAGE:
@@ -3317,7 +3324,7 @@ void Spell::cast(bool skipCheck)
                 ((Player*)m_caster->GetCharmer())->ClearComboPoints();
 
         // fill initial spell damage from caster for delayed casted spells
-        for(tbb::concurrent_vector<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
+        for(tbb::concurrent_vector<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin();ihit != m_UniqueTargetInfo.end();++ihit)
             HandleDelayedSpellLaunch(&(*ihit));
 
         // Okay, maps created, now prepare flags
@@ -3342,8 +3349,7 @@ void Spell::handle_immediate()
 
     SpellEntry const* spellInfo = sSpellStore.LookupEntry(m_spellInfo->Id);
     if (!spellInfo)
-	    return;
-
+        return;
     // start channeling if applicable
     if(IsChanneledSpell(m_spellInfo))
     {
@@ -3361,27 +3367,20 @@ void Spell::handle_immediate()
     // process immediate effects (items, ground, etc.) also initialize some variables
     _handle_immediate_phase();
 
-     for (tbb::concurrent_vector<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin();ihit != m_UniqueTargetInfo.end();++ihit)
-     {
-         if (m_destroyed == true || ihit == m_UniqueTargetInfo.end() || m_UniqueTargetInfo.size() == 0)
-             break;
+    for (tbb::concurrent_vector<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin();ihit != m_UniqueTargetInfo.end();++ihit)
+    {
+        if (m_destroyed == true || ihit == m_UniqueTargetInfo.end() || m_UniqueTargetInfo.size() == 0)
+            break;
+        DoAllEffectOnTarget(&(*ihit));
+    }
 
-         if (ihit->deleted == true)
-             continue;
-         
-         DoAllEffectOnTarget(&(*ihit));
-     }
+    for (tbb::concurrent_vector<GOTargetInfo>::iterator ihit= m_UniqueGOTargetInfo.begin();ihit != m_UniqueGOTargetInfo.end();++ihit)
+    {
+        if (m_destroyed == true || ihit == m_UniqueGOTargetInfo.end() || m_UniqueGOTargetInfo.size() == 0)
+            break;
 
-     for (tbb::concurrent_vector<GOTargetInfo>::iterator ihit= m_UniqueGOTargetInfo.begin();ihit != m_UniqueGOTargetInfo.end();++ihit)
-     {
-         if (m_destroyed == true || ihit == m_UniqueGOTargetInfo.end() || m_UniqueGOTargetInfo.size() == 0)
-             break;
-
-         if (ihit->deleted == true)
-             continue;
-
-         DoAllEffectOnTarget(&(*ihit));
-     }
+        DoAllEffectOnTarget(&(*ihit));
+    }
 
     // spell is finished, perform some last features of the spell here
     _handle_finish_phase();
@@ -3602,7 +3601,6 @@ void Spell::update(uint32 difftime)
                         {
                             if (ihit->deleted == true)
                                 continue;
-
                             TargetInfo* target = &*ihit;
                             if(!target->targetGUID.IsCreature())
                                 continue;
@@ -3618,7 +3616,6 @@ void Spell::update(uint32 difftime)
                         {
                             if (ihit->deleted == true)
                                 continue;
-
                             GOTargetInfo* target = &*ihit;
 
                             GameObject* go = m_caster->GetMap()->GetGameObject(target->targetGUID);
@@ -3667,7 +3664,6 @@ void Spell::finish(bool ok)
         {
             if (ihit->deleted == true)
                 continue;
-
             if( ihit->missCondition == SPELL_MISS_NONE )
             {
                 // check m_caster->GetGUID() let load auras at login and speedup most often case
@@ -3717,7 +3713,6 @@ void Spell::finish(bool ok)
             {
                 if (ihit->deleted == true)
                     continue;
-
                 if (ihit->missCondition != SPELL_MISS_NONE && ihit->targetGUID != m_caster->GetObjectGuid())
                 {
                     needDrop = false;
@@ -4268,7 +4263,6 @@ void Spell::SendChannelStart(uint32 duration)
         {
             if (itr->deleted == true)
                 continue;
-
             if( (itr->effectMask & (1 << 0)) && itr->reflectResult == SPELL_MISS_NONE && itr->targetGUID != m_caster->GetObjectGuid())
             {
                 target = ObjectAccessor::GetUnit(*m_caster, itr->targetGUID);
@@ -4282,7 +4276,6 @@ void Spell::SendChannelStart(uint32 duration)
         {
             if (itr->deleted)
                 continue;
-
             if(itr->effectMask & (1 << 0) )
             {
                 target = m_caster->GetMap()->GetGameObject(itr->targetGUID);
@@ -4389,10 +4382,7 @@ void Spell::TakeCastItem()
         ((Player*)m_caster)->DestroyItemCount(m_CastItem, count, true);
 
         // prevent crash at access to deleted m_targets.getItemTarget
-        if(m_CastItem == m_targets.getItemTarget())
-            m_targets.setItemTarget(NULL);
-
-        m_CastItem = NULL;
+        ClearCastItem();
     }
 }
 
@@ -4985,7 +4975,7 @@ SpellCastResult Spell::CheckCast(bool strict)
         }			
         else if(m_caster->GetVehicleGUID())
         {
-            if(!(m_caster->m_SeatData.s_flags & SF_CAN_CAST))
+            if(!(m_caster->m_movementInfo.GetVehicleSeatFlags() & SF_CAN_CAST))
                 return SPELL_FAILED_NOT_MOUNTED;
         }
         else if ((sWorld.getConfig(CONFIG_BOOL_ALLOW_FLYING_MOUNTS_EVERYWHERE)) && (m_spellInfo->Id==55884))
@@ -6739,7 +6729,6 @@ void Spell::DelayedChannel()
     {
         if (ihit->deleted == true)
             continue;
-
         if ((*ihit).missCondition == SPELL_MISS_NONE)
         {
             if (Unit* unit = m_caster->GetObjectGuid() == ihit->targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, ihit->targetGUID))
@@ -6931,7 +6920,6 @@ bool Spell::HaveTargetsForEffect(SpellEffectIndex effect) const
     {
         if(itr->deleted == true)
             continue;
-        
         if(itr->effectMask & (1 << effect))
             return true;
     }
@@ -7301,8 +7289,10 @@ void Spell::SelectMountByAreaAndSkill(Unit* target, uint32 spellId75, uint32 spe
 
                             // speed higher than 280 replace it
                             if (mountSpeed > 280)
+                            {
                                 target->CastSpell(target, spellIdSpecial, true);
-                            return;
+                                return;
+                            }
                         }
                     }
                 }
@@ -7318,4 +7308,12 @@ void Spell::SelectMountByAreaAndSkill(Unit* target, uint32 spellId75, uint32 spe
         target->CastSpell(target, spellId75, true);
 
     return;
+}
+
+void Spell::ClearCastItem()
+{
+    if (m_CastItem==m_targets.getItemTarget())
+        m_targets.setItemTarget(NULL);
+
+    m_CastItem = NULL;
 }
