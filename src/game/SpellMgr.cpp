@@ -1901,7 +1901,7 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
 					{
 					    // Rip and Flurry(Shaman)
 						if (spellInfo_1->SpellIconID == 108 && spellInfo_2->SpellIconID == 108)
-						    return flase;
+						    return false;
 					}
 					
                     break;
