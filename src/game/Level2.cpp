@@ -4875,3 +4875,5 @@ bool ChatHandler::HandleTitlesCurrentCommand(const char* args)
 
     return true;
 }
+
+
