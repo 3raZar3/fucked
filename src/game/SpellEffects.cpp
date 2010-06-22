@@ -2152,7 +2152,7 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
 					      }
 					 }
 				 m_caster->SetPower(POWER_RAGE, new_rage);
-                 return:
+                 return;
 			}	 
             // Concussion Blow
             if (m_spellInfo->SpellFamilyFlags & UI64LIT(0x0000000004000000))
