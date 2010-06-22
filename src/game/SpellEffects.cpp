@@ -1427,6 +1427,19 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     unitTarget->CastSpell(unitTarget,46798,true,m_CastItem,NULL,m_originalCasterGUID);
                     break;
                 }
+				case 47129:                                 // Totemic Beacon (Midsummer Fire Festival)
+				{
+				    float fDestX, fDestY, fDestZ;
+					m_caster->GetNearPoint(m_caster, fDestX, fDestY, fDestZ, m_caster->GetObjectSize(), 30.0f, 0.0f);
+					if (Creature* pWolf = m_caster->SummonCreature(25324, fDestX, fDestY, fDestZ, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 60000))
+					    pWolf->GetMotionMaster()->MoveFollow(m_caster, PET_FOLLOW_DIST, pWolf->GetAngle(m_caster));
+					return;
+				}
+				case 48046:                                 // Use Camera
+				{
+				    m_caster->CastSpell(m_caster,48047,true);
+					return;
+				}	
 				case 48679:                                 // Banshee's Magic Mirror
 				{
 				    if (!unitTarget || m_caster->GetTypeId() != TYPEID_PLAYER)
@@ -1556,6 +1569,13 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
 
                     return;
                 }
+				case 51369:                                 // Tickbird Signal to Fall
+				{
+				    if (!unitTarget)
+					    return;
+						
+					unitTarget->DealDamage(unitTarget, unitTarget->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+				}	
                 case 51582:                                 // Rocket Boots Engaged (Rocket Boots Xtreme and Rocket Boots Xtreme Lite)
                 {
                     if (m_caster->GetTypeId() != TYPEID_PLAYER)
@@ -2085,6 +2105,55 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                 m_caster->CastCustomSpell(unitTarget,50782,&damage,NULL,NULL,true);
                 return;
             }
+			// Execute
+			if (m_spellInfo->SpellFamilyFlags & UI64LIT(0x20000000))
+			{
+			    if(!unitTarget)
+				    return;
+					
+				uint32 rage = m_caster->GetPower(POWER_RAGE);
+
+				if (!rage)
+				    m_caster->SetPower(POWER_RAGE, 1);
+					
+				uint32 rage_addition = rage;
+
+				// up to max 30 total rage cost
+				if (rage_addition + GetPowerCost() > 300)
+				    rage_addition = 300 - GetPowerCost();
+					
+				uint32 rage_modified = rage_addition;
+			
+			    // Glyph of Execution bonus                
+				if (Aura *aura = m_caster->GetDummyAura(58367))                    
+				    rage_modified +=  aura->GetModifier()->m_amount*10;
+					
+				int32 basePoints0 = damage+int32(rage_modified * m_spellInfo->DmgMultiplier[eff_idx] +                                                 
+				                                 m_caster->GetTotalAttackPowerValue(BASE_ATTACK)*0.2f);	
+				
+				m_caster->CastCustomSpell(unitTarget, 20647, &basePoints0, NULL, NULL, true, 0);
+				
+				uint32 new_rage = rage - rage_addition;
+				
+				 // Sudden Death                    
+				     Unit::AuraList const& auras = m_caster->GetAurasByType(SPELL_AURA_PROC_TRIGGER_SPELL);                    
+					 for (Unit::AuraList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
+                     {
+					      // Only Sudden Death have this SpellIconID with SPELL_AURA_PROC_TRIGGER_SPELL                        
+						  if ((*itr)->GetSpellProto()->SpellIconID == 1989)
+						  {
+						  
+						  uint32 save_rage = (*itr)->GetSpellProto()->CalculateSimpleValue(EFFECT_INDEX_1)*10;
+						  
+						  if (new_rage < save_rage)                            
+						      new_rage = save_rage;
+							  
+							  break;
+					      }
+					 }
+				 m_caster->SetPower(POWER_RAGE, new_rage);
+                 return:
+			}	 
             // Concussion Blow
             if (m_spellInfo->SpellFamilyFlags & UI64LIT(0x0000000004000000))
             {
