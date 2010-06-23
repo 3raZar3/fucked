@@ -1429,6 +1429,9 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                 }
 				case 47129:                                 // Totemic Beacon (Midsummer Fire Festival)
 				{
+				    if (eff_idx != EFFECT_INDEX_0)
+					    return;
+						
 				    float fDestX, fDestY, fDestZ;
 					m_caster->GetNearPoint(m_caster, fDestX, fDestY, fDestZ, m_caster->GetObjectSize(), 30.0f, 0.0f);
 					if (Creature* pWolf = m_caster->SummonCreature(25324, fDestX, fDestY, fDestZ, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 60000))
