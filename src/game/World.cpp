@@ -1786,6 +1786,12 @@ void World::SendZoneText(uint32 zone, const char* text, WorldSession *self, uint
     SendZoneMessage(zone, &data, self,team);
 }
 
+// Reset active_realm_id from account table
+void World::ResetRealmId()
+{
+    LoginDatabase.PQuery("UPDATE account SET active_realm_id = 0 WHERE active_realm_id = %d", realmID);
+}
+
 /// Kick (and save) all players
 void World::KickAll()
 {

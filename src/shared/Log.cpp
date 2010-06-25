@@ -744,7 +744,7 @@ void Log::outCharCommand( uint32 account_id, uint32 guid, std::string command, c
     if(!m_charLog_commnad)
         return;
 
-    loginDatabase.PQuery("INSERT INTO account_command (account_id, character_id, command_name, time_used, remote) VALUES('%d', '%d', '%s', UNIX_TIMESTAMP(NOW()), '%s')",
+    LoginDatabase.PQuery("INSERT INTO account_command (account_id, character_id, command_name, time_used, remote) VALUES('%d', '%d', '%s', UNIX_TIMESTAMP(NOW()), '%s')",
         account_id, guid, command.c_str(), remote.c_str());
 }
 
