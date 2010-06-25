@@ -172,7 +172,7 @@ bool WorldSession::Anti__ReportCheat(const char* Reason,float Speed,const char* 
     }
     if(sWorld.GetMvAnticheatBan() & 2)
     {
-        QueryResult *result = loginDatabase.PQuery("SELECT last_ip FROM account WHERE id=%u", Acc);
+        QueryResult *result = LoginDatabase.PQuery("SELECT last_ip FROM account WHERE id=%u", Acc);
         if(result)
         {
 
@@ -322,7 +322,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
         {
             if (mapDiff->resetTime)
             {
-                if (time_t timeReset = sInstanceSaveMgr.GetResetTimeFor(mEntry->MapID,diff))
+                if (time_t timeReset = sInstanceSaveMgr.GetScheduler().GetResetTimeFor(mEntry->MapID,diff))
                 {
                     uint32 timeleft = uint32(timeReset - time(NULL));
                     GetPlayer()->SendInstanceResetWarning(mEntry->MapID, diff, timeleft);
@@ -361,7 +361,7 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recv_data)
     DEBUG_LOG("Guid: %s", guid.GetString().c_str());
     DEBUG_LOG("Flags %u, time %u", flags, time/IN_MILLISECONDS);
 
-    Unit *mover = _player->m_mover;
+    Unit *mover = _player->GetMover();
     Player *plMover = mover->GetTypeId() == TYPEID_PLAYER ? (Player*)mover : NULL;
 
     if(!plMover || !plMover->IsBeingTeleportedNear())
@@ -408,7 +408,7 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
     DEBUG_LOG("WORLD: Recvd %s (%u, 0x%X) opcode", LookupOpcodeName(opcode), opcode, opcode);
     recv_data.hexlike();
 
-    Unit *mover = _player->m_mover;
+    Unit *mover = _player->GetMover();
     Player *plMover = mover->GetTypeId() == TYPEID_PLAYER ? (Player*)mover : NULL;
 
     // ignore, waiting processing in WorldSession::HandleMoveWorldportAckOpcode and WorldSession::HandleMoveTeleportAck
@@ -687,7 +687,7 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
                 // TODO: discard movement packets after the player is rooted
                 if(plMover->isAlive())
                 {
-                    plMover->EnvironmentalDamage(DAMAGE_FALL_TO_VOID, GetPlayer()->GetMaxHealth());
+                    plMover->EnvironmentalDamage(DAMAGE_FALL_TO_VOID, plMover->GetMaxHealth());
                     // pl can be alive if GM/etc
                     if(!plMover->isAlive())
                     {
@@ -799,11 +799,10 @@ void WorldSession::HandleSetActiveMoverOpcode(WorldPacket &recv_data)
         _player->m_mover_in_queve = NULL;
     }
 
-    /*if(_player->m_mover->GetGUID() != guid)
-    {
-        sLog.outError("HandleSetActiveMoverOpcode: incorrect mover guid: mover is " I64FMT " and should be " I64FMT, _player->m_mover->GetGUID(), guid);
-        return;
-    }*/
+    if (Unit *pMover = ObjectAccessor::GetUnit(*GetPlayer(), guid))
+        GetPlayer()->SetMover(pMover);
+    else
+        GetPlayer()->SetMover(NULL);
 }
 
 void WorldSession::HandleMoveNotActiveMover(WorldPacket &recv_data)

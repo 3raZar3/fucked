@@ -40,11 +40,15 @@ inline bool isStatic(MovementGenerator *mv)
 void
 MotionMaster::Initialize()
 {
+    // stop current move
+    if (!i_owner->IsStopped())
+        i_owner->StopMoving();
+
     // clear ALL movement generators (including default)
     Clear(false,true);
 
     // set new default movement generator
-    if (i_owner->GetTypeId() == TYPEID_UNIT)
+    if (i_owner->GetTypeId() == TYPEID_UNIT && !i_owner->hasUnitState(UNIT_STAT_CONTROLLED))
     {
         MovementGenerator* movement = FactorySelector::selectMovementGenerator((Creature*)i_owner);
         push(movement == NULL ? &si_idleMovement : movement);
@@ -65,7 +69,11 @@ MotionMaster::UpdateMotion(uint32 diff)
 {
     if( i_owner->hasUnitState(UNIT_STAT_CAN_NOT_MOVE) )
         return;
-    ASSERT( !empty() );
+
+    //ASSERT( !empty() );
+    if(empty())
+        return;
+        
     m_cleanFlag |= MMCF_UPDATE;
     if (!top()->Update(*i_owner, diff))
     {
@@ -112,7 +120,9 @@ MotionMaster::DirectClean(bool reset, bool all)
 
     if (!all && reset)
     {
-        ASSERT( !empty() );
+        //ASSERT( !empty() );
+        if(empty())
+            return;
         top()->Reset(*i_owner);
     }
 }
@@ -144,7 +154,7 @@ MotionMaster::DelayedClean(bool reset, bool all)
 void
 MotionMaster::DirectExpire(bool reset)
 {
-    if (empty() || size() == 1)
+    if (size() <= 1)
         return;
 
     MovementGenerator *curr = top();
@@ -226,7 +236,7 @@ void MotionMaster::MoveRandom()
 void
 MotionMaster::MoveTargetedHome()
 {
-    if(i_owner->hasUnitState(UNIT_STAT_FLEEING))
+    if(i_owner->hasUnitState(UNIT_STAT_LOST_CONTROL))
         return;
 
     Clear(false);
@@ -281,6 +291,9 @@ MotionMaster::MoveChase(Unit* target, float dist, float angle)
 void
 MotionMaster::MoveFollow(Unit* target, float dist, float angle)
 {
+    if(i_owner->hasUnitState(UNIT_STAT_LOST_CONTROL))
+        return;
+
     Clear();
 
     // ignore movement request if target not exist

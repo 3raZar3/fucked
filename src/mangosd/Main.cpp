@@ -22,7 +22,7 @@
 
 #include "Common.h"
 #include "Database/DatabaseEnv.h"
-#include "Config/ConfigEnv.h"
+#include "Config/Config.h"
 #include "Log.h"
 #include "Master.h"
 #include "SystemConfig.h"
@@ -31,6 +31,7 @@
 #include <openssl/opensslv.h>
 #include <openssl/crypto.h>
 #include <ace/Version.h>
+#include <ace/Get_Opt.h>
 
 #ifdef WIN32
 #include "ServiceWin32.h"
@@ -48,7 +49,7 @@ int m_ServiceStatus = -1;
 
 DatabaseType WorldDatabase;                                 ///< Accessor to the world database
 DatabaseType CharacterDatabase;                             ///< Accessor to the character database
-DatabaseType loginDatabase;                                 ///< Accessor to the realm/login database
+DatabaseType LoginDatabase;                                 ///< Accessor to the realm/login database
 
 uint32 realmID;                                             ///< Id of the realm
 
@@ -56,11 +57,11 @@ uint32 realmID;                                             ///< Id of the realm
 void usage(const char *prog)
 {
     sLog.outString("Usage: \n %s [<options>]\n"
-        "    --version                print version and exist\n\r"
+        "    -v, --version            print version and exist\n\r"
         "    -c config_file           use config_file as configuration file\n\r"
         #ifdef WIN32
         "    Running as service functions:\n\r"
-        "    --service                run as service\n\r"
+        "    -s run                   run as service\n\r"
         "    -s install               install service\n\r"
         "    -s uninstall             uninstall service\n\r"
         #endif
@@ -75,69 +76,69 @@ extern int main(int argc, char **argv)
 
     //char *leak = new char[1000];                          // test leak detection
 
-    ///- Command line parsing to get the configuration file name
+    ///- Command line parsing
     char const* cfg_file = _MANGOSD_CONFIG;
-    int c=1;
-    while( c < argc )
+
+#ifdef WIN32
+    char const *options = ":c:s:";
+#else
+    char const *options = ":c:";
+#endif
+
+    ACE_Get_Opt cmd_opts(argc, argv, options);
+    cmd_opts.long_option("version", 'v');
+
+    int option;
+    while ((option = cmd_opts()) != EOF)
     {
-        if( strcmp(argv[c],"-c") == 0)
+        switch (option)
         {
-            if( ++c >= argc )
+            case 'c':
+                cfg_file = cmd_opts.opt_arg();
+                break;
+            case 'v':
+                printf("%s\n", _FULLVERSION(REVISION_DATE,REVISION_TIME,REVISION_NR,REVISION_ID));
+                return 0;
+#ifdef WIN32
+            case 's':
             {
-                sLog.outError("Runtime-Error: -c option requires an input argument");
-                usage(argv[0]);
-                return 1;
+                const char *mode = cmd_opts.opt_arg();
+
+                if (!strcmp(mode, "install"))
+                {
+                    if (WinServiceInstall())
+                        sLog.outString("Installing service");
+                    return 1;
+                }
+                else if (!strcmp(mode, "uninstall"))
+                {
+                    if (WinServiceUninstall())
+                        sLog.outString("Uninstalling service");
+                    return 1;
+                }
+                else if (!strcmp(mode, "run"))
+                    WinServiceRun();
+                else
+                {
+                    sLog.outError("Runtime-Error: -%c unsupported argument %s", cmd_opts.opt_opt(), mode);
+                    usage(argv[0]);
+                    Log::WaitBeforeContinueIfNeed();
+                    return 1;
+                }
+                break;
             }
-            else
-                cfg_file = argv[c];
-        }
-
-        if( strcmp(argv[c],"--version") == 0)
-        {
-            printf("%s\n", _FULLVERSION(REVISION_DATE,REVISION_TIME,REVISION_NR,REVISION_ID));
-            return 0;
-        }
-
-        #ifdef WIN32
-        ////////////
-        //Services//
-        ////////////
-        if( strcmp(argv[c],"-s") == 0)
-        {
-            if( ++c >= argc )
-            {
-                sLog.outError("Runtime-Error: -s option requires an input argument");
+#endif
+            case ':':
+                sLog.outError("Runtime-Error: -%c option requires an input argument", cmd_opts.opt_opt());
                 usage(argv[0]);
                 Log::WaitBeforeContinueIfNeed();
                 return 1;
-            }
-            if( strcmp(argv[c],"install") == 0)
-            {
-                if (WinServiceInstall())
-                    sLog.outString("Installing service");
-                return 1;
-            }
-            else if( strcmp(argv[c],"uninstall") == 0)
-            {
-                if(WinServiceUninstall())
-                    sLog.outString("Uninstalling service");
-                return 1;
-            }
-            else
-            {
-                sLog.outError("Runtime-Error: unsupported option %s",argv[c]);
+            default:
+                sLog.outError("Runtime-Error: bad format of commandline arguments");
                 usage(argv[0]);
                 Log::WaitBeforeContinueIfNeed();
                 return 1;
-            }
         }
-        if( strcmp(argv[c],"--service") == 0)
-        {
-            WinServiceRun();
-        }
-        ////
-        #endif
-        ++c;
     }
 
     if (!sConfig.SetSource(cfg_file))
@@ -150,59 +151,18 @@ extern int main(int argc, char **argv)
     sLog.outString( "%s [world-daemon]", _FULLVERSION(REVISION_DATE,REVISION_TIME,REVISION_NR,REVISION_ID) );
     sLog.outString( "<Ctrl-C> to stop.\n\n" );
 
-    sLog.outTitle( "XXXX'																	");
-	sLog.outTitle( "XXXXX																	");
-	sLog.outTitle( "IXXX																	");
-    sLog.outTitle( "IXX																		");
-    sLog.outTitle( "IXX.               XX													");
-    sLog.outTitle( "IXX               iXXI													");
-    sLog.outTitle( "IXX               xXX													");
-    sLog.outTitle( "IXX               xXX													");
-    sLog.outTitle( "IXX               xXX													");
-    sLog.outTitle( "IXX               xXX													");
-    sLog.outTitle( "IXX               xXX													");
-    sLog.outTitle( "IXX               xXX               IXX'  IXX'							");
-    sLog.outTitle( "IXXX              xXX               XX    XX							");
-    sLog.outTitle( "IXXXXXXXXXXXXXXXXXXXX               XX    XX							");
-    sLog.outTitle( "IXXXXXXXXXXXXXXXXXXXX               XX    XX							");
-    sLog.outTitle( "IXXx              xXX               XX    XX							");
-    sLog.outTitle( "IXX               xXX               IX    IX							");
-    sLog.outTitle( "IXX               xXX               IX    IX							");
-    sLog.outTitle( "IXX               xXX               IX    IX							");
-    sLog.outTitle( "IXX               xXX     iXXXXX    IX    IX							");
-    sLog.outTitle( "IXX               xXX    xXI   XI   iX    iX							");
-    sLog.outTitle( "IXX               xXX   iXXXXXXXX   IX    IX							");
-    sLog.outTitle( "IXX        XXXXXI xXX   XX          IX    IX							");
-    sLog.outTitle( "IXX     IXXXXXXXI xXX   XX          IX    IX							");
-    sLog.outTitle( "XXXi   xXXX    X  XXX   XX.         XX    XX							");
-    sLog.outTitle( ".XXXx IXX         IXXXX   XXI        XX    XX  							");  
-    sLog.outTitle( ".XXXX XX          'XX      IXXXXXXI .XXX' .XXX'  						");
-    sLog.outTitle( "   iXX'                                       							");
-    sLog.outTitle( "  IXX																	");
-    sLog.outTitle( "  iXX.																	");
-    sLog.outTitle( "    XXX																	");
-    sLog.outTitle( "     iXXX                                       						");
-    sLog.outTitle( "      iXXXI                                     						");
-    sLog.outTitle( "       'XXXXX                                    						");
-    sLog.outTitle( "          XXXX.															");
-    sLog.outTitle( "           XXXX.														");
-    sLog.outTitle( "             XXX             -Art made by Don -							");
-    sLog.outTitle( "               xXX														");
-    sLog.outTitle( "               XX														");
-    sLog.outTitle( "              XXx                            XXXXXX     IX				");
-    sLog.outTitle( "               XXx           XX                    XX   .XXXXXX  iXXXX	");
-    sLog.outTitle( "               XXx    XXXXXX XX        XXXXX       'X.   IXX' IXXX   XX	");
-    sLog.outTitle( "               XXi  XXI   XI IXXXXX  IXi  iXi      'X.  'XX    Xi    XX	");
-    sLog.outTitle( "              IXX  IX        IXXI   .XXXXXXXXI     'X.   XX    Xi    IX ");
-    sLog.outTitle( "              XX   Xi        IXI    II          IXXXXX   IX    Xi    IX	");
-    sLog.outTitle( "             XX    Xi        IX     XI        .XX   Xi   IX    Xi    IX	");
-    sLog.outTitle( "           IXXX    XX        IX     IX       .X'    Xi   iX    Xi    XX	");
-    sLog.outTitle( "    XXXXXXXX        IXX      IX     .XXI      XI    Xi   XX    Xi    Xi	");
-    sLog.outTitle( "     XXXX'            XXXXX' XX.      IXXXXXI IXXXXXXi   XX.  IXf   XX'	");
-    sLog.outTitle( "                                                iXX             IXX		");
-    sLog.outTitle( "                                                IXI						");
-	sLog.outTitle( "GIT: Github.com/Hellscream/Core											");
-	sLog.outTitle( "Hellscreamcore, the core brought to you straight from hell				");
+    sLog.outTitle( "                         P   R   O   J   E   C   T                             ");	
+    sLog.outTitle( "                                                                               ");	
+    sLog.outTitle( ":::::::::      :::     :::::::::  :::    :::  ::::::::::: ::::::::  :::::::::: ");
+	sLog.outTitle( ":+:    :+:   :+: :+:   :+:    :+: :+:   :+:       :+:    :+:    :+: :+:        ");
+	sLog.outTitle( "+:+    +:+  +:+   +:+  +:+    +:+ +:+  +:+        +:+    +:+        +:+        ");
+    sLog.outTitle( "+#+    +:+ +#++:++#++: +#++:++#:  +#++:++         +#+    +#+        +#++:++#   ");
+    sLog.outTitle( "+#+    +#+ +#+     +#+ +#+    +#+ +#+  +#+        +#+    +#+        +#+        ");
+    sLog.outTitle( "#+#    #+# #+#     #+# #+#    #+# #+#   #+#       #+#    #+#    #+# #+#        ");
+    sLog.outTitle( "#########  ###     ### ###    ### ###    ###  ########### ########  ########## ");
+    sLog.outTitle( "                                                                               ");	
+	sLog.outTitle( "GIT: Github.com/Darkrulerz/Core     		                                   ");
+	sLog.outTitle( "Project Dark-iCE: http://projectdarkice.clanice.com                            ");
 	sLog.outString("Running on Revision %s.", cfg_file);
 	printf("%s\n", _FULLVERSION(REVISION_DATE,REVISION_TIME,REVISION_NR,REVISION_ID));
 

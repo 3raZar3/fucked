@@ -16,6 +16,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <omp.h>
 #include "MapManager.h"
 #include "InstanceSaveMgr.h"
 #include "Policies/SingletonImp.h"
@@ -24,11 +25,11 @@
 #include "Transports.h"
 #include "GridDefines.h"
 #include "MapInstanced.h"
+#include "Config/Config.h"
 #include "DestinationHolderImp.h"
 #include "World.h"
 #include "CellImpl.h"
 #include "Corpse.h"
-#include "Config/ConfigEnv.h"
 #include "ObjectMgr.h"
 
 #define CLASS_LOCK MaNGOS::ClassLevelLockable<MapManager, ACE_Thread_Mutex>
@@ -52,8 +53,7 @@ MapManager::~MapManager()
     DeleteStateMachine();
 }
 
-void
-MapManager::Initialize()
+void MapManager::Initialize()
 {
     InitStateMachine();
     InitMaxInstanceId();
@@ -90,8 +90,7 @@ void MapManager::InitializeVisibilityDistanceInfo()
         (*iter).second->InitVisibilityDistance();
 }
 
-Map*
-MapManager::_createBaseMap(uint32 id)
+Map* MapManager::_createBaseMap(uint32 id)
 {
     Map *m = _findMap(id);
 
@@ -110,11 +109,6 @@ MapManager::_createBaseMap(uint32 id)
         }
         i_maps[id] = m;
     }
-
-	int num_threads(sWorld.getConfig(CONFIG_UINT32_NUMTHREADS));
-	// Start mtmaps if needed.
-	if(num_threads > 0 && m_updater.activate(num_threads) == -1)
-		abort();
 
     ASSERT(m != NULL);
     return m;
@@ -240,7 +234,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player)
 void MapManager::DeleteInstance(uint32 mapid, uint32 instanceId)
 {
     Guard guard(*this);
-
+    
     Map *m = _createBaseMap(mapid);
     if (m && m->Instanceable())
         ((MapInstanced*)m)->DestroyInstance(instanceId);
@@ -249,19 +243,20 @@ void MapManager::DeleteInstance(uint32 mapid, uint32 instanceId)
 void MapManager::Update(uint32 diff)
 {
     i_timer.Update(diff);
-    if (!i_timer.Passed())
+    if( !i_timer.Passed() )
         return;
 
-    for(MapMapType::iterator iter=i_maps.begin(); iter != i_maps.end(); ++iter)
-    {
-        if (m_updater.activated())
-            m_updater.schedule_update(*iter->second, i_timer.GetCurrent());
-        else
-            iter->second->Update((uint32)i_timer.GetCurrent());
-    }
+    MapMapType::iterator iter = i_maps.begin();
+    std::vector<Map*> update_queue(i_maps.size());
 
-    if (m_updater.activated())
-        m_updater.wait();
+    int omp_set_num_threads(sWorld.getConfig(CONFIG_UINT32_NUMTHREADS));
+
+    for (uint32 i = 0; iter != i_maps.end(); ++iter, ++i)
+    update_queue[i] = iter->second;
+
+    #pragma omp parallel for schedule(dynamic) private(i) shared(update_queue)
+    for (uint32 i = 0; i < i_maps.size(); ++i)
+        update_queue[i]->Update(i_timer.GetCurrent());
 
     for (TransportSet::iterator iter = m_Transports.begin(); iter != m_Transports.end(); ++iter)
         (*iter)->Update(i_timer.GetCurrent());
@@ -302,8 +297,6 @@ void MapManager::UnloadAll()
         delete i_maps.begin()->second;
         i_maps.erase(i_maps.begin());
     }
-    if (m_updater.activated())
-        m_updater.deactivate();
 }
 
 void MapManager::InitMaxInstanceId()
@@ -321,7 +314,7 @@ void MapManager::InitMaxInstanceId()
 uint32 MapManager::GetNumInstances()
 {
     Guard guard(*this);
-
+    
     uint32 ret = 0;
     for(MapMapType::iterator itr = i_maps.begin(); itr != i_maps.end(); ++itr)
     {
@@ -337,7 +330,7 @@ uint32 MapManager::GetNumInstances()
 uint32 MapManager::GetNumPlayersInInstances()
 {
     Guard guard(*this);
-
+    
     uint32 ret = 0;
     for(MapMapType::iterator itr = i_maps.begin(); itr != i_maps.end(); ++itr)
     {

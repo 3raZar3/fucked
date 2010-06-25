@@ -230,7 +230,7 @@ enum UnitRename
     UNIT_CAN_BE_ABANDONED   = 0x02,
 };
 
-#define CREATURE_MAX_SPELLS     4
+#define CREATURE_MAX_SPELLS     6
 
 enum Swing
 {
@@ -342,6 +342,9 @@ enum AuraRemoveMode
     AURA_REMOVE_BY_DISPEL,
     AURA_REMOVE_BY_DEATH,
     AURA_REMOVE_BY_DELETE,                                  // use for speedup and prevent unexpected effects at player logout/pet unsummon (must be used _only_ after save), delete.
+    AURA_REMOVE_BY_SHIELD_BREAK,                            // when absorb shield is removed by damage
+    AURA_REMOVE_BY_EXPIRE,                                  // at duration end
+
 };
 
 enum UnitMods
@@ -419,25 +422,26 @@ enum UnitState
     UNIT_STAT_STUNNED         = 0x00000008,                     // Aura::HandleAuraModStun
     UNIT_STAT_ROOT            = 0x00000010,                     // Aura::HandleAuraModRoot
     UNIT_STAT_ISOLATED        = 0x00000020,                     // area auras do not affect other players, Aura::HandleAuraModSchoolImmunity
+    UNIT_STAT_CONTROLLED      = 0x00000040,                     // Aura::HandleAuraModPossess
 
     // persistent movement generator state (all time while movement generator applied to unit (independent from top state of movegen)
-    UNIT_STAT_IN_FLIGHT       = 0x00000040,                     // player is in flight mode (in fact interrupted at far teleport until next map telport landing)
-    UNIT_STAT_DISTRACTED      = 0x00000080,                     // DistractedMovementGenerator active
+    UNIT_STAT_IN_FLIGHT       = 0x00000080,                     // player is in flight mode (in fact interrupted at far teleport until next map telport landing)
+    UNIT_STAT_DISTRACTED      = 0x00000100,                     // DistractedMovementGenerator active
 
     // persistent movement generator state with non-persistent mirror states for stop support
     // (can be removed temporary by stop command or another movement generator apply)
     // not use _MOVE versions for generic movegen state, it can be removed temporary for unit stop and etc
-    UNIT_STAT_CONFUSED        = 0x00000100,                     // ConfusedMovementGenerator active/onstack
-    UNIT_STAT_CONFUSED_MOVE   = 0x00000200,
-    UNIT_STAT_ROAMING         = 0x00000400,                     // RandomMovementGenerator/PointMovementGenerator/WaypointMovementGenerator active (now always set)
-    UNIT_STAT_ROAMING_MOVE    = 0x00000800,
-    UNIT_STAT_CHASE           = 0x00001000,                     // ChaseMovementGenerator active
-    UNIT_STAT_CHASE_MOVE      = 0x00002000,
-    UNIT_STAT_FOLLOW          = 0x00004000,                     // FollowMovementGenerator active
-    UNIT_STAT_FOLLOW_MOVE     = 0x00008000,
-    UNIT_STAT_FLEEING         = 0x00010000,                     // FleeMovementGenerator/TimedFleeingMovementGenerator active/onstack
-    UNIT_STAT_FLEEING_MOVE    = 0x00020000,
-    UNIT_STAT_ON_VEHICLE      = 0x00040000,                     // Unit is on vehicle
+    UNIT_STAT_CONFUSED        = 0x00000200,                     // ConfusedMovementGenerator active/onstack
+    UNIT_STAT_CONFUSED_MOVE   = 0x00000400,
+    UNIT_STAT_ROAMING         = 0x00000800,                     // RandomMovementGenerator/PointMovementGenerator/WaypointMovementGenerator active (now always set)
+    UNIT_STAT_ROAMING_MOVE    = 0x00001000,
+    UNIT_STAT_CHASE           = 0x00002000,                     // ChaseMovementGenerator active
+    UNIT_STAT_CHASE_MOVE      = 0x00004000,
+    UNIT_STAT_FOLLOW          = 0x00008000,                     // FollowMovementGenerator active
+    UNIT_STAT_FOLLOW_MOVE     = 0x00010000,
+    UNIT_STAT_FLEEING         = 0x00020000,                     // FleeMovementGenerator/TimedFleeingMovementGenerator active/onstack
+    UNIT_STAT_FLEEING_MOVE    = 0x00040000,
+    UNIT_STAT_ON_VEHICLE      = 0x00080000,                     // Unit is on vehicle
 
     // masks (only for check)
 
@@ -456,6 +460,12 @@ enum UnitState
     // not react at move in sight or other
     UNIT_STAT_CAN_NOT_REACT   = UNIT_STAT_STUNNED | UNIT_STAT_DIED |
                                 UNIT_STAT_CONFUSED | UNIT_STAT_FLEEING | UNIT_STAT_ON_VEHICLE,
+
+    // AI disabled by some reason
+    UNIT_STAT_LOST_CONTROL    = UNIT_STAT_FLEEING | UNIT_STAT_CONTROLLED,
+
+    // above 2 state cases
+    UNIT_STAT_CAN_NOT_REACT_OR_LOST_CONTROL  = UNIT_STAT_CAN_NOT_REACT | UNIT_STAT_LOST_CONTROL,
 
     // masks (for check or reset)
 
@@ -856,10 +866,18 @@ struct DiminishingReturn
     uint32                  hitCount;
 };
 
+// At least some values expected fixed and used in auras field, other custom
 enum MeleeHitOutcome
 {
-    MELEE_HIT_EVADE, MELEE_HIT_MISS, MELEE_HIT_DODGE, MELEE_HIT_BLOCK, MELEE_HIT_PARRY,
-    MELEE_HIT_GLANCING, MELEE_HIT_CRIT, MELEE_HIT_CRUSHING, MELEE_HIT_NORMAL
+    MELEE_HIT_EVADE     = 0,
+    MELEE_HIT_MISS      = 1,
+    MELEE_HIT_DODGE     = 2,                                // used as misc in SPELL_AURA_IGNORE_COMBAT_RESULT
+    MELEE_HIT_BLOCK     = 3,                                // used as misc in SPELL_AURA_IGNORE_COMBAT_RESULT
+    MELEE_HIT_PARRY     = 4,                                // used as misc in SPELL_AURA_IGNORE_COMBAT_RESULT
+    MELEE_HIT_GLANCING  = 5,
+    MELEE_HIT_CRIT      = 6,
+    MELEE_HIT_CRUSHING  = 7,
+    MELEE_HIT_NORMAL    = 8,
 };
 
 struct CleanDamage
@@ -896,7 +914,7 @@ struct CalcDamageInfo
 
 // Spell damage info structure based on structure sending in SMSG_SPELLNONMELEEDAMAGELOG opcode
 struct SpellNonMeleeDamage{
-    SpellNonMeleeDamage(Unit *_attacker, Unit *_target, uint32 _SpellID, uint32 _schoolMask)
+    SpellNonMeleeDamage(Unit *_attacker, Unit *_target, uint32 _SpellID, SpellSchoolMask _schoolMask)
         : target(_target), attacker(_attacker), SpellID(_SpellID), damage(0), overkill(0), schoolMask(_schoolMask),
         absorb(0), resist(0), physicalLog(false), unused(false), blocked(0), HitInfo(0)
     {}
@@ -906,7 +924,7 @@ struct SpellNonMeleeDamage{
     uint32 SpellID;
     uint32 damage;
     uint32 overkill;
-    uint32 schoolMask;
+    SpellSchoolMask schoolMask;
     uint32 absorb;
     uint32 resist;
     bool   physicalLog;
@@ -1123,24 +1141,6 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         uint32 getAttackTimer(WeaponAttackType type) const { return m_attackTimer[type]; }
         bool isAttackReady(WeaponAttackType type = BASE_ATTACK) const { return m_attackTimer[type] == 0; }
         bool haveOffhandWeapon() const;
-        bool IsUseEquipedWeapon(WeaponAttackType attackType) const
-        {
-            bool disarmed = false;
-            switch(attackType)
-            {
-                case BASE_ATTACK:
-                    disarmed = HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISARMED);
-                break;
-                case OFF_ATTACK:
-                    disarmed = HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISARM_OFFHAND);
-                break;
-                case RANGED_ATTACK:
-                    disarmed = HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISARM_RANGED);
-                break;
-            }
-
-            return !IsInFeralForm() && !disarmed;
-        }
         bool canReachWithAttack(Unit *pVictim) const;
         uint32 m_extraAttacks;
 
@@ -1305,9 +1305,9 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         uint32 GetSpellCritDamageReduction(uint32 damage) const { return GetCombatRatingDamageReduction(CR_CRIT_TAKEN_SPELL, 2.2f, 33.0f, damage); }
 
         // player or player's pet resilience (-1%), cap 100%
-        uint32 GetMeleeDamageReduction(uint32 damage) const { return GetCombatRatingDamageReduction(CR_CRIT_TAKEN_MELEE, 1.0f, 100.0f, damage); }
-        uint32 GetRangedDamageReduction(uint32 damage) const { return GetCombatRatingDamageReduction(CR_CRIT_TAKEN_MELEE, 1.0f, 100.0f, damage); }
-        uint32 GetSpellDamageReduction(uint32 damage) const { return GetCombatRatingDamageReduction(CR_CRIT_TAKEN_MELEE, 1.0f, 100.0f, damage); }
+        uint32 GetMeleeDamageReduction(uint32 damage) const { return GetCombatRatingDamageReduction(CR_CRIT_TAKEN_MELEE, 2.0f, 100.0f, damage); }
+        uint32 GetRangedDamageReduction(uint32 damage) const { return GetCombatRatingDamageReduction(CR_CRIT_TAKEN_MELEE, 2.0f, 100.0f, damage); }
+        uint32 GetSpellDamageReduction(uint32 damage) const { return GetCombatRatingDamageReduction(CR_CRIT_TAKEN_MELEE, 2.0f, 100.0f, damage); }
 
         float  MeleeSpellMissChance(Unit *pVictim, WeaponAttackType attType, int32 skillDiff, SpellEntry const *spell);
         SpellMissInfo MeleeSpellHitResult(Unit *pVictim, SpellEntry const *spell, bool canMiss = true);
@@ -1497,7 +1497,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         void RemoveGuardians();
         Pet* FindGuardianWithEntry(uint32 entry);
         GuardianPetList const& GetGuardians() const { return m_guardianPets; }
-        
+
         bool isCharmed() const { return GetCharmerGUID() != 0; }
 
         CharmInfo* GetCharmInfo() { return m_charmInfo; }
@@ -1522,10 +1522,10 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         // removing specific aura stack
         void RemoveAura(Aura* aura, AuraRemoveMode mode = AURA_REMOVE_BY_DEFAULT);
         void RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode = AURA_REMOVE_BY_DEFAULT);
-        void RemoveAura(uint32 spellId, SpellEffectIndex effindex, Aura* except = NULL);
+        void RemoveAura(uint32 spellId, SpellEffectIndex effindex, Aura* except = NULL, AuraRemoveMode mode = AURA_REMOVE_BY_DEFAULT);
 
         // removing specific aura stacks by diff reasons and selections
-        void RemoveAurasDueToSpell(uint32 spellId, Aura* except = NULL);
+        void RemoveAurasDueToSpell(uint32 spellId, Aura* except = NULL, AuraRemoveMode mode = AURA_REMOVE_BY_DEFAULT);
         void RemoveAurasDueToItemSpell(Item* castItem,uint32 spellId);
         void RemoveAurasByCasterSpell(uint32 spellId, uint64 casterGUID);
         void RemoveAurasByCasterSpell(uint32 spellId, SpellEffectIndex effindex, uint64 casterGUID);
@@ -1758,6 +1758,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
 
         int32 SpellBonusWithCoeffs(SpellEntry const *spellProto, int32 total, int32 benefit, int32 ap_benefit, DamageEffectType damagetype, bool donePart, float defCoeffMod = 1.0f);
         int32 SpellBaseDamageBonusDone(SpellSchoolMask schoolMask);
+        int32 GetMaxSpellBaseDamageBonusDone(SpellSchoolMask schoolMask);
         int32 SpellBaseDamageBonusTaken(SpellSchoolMask schoolMask);
         uint32 SpellDamageBonusDone(Unit *pVictim, SpellEntry const *spellProto, uint32 pdamage, DamageEffectType damagetype, uint32 stack = 1);
         uint32 SpellDamageBonusTaken(Unit *pCaster, SpellEntry const *spellProto, uint32 pdamage, DamageEffectType damagetype, uint32 stack = 1);
@@ -1859,7 +1860,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         PetAuraSet m_petAuras;
         void AddPetAura(PetAura const* petSpell);
         void RemovePetAura(PetAura const* petSpell);
-        uint32 GetModelForForm(ShapeshiftForm form);
+		uint32 GetModelForForm(ShapeshiftForm form);
 
         // Movement info
         MovementInfo m_movementInfo;
@@ -1921,7 +1922,6 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         uint64  m_auraUpdateMask;
         uint64 m_vehicleGUID;
         uint64 m_InteractionObject;
-
     private:
         void CleanupDeletedAuras();
 
@@ -1991,14 +1991,14 @@ void Unit::CallForAllControlledUnits(Func const& func, bool withTotems, bool wit
 template<typename Func>
 bool Unit::CheckAllControlledUnits(Func const& func, bool withTotems, bool withGuardians, bool withCharms) const
 {
-    if (Pet* pet = GetPet())
+    if (Pet const* pet = GetPet())
         if (func(pet))
             return true;
 
     if (withGuardians)
     {
         for(GuardianPetList::const_iterator itr = m_guardianPets.begin(); itr != m_guardianPets.end(); ++itr)
-            if (Unit* guardian = Unit::GetUnit(*this,*itr))
+            if (Unit const* guardian = Unit::GetUnit(*this,*itr))
                 if (func(guardian))
                     return true;
 
@@ -2007,13 +2007,13 @@ bool Unit::CheckAllControlledUnits(Func const& func, bool withTotems, bool withG
     if (withTotems)
     {
         for (int i = 0; i < MAX_TOTEM_SLOT; ++i)
-            if (Unit *totem = _GetTotem(TotemSlot(i)))
+            if (Unit const* totem = _GetTotem(TotemSlot(i)))
                 if (func(totem))
                     return true;
     }
 
     if (withCharms)
-        if(Unit* charm = GetCharm())
+        if(Unit const* charm = GetCharm())
             if (func(charm))
                 return true;
 

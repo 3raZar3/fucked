@@ -781,7 +781,7 @@ void Group::CountTheRoll(Rolls::iterator& rollI)
                 if (itr->second != ROLL_NEED)
                     continue;
 
-                uint8 randomN = urand(1, 99);
+                uint8 randomN = urand(1, 100);
                 SendLootRoll(itr->first, randomN, ROLL_NEED, *roll);
                 if (maxresul < randomN)
                 {
@@ -829,7 +829,7 @@ void Group::CountTheRoll(Rolls::iterator& rollI)
                 if (itr->second != ROLL_GREED && itr->second != ROLL_DISENCHANT)
                     continue;
 
-                uint8 randomN = urand(1, 99);
+                uint8 randomN = urand(1, 100);
                 SendLootRoll(itr->first, randomN, itr->second, *roll);
                 if (maxresul < randomN)
                 {
@@ -981,7 +981,10 @@ void Group::SendUpdate()
         WorldPacket data(SMSG_GROUP_LIST, (1+1+1+1+8+4+GetMembersCount()*20));
         data << uint8(m_groupType);                         // group type (flags in 3.3)
         data << uint8(citr->group);                         // groupid
-        data << uint8(GetFlags(*citr));                     // group flags
+        if(!isBGGroup())                                     // seems its causing errors in BGGroup
+            data << uint8(GetFlags(*citr));                 // group flags
+        else
+            data << uint8(0);
         data << uint8(isBGGroup() ? 1 : 0);                 // 2.0.x, isBattleGroundGroup?
         if(m_groupType & GROUPTYPE_LFD)
         {
@@ -1003,7 +1006,10 @@ void Group::SendUpdate()
             data << uint64(citr2->guid);
             data << uint8(onlineState);                     // online-state
             data << uint8(citr2->group);                    // groupid
-            data << uint8(GetFlags(*citr2));                // group flags
+            if(!isBGGroup())                                 // seems its causing errors in BGGroup
+                data << uint8(GetFlags(*citr2));            // group flags
+            else
+                data << uint8(0);
             data << uint8(0);                               // 3.3, role?
         }
 
@@ -1413,7 +1419,7 @@ void Group::ChangeMembersGroup(Player *player, uint8 group)
     }
 }
 
-void Group::UpdateLooterGuid( Creature* creature, bool ifneed )
+void Group::UpdateLooterGuid( WorldObject* object, bool ifneed )
 {
     switch (GetLootMethod())
     {
@@ -1433,7 +1439,7 @@ void Group::UpdateLooterGuid( Creature* creature, bool ifneed )
         {
             // not update if only update if need and ok
             Player* looter = ObjectAccessor::FindPlayer(guid_itr->guid);
-            if(looter && looter->IsWithinDist(creature, sWorld.getConfig(CONFIG_FLOAT_GROUP_XP_DISTANCE), false))
+            if(looter && looter->IsWithinDist(object, sWorld.getConfig(CONFIG_FLOAT_GROUP_XP_DISTANCE), false))
                 return;
         }
         ++guid_itr;
@@ -1446,16 +1452,16 @@ void Group::UpdateLooterGuid( Creature* creature, bool ifneed )
         {
             if(Player* pl = ObjectAccessor::FindPlayer(itr->guid))
             {
-                if (pl->IsWithinDist(creature, sWorld.getConfig(CONFIG_FLOAT_GROUP_XP_DISTANCE), false))
+                if (pl->IsWithinDist(object, sWorld.getConfig(CONFIG_FLOAT_GROUP_XP_DISTANCE), false))
                 {
-                    bool refresh = pl->GetLootGUID() == creature->GetGUID();
+                    bool refresh = pl->GetLootGUID() == object->GetGUID();
 
                     //if(refresh)                             // update loot for new looter
                     //    pl->GetSession()->DoLootRelease(pl->GetLootGUID());
                     SetLooterGuid(pl->GetGUID());
                     SendUpdate();
                     if(refresh)                             // update loot for new looter
-                        pl->SendLoot(creature->GetGUID(), LOOT_CORPSE);
+                        pl->SendLoot(object->GetGUID(), LOOT_CORPSE);
                     return;
                 }
             }
@@ -1467,16 +1473,16 @@ void Group::UpdateLooterGuid( Creature* creature, bool ifneed )
     {
         if(Player* pl = ObjectAccessor::FindPlayer(itr->guid))
         {
-            if (pl->IsWithinDist(creature, sWorld.getConfig(CONFIG_FLOAT_GROUP_XP_DISTANCE), false))
+            if (pl->IsWithinDist(object, sWorld.getConfig(CONFIG_FLOAT_GROUP_XP_DISTANCE), false))
             {
-                bool refresh = pl->GetLootGUID()==creature->GetGUID();
+                bool refresh = pl->GetLootGUID()==object->GetGUID();
 
                 //if(refresh)                               // update loot for new looter
                 //    pl->GetSession()->DoLootRelease(pl->GetLootGUID());
                 SetLooterGuid(pl->GetGUID());
                 SendUpdate();
                 if(refresh)                                 // update loot for new looter
-                    pl->SendLoot(creature->GetGUID(), LOOT_CORPSE);
+                    pl->SendLoot(object->GetGUID(), LOOT_CORPSE);
                 return;
             }
         }

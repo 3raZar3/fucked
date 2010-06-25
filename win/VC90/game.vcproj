@@ -875,14 +875,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\game\MapUpdater.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\MapUpdater.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\game\MiscHandler.cpp"
 				>
 			</File>
@@ -1200,6 +1192,14 @@
 			</File>
 			<File
 				RelativePath="..\..\src\game\Calendar.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\Camera.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\Camera.h"
 				>
 			</File>
 			<File

@@ -99,7 +99,7 @@ bool LoginQueryHolder::Initialize()
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADEQUIPMENTSETS,   "SELECT setguid, setindex, name, iconname, item0, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15, item16, item17, item18 FROM character_equipmentsets WHERE guid = '%u' ORDER BY setindex", GUID_LOPART(m_guid));
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADBGDATA,          "SELECT instance_id, team, join_x, join_y, join_z, join_o, join_map, taxi_start, taxi_end, mount_spell FROM character_battleground_data WHERE guid = '%u'", GUID_LOPART(m_guid));
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADBGSTATUS,        "SELECT daily_bg FROM character_battleground_status WHERE guid = '%u'", GUID_LOPART(m_guid));
-    res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADACCOUNTDATA,     "SELECT type, time, data FROM character_account_data WHERE guid='%u'", GUID_LOPART(m_guid));
+	res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADACCOUNTDATA,     "SELECT type, time, data FROM character_account_data WHERE guid='%u'", GUID_LOPART(m_guid));
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADTALENTS,         "SELECT talent_id, current_rank, spec FROM character_talent WHERE guid = '%u'", GUID_LOPART(m_guid));
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADSKILLS,          "SELECT skill, value, max FROM character_skills WHERE guid = '%u'", GUID_LOPART(m_guid));
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADGLYPHS,          "SELECT spec, slot, glyph FROM character_glyphs WHERE guid='%u'", GUID_LOPART(m_guid));
@@ -316,7 +316,7 @@ void WorldSession::HandleCharCreateOpcode( WorldPacket & recv_data )
         return;
     }
 
-    QueryResult *resultacct = loginDatabase.PQuery("SELECT SUM(numchars) FROM realmcharacters WHERE acctid = '%d'", GetAccountId());
+    QueryResult *resultacct = LoginDatabase.PQuery("SELECT SUM(numchars) FROM realmcharacters WHERE acctid = '%d'", GetAccountId());
     if (resultacct)
     {
         Field *fields=resultacct->Fetch();
@@ -501,8 +501,8 @@ void WorldSession::HandleCharCreateOpcode( WorldPacket & recv_data )
     pNewChar->SaveToDB();
     charcount += 1;
 
-    loginDatabase.PExecute("DELETE FROM realmcharacters WHERE acctid= '%d' AND realmid = '%d'", GetAccountId(), realmID);
-    loginDatabase.PExecute("INSERT INTO realmcharacters (numchars, acctid, realmid) VALUES (%u, %u, %u)",  charcount, GetAccountId(), realmID);
+    LoginDatabase.PExecute("DELETE FROM realmcharacters WHERE acctid= '%d' AND realmid = '%d'", GetAccountId(), realmID);
+    LoginDatabase.PExecute("INSERT INTO realmcharacters (numchars, acctid, realmid) VALUES (%u, %u, %u)",  charcount, GetAccountId(), realmID);
 
     data << (uint8)CHAR_CREATE_SUCCESS;
     SendPacket( &data );
@@ -819,6 +819,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder *holder)
 
     if (!pCurrChar->GetMap()->Add(pCurrChar))
     {
+        // normal delayed teleport protection not applied (and this correct) for this case (Player object just created)
         AreaTrigger const* at = sObjectMgr.GetGoBackTrigger(pCurrChar->GetMapId());
         if(at)
             pCurrChar->TeleportTo(at->target_mapId, at->target_X, at->target_Y, at->target_Z, pCurrChar->GetOrientation());
@@ -832,7 +833,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder *holder)
     pCurrChar->SendInitialPacketsAfterAddToMap();
 
     CharacterDatabase.PExecute("UPDATE characters SET online = 1 WHERE guid = '%u'", pCurrChar->GetGUIDLow());
-    loginDatabase.PExecute("UPDATE account SET active_realm_id = %d WHERE id = '%u'", realmID, GetAccountId());
+    LoginDatabase.PExecute("UPDATE account SET active_realm_id = %d WHERE id = '%u'", realmID, GetAccountId());
     pCurrChar->SetInGameTime( getMSTime() );
 
     // announce group about member online (must be after add to player list to receive announce to self)
@@ -905,6 +906,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder *holder)
 
     if(!pCurrChar->IsStandState() && !pCurrChar->hasUnitState(UNIT_STAT_STUNNED))
         pCurrChar->SetStandState(UNIT_STAND_STATE_STAND);
+
+    pCurrChar->UpdateHonorFields();
 
     m_playerLoading = false;
     delete holder;
@@ -1191,8 +1194,18 @@ void WorldSession::HandleAlterAppearance( WorldPacket & recv_data )
 {
     DEBUG_LOG("CMSG_ALTER_APPEARANCE");
 
-    uint32 Hair, Color, FacialHair, SkinColor;
-    recv_data >> Hair >> Color >> FacialHair >> SkinColor;
+    uint32 skinTone_id = 0;
+
+    uint32 Hair, Color, FacialHair, SkinTone;
+    if(_player->getRace() != RACE_TAUREN) recv_data >> Hair >> Color >> FacialHair;
+    else
+    {
+        recv_data >> Hair >> Color >> FacialHair >> SkinTone;
+        BarberShopStyleEntry const* bs_skinTone = sBarberShopStyleStore.LookupEntry(SkinTone);
+        if(!bs_skinTone || bs_skinTone->type != 3 || bs_skinTone->race != _player->getRace() || bs_skinTone->gender != _player->getGender())
+            return;
+        skinTone_id = bs_skinTone->hair_id;
+    }
 
     BarberShopStyleEntry const* bs_hair = sBarberShopStyleStore.LookupEntry(Hair);
 
@@ -1204,11 +1217,7 @@ void WorldSession::HandleAlterAppearance( WorldPacket & recv_data )
     if(!bs_facialHair || bs_facialHair->type != 2 || bs_facialHair->race != _player->getRace() || bs_facialHair->gender != _player->getGender())
         return;
 
-    BarberShopStyleEntry const* bs_skinColor = sBarberShopStyleStore.LookupEntry(SkinColor);
-    if( bs_skinColor && (bs_skinColor->type != 3 || bs_skinColor->race != _player->getRace() || bs_skinColor->gender != _player->getGender()))
-        return;
-
-    uint32 Cost = _player->GetBarberShopCost(bs_hair->hair_id, Color, bs_facialHair->hair_id);
+    uint32 Cost = _player->GetBarberShopCost(bs_hair->hair_id, Color, bs_facialHair->hair_id, skinTone_id);
 
     // 0 - ok
     // 1,3 - not enough money
@@ -1233,8 +1242,8 @@ void WorldSession::HandleAlterAppearance( WorldPacket & recv_data )
     _player->SetByteValue(PLAYER_BYTES, 2, uint8(bs_hair->hair_id));
     _player->SetByteValue(PLAYER_BYTES, 3, uint8(Color));
     _player->SetByteValue(PLAYER_BYTES_2, 0, uint8(bs_facialHair->hair_id));
-    if (bs_skinColor)
-        _player->SetByteValue(PLAYER_BYTES, 0, uint8(bs_skinColor->hair_id));
+    if(_player->getRace() == RACE_TAUREN)
+        _player->SetByteValue(PLAYER_BYTES, 0, uint8(skinTone_id));
 
     _player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_VISIT_BARBER_SHOP, 1);
 

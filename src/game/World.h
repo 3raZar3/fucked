@@ -23,6 +23,7 @@
 #ifndef __WORLD_H
 #define __WORLD_H
 
+#include <omp.h>
 #include "Common.h"
 #include "Timer.h"
 #include "Policies/Singleton.h"
@@ -161,7 +162,6 @@ enum eConfigUInt32Values
     CONFIG_UINT32_CORPSE_DECAY_RAREELITE,
     CONFIG_UINT32_CORPSE_DECAY_WORLDBOSS,
     CONFIG_UINT32_INSTANT_LOGOUT,
-    CONFIG_UINT32_NUMTHREADS,
     CONFIG_UINT32_BATTLEGROUND_INVITATION_TYPE,
     CONFIG_UINT32_BATTLEGROUND_PREMATURE_FINISH_TIMER,
     CONFIG_UINT32_BATTLEGROUND_PREMADE_GROUP_WAIT_FOR_MATCH,
@@ -179,7 +179,6 @@ enum eConfigUInt32Values
     CONFIG_UINT32_TIMERBAR_BREATH_MAX,
     CONFIG_UINT32_TIMERBAR_FIRE_GMLEVEL,
     CONFIG_UINT32_TIMERBAR_FIRE_MAX,
-    CONFIG_UINT32_MIN_LEVEL_STAT_SAVE,
     CONFIG_UINT32_CHARDELETE_KEEP_DAYS,
     CONFIG_UINT32_CHARDELETE_METHOD,
     CONFIG_UINT32_CHARDELETE_MIN_LEVEL,
@@ -205,6 +204,8 @@ enum eConfigUInt32Values
     CONFIG_UINT32_AHBOT_TG_MAX_SKILL_RANK,
     /* End AHBot*/
 
+    CONFIG_UINT32_MIN_LEVEL_STAT_SAVE,
+    
     /* Honor Options for BG */
     CONFIG_UINT32_HONORABLE_KILL,
     CONFIG_UINT32_BONUS_HONOR_AB_WIN,
@@ -238,7 +239,13 @@ enum eConfigUInt32Values
     CONFIG_MIN_LEVEL_DUALSPEC,
     /* End of Darkrulerz' customs */
 
+    CONFIG_UINT32_NUMTHREADS,
+    CONFIG_UINT32_FACTIONED_MAP_FACTION,
+    CONFIG_UINT32_FACTIONED_MAP_TEAM,
+    CONFIG_UINT32_LOSERNOCHANGE,
+    CONFIG_UINT32_LOSERHALFCHANGE,
     CONFIG_UINT32_VALUE_COUNT
+    
 };
 
 /// Configuration elements
@@ -408,7 +415,6 @@ enum eConfigBoolValues
     CONFIG_BOOL_ALL_WEAPONS_MAX_SKILL,
     CONFIG_BOOL_PLAYER_AUTO_RESS,
     CONFIG_BOOL_ALL_WEAPONS_FOR_CLASS_MAX_SKILL,
-    CONFIG_BOOL_ALWAYS_ALLOW_FLY,
     /* End of Customs*/
     
     CONFIG_BOOL_VALUE_COUNT
@@ -660,7 +666,6 @@ class World
         bool IsFFAPvPRealm() { return getConfig(CONFIG_UINT32_GAME_TYPE) == REALM_TYPE_FFA_PVP; }
 
         void KickAll();
-        void ResetRealmId();
         void KickAllLess(AccountTypes sec);
         BanReturn BanAccount(BanMode mode, std::string nameOrIP, std::string duration, std::string reason, std::string author);
         bool RemoveBanAccount(BanMode mode, std::string nameOrIP);
@@ -720,7 +725,8 @@ class World
         //used Script version
         void SetScriptsVersion(char const* version) { m_ScriptsVersion = version ? version : "unknown scripting library"; }
         char const* GetScriptsVersion() { return m_ScriptsVersion.c_str(); }
-        ACE_Thread_Mutex m_spellUpdateLock;
+		
+		ACE_Thread_Mutex m_spellUpdateLock;
 
     protected:
         void _UpdateGameTime();

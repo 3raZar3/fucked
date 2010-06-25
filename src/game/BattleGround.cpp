@@ -270,6 +270,8 @@ BattleGround::BattleGround()
     m_PrematureCountDown = false;
     m_PrematureCountDown = 0;
 
+    m_ArenaEnded = false;
+
     m_StartDelayTimes[BG_STARTING_EVENT_FIRST]  = BG_START_DELAY_2M;
     m_StartDelayTimes[BG_STARTING_EVENT_SECOND] = BG_START_DELAY_1M;
     m_StartDelayTimes[BG_STARTING_EVENT_THIRD]  = BG_START_DELAY_30S;
@@ -399,14 +401,29 @@ void BattleGround::Update(uint32 diff)
     /*********************************************************/
     /***           ARENA BUFF OBJECT SPAWNING              ***/
     /*********************************************************/
-    if (isArena() && !m_ArenaBuffSpawned && GetStatus() == STATUS_IN_PROGRESS)
+    if (isArena() && !m_ArenaBuffSpawned)
     {
-        // 60 seconds after start the buffobjects in arena should get spawned
+        // 90 seconds after start the buffobjects in arena should get spawned
         if (m_ArenaBuffTimer > uint32(m_StartDelayTimes[BG_STARTING_EVENT_FIRST] + ARENA_SPAWN_BUFF_OBJECTS))
         {
             SpawnEvent(ARENA_BUFF_EVENT, 0, true);
             m_ArenaBuffSpawned = true;
-        } else m_ArenaBuffTimer += diff;
+            m_ArenaBuffTimer = 0;
+        }
+        else
+            m_ArenaBuffTimer += diff;
+    }
+
+    // then every 90 seconds respawn
+    if (isArena() && m_ArenaBuffSpawned)
+    {
+        if (m_ArenaBuffTimer > ARENA_SPAWN_BUFF_OBJECTS)
+        {
+            SpawnEvent(ARENA_BUFF_EVENT, 0, true);
+            m_ArenaBuffTimer = 0;
+        }
+        else
+            m_ArenaBuffTimer += diff;
     }
 
     /*********************************************************/
@@ -505,6 +522,24 @@ void BattleGround::Update(uint32 diff)
                 RemovePlayerAtLeave(itr->first, true, true);// remove player from BG
                 // do not change any battleground's private variables
             }
+        }
+    }
+
+    // Arena time limit
+    if(isArena() && !m_ArenaEnded)
+    {
+        if(m_StartTime > uint32(ARENA_TIME_LIMIT))
+        {
+            uint32 winner;
+            // winner is team with higher damage
+            if(GetDamageDoneForTeam(ALLIANCE) > GetDamageDoneForTeam(HORDE))
+                winner = ALLIANCE;
+            else if (GetDamageDoneForTeam(HORDE) > GetDamageDoneForTeam(ALLIANCE))
+                winner = HORDE;
+            else
+                winner = 0;
+            EndBattleGround(winner);
+            m_ArenaEnded = true;
         }
     }
 
@@ -715,7 +750,7 @@ void BattleGround::EndBattleGround(uint32 winner)
     m_EndTime = TIME_TO_AUTOREMOVE;
 
     // arena rating calculation
-    if (isArena() && isRated())
+    if (isArena() && isRated() && winner)
     {
         winner_arena_team = sObjectMgr.GetArenaTeamById(GetArenaTeamIdForTeam(winner));
         loser_arena_team = sObjectMgr.GetArenaTeamById(GetArenaTeamIdForTeam(GetOtherTeam(winner)));
@@ -725,7 +760,10 @@ void BattleGround::EndBattleGround(uint32 winner)
             winner_rating = winner_arena_team->GetStats().rating;
             int32 winner_change = winner_arena_team->WonAgainst(loser_rating);
             int32 loser_change = loser_arena_team->LostAgainst(winner_rating);
-            DEBUG_LOG("--- Winner rating: %u, Loser rating: %u, Winner change: %u, Losser change: %u ---", winner_rating, loser_rating, winner_change, loser_change);
+            uint32 noratinglimit = sWorld.getConfig(CONFIG_UINT32_LOSERNOCHANGE);
+            uint32 halfratinglimit = sWorld.getConfig(CONFIG_UINT32_LOSERHALFCHANGE);
+
+            DEBUG_LOG("--- Winner rating: %u, Loser rating: %u, Winner change: %i, Losser change: %i ---", winner_rating, loser_rating, winner_change, loser_change);
             SetArenaTeamRatingChangeForTeam(winner, winner_change);
             SetArenaTeamRatingChangeForTeam(GetOtherTeam(winner), loser_change);
         }
@@ -1057,6 +1095,9 @@ void BattleGround::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
             plr->ClearAfkReports();
 
             if(!team) team = plr->GetTeam();
+            
+            // remove arena/battleground specific auras
+            plr->RemoveAurasDueToSpell(SPELL_AURA_PVP_HEALING); 
 
             // if arena, remove the specific arena auras
             if (isArena())
@@ -1206,6 +1247,9 @@ void BattleGround::AddPlayer(Player *plr)
     WorldPacket data;
     sBattleGroundMgr.BuildPlayerJoinedBattleGroundPacket(&data, plr);
     SendPacketToTeam(team, &data, plr, false);
+
+    // add arena/battleground specific auras
+    plr->CastSpell(plr, SPELL_AURA_PVP_HEALING,true); 
 
     // add arena specific auras
     if (isArena())
@@ -1419,12 +1463,31 @@ uint32 BattleGround::GetPlayerScore(Player *Source, uint32 type)
             return itr->second->KillingBlows;
         case SCORE_DEATHS:                                  // Deaths
             return itr->second->Deaths;
+        case SCORE_DAMAGE_DONE:                             // Damage Done
+            return itr->second->DamageDone;
+        case SCORE_HEALING_DONE:                            // Healing Done
+            return itr->second->HealingDone;
         default:
             sLog.outError("BattleGround: Unknown player score type %u", type);
             return 0;
     }
 }
 
+uint32 BattleGround::GetDamageDoneForTeam(uint32 TeamID)
+{
+    uint32 finaldamage = 0;
+    for(BattleGroundPlayerMap::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
+    {
+        uint32 team = itr->second.Team;
+        Player *plr = sObjectMgr.GetPlayer(itr->first);
+        if (!plr)
+            continue;        
+        if(!team) team = plr->GetTeam();
+        if(team == TeamID)
+            finaldamage += GetPlayerScore(plr, SCORE_DAMAGE_DONE);
+    }
+    return finaldamage;
+}
 bool BattleGround::AddObject(uint32 type, uint32 entry, float x, float y, float z, float o, float rotation0, float rotation1, float rotation2, float rotation3, uint32 /*respawnTime*/)
 {
     // must be created this way, adding to godatamap would add it to the base map of the instance
@@ -1852,6 +1915,12 @@ void BattleGround::CheckArenaWinConditions()
         EndBattleGround(HORDE);
     else if (GetPlayersCountByTeam(ALLIANCE) && !GetAlivePlayersCountByTeam(HORDE))
         EndBattleGround(ALLIANCE);
+}
+
+void BattleGround::UpdateArenaWorldState()
+{
+    UpdateWorldState(0xe10, GetAlivePlayersCountByTeam(HORDE));
+    UpdateWorldState(0xe11, GetAlivePlayersCountByTeam(ALLIANCE));
 }
 
 void BattleGround::SetBgRaid( uint32 TeamID, Group *bg_raid )

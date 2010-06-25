@@ -43,6 +43,8 @@ class LoginQueryHolder;
 class CharacterHandler;
 class GMTicket;
 
+struct OpcodeHandler;
+
 enum AccountDataType
 {
     GLOBAL_CONFIG_CACHE             = 0,                    // 0x01 g
@@ -225,12 +227,12 @@ class MANGOS_DLL_SPEC WorldSession
 
         void SendBattlegGroundList( uint64 guid, BattleGroundTypeId bgTypeId );
 
-        void SendTradeStatus(uint32 status);
+        void SendTradeStatus(TradeStatus status);
         void SendCancelTrade();
 
         void SendStablePet(uint64 guid );
         void SendPetitionQueryOpcode( uint64 petitionguid);
-        void SendUpdateTrade();
+        void SendUpdateTrade(bool trader_state = true);
 
         //pet
         void SendPetNameQuery(uint64 guid, uint32 petnumber);
@@ -781,6 +783,8 @@ class MANGOS_DLL_SPEC WorldSession
     private:
         // private trade methods
         void moveItems(Item* myItems[], Item* hisItems[]);
+
+        void ExecuteOpcode( OpcodeHandler const& opHandle, WorldPacket* packet );
 
         // logging helper
         void LogUnexpectedOpcode(WorldPacket *packet, const char * reason);

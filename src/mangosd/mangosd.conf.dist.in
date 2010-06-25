@@ -1,7 +1,9 @@
 #####################################
 # MaNGOS Configuration file         #
 #####################################
-ConfVersion=2010051901
+
+[MangosdConf]
+ConfVersion=2010062001
 
 ###################################################################################################################
 # CONNECTIONS AND DIRECTORIES
@@ -202,18 +204,18 @@ AddonChannel = 1
 CleanCharacterDB = 1
 
 ###################################################################################################################
-# ACE mtmaps Config
+# OpenMP Config
 #
-#    ACE mtmaps
+#    OpenMP
 #    MapUpdate.Threads
-#        Number of threads to run if the binary was compiled with mtmaps support.
-#        Default: 2
-#        For stable work 2
+#        Number of threads to run if the binary was compiled with OpenMP support.
+#        Default: 1
+#        For stable work 4 (if online ~2000)
 #        1 (minimum, normal behavior (single-threaded updates)
 #
 ###################################################################################################################
 
-MapUpdate.Threads = 2
+MapUpdate.Threads = 1
 
 ###################################################################################################################
 # SERVER LOGGING
@@ -260,6 +262,7 @@ MapUpdate.Threads = 2
 #    LogFilter_TransportMoves
 #    LogFilter_VisibilityChanges
 #    LogFilter_Weather
+#    LogFilter_DbStrictedCheck
 #        Log filters (active by default)
 #        Default: 1 - not include with any log level
 #                 0 - include in log if log level permit
@@ -306,11 +309,6 @@ MapUpdate.Threads = 2
 #        Default: 0 - don't include dumping chars to log
 #                 1 - include dumping chars to log
 #
-#	CharLogCommand
-#		Save log command used by players
-#		Default: 1 (Enable)
-#                0 (Disabled)
-#
 #    GmLogFile
 #        GM Log file of gm commands
 #        Default: "" (Disable)
@@ -352,13 +350,22 @@ LogFilter_AchievementUpdates = 1
 LogFilter_CreatureMoves = 1
 LogFilter_TransportMoves = 1
 LogFilter_VisibilityChanges = 1
+LogFilter_Weather = 1
+LogFilter_DbStrictedCheck = 1
+LogFilter_PeriodicAffects = 0
+LogFilter_PlayerMoves = 0
+LogFilter_SQLText = 0
+LogFilter_AIAndMovegens = 0
+LogFilter_PlayerStats = 0
+LogFilter_Damage = 0
+LogFilter_Combat = 0
+LogFilter_SpellCast = 0
 WorldLogFile = ""
 WorldLogTimestamp = 0
 DBErrorLogFile = "DBErrors.log"
 CharLogFile = "Char.log"
 CharLogTimestamp = 0
 CharLogDump = 0
-CharLogCommand = 1
 GmLogFile = ""
 GmLogTimestamp = 0
 GmLogPerAccount = 0
@@ -1496,6 +1503,16 @@ BattleGround.Random.ResetHour = 6
 #        Default: 1 (active)
 #                 0 (finished)
 #
+#    Arena.LoserNoChange
+#        If winner or loser rating is below this limit, loser loses no rating
+#        Default: 0 (disable)
+#                 1400
+#
+#    Arena.LoserHalfChange
+#        If loser rating is below this limit, he loses half of rating
+#        Default: 0 (disable)
+#                 1500
+#
 ###################################################################################################################
 
 Arena.MaxRatingDifference = 150
@@ -1506,6 +1523,8 @@ Arena.QueueAnnouncer.Join = 0
 Arena.QueueAnnouncer.Exit = 0
 Arena.ArenaSeason.ID = 1
 Arena.ArenaSeason.InProgress = 1
+Arena.LoserNoChange = 0
+Arena.LoserHalfChange = 0
 
 ###################################################################################################################
 # NETWORK CONFIG
@@ -2131,4 +2150,3 @@ Custom.AllowedMount3 = 0
 Custom.AllWeaponSkillsAtMax = 0
 Custom.AutoRessPlayersOnDeath = 0
 Custom.AllWeaponSkillsForClassAtMax = 0
-Custom.NoFlightRequirements = 0

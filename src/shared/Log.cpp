@@ -19,7 +19,7 @@
 #include "Common.h"
 #include "Log.h"
 #include "Policies/SingletonImp.h"
-#include "Config/ConfigEnv.h"
+#include "Config/Config.h"
 #include "Util.h"
 #include "ByteBuffer.h"
 #include "Database/DatabaseEnv.h"
@@ -47,6 +47,7 @@ LogFilterData logFilterData[LOG_FILTER_COUNT] =
     { "damage",              "LogFilter_Damage",             false },
     { "combat",              "LogFilter_Combat",             false },
     { "spell_cast",          "LogFilter_SpellCast",          false },
+    { "db_stricted_check",   "LogFilter_DbStrictedCheck",    true  },
 };
 
 enum LogType

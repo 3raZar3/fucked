@@ -113,19 +113,19 @@ bool ForcedDespawnDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
 
 Creature::Creature(CreatureSubtype subtype) :
 Unit(), i_AI(NULL),
-lootForPickPocketed(false), lootForBody(false), m_groupLootTimer(0), m_groupLootId(0),
+lootForPickPocketed(false), lootForBody(false), lootForSkin(false), m_groupLootTimer(0), m_groupLootId(0),
 m_lootMoney(0), m_lootGroupRecipientId(0),
 m_deathTimer(0), m_respawnTime(0), m_respawnDelay(25), m_corpseDelay(60), m_respawnradius(5.0f),
 m_subtype(subtype), m_defaultMovementType(IDLE_MOTION_TYPE), m_DBTableGuid(0), m_equipmentId(0),
 m_AlreadyCallAssistance(false), m_AlreadySearchedAssistance(false),
 m_regenHealth(true), m_AI_locked(false), m_isDeadByDefault(false), m_needNotify(false),
 m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL),
-m_creatureInfo(NULL), m_isActiveObject(false), m_splineFlags(SPLINEFLAG_WALKMODE)
+m_creatureInfo(NULL), m_splineFlags(SPLINEFLAG_WALKMODE)
 {
     m_regenTimer = 200;
     m_valuesCount = UNIT_END;
 
-    for(int i = 0; i < 4; ++i)
+    for(int i = 0; i < 6; ++i)
         m_spells[i] = 0;
 
     m_CreatureSpellCooldowns.clear();
@@ -263,11 +263,14 @@ bool Creature::InitEntry(uint32 Entry, uint32 team, const CreatureData *data )
     SetByteValue(UNIT_FIELD_BYTES_0, 2, minfo->gender);
 
     // Load creature equipment
-    if(!data || data->equipmentId == 0)
-    {                                                       // use default from the template
-        LoadEquipment(cinfo->equipmentId);
+    if (!data || data->equipmentId == 0)
+    {
+        if (cinfo->equipmentId == 0)
+            LoadEquipment(normalInfo->equipmentId);         // use default from normal template if diff does not have any
+        else
+            LoadEquipment(cinfo->equipmentId);              // else use from diff template
     }
-    else if(data && data->equipmentId != -1)
+    else if (data && data->equipmentId != -1)
     {                                                       // override, -1 means no equipment
         LoadEquipment(data->equipmentId);
     }
@@ -516,6 +519,7 @@ void Creature::Update(uint32 diff)
             break;
     }
 }
+
 
 void Creature::StartGroupLoot( Group* group, uint32 timer )
 {
@@ -800,29 +804,6 @@ bool Creature::isCanTrainingAndResetTalentsOf(Player* pPlayer) const
     return pPlayer->getLevel() >= 10
         && GetCreatureInfo()->trainer_type == TRAINER_TYPE_CLASS
         && pPlayer->getClass() == GetCreatureInfo()->trainer_class;
-}
-
-void Creature::AI_SendMoveToPacket(float x, float y, float z, uint32 time, SplineFlags flags, SplineType type)
-{
-    /*    uint32 timeElap = getMSTime();
-        if ((timeElap - m_startMove) < m_moveTime)
-        {
-            oX = (dX - oX) * ( (timeElap - m_startMove) / m_moveTime );
-            oY = (dY - oY) * ( (timeElap - m_startMove) / m_moveTime );
-        }
-        else
-        {
-            oX = dX;
-            oY = dY;
-        }
-
-        dX = x;
-        dY = y;
-        m_orientation = atan2((oY - dY), (oX - dX));
-
-        m_startMove = getMSTime();
-        m_moveTime = time;*/
-    SendMonsterMove(x, y, z, type, flags, time);
 }
 
 void Creature::PrepareBodyLootState()

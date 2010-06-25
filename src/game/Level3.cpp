@@ -43,7 +43,7 @@
 #include "SkillDiscovery.h"
 #include "SkillExtraItems.h"
 #include "SystemConfig.h"
-#include "Config/ConfigEnv.h"
+#include "Config/Config.h"
 #include "Mail.h"
 #include "Util.h"
 #include "ItemEnchantmentMgr.h"
@@ -1458,7 +1458,7 @@ bool ChatHandler::HandleAccountSetGmLevelCommand(const char* args)
     }
 
     PSendSysMessage(LANG_YOU_CHANGE_SECURITY, targetAccountName.c_str(), gm);
-    loginDatabase.PExecute("UPDATE account SET gmlevel = '%i' WHERE id = '%u'", gm, targetAccountId);
+    LoginDatabase.PExecute("UPDATE account SET gmlevel = '%i' WHERE id = '%u'", gm, targetAccountId);
 
     return true;
 }
@@ -2345,9 +2345,13 @@ bool ChatHandler::HandleLearnAllMySpellsCommand(const char* /*args*/)
         return true;
     uint32 family = clsEntry->spellfamily;
 
-    for (uint32 i = 0; i < sSpellStore.GetNumRows(); ++i)
+    for (uint32 i = 0; i < sSkillLineAbilityStore.GetNumRows(); ++i)
     {
-        SpellEntry const *spellInfo = sSpellStore.LookupEntry(i);
+        SkillLineAbilityEntry const *entry = sSkillLineAbilityStore.LookupEntry(i);
+        if (!entry)
+            continue;
+
+        SpellEntry const *spellInfo = sSpellStore.LookupEntry(entry->spellId);
         if(!spellInfo)
             continue;
 
@@ -2372,7 +2376,7 @@ bool ChatHandler::HandleLearnAllMySpellsCommand(const char* /*args*/)
         if(!SpellMgr::IsSpellValid(spellInfo,m_session->GetPlayer(),false))
             continue;
 
-        m_session->GetPlayer()->learnSpell(i, false);
+        m_session->GetPlayer()->learnSpell(spellInfo->Id, false);
     }
 
     SendSysMessage(LANG_COMMAND_LEARN_CLASS_SPELLS);
@@ -3403,7 +3407,7 @@ void ChatHandler::ShowSpellListHelper(Player* target, SpellEntry const* spellInf
     uint32 talentCost = GetTalentSpellCost(id);
 
     bool talent = (talentCost > 0);
-    bool passive = IsPassiveSpell(id);
+    bool passive = IsPassiveSpell(spellInfo);
     bool active = target && target->HasAura(id);
 
     // unit32 used to prevent interpreting uint8 as char at output
@@ -5751,7 +5755,7 @@ bool ChatHandler::HandleBanInfoCharacterCommand(const char* args)
 
 bool ChatHandler::HandleBanInfoHelper(uint32 accountid, char const* accountname)
 {
-    QueryResult *result = loginDatabase.PQuery("SELECT FROM_UNIXTIME(bandate), unbandate-bandate, active, unbandate,banreason,bannedby FROM account_banned WHERE id = '%u' ORDER BY bandate ASC",accountid);
+    QueryResult *result = LoginDatabase.PQuery("SELECT FROM_UNIXTIME(bandate), unbandate-bandate, active, unbandate,banreason,bannedby FROM account_banned WHERE id = '%u' ORDER BY bandate ASC",accountid);
     if(!result)
     {
         PSendSysMessage(LANG_BANINFO_NOACCOUNTBAN, accountname);
@@ -5791,8 +5795,8 @@ bool ChatHandler::HandleBanInfoIPCommand(const char* args)
 
     std::string IP = cIP;
 
-    loginDatabase.escape_string(IP);
-    QueryResult *result = loginDatabase.PQuery("SELECT ip, FROM_UNIXTIME(bandate), FROM_UNIXTIME(unbandate), unbandate-UNIX_TIMESTAMP(), banreason,bannedby,unbandate-bandate FROM ip_banned WHERE ip = '%s'",IP.c_str());
+    LoginDatabase.escape_string(IP);
+    QueryResult *result = LoginDatabase.PQuery("SELECT ip, FROM_UNIXTIME(bandate), FROM_UNIXTIME(unbandate), unbandate-UNIX_TIMESTAMP(), banreason,bannedby,unbandate-bandate FROM ip_banned WHERE ip = '%s'",IP.c_str());
     if(!result)
     {
         PSendSysMessage(LANG_BANINFO_NOIP);
@@ -5810,14 +5814,14 @@ bool ChatHandler::HandleBanInfoIPCommand(const char* args)
 
 bool ChatHandler::HandleBanListCharacterCommand(const char* args)
 {
-    loginDatabase.Execute("DELETE FROM ip_banned WHERE unbandate<=UNIX_TIMESTAMP() AND unbandate<>bandate");
+    LoginDatabase.Execute("DELETE FROM ip_banned WHERE unbandate<=UNIX_TIMESTAMP() AND unbandate<>bandate");
 
     char* cFilter = strtok ((char*)args, " ");
     if(!cFilter)
         return false;
 
     std::string filter = cFilter;
-    loginDatabase.escape_string(filter);
+    LoginDatabase.escape_string(filter);
     QueryResult* result = CharacterDatabase.PQuery("SELECT account FROM characters WHERE name "_LIKE_" "_CONCAT3_("'%%'","'%s'","'%%'"),filter.c_str());
     if (!result)
     {
@@ -5830,22 +5834,22 @@ bool ChatHandler::HandleBanListCharacterCommand(const char* args)
 
 bool ChatHandler::HandleBanListAccountCommand(const char* args)
 {
-    loginDatabase.Execute("DELETE FROM ip_banned WHERE unbandate<=UNIX_TIMESTAMP() AND unbandate<>bandate");
+    LoginDatabase.Execute("DELETE FROM ip_banned WHERE unbandate<=UNIX_TIMESTAMP() AND unbandate<>bandate");
 
     char* cFilter = strtok((char*)args, " ");
     std::string filter = cFilter ? cFilter : "";
-    loginDatabase.escape_string(filter);
+    LoginDatabase.escape_string(filter);
 
     QueryResult* result;
 
     if(filter.empty())
     {
-        result = loginDatabase.Query("SELECT account.id, username FROM account, account_banned"
+        result = LoginDatabase.Query("SELECT account.id, username FROM account, account_banned"
             " WHERE account.id = account_banned.id AND active = 1 GROUP BY account.id");
     }
     else
     {
-        result = loginDatabase.PQuery("SELECT account.id, username FROM account, account_banned"
+        result = LoginDatabase.PQuery("SELECT account.id, username FROM account, account_banned"
             " WHERE account.id = account_banned.id AND active = 1 AND username "_LIKE_" "_CONCAT3_("'%%'","'%s'","'%%'")" GROUP BY account.id",
             filter.c_str());
     }
@@ -5871,7 +5875,7 @@ bool ChatHandler::HandleBanListHelper(QueryResult* result)
             Field* fields = result->Fetch();
             uint32 accountid = fields[0].GetUInt32();
 
-            QueryResult* banresult = loginDatabase.PQuery("SELECT account.username FROM account,account_banned WHERE account_banned.id='%u' AND account_banned.id=account.id",accountid);
+            QueryResult* banresult = LoginDatabase.PQuery("SELECT account.username FROM account,account_banned WHERE account_banned.id='%u' AND account_banned.id=account.id",accountid);
             if(banresult)
             {
                 Field* fields2 = banresult->Fetch();
@@ -5902,7 +5906,7 @@ bool ChatHandler::HandleBanListHelper(QueryResult* result)
                 sAccountMgr.GetName (account_id,account_name);
 
             // No SQL injection. id is uint32.
-            QueryResult *banInfo = loginDatabase.PQuery("SELECT bandate,unbandate,bannedby,banreason FROM account_banned WHERE id = %u ORDER BY unbandate", account_id);
+            QueryResult *banInfo = LoginDatabase.PQuery("SELECT bandate,unbandate,bannedby,banreason FROM account_banned WHERE id = %u ORDER BY unbandate", account_id);
             if (banInfo)
             {
                 Field *fields2 = banInfo->Fetch();
@@ -5939,23 +5943,23 @@ bool ChatHandler::HandleBanListHelper(QueryResult* result)
 
 bool ChatHandler::HandleBanListIPCommand(const char* args)
 {
-    loginDatabase.Execute("DELETE FROM ip_banned WHERE unbandate<=UNIX_TIMESTAMP() AND unbandate<>bandate");
+    LoginDatabase.Execute("DELETE FROM ip_banned WHERE unbandate<=UNIX_TIMESTAMP() AND unbandate<>bandate");
 
     char* cFilter = strtok((char*)args, " ");
     std::string filter = cFilter ? cFilter : "";
-    loginDatabase.escape_string(filter);
+    LoginDatabase.escape_string(filter);
 
     QueryResult* result;
 
     if(filter.empty())
     {
-        result = loginDatabase.Query ("SELECT ip,bandate,unbandate,bannedby,banreason FROM ip_banned"
+        result = LoginDatabase.Query ("SELECT ip,bandate,unbandate,bannedby,banreason FROM ip_banned"
             " WHERE (bandate=unbandate OR unbandate>UNIX_TIMESTAMP())"
             " ORDER BY unbandate" );
     }
     else
     {
-        result = loginDatabase.PQuery( "SELECT ip,bandate,unbandate,bannedby,banreason FROM ip_banned"
+        result = LoginDatabase.PQuery( "SELECT ip,bandate,unbandate,bannedby,banreason FROM ip_banned"
             " WHERE (bandate=unbandate OR unbandate>UNIX_TIMESTAMP()) AND ip "_LIKE_" "_CONCAT3_("'%%'","'%s'","'%%'")
             " ORDER BY unbandate",filter.c_str() );
     }
@@ -6708,9 +6712,12 @@ bool ChatHandler::HandleInstanceStartCommand(const char * /*args*/)
 {
     Player* pl = m_session->GetPlayer();
 	BattleGround *bg = pl->GetBattleGround();
+    if(!bg)
+        return false;
     if(bg->GetTypeID(true))
     {
         bg->StartBattleGround();
+        bg->AddPlayer(pl);
 		return true;
     }
     else
@@ -6748,7 +6755,7 @@ bool ChatHandler::HandleInstanceSaveDataCommand(const char * /*args*/)
 bool ChatHandler::HandleGMListFullCommand(const char* /*args*/)
 {
     ///- Get the accounts with GM Level >0
-    QueryResult *result = loginDatabase.Query( "SELECT username,gmlevel FROM account WHERE gmlevel > 0" );
+    QueryResult *result = LoginDatabase.Query( "SELECT username,gmlevel FROM account WHERE gmlevel > 0" );
     if(result)
     {
         SendSysMessage(LANG_GMLIST);
@@ -6882,7 +6889,7 @@ bool ChatHandler::HandleAccountSetAddonCommand(const char* args)
         return false;
 
     // No SQL injection
-    loginDatabase.PExecute("UPDATE account SET expansion = '%d' WHERE id = '%u'",lev,account_id);
+    LoginDatabase.PExecute("UPDATE account SET expansion = '%d' WHERE id = '%u'",lev,account_id);
     PSendSysMessage(LANG_ACCOUNT_SETADDON,account_name.c_str(),account_id,lev);
     return true;
 }
@@ -7136,5 +7143,185 @@ bool ChatHandler::HandleModifyGenderCommand(const char *args)
     if (needReportToTarget(player))
         ChatHandler(player).PSendSysMessage(LANG_YOUR_GENDER_CHANGED, gender_full, GetNameLink().c_str());
 
+    return true;
+}
+
+bool ChatHandler::HandleFreezeCommand(const char *args)
+{
+    std::string name;
+    Player* player;
+    char* TargetName = strtok((char*)args, " "); //get entered #name
+    if (!TargetName) //if no #name entered use target
+    {
+        player = getSelectedPlayer();
+		if (player) //prevent crash with creature as target
+        {   
+           name = player->GetName();
+           normalizePlayerName(name);
+        }
+    }
+    else // if #name entered
+    {
+        name = TargetName;
+        normalizePlayerName(name);
+        player = sObjectMgr.GetPlayer(name.c_str()); //get player by #name
+    }
+
+
+    //effect
+    if ((player) && (!(player==m_session->GetPlayer())))
+    {
+        PSendSysMessage(LANG_COMMAND_FREEZE,name.c_str());
+
+        //stop combat + unattackable + duel block + stop some spells
+        player->setFaction(35);
+        player->CombatStop();
+		if(player->IsNonMeleeSpellCasted(true))
+        player->InterruptNonMeleeSpells(true);
+        player->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        player->SetUInt32Value(PLAYER_DUEL_TEAM, 1);
+
+		//if player class = hunter || warlock remove pet if alive
+        if((player->getClass() == CLASS_HUNTER) || (player->getClass() == CLASS_WARLOCK))
+        {
+            if(Pet* pet = player->GetPet())
+            {
+                pet->SavePetToDB(PET_SAVE_AS_CURRENT);
+                // not let dismiss dead pet
+                if(pet && pet->isAlive())
+                player->RemovePet(pet,PET_SAVE_NOT_IN_SLOT);
+            }
+        }
+
+        //stop movement and disable spells
+        //uint32 spellID = 9454;
+        //m_session->GetPlayer()->CastSpell(player,spellID,false);
+        uint32 spellID = 9454;
+        SpellEntry const *spellInfo = sSpellStore.LookupEntry( spellID );
+        if(spellInfo) //TODO: Change the duration of the aura to -1 instead of 5000000
+        {
+            for(uint32 i = 0;i<3;i++)
+            {
+                uint8 eff = spellInfo->Effect[i];
+                if (eff>=TOTAL_SPELL_EFFECTS)
+                    continue;
+                if( eff == SPELL_EFFECT_APPLY_AREA_AURA_PARTY || eff == SPELL_EFFECT_APPLY_AURA ||
+                    eff == SPELL_EFFECT_PERSISTENT_AREA_AURA || eff == SPELL_EFFECT_APPLY_AREA_AURA_FRIEND || 
+                    eff == SPELL_EFFECT_APPLY_AREA_AURA_ENEMY)
+                {
+                    Aura *Aur = CreateAura(spellInfo, SpellEffectIndex(i), NULL, player);
+                    player->AddAura(Aur);
+                }
+            }
+        }
+
+
+        //save player
+        player->SaveToDB();
+    }
+
+    if (!player)
+    {
+        SendSysMessage(LANG_COMMAND_FREEZE_WRONG);
+        return true;
+    }
+
+    if (player==m_session->GetPlayer())
+    {
+        SendSysMessage(LANG_COMMAND_FREEZE_ERROR);
+        return true;
+    }
+
+    return true;
+}
+
+bool ChatHandler::HandleUnFreezeCommand(const char *args)
+{
+    std::string name;
+    Player* player;
+    char* TargetName = strtok((char*)args, " "); //get entered #name
+    if (!TargetName) //if no #name entered use target
+    {
+        player = getSelectedPlayer();
+		if (player) //prevent crash with creature as target
+        {   
+           name = player->GetName();
+        }
+    }
+
+    else // if #name entered
+    {
+        name = TargetName;
+        normalizePlayerName(name);
+        player = sObjectMgr.GetPlayer(name.c_str()); //get player by #name
+    }
+
+    //effect
+    if (player)
+    {
+        PSendSysMessage(LANG_COMMAND_UNFREEZE,name.c_str());
+
+        //Reset player faction + allow combat + allow duels
+        player->setFactionForRace(player->getRace());
+        player->RemoveFlag (UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+
+        //allow movement and spells
+        uint32 spellID = 9454;
+        player->RemoveAurasDueToSpell(spellID);
+
+        //save player
+        player->SaveToDB();
+    }
+
+    if (!player)
+    {
+        if (TargetName)
+        {        
+            //check for offline players
+		    QueryResult *result = CharacterDatabase.PQuery("SELECT characters.guid FROM `characters` WHERE characters.name = '%s'",name.c_str());
+            if(!result)
+		    {
+			    SendSysMessage(LANG_COMMAND_FREEZE_WRONG);
+                return true;
+		    }
+		    //if player found: delete his freeze aura
+		    Field *fields=result->Fetch();
+            uint64 pguid = fields[0].GetUInt64();
+		    delete result;
+            CharacterDatabase.PQuery("DELETE FROM `character_aura` WHERE character_aura.spell = 9454 AND character_aura.guid = '%u'",pguid);
+            PSendSysMessage(LANG_COMMAND_UNFREEZE,name.c_str());
+            return true;
+		}
+		else
+        {
+	        SendSysMessage(LANG_COMMAND_FREEZE_WRONG);
+            return true;
+		}
+    }
+
+    return true;
+}
+
+bool ChatHandler::HandleListFreezeCommand(const char* args)
+{
+    //Get names from DB
+    QueryResult *result = CharacterDatabase.PQuery("SELECT characters.name FROM `characters` LEFT JOIN `character_aura` ON (characters.guid = character_aura.guid) WHERE character_aura.spell = 9454");
+    if(!result)
+    {
+        SendSysMessage(LANG_COMMAND_NO_FROZEN_PLAYERS);
+        return true;
+    }
+    //Header of the names
+    PSendSysMessage(LANG_COMMAND_LIST_FREEZE);
+    
+    //Output of the results
+	do
+    {
+        Field *fields = result->Fetch();
+        std::string fplayers = fields[0].GetCppString();
+        PSendSysMessage(LANG_COMMAND_FROZEN_PLAYERS,fplayers.c_str());
+    } while (result->NextRow());
+
+    delete result;
     return true;
 }

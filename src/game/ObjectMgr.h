@@ -172,12 +172,14 @@ typedef std::pair<ItemRequiredTargetMap::const_iterator, ItemRequiredTargetMap::
 
 struct PetLevelInfo
 {
-    PetLevelInfo() : health(0), mana(0) { for(int i=0; i < MAX_STATS; ++i ) stats[i] = 0; }
+    PetLevelInfo() : health(0), mana(0), armor(0), mindmg(0), maxdmg(0) { for(int i=0; i < MAX_STATS; ++i ) stats[i] = 0; }
 
     uint16 stats[MAX_STATS];
     uint16 health;
     uint16 mana;
     uint16 armor;
+    uint16 mindmg;
+    uint16 maxdmg;
 };
 
 struct MailLevelReward
@@ -303,7 +305,7 @@ enum ConditionType
     CONDITION_AURA                  = 1,                    // spell_id     effindex
     CONDITION_ITEM                  = 2,                    // item_id      count
     CONDITION_ITEM_EQUIPPED         = 3,                    // item_id      0
-    CONDITION_ZONEID                = 4,                    // zone_id      0
+    CONDITION_AREAID                = 4,                    // area_id      0, 1 (0: in (sub)area, 1: not in (sub)area)
     CONDITION_REPUTATION_RANK       = 5,                    // faction_id   min_rank
     CONDITION_TEAM                  = 6,                    // player_team  0,      (469 - Alliance 67 - Horde)
     CONDITION_SKILL                 = 7,                    // skill_id     skill_value
@@ -318,9 +320,10 @@ enum ConditionType
     CONDITION_NOITEM                = 16,                   // item_id      count
     CONDITION_SPELL                 = 17,                   // spell_id     0, 1 (0: has spell, 1: hasn't spell)
     CONDITION_INSTANCE_SCRIPT       = 18,                   // map_id       instance_condition_id (instance script specific enum)
+    CONDITION_QUESTAVAILABLE        = 19,                   // quest_id     0       for case when loot/gossip possible only if player can start quest
 };
 
-#define MAX_CONDITION                 19                    // maximum value in ConditionType enum
+#define MAX_CONDITION                 20                    // maximum value in ConditionType enum
 
 struct PlayerCondition
 {

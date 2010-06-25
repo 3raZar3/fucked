@@ -95,7 +95,6 @@ class MANGOS_DLL_SPEC Aura
         void HandleAuraHover(bool Apply, bool Real);
         void HandleAddModifier(bool Apply, bool Real);
 
-        void HandleAddTargetTrigger(bool Apply, bool Real);
         void HandleAuraModStun(bool Apply, bool Real);
         void HandleModDamageDone(bool Apply, bool Real);
         void HandleAuraUntrackable(bool Apply, bool Real);
@@ -230,6 +229,7 @@ class MANGOS_DLL_SPEC Aura
         virtual ~Aura();
 
         void SetModifier(AuraType t, int32 a, uint32 pt, int32 miscValue);
+        void UpdateModifierAmount(int32 amount);
         Modifier*       GetModifier()       { return &m_modifier; }
         Modifier const* GetModifier() const { return &m_modifier; }
         int32 GetMiscValue() const { return m_spellProto->EffectMiscValue[m_effIndex]; }
@@ -242,14 +242,13 @@ class MANGOS_DLL_SPEC Aura
         int32 GetBasePoints() const { return m_currentBasePoints; }
 
         int32 GetAuraMaxDuration() const { return m_maxduration; }
-        void SetAuraMaxDuration(int32 duration) { m_maxduration = duration; }
-        int32 GetAuraOrigDuration() const { return m_origDuration; }
-        void SetAuraOrigDuration(int32 duration) { m_origDuration = duration; }
+        void SetAuraMaxDuration(int32 duration);
         int32 GetAuraDuration() const { return m_duration; }
         void SetAuraDuration(int32 duration) { m_duration = duration; }
         time_t GetAuraApplyTime() const { return m_applyTime; }
         uint32 GetAuraTicks() const { return m_periodicTick; }
         uint32 GetAuraMaxTicks() const { return m_maxduration > 0 && m_modifier.periodictime > 0 ? m_maxduration / m_modifier.periodictime : 0; }
+        void SetAuraPeriodicTimer (int32 timer) { m_periodicTimer = timer; }
 
         uint64 const& GetCasterGUID() const { return m_caster_guid; }
         Unit* GetCaster() const;
@@ -259,8 +258,8 @@ class MANGOS_DLL_SPEC Aura
         {
             m_caster_guid = caster_guid;
             m_modifier.m_amount = damage;
-            m_maxduration = maxduration;
-            m_duration = duration;
+            SetAuraMaxDuration(maxduration);
+            SetAuraDuration(duration);
             m_procCharges = charges;
 
             if(uint32 maxticks = GetAuraMaxTicks())

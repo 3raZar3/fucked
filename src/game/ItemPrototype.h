@@ -473,8 +473,9 @@ inline uint8 ItemSubClassToDurabilityMultiplierId(uint32 ItemClass, uint32 ItemS
 
 enum ItemExtraFlags
 {
-    ITEM_EXTRA_NON_CONSUMABLE     = 0x01,                   // use as additional flag to spellcharges_N negative values, item not expire at no chanrges
-    ITEM_EXTRA_REAL_TIME_DURATION = 0x02,                   // if set and have Duration time, then offline time included in counting, if not set then counted only in game time
+    ITEM_EXTRA_NON_CONSUMABLE        = 0x01,                // use as additional flag to spellcharges_N negative values, item not expire at no chanrges
+    ITEM_EXTRA_REAL_TIME_DURATION    = 0x02,                // if set and have Duration time, then offline time included in counting, if not set then counted only in game time
+    ITEM_EXTRA_CREATE_ITEM_ON_EXPIRE = 0x04,                // if item has duration, this flag indicates to create some new item on expire  
 
     ITEM_EXTRA_ALL                                          // all used flags, used for check DB data
 };
@@ -586,7 +587,7 @@ struct ItemPrototype
     _Socket Socket[MAX_ITEM_PROTO_SOCKETS];
     uint32 socketBonus;                                     // id from SpellItemEnchantment.dbc
     uint32 GemProperties;                                   // id from GemProperties.dbc
-    uint32 RequiredDisenchantSkill;
+    int32 RequiredDisenchantSkill;
     float  ArmorDamageModifier;
     uint32 Duration;                                        // negative = realtime, positive = ingame time
     uint32 ItemLimitCategory;                               // id from ItemLimitCategory.dbc
@@ -648,7 +649,7 @@ struct ItemPrototype
     bool IsConjuredConsumable() const { return Class == ITEM_CLASS_CONSUMABLE && (Flags & ITEM_FLAGS_CONJURED); }
     bool IsVellum() const
     {
-        return (Class == ITEM_CLASS_TRADE_GOODS && (1 << ITEM_SUBCLASS_ARMOR_ENCHANTMENT | 1 << ITEM_SUBCLASS_WEAPON_ENCHANTMENT) & (1<<SubClass));
+        return (Class == ITEM_CLASS_TRADE_GOODS && (1 << SubClass) & (1 << ITEM_SUBCLASS_ARMOR_ENCHANTMENT | 1 << ITEM_SUBCLASS_WEAPON_ENCHANTMENT));
     }
 };
 

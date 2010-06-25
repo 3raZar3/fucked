@@ -1,4 +1,4 @@
-#include "Config/ConfigEnv.h"
+#include "Config/Config.h"
 #include "Player.h"
 #include "PlayerbotAI.h"
 #include "PlayerbotMgr.h"
@@ -9,8 +9,6 @@
 #include "Chat.h"
 #include "Language.h"
 #include "Guild.h"
-#include "LootMgr.h"
-#include "Group.h"
 
 class LoginQueryHolder;
 class CharacterHandler;
@@ -297,10 +295,11 @@ void PlayerbotMgr::HandleMasterIncomingPacket(const WorldPacket& packet)
                p >> NumberOfPlayers; //number of players invited to roll
                p >> rollType; //need,greed or pass on roll
 
+
                for (PlayerBotMap::const_iterator it = GetPlayerBotsBegin(); it != GetPlayerBotsEnd(); ++it)
                {
 
-                    uint32 choice = urand(0,3); //returns 0, 1, 2 or 3
+                    uint32 choice = urand(0,3); //returns 0,1,2 or 3
 
                     Player* const bot = it->second;
                     if(!bot)

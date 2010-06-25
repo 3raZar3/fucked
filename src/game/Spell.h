@@ -23,6 +23,9 @@
 #include "SharedDefines.h"
 #include "DBCEnums.h"
 #include "ObjectGuid.h"
+#include "LootMgr.h"
+#include "Unit.h"
+#include "Player.h"
 
 #include "../../dep/tbb/include/tbb/concurrent_vector.h"
 #include <memory>
@@ -30,9 +33,9 @@
 #define MAX_SPELL_ID	100000
 
 class WorldSession;
-class Unit;
+class WorldPacket;
 class DynamicObj;
-class Player;
+class Item;
 class GameObject;
 class Group;
 class Aura;
@@ -175,6 +178,7 @@ class SpellCastTargets
         Item* getItemTarget() const { return m_itemTarget; }
         uint32 getItemTargetEntry() const { return m_itemTargetEntry; }
         void setItemTarget(Item* item);
+        void setTradeItemTarget(Player* caster);
         void updateTradeSlotItem()
         {
             if(m_itemTarget && (m_targetMask & TARGET_FLAG_TRADE_ITEM))
@@ -423,7 +427,7 @@ class Spell
 
         typedef std::list<Unit*> UnitList;
         void FillTargetMap();
-        void FillCustomTargetMap(uint32 i, UnitList &targetUnitMap); 
+        bool FillCustomTargetMap(uint32 i, UnitList &targetUnitMap); 
         void SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList &targetUnitMap);
 
         void FillAreaTargets(UnitList &targetUnitMap, float x, float y, float radius, SpellNotifyPushType pushType, SpellTargets spellTargets, WorldObject* originalCaster = NULL);
@@ -515,6 +519,7 @@ class Spell
         void ClearCastItem();
 
         static void SelectMountByAreaAndSkill(Unit* target, uint32 spellId75, uint32 spellId150, uint32 spellId225, uint32 spellId300, uint32 spellIdSpecial);
+        bool isCausingAura(AuraType aura);
     protected:
 
         void SendLoot(uint64 guid, LootType loottype);
@@ -827,6 +832,7 @@ namespace MaNGOS
         template<> inline void Visit(CorpseMapType & ) {}
         template<> inline void Visit(GameObjectMapType & ) {}
         template<> inline void Visit(DynamicObjectMapType & ) {}
+        template<> inline void Visit(CameraMapType & ) {}
         #endif
     };
 
@@ -834,6 +840,7 @@ namespace MaNGOS
     template<> inline void SpellNotifierCreatureAndPlayer::Visit(CorpseMapType& ) {}
     template<> inline void SpellNotifierCreatureAndPlayer::Visit(GameObjectMapType& ) {}
     template<> inline void SpellNotifierCreatureAndPlayer::Visit(DynamicObjectMapType& ) {}
+    template<> inline void SpellNotifierCreatureAndPlayer::Visit(CameraMapType& ) {}
     #endif
 }
 
