@@ -5455,7 +5455,7 @@ void Spell::EffectSummonPet(SpellEffectIndex eff_idx)
             else
                 ++itr;
         }
-        
+
         // Summoned creature is ghoul.
         if (NewSummon->GetEntry() == 26125)
             // He must have energy bar instead of mana
@@ -7412,7 +7412,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
 
                     break;
                 }
-                case 46584:		 // Raise dead
+                case 46584:           // Raise dead
                 {
                     // We will get here ONLY when we have a corpse of humanoid that gives honor or XP.
                     // If we have active pet, then we should not cast the spell again.
@@ -7430,10 +7430,10 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     else
                         // Summon ghoul as a guardian
                      m_caster->CastSpell(unitTarget->GetPositionX(),unitTarget->GetPositionY(),unitTarget->GetPositionZ(),46585,true);
-                    ((Creature*)unitTarget)->setDeathState(ALIVE);
+                        ((Creature*)unitTarget)->setDeathState(ALIVE);
                     // Used to prevent further EffectDummy execution
                     finish();
-                    return;//break;	
+                    return;            //break;
                 }
             }
             break;
