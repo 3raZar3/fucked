@@ -587,7 +587,8 @@ void Spell::FillTargetMap()
                         break;
                     case TARGET_AREAEFFECT_CUSTOM:
                     case TARGET_ALL_ENEMY_IN_AREA_INSTANT:
-                        if (FillCustomTargetMap(i,tmpUnitMap)) break;
+                        FillCustomTargetMap(i,tmpUnitMap);
+                        break;
                     case TARGET_INNKEEPER_COORDINATES:
                     case TARGET_TABLE_X_Y_Z_COORDINATES:
                     case TARGET_CASTER_COORDINATES:
@@ -605,9 +606,6 @@ void Spell::FillTargetMap()
                     case TARGET_POINT_AT_SW:
                         // need some target for processing
                         SetTargetMap(SpellEffectIndex(i), m_spellInfo->EffectImplicitTargetA[i], tmpUnitMap);
-                        SetTargetMap(SpellEffectIndex(i), m_spellInfo->EffectImplicitTargetB[i], tmpUnitMap);
-                        break;
-                    default:
                         SetTargetMap(SpellEffectIndex(i), m_spellInfo->EffectImplicitTargetB[i], tmpUnitMap);
                         break;
                 }
@@ -2588,7 +2586,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 }
 
                 float _target_x, _target_y, _target_z;
-                pTarget->GetClosePoint(_target_x, _target_y, _target_z, pTarget->GetObjectSize(), dist, angle);
+                pTarget->GetClosePoint(_target_x, _target_y, _target_z, pTarget->GetObjectBoundingRadius(), dist, angle);
                 if(pTarget->IsWithinLOS(_target_x, _target_y, _target_z))
                 {
                     targetUnitMap.push_back(m_caster);
@@ -2676,7 +2674,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 float dist = minRange+ rand_norm_f()*(maxRange-minRange);
 
                 float _target_x, _target_y, _target_z;
-                m_caster->GetClosePoint(_target_x, _target_y, _target_z, m_caster->GetObjectSize(), dist);
+                m_caster->GetClosePoint(_target_x, _target_y, _target_z, m_caster->GetObjectBoundingRadius(), dist);
                 m_targets.setDestination(_target_x, _target_y, _target_z);
             }
 

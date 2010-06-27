@@ -1433,7 +1433,7 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
 					    return;
 						
 				    float fDestX, fDestY, fDestZ;
-					m_caster->GetNearPoint(m_caster, fDestX, fDestY, fDestZ, m_caster->GetObjectSize(), 30.0f, 0.0f);
+					m_caster->GetNearPoint(m_caster, fDestX, fDestY, fDestZ, m_caster->GetObjectBoundingRadius(), 30.0f, 0.0f);
 					if (Creature* pWolf = m_caster->SummonCreature(25324, fDestX, fDestY, fDestZ, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 60000))
 					    pWolf->GetMotionMaster()->MoveFollow(m_caster, PET_FOLLOW_DIST, pWolf->GetAngle(m_caster));
 					return;
@@ -2771,48 +2771,6 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
             }
             // Raise dead effect
             else if(m_spellInfo->Id == 46584) 
-            {
-                if (m_caster->GetTypeId() != TYPEID_PLAYER)
-                    return;
-                // We can have a summoned pet/guardian only in 2 cases:
-                // 1. It was summoned from corpse in EffectScriptEffect.
-                if (getState() == SPELL_STATE_FINISHED)
-                    return;
-                // 2. Cooldown of Raise Dead is finished and we want to repeat the cast with active pet.
-                if (((Player*)m_caster)->GetPet())
-                {
-                    ((Player*)m_caster)->RemoveSpellCooldown(m_spellInfo->Id,true);
-                    SendCastResult(SPELL_FAILED_ALREADY_HAVE_SUMMON);
-                    return;
-                }
-                // We will get here ONLY if we have no corpse.
-                bool allow_cast = false;
-                // We do not need any reagent if we have Glyph of Raise Dead.
-                if (m_caster->HasAura(60200))
-                    allow_cast = true;
-                else
-                    // We need Corpse Dust to cast a spell.
-                    if (((Player*)m_caster)->HasItemCount(37201,1))
-                    {
-                        ((Player*)m_caster)->DestroyItemCount(37201,1,true);
-                        allow_cast = true;
-                    }
-                if (allow_cast)
-                {
-                    if (m_caster->HasSpell(52143))
-                        m_caster->CastSpell(m_caster,52150,true);
-                    else
-                        m_caster->CastSpell(m_caster,46585,true);
-                }
-                else
-                {
-                    ((Player*)m_caster)->RemoveSpellCooldown(m_spellInfo->Id,true);
-                    SendCastResult(SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW);
-                }
-                return;
-            }
-            // Death Grip
-            else if (m_spellInfo->Id == 49576)
             {
                 if (m_caster->GetTypeId() != TYPEID_PLAYER)
                     return;
@@ -4539,7 +4497,7 @@ void Spell::DoSummon(SpellEffectIndex eff_idx)
         z = m_targets.m_destZ;
     }
     else
-        m_caster->GetClosePoint(x, y, z, spawnCreature->GetObjectSize());
+        m_caster->GetClosePoint(x, y, z, spawnCreature->GetObjectBoundingRadius());
 
     spawnCreature->Relocate(x, y, z, -m_caster->GetOrientation());
     spawnCreature->SetSummonPoint(x, y, z, -m_caster->GetOrientation());
@@ -4979,7 +4937,7 @@ void Spell::DoSummonGuardian(SpellEffectIndex eff_idx, uint32 forceFaction)
         }
         // Summon if dest location not present near caster
         else
-            m_caster->GetClosePoint(px, py, pz,spawnCreature->GetObjectSize());
+            m_caster->GetClosePoint(px, py, pz,spawnCreature->GetObjectBoundingRadius());
 
         spawnCreature->Relocate(px, py, pz, m_caster->GetOrientation());
         spawnCreature->SetSummonPoint(px, py, pz, m_caster->GetOrientation());
@@ -5027,7 +4985,7 @@ void Spell::EffectTeleUnitsFaceCaster(SpellEffectIndex eff_idx)
     float dis = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[eff_idx]));
 
     float fx, fy, fz;
-    m_caster->GetClosePoint(fx, fy, fz, unitTarget->GetObjectSize(), dis);
+    m_caster->GetClosePoint(fx, fy, fz, unitTarget->GetObjectBoundingRadius(), dis);
 
     unitTarget->NearTeleportTo(fx, fy, fz, -m_caster->GetOrientation(), unitTarget==m_caster);
 }
@@ -5378,7 +5336,7 @@ void Spell::EffectSummonPet(SpellEffectIndex eff_idx)
             OldSummon->GetMap()->Remove((Creature*)OldSummon,false);
 
             float px, py, pz;
-            m_caster->GetClosePoint(px, py, pz, OldSummon->GetObjectSize());
+            m_caster->GetClosePoint(px, py, pz, OldSummon->GetObjectBoundingRadius());
 
             OldSummon->Relocate(px, py, pz, OldSummon->GetOrientation());
             m_caster->GetMap()->Add((Creature*)OldSummon);
@@ -5428,7 +5386,7 @@ void Spell::EffectSummonPet(SpellEffectIndex eff_idx)
     }
 
     float px, py, pz;
-    m_caster->GetClosePoint(px, py, pz, NewSummon->GetObjectSize());
+    m_caster->GetClosePoint(px, py, pz, NewSummon->GetObjectBoundingRadius());
 
     NewSummon->Relocate(px, py, pz, m_caster->GetOrientation());
 
@@ -7673,7 +7631,7 @@ void Spell::EffectSummonPlayer(SpellEffectIndex /*eff_idx*/)
         return;
 
     float x, y, z;
-    m_caster->GetClosePoint(x, y, z, unitTarget->GetObjectSize());
+    m_caster->GetClosePoint(x, y, z, unitTarget->GetObjectBoundingRadius());
 
     ((Player*)unitTarget)->SetSummonPoint(m_caster->GetMapId(),x,y,z);
 
@@ -7759,7 +7717,7 @@ void Spell::DoSummonTotem(SpellEffectIndex eff_idx, uint8 slot_dbc)
     float angle = slot < MAX_TOTEM_SLOT ? M_PI_F/MAX_TOTEM_SLOT - (slot*2*M_PI_F/MAX_TOTEM_SLOT) : 0;
 
     float x, y, z;
-    m_caster->GetClosePoint(x, y, z, pTotem->GetObjectSize(), 2.0f, angle);
+    m_caster->GetClosePoint(x, y, z, pTotem->GetObjectBoundingRadius(), 2.0f, angle);
 
     // totem must be at same Z in case swimming caster and etc.
     if( fabs( z - m_caster->GetPositionZ() ) > 5 )
@@ -8357,7 +8315,7 @@ void Spell::DoSummonCritter(SpellEffectIndex eff_idx, uint32 forceFaction)
      }
      // Summon if dest location not present near caster
      else
-        m_caster->GetClosePoint(x, y, z, critter->GetObjectSize());
+        m_caster->GetClosePoint(x, y, z, critter->GetObjectBoundingRadius());
 
     critter->Relocate(x, y, z, m_caster->GetOrientation());
     critter->SetSummonPoint(x, y, z, m_caster->GetOrientation());
