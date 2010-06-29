@@ -22,7 +22,7 @@
 
 char const *ITEM_DBC   = "Item.dbc";
 char const *ITEM_SQL   = "item.sql";
-char const *ITEM_TABLE = "item";
+char const *ITEM_TABLE = "item_template";
 
 #define ITEM_DBC_CLIENT_BUILD  12213 // 3.3.5
 
@@ -32,14 +32,14 @@ char const *ITEM_TABLE = "item";
 // Item.dbc struct: MaNGOS 10120
 char const *item_translation[ITEM_DBC_COLUMN_NUMS][2] =
 {
-    {"uint32",   "ID"},                                             // 0
-    {"uint32",   "Class"},                                          // 1
-    {"uint32",   "SubClass"},                                       // 2 some items have strange subclasses
-    {"int32",    "Unk0"},                                           // 3
+    {"uint32",   "entry"},                                             // 0
+    {"uint32",   "class"},                                          // 1
+    {"uint32",   "subclass"},                                       // 2 some items have strange subclasses
+    {"int32",    "unk0"},                                           // 3
     {"int32",    "Material"},                                       // 4
-    {"uint32",   "DisplayId"},                                      // 5
+    {"uint32",   "displayid"},                                      // 5
     {"uint32",   "InventoryType"},                                  // 6
-    {"uint32",   "Sheath"}                                          // 7
+    {"uint32",   "sheath"}                                          // 7
 };
 
 char const *ITEM_TABLE_INDEX = item_translation[0][1];
