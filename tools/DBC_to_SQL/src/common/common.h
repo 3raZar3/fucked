@@ -21,7 +21,7 @@
 #ifndef __COMMON_H__
 #define __COMMON_H__
 
-char static const *EXPECTED_CLIENT_BUILT = "3.3.3a (11723)";
+char static const *EXPECTED_CLIENT_BUILT = "3.3.5 (12213)";
 
 typedef char int8;
 typedef int int16;

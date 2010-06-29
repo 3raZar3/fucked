@@ -24,6 +24,7 @@
 #include "common/common.h"
 #include "dbc/dbc.h"
 #include "structs/spell.h"
+#include "structs/item.h"
 #include "structs/achievement.h"
 #include "structs/achievement_category.h"
 #include "structs/achievement_criteria.h"
@@ -34,9 +35,10 @@
 #define SLASH_BUFFER            2000
 
 DBCFileLoader DBCSpell;
-DBCFileLoader DBCAchievement;
-DBCFileLoader DBCAchievementCategory;
-DBCFileLoader DBCAchievementCriteria;
+DBCFileLoader DBCItem;
+//DBCFileLoader DBCAchievement;
+//DBCFileLoader DBCAchievementCategory;
+//DBCFileLoader DBCAchievementCriteria;
 
 bool check_dbc();
 void dump_sql();
@@ -52,6 +54,10 @@ int main()
     std::cout << "        DBC columns numbers:        " << SPELL_DBC_COLUMN_NUMS << std::endl;
     std::cout << "        DBC rows numbers:           " << SPELL_DBC_ROWS_NUMS << std::endl;
     std::cout << "        DBC supported client build: " << SPELL_DBC_CLIENT_BUILD << "\n\n";
+    std::cout << "    Item.dbc format:\n";
+    std::cout << "        DBC columns numbers:        " << ITEM_DBC_COLUMN_NUMS << std::endl;
+    std::cout << "        DBC rows numbers:           " << ITEM_DBC_ROWS_NUMS << std::endl;
+    std::cout << "        DBC supported client build: " << ITEM_DBC_CLIENT_BUILD << "\n\n";
     /*std::cout << "    Achievement.dbc format:\n";
     std::cout << "        DBC columns numbers:        " << ACHIEVEMENT_DBC_COLUMN_NUMS << std::endl;
     std::cout << "        DBC rows numbers:           " << ACHIEVEMENT_DBC_ROWS_NUMS << std::endl;
@@ -66,6 +72,7 @@ int main()
     std::cout << "        DBC supported client build: " << ACHIEVEMENT_CRITERIA_DBC_CLIENT_BUILD << "\n\n";*/
 
     DBCSpell.Load(SPELL_DBC);
+    DBCItem.Load(ITEM_DBC);
     //DBCAchievement.Load(ACHIEVEMENT_DBC);
     //DBCAchievementCategory.Load(ACHIEVEMENT_CATEGORY_DBC);
     //DBCAchievementCriteria.Load(ACHIEVEMENT_CRITERIA_DBC);
@@ -107,6 +114,28 @@ bool check_dbc()
         return false;
     }
     std::cout << SPELL_DBC << " - DBC format: OK." << "\n\n";
+    
+    /********** Item.dbc **********/
+    if(!DBCItem.getNumFields())
+    {
+        std::cout << "ERROR: Can not open file: " << ITEM_DBC << std::endl;
+        return false;
+    }
+    else
+        std::cout << ITEM_DBC << " - Opened successful." << std::endl << ITEM_DBC << " - fields: "
+        << DBCItem.getNumFields() << ", rows: " << DBCItem.getNumRows() << std::endl;
+
+    if(DBCItem.getNumFields() != ITEM_DBC_COLUMN_NUMS)
+    {
+        std::cout << ITEM_DBC << " - ERROR: Column numbers do not match with the supported DBC format." << std::endl;
+        return false;
+    }
+    if(DBCItem.getNumRows() != ITEM_DBC_ROWS_NUMS)
+    {
+        std::cout << ITEM_DBC << " - ERROR: Rows numbers do not match with the supported DBC format." << std::endl;
+        return false;
+    }
+    std::cout << ITEM_DBC << " - DBC format: OK." << "\n\n";
 
     /********** Achievement.dbc **********//*
     if(!DBCAchievement.getNumFields())
@@ -295,6 +324,123 @@ void dump_sql()
     std::cout << SPELL_DBC << " - Closed\n\n";
 
     /********** END: Spell.dbc **********/
+    
+    /********** START: Item.dbc **********/
+
+    FILE *fItemSql = fopen(ITEM_SQL, "w");
+    if(!fItemSql)
+        return;
+
+    std::cout << ITEM_DBC << " - Creating the SQL table struct...\n";
+
+    fprintf(fItemSql, "-- DBCtoSQL tool. Expected client build: %s\n\n", EXPECTED_CLIENT_BUILT);
+
+    fprintf(fItemSql, "DROP TABLE IF EXISTS `%s`;\n", ITEM_TABLE);
+    fprintf(fItemSql, "CREATE TABLE `%s` (\n", ITEM_TABLE);
+
+    for(uint16 i = 0; i < ITEM_DBC_COLUMN_NUMS; i++)
+    {
+        if(!strcmp(item_translation[i][0], "uint32"))
+            fprintf(fItemSql, "    `%s` INT (11) UNSIGNED DEFAULT '0' NOT NULL,\n", item_translation[i][1]);
+        else if(!strcmp(item_translation[i][0], "int32"))
+            fprintf(fItemSql, "    `%s` INT (11) DEFAULT '0' NOT NULL,\n", item_translation[i][1]);
+        else if(!strcmp(item_translation[i][0], "float"))
+            fprintf(fItemSql, "    `%s` FLOAT DEFAULT '0' NOT NULL,\n", item_translation[i][1]);
+        else if(!strcmp(item_translation[i][0], "flag96"))
+            fprintf(fItemSql, "    `%s` INT (11) UNSIGNED DEFAULT '0' NOT NULL,\n", item_translation[i][1]);
+        else if(!strcmp(item_translation[i][0], "char*"))
+            fprintf(fItemSql, "    `%s` VARCHAR(255),\n", item_translation[i][1]);
+        else if(!strcmp(item_translation[i][0], "text"))
+            fprintf(fItemSql, "    `%s` TEXT,\n", item_translation[i][1]);
+        else
+            fprintf(fItemSql, "    ERROR: unknown column type: %s in column: %s\n", item_translation[i][0], item_translation[i][1]);
+    }
+
+    fprintf(fItemSql, "    PRIMARY KEY(`%s`)\n", ITEM_TABLE_INDEX);
+    fprintf(fItemSql, ") ENGINE=MyISAM DEFAULT CHARSET=utf8;\n");
+
+    fprintf(fItemSql, "\n\n");
+
+    std::cout << ITEM_DBC << " - DONE\n\n";
+
+    // start dumping the data from the DBC
+
+    std::cout << ITEM_DBC << " - Dumping data...\n";
+
+    Bar ProgressItem(DBCItem.getNumRows());
+
+    char tstrItem[SLASH_BUFFER];
+
+    for(uint32 j = 0; j < DBCItem.getNumRows(); j++)
+    {
+        // new insert block
+        if((j % SQL_INSERTS_PER_QUERY) == 0)
+        {
+            fprintf(fItemSql, "\nINSERT INTO `%s` (", ITEM_TABLE);
+            for(uint16 i = 0; i < ITEM_DBC_COLUMN_NUMS; i++)
+            {
+                fprintf(fItemSql, "`%s`", item_translation[i][1]);
+                if(i != ITEM_DBC_COLUMN_NUMS - 1)
+                    fprintf(fItemSql, ",");
+            }
+            fprintf(fItemSql, ") VALUES \n");
+            fprintf(fItemSql, "(");
+        }
+        else
+            fprintf(fItemSql, ",(");
+
+        for(uint16 i = 0; i < ITEM_DBC_COLUMN_NUMS; i++)
+        {
+            if(!strcmp(item_translation[i][0], "uint32"))
+                fprintf(fItemSql, "%lu", DBCItem.getRecord(j).getUInt32(i));
+            else if(!strcmp(item_translation[i][0], "int32"))
+                fprintf(fItemSql, "%ld", DBCItem.getRecord(j).getInt32(i));
+            else if(!strcmp(item_translation[i][0], "float"))
+                fprintf(fItemSql, "%f", DBCItem.getRecord(j).getFloat(i));
+            else if(!strcmp(item_translation[i][0], "flag96"))
+                fprintf(fItemSql, "%lu", DBCItem.getRecord(j).getUInt32(i));
+            else if(!strcmp(item_translation[i][0], "char*") || !strcmp(item_translation[i][0], "text"))
+            {
+                const char *dstr = DBCItem.getRecord(j).getString(i);
+                uint16 otherindex = 0;
+                for(uint16 k = 0; k <= strlen(dstr); k++)
+                {
+                    if(dstr[k] == '\'' || dstr[k] == '"')
+                    {
+                        tstrItem[otherindex++] = '\\';
+                        tstrItem[otherindex++] = dstr[k];
+                    }
+                    else
+                        tstrItem[otherindex++] = dstr[k];
+                }
+                fprintf(fItemSql, "\"%s\"", tstrItem);
+            }
+
+            if(i != ITEM_DBC_COLUMN_NUMS - 1)
+                fprintf(fItemSql, ",");
+        }
+
+        // end of insert block
+        if((( j + 1) % SQL_INSERTS_PER_QUERY) == 0)
+            fprintf(fItemSql, ");\n");
+        else if(j == DBCItem.getNumRows() - 1)
+            fprintf(fItemSql, ");\n");
+        else
+            fprintf(fItemSql, ")\n");
+
+        ProgressItem.Step();
+    }
+
+    std::cout << std::endl << ITEM_DBC << " - DONE\n\n";
+
+    fprintf(fItemSql, "\n");
+    fprintf(fItemSql, "-- EOF\n");
+    fflush(fItemSql);
+    fclose(fItemSql);
+
+    std::cout << ITEM_DBC << " - Closed\n\n";
+
+    /********** END: Item.dbc **********/
 
     /********** START: Achievement.dbc **********/
 

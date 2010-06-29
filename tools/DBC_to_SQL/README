@@ -3,6 +3,7 @@
     DBC to SQL Converter
     Copyright (C) 2009  David Vas, Anubisss
     <http://code.google.com/p/dbctosql/>
+    updated by Przemratajczak and Darkrulerz
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,7 +21,10 @@
 For more information about the program You can check: http://code.google.com/p/dbctosql/
 
 Supported DBC files:
-    Spell.dbc, client build: 9947
+    Spell.dbc, client build: 12213
+    Item.dbc, client build: 12213
+    
+Temp. Unsupported DBC files:
     Achievement.dbc, client build: 9947
     Achievement_Category.dbc, client build: 9947
     Achievement_Criteria.dbc, client build: 9947
@@ -37,7 +41,3 @@ Tested in:
 
 DO NOT DO!
     THE DBC FILES OWNER IS BLIZZARD AND ITS A COPYRIGHTED DATA SO YOU SHOULD'NT CONVERT/MODIFY IT.
-
-From przemratajczak:
-DBC from client 3.3.3a – only spell.dbc actually supported
-

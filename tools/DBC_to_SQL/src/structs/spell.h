@@ -18,19 +18,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __SPEL_H__
-#define __SPEL_H__
+#ifndef __SPELL_H__
+#define __SPELL_H__
 
 char const *SPELL_DBC   = "Spell.dbc";
 char const *SPELL_SQL   = "spell.sql";
 char const *SPELL_TABLE = "spell";
 
-#define SPELL_DBC_CLIENT_BUILD  11723 // 3.3.3a
+#define SPELL_DBC_CLIENT_BUILD  12213 // 3.3.5
 
 #define SPELL_DBC_COLUMN_NUMS   234
-#define SPELL_DBC_ROWS_NUMS     49816
+#define SPELL_DBC_ROWS_NUMS     49839
 
-// Spell.dbc struct: MaNGOS 9740
+// Spell.dbc struct: MaNGOS 10120
 char const *spell_translation[SPELL_DBC_COLUMN_NUMS][2] =
 {
     {"uint32",   "Id"},                                           // 0        m_ID
@@ -203,7 +203,7 @@ char const *spell_translation[SPELL_DBC_COLUMN_NUMS][2] =
     {"char*",    "Rank14"},                                       // 167      m_nameSubtext_lang
     {"char*",    "Rank15"},                                       // 168      m_nameSubtext_lang
     {"uint32",   "RankFlags"},                                    // 169      not used
-    {"char*",    "Description0"},                                 // 170      m_description_lang not used
+    {"text",     "Description0"},                                 // 170      m_description_lang not used
     {"char*",    "Description1"},                                 // 171      m_description_lang not used
     {"char*",    "Description2"},                                 // 172      m_description_lang not used
     {"char*",    "Description3"},                                 // 173      m_description_lang not used
