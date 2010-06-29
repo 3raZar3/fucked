@@ -874,6 +874,8 @@ bool Pet::InitStatsForLevel(uint32 petlevel, Unit* owner)
         SetCreateStat(STAT_INTELLECT, 28 + petlevel/2);
         SetCreateStat(STAT_SPIRIT, 27 + petlevel/2);
     }
+    
+    UpdateModelData();
 
     // custom stat calculation
     switch (getPetType())
