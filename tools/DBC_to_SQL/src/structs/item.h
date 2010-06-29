@@ -24,7 +24,7 @@ char const *ITEM_DBC   = "Item.dbc";
 char const *ITEM_SQL   = "item.sql";
 char const *ITEM_TABLE = "item_template";
 
-#define ITEM_DBC_CLIENT_BUILD  12213 // 3.3.5
+#define ITEM_DBC_CLIENT_BUILD  12340 // 3.3.5
 
 #define ITEM_DBC_COLUMN_NUMS   8
 #define ITEM_DBC_ROWS_NUMS     46096

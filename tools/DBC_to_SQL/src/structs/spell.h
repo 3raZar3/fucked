@@ -25,7 +25,7 @@ char const *SPELL_DBC   = "Spell.dbc";
 char const *SPELL_SQL   = "spell.sql";
 char const *SPELL_TABLE = "spell";
 
-#define SPELL_DBC_CLIENT_BUILD  12213 // 3.3.5
+#define SPELL_DBC_CLIENT_BUILD  12340 // 3.3.5
 
 #define SPELL_DBC_COLUMN_NUMS   234
 #define SPELL_DBC_ROWS_NUMS     49839

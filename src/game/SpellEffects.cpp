@@ -3867,9 +3867,7 @@ void Spell::EffectPersistentAA(SpellEffectIndex eff_idx)
         delete dynObj;
         return;
     }
-    dynObj->SetUInt32Value(OBJECT_FIELD_TYPE, 65);
-    dynObj->SetUInt32Value(GAMEOBJECT_DISPLAYID, 368003);
-    dynObj->SetUInt32Value(DYNAMICOBJECT_BYTES, 0x01eeeeee);
+
     m_caster->AddDynObject(dynObj);
     m_caster->GetMap()->Add(dynObj);
 }
@@ -4800,8 +4798,10 @@ void Spell::EffectAddFarsight(SpellEffectIndex eff_idx)
         delete dynObj;
         return;
     }
-    dynObj->SetUInt32Value(OBJECT_FIELD_TYPE, 65);
+
+    // DYNAMICOBJECT_BYTES is apparently different from the default bytes set in ::Create
     dynObj->SetUInt32Value(DYNAMICOBJECT_BYTES, 0x80000002);
+
     m_caster->AddDynObject(dynObj);
     m_caster->GetMap()->Add(dynObj);
 
