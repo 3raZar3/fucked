@@ -1965,7 +1965,7 @@ void ObjectMgr::LoadItemPrototypes()
 
             if(proto->DisplayInfoID != dbcitem->DisplayId)
             {
-                sLog.outErrorDb("Item (Entry: %u) not correct %u display id, must be %u (using it).",i,proto->DisplayInfoID,dbcitem->DisplayId);
+                sLog.outErrorDb("Item (Entry: %u) not correct %u displayid, must be %u (using it).",i,proto->DisplayInfoID,dbcitem->DisplayId);
                 const_cast<ItemPrototype*>(proto)->DisplayInfoID = dbcitem->DisplayId;
             }
             if(proto->Sheath != dbcitem->Sheath)
