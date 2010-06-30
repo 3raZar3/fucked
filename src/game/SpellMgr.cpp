@@ -423,10 +423,6 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
             if (spellInfo->SpellFamilyFlags & UI64LIT(0x10000000004))
                 return SPELL_UA_IMMOLATE;
 
-            // Unstable Affliction & Immolate
-            if (spellInfo->SpellFamilyFlags & UI64LIT(0x10000000004))
-                return SPELL_UA_IMMOLATE;
-
             break;
         }
         case SPELLFAMILY_PRIEST:
