@@ -419,10 +419,9 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
             if (spellInfo->SpellFamilyFlags & UI64LIT(0x2000002000000000) || spellInfo->SpellFamilyFlags2 & 0x00000010)
                 return SPELL_WARLOCK_ARMOR;
            
-            // Unstable Affliction & Immolate
+            // Unstable Affliction | Immolate
             if (spellInfo->SpellFamilyFlags & UI64LIT(0x10000000004))
                 return SPELL_UA_IMMOLATE;
-
             break;
         }
         case SPELLFAMILY_PRIEST:
@@ -1813,12 +1812,12 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     // Kindred Spirits
                     if( spellInfo_1->SpellIconID == 3559 && spellInfo_2->SpellIconID == 3559 )
                         return false;
-						
-					// Fury of Frostmourne
+                        
+                    // Fury of Frostmourne
                     if( spellInfo_1->SpellIconID == 2702 && spellInfo_2->SpellIconID == 2702 || 					
                         spellInfo_2->SpellIconID == 2702 && spellInfo_1->SpellIconID == 2702 )
-						return false;
-						
+                        return false;
+                        
                     // Solace of the Defeated Heroic & Normal versions
                     if( (spellInfo_1->Id == 67696 && spellInfo_2->Id == 67750) ||
                         (spellInfo_2->Id == 67696 && spellInfo_1->Id == 67750) )
@@ -1843,10 +1842,10 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     // Arcane Intellect and Insight
                     if( spellInfo_2->SpellIconID == 125 && spellInfo_1->Id == 18820 )
                         return false;
-						
-					// Ignite and Molten
-					if (spellInfo_2->Id == 12654 && spellInfo_1->SpellIconID == 937)
-					    return false;
+                        
+                    // Ignite and Molten
+                    if (spellInfo_2->Id == 12654 && spellInfo_1->SpellIconID == 937)
+                        return false;
 
                     //Mirror image frostbolt and mage frostbolt
                     if( spellInfo_2->SpellIconID == 188 && spellInfo_1->Id == 59638 )
@@ -1893,13 +1892,13 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     if ( spellInfo_1->SpellIconID == 1771 && spellInfo_1->SpellVisual[0] == 0 && spellInfo_2->SpellIconID == 1771 )
                         return false;
 
-					if( spellInfo_2->SpellFamilyName == SPELLFAMILY_SHAMAN )
-					{
-					    // Rip and Flurry(Shaman)
-						if (spellInfo_1->SpellIconID == 108 && spellInfo_2->SpellIconID == 108)
-						    return false;
-					}
-					
+                    if( spellInfo_2->SpellFamilyName == SPELLFAMILY_SHAMAN )
+                    {
+                        // Rip and Flurry(Shaman)
+                        if (spellInfo_1->SpellIconID == 108 && spellInfo_2->SpellIconID == 108)
+                            return false;
+                    }
+                    
                     break;
                 }
                 case SPELLFAMILY_ROGUE:
@@ -2005,12 +2004,12 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
             // Detect Invisibility and Mana Shield (multi-family check)
             if( spellInfo_2->Id == 132 && spellInfo_1->SpellIconID == 209 && spellInfo_1->SpellVisual[0] == 968 )
                 return false;
-				
-			// Shadow Protection and Shadow Ward
+                
+            // Shadow Protection and Shadow Ward
             if( spellInfo_2->SpellFamilyName == SPELLFAMILY_PRIEST )
                 if( spellInfo_1->SpellIconID == 207 && spellInfo_2->SpellIconID == 207)			
                     return false;
-					
+                    
             // Combustion and Fire Protection Aura (multi-family check)
             if( spellInfo_1->Id == 11129 && spellInfo_2->SpellIconID == 33 && spellInfo_2->SpellVisual[0] == 321 )
                 return false;
@@ -2018,10 +2017,10 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
             // Arcane Intellect and Insight
             if( spellInfo_1->SpellIconID == 125 && spellInfo_2->Id == 18820 )
                 return false;
-			
-			// Ignite and Molten
-			if (spellInfo_1->Id == 12654 && spellInfo_2->SpellIconID == 937)
-			    return false;
+            
+            // Ignite and Molten
+            if (spellInfo_1->Id == 12654 && spellInfo_2->SpellIconID == 937)
+                return false;
             break;
         case SPELLFAMILY_WARLOCK:
             if( spellInfo_2->SpellFamilyName == SPELLFAMILY_WARLOCK )
@@ -2099,13 +2098,13 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
             // Bloodlust and Bloodthirst (multi-family check)
             if( spellInfo_2->Id == 2825 && spellInfo_1->SpellIconID == 38 && spellInfo_1->SpellVisual[0] == 0 )
                 return false;
-				
-			if( spellInfo_2->SpellFamilyName == SPELLFAMILY_DRUID )
-			{
-			    // Rip and Flurry(Shaman)
-				if (spellInfo_1->SpellIconID == 108 && spellInfo_2->SpellIconID == 108)
-				    return false;
-			}		
+                
+            if( spellInfo_2->SpellFamilyName == SPELLFAMILY_DRUID )
+            {
+                // Rip and Flurry(Shaman)
+                if (spellInfo_1->SpellIconID == 108 && spellInfo_2->SpellIconID == 108)
+                    return false;
+            }		
 
             break;
         case SPELLFAMILY_PRIEST:
@@ -2158,12 +2157,12 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                 // Prayer/PW  Fortitude && Runescroll of Fortitude
                 if (spellInfo_1->SpellVisual[0] == 278 && spellInfo_2->Id == 72590)
                     return true;
-					
-				// Shadow Protection and Shadow Ward
+                    
+                // Shadow Protection and Shadow Ward
                 if( spellInfo_2->SpellFamilyName == SPELLFAMILY_WARLOCK )
                     if( spellInfo_1->SpellIconID == 207 && spellInfo_2->SpellIconID == 207)
                         return false;
-						
+                        
             }
             // Weakened Soul and Last Stand (multi-family check)
             if (spellInfo_1->Id == 6788 && spellInfo_2->Id == 12976)
@@ -2439,12 +2438,12 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                 spellInfo_2->EffectApplyAuraName[i] == SPELL_AURA_ADD_PCT_MODIFIER )
                 isModifier = true;
         }
-		
-		//check Spells with same Icons
-		if(spellInfo_1->Id != spellInfo_2->Id &&
-		   strcmp(spellInfo_1->SpellName[sWorld.GetDefaultDbcLocale()],
-		          spellInfo_2->SpellName[sWorld.GetDefaultDbcLocale()]) != 0)
-		   isModifier = true;		  
+        
+        //check Spells with same Icons
+        if(spellInfo_1->Id != spellInfo_2->Id &&
+           strcmp(spellInfo_1->SpellName[sWorld.GetDefaultDbcLocale()],
+                  spellInfo_2->SpellName[sWorld.GetDefaultDbcLocale()]) != 0)
+           isModifier = true;		  
 
         if (!isModifier)
             return true;
@@ -3689,9 +3688,9 @@ SpellCastResult SpellMgr::GetSpellAllowedInLocationError(SpellEntry const *spell
             // Try search in next group
             groupEntry = sAreaGroupStore.LookupEntry(groupEntry->nextGroup);
         }
-		
-		if (spellInfo->AreaGroupId == 723 && zone_id == 4812)
-		    found = true;
+        
+        if (spellInfo->AreaGroupId == 723 && zone_id == 4812)
+            found = true;
 
         if (!found)
             return SPELL_FAILED_INCORRECT_AREA;
@@ -3806,9 +3805,9 @@ SpellCastResult SpellMgr::GetSpellAllowedInLocationError(SpellEntry const *spell
             BattleGround* bg = player->GetBattleGround();
             return bg && bg->GetStatus()==STATUS_WAIT_JOIN ? SPELL_CAST_OK : SPELL_FAILED_ONLY_IN_ARENA;
         }
-		case 69065:                                         // Impaled
-		case 72293:                                         // Mark of the Fallen Champion
-		    return map_id == 631 ? SPELL_CAST_OK : SPELL_FAILED_INCORRECT_AREA;
+        case 69065:                                         // Impaled
+        case 72293:                                         // Mark of the Fallen Champion
+            return map_id == 631 ? SPELL_CAST_OK : SPELL_FAILED_INCORRECT_AREA;
     }
 
     return SPELL_CAST_OK;

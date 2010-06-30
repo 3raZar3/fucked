@@ -1656,10 +1656,10 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 31347:                                 // Doom TODO: exclude top threat target from target selection
                 case 33711:                                 // Murmur's Touch
                 case 38794:                                 // Murmur's Touch (h)
-				case 63018:                                 // XT002's Light Bomb
-				case 65121:                                 // XT002's Light Bomb (h)
-				case 63024:                                 // XT002's Gravitiy Bomb
-				case 64234:                                 // XT002's Gravitiy Bomb (h)
+                case 63018:                                 // XT002's Light Bomb
+                case 65121:                                 // XT002's Light Bomb (h)
+                case 63024:                                 // XT002's Gravitiy Bomb
+                case 64234:                                 // XT002's Gravitiy Bomb (h)
                 case 50988:                                 // Glare of the Tribunal (Halls of Stone)
                 case 59870:                                 // Glare of the Tribunal (h) (Halls of Stone)
                     unMaxTargets = 1;
@@ -1688,23 +1688,23 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 25991:                                 // Poison Bolt Volley (Pincess Huhuran)
                     unMaxTargets = 15;
                     break;
-				case 69075:                                 // Bone Storm
-				case 70834:                                 // Bone Storm
-				case 70835:                                 // Bone Storm
-				case 70836:                                 // Bone Storm
-				    radius = ATTACK_DISTANCE + 1;
-					break;
-				case 72350:                                 // Fury of Frostmourne
-				case 72351:                                 // Fury of Frostmourne
-				    radius = 300;
-					break;
-				case 72754:
-				case 73708:
-				case 73709:
-				case 73710:
+                case 69075:                                 // Bone Storm
+                case 70834:                                 // Bone Storm
+                case 70835:                                 // Bone Storm
+                case 70836:                                 // Bone Storm
+                    radius = ATTACK_DISTANCE + 1;
+                    break;
+                case 72350:                                 // Fury of Frostmourne
+                case 72351:                                 // Fury of Frostmourne
+                    radius = 300;
+                    break;
+                case 72754:
+                case 73708:
+                case 73709:
+                case 73710:
                     if (Unit* realCaster = GetAffectiveCaster())
                         radius = realCaster->GetFloatValue(OBJECT_FIELD_SCALE_X) * 10;
-					break;	
+                    break;	
         case 62240:                                 // Solar Flare
         case 62920:                                 // Solar Flare (h)
         {
@@ -1797,10 +1797,10 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
         {
             // used for targeting gameobjects
             if (m_spellInfo->EffectImplicitTargetA[effIndex] == TARGET_EFFECT_SELECT && m_spellInfo->EffectImplicitTargetB[effIndex] == TARGET_AREAEFFECT_CUSTOM)
-		       FillAreaTargets(targetUnitMap, m_caster->GetPositionX(), m_caster->GetPositionY(), radius, PUSH_SELF_CENTER, SPELL_TARGETS_AOE_DAMAGE);
+               FillAreaTargets(targetUnitMap, m_caster->GetPositionX(), m_caster->GetPositionY(), radius, PUSH_SELF_CENTER, SPELL_TARGETS_AOE_DAMAGE);
             else
-			    targetUnitMap.push_back(m_caster);
-		    break;
+                targetUnitMap.push_back(m_caster);
+            break;
         }
         case TARGET_RANDOM_ENEMY_CHAIN_IN_AREA:
         {
@@ -2145,13 +2145,13 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                     // target amount stored in parent spell dummy effect but hard to access
                     FillRaidOrPartyManaPriorityTargets(targetUnitMap, m_caster, m_caster, radius, 3, true, false, true);
                     break;
-				case 71447:                                 // Bloodbolt Splash 10N
-				case 71481:                                 // Bloodbolt Splash 25N
-				case 71482:                                 // Bloodbolt Splash 10H
-				case 71483:                                 // Bloodbolt Splash 25H
-				    FillAreaTargets(targetUnitMap, m_targets.m_destX, m_targets.m_destY, radius, PUSH_SELF_CENTER, SPELL_TARGETS_FRIENDLY);
-					targetUnitMap.remove(m_caster);
-					break;
+                case 71447:                                 // Bloodbolt Splash 10N
+                case 71481:                                 // Bloodbolt Splash 25N
+                case 71482:                                 // Bloodbolt Splash 10H
+                case 71483:                                 // Bloodbolt Splash 25H
+                    FillAreaTargets(targetUnitMap, m_targets.m_destX, m_targets.m_destY, radius, PUSH_SELF_CENTER, SPELL_TARGETS_FRIENDLY);
+                    targetUnitMap.remove(m_caster);
+                    break;
                 case 45662:
                     // encapsulate hack, to aoivd other hacks in spellbonusdmg-, crit-, etc. calc.
                     FillAreaTargets(targetUnitMap, m_targets.m_destX, m_targets.m_destY, radius, PUSH_SELF_CENTER, SPELL_TARGETS_HOSTILE);
@@ -3190,6 +3190,13 @@ void Spell::cast(bool skipCheck)
                 AddTriggeredSpell(52874);                   // Fan of Knives (offhand)
             }
             break;
+        case SPELLFAMILY_HUNTER:
+        {
+            // Lock and Load
+            if (m_spellInfo->Id == 56453)
+                AddPrecastSpell(67544);                     // Lock and Load Marker
+            break;
+        }
         case SPELLFAMILY_PALADIN:
         {
             // Hand of Reckoning
@@ -3681,7 +3688,7 @@ void Spell::finish(bool ok)
 
     // Heal caster for all health leech from all targets
     if (m_healthLeech)
-		m_caster->DealHeal(m_caster, uint32(m_healthLeech), m_spellInfo);
+        m_caster->DealHeal(m_caster, uint32(m_healthLeech), m_spellInfo);
 
     if (IsMeleeAttackResetSpell())
     {
@@ -5831,8 +5838,8 @@ SpellCastResult Spell::CheckPetCast(Unit* target)
             if(!_target->isAlive())
                 return SPELL_FAILED_BAD_TARGETS;
 
-			if(!IsValidSingleTargetSpell(_target))
-				return SPELL_FAILED_BAD_TARGETS;
+            if(!IsValidSingleTargetSpell(_target))
+                return SPELL_FAILED_BAD_TARGETS;
         }
                                                             //cooldown
         if(((Creature*)m_caster)->HasSpellCooldown(m_spellInfo->Id))
@@ -6478,7 +6485,7 @@ SpellCastResult Spell::CheckItems()
                 if( targetItem->GetProto()->ItemLevel < m_spellInfo->baseLevel )
                     return SPELL_FAILED_LOWLEVEL;
 
-		if(isVellumTarget && m_spellInfo->EffectItemType[i])
+        if(isVellumTarget && m_spellInfo->EffectItemType[i])
                 {
                     ItemPosCountVec dest;
                     uint8 msg = p_caster->CanStoreNewItem( NULL_BAG, NULL_SLOT, dest, m_spellInfo->EffectItemType[i], 1 );

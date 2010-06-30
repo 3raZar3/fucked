@@ -8163,22 +8163,22 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, Aura* triggeredB
                 //    trigger_spell_id = 48877; break;
                 //case 49059: break;                        // Horde, Hate Monster (Spar Buddy) (>30% Health)
                 case 49509:                                 // Scent of Blood Rank 2 (!!HACK!!)
-				{
-				    // cast the spell multiple times, to get the stack
-					if (triggeredByAura->GetEffIndex() != EFFECT_INDEX_0)
-					    return false;
-					CastSpell(target,trigger_spell_id,true,castItem,triggeredByAura);
+                {
+                    // cast the spell multiple times, to get the stack
+                    if (triggeredByAura->GetEffIndex() != EFFECT_INDEX_0)
+                        return false;
+                    CastSpell(target,trigger_spell_id,true,castItem,triggeredByAura);
                     // no break!!
-				}
-				case 49508:                                 // Scent of Blood Rank 1 (!!HACK!!)
-				{
-				    // cast the spell multiple times, to get the stack
-					if (triggeredByAura->GetEffIndex() != EFFECT_INDEX_0)
-					    return false;
-					CastSpell(target,trigger_spell_id,true,castItem,triggeredByAura);
-					break;
-				}	
-			   //case 50051: break;                        // Ethereal Pet Aura
+                }
+                case 49508:                                 // Scent of Blood Rank 1 (!!HACK!!)
+                {
+                    // cast the spell multiple times, to get the stack
+                    if (triggeredByAura->GetEffIndex() != EFFECT_INDEX_0)
+                        return false;
+                    CastSpell(target,trigger_spell_id,true,castItem,triggeredByAura);
+                    break;
+                }	
+               //case 50051: break;                        // Ethereal Pet Aura
                 //case 50689: break;                        // Blood Presence (Rank 1)
                 //case 50844: break;                        // Blood Mirror
                 //case 52856: break;                        // Charge
@@ -8436,6 +8436,13 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, Aura* triggeredB
             {
                 // This effect only from Rapid Fire (ability cast)
                 if (!(procSpell->SpellFamilyFlags & UI64LIT(0x0000000000000020)))
+                    return false;
+            }
+            // Lock and Load
+            else if (auraSpellInfo->SpellIconID == 3579)
+            {
+                // Check for Lock and Load Marker
+                if (HasAura(67544))
                     return false;
             }
             break;
