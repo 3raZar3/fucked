@@ -372,20 +372,75 @@ GmLogPerAccount = 0
 RaLogFile = ""
 LogColors = ""
 
-# Chat log parameters
-ChatLogEnable = 0
+###################################################################################################################
+# LEXICS CUTTER OPTIONS (Anti-Swear)
+#
+#   ChatLogDateSplit
+#       If this is enabled, all $d in file names are replaced with current date
+#       1 = on
+#
+#   ChatLogEnable
+#       This includes innormative lexics log
+#       1 = on
+#
+#   ChatLogUTFHeader
+#       If this is enabled, UTF8 header is written into new files
+#       1 = on
+#
+#   ChatLogIgnoreUnprintable
+#       If this is enabled, chat log will ignore messages with unprintable chars
+#       1 = on
+#
+#   LexicsCutterLogFile
+#       Chat log filename
+#
+#   LexicsCutterScreenLog
+#       Chat log screen logging
+#       1 = on
+#   
+#   LexicsCutterAnalogsFile
+#   LexicsCutterWordsFile
+#      Lexics cutter parameters (files containing the forbidden words)
+#
+#   LexicsCutInChat
+#   LexicsCutInParty
+#   LexicsCutInGuild
+#   LexicsCutInWhisper
+#   LexicsCutInChannel
+#   LexicsCutInRaid
+#   LexicsCutInBattleGround
+#       Where to cut lexics (Where it's active)
+#       1 = on
+#
+#   LexicsCutterIgnoreSpaces
+#       1 = Ignore word spaces like: W O R D
+#
+#   LexicsCutterIgnoreRepeats
+#       1= Ignore repeats like: WWOOOORRRRRD
+#   
+#   LexicsCutterAction
+#   --- Action:
+#   ---   0: log only
+#   ---   1: sheep
+#   ---   2: stun
+#   ---   3: kill
+#   ---   4: leave 5 health
+#   ---   5: disable chat
+#   ---   6: stuck (works as stun + 50% health)
+#   ---   7: resurrection sickness
+#   ---   8: shear
+#
+#   LexicsCutterActionDuration
+#       time in milliseconds
+#
+#   LexicsCutterNoActionOnGM
+#       1 = Do not perform action on GM if this is enabled
+###################################################################################################################
 
-# If this is enabled, all $d in file names are replaced with current date
-# This does include innormative lexics log
 ChatLogDateSplit = 1
-
-# If this is enabled, UTF8 header is written into new files
+ChatLogEnable = 0
 ChatLogUTFHeader = 1
-
-# If this is enabled, chat log will ignore messages with unprintable chars
 ChatLogIgnoreUnprintable = 1
-
-# Chat log files
 ChatLogChatFile = main_chat-$d.log
 ChatLogPartyFile = party_chat-$d.log
 ChatLogGuildFile = guild_chat-$d.log
@@ -393,8 +448,6 @@ ChatLogWhisperFile = whisper_chat-$d.log
 ChatLogChannelFile = channel_chat-$d.log
 ChatLogRaidFile = raid_chat-$d.log
 ChatLogBattleGroundFile = bg_chat-$d.log
-
-# Chat log screen logging
 ChatLogChatScreen = 0
 ChatLogPartyScreen = 0
 ChatLogGuildScreen = 0
@@ -402,18 +455,13 @@ ChatLogWhisperScreen = 0
 ChatLogChannelScreen = 0
 ChatLogRaidScreen = 0
 ChatLogBattleGroundScreen = 0
-
-# Lexics cutter parameters
 LexicsCutterEnable = 1
-
 LexicsCutterInnormativeCut = 1
 LexicsCutterCutReplacement = &!@^%!^&*!!!
 LexicsCutterLogFile = innormative-$d.log
 LexicsCutterScreenLog = 0
 LexicsCutterAnalogsFile = letter_analogs.txt
 LexicsCutterWordsFile = innormative_words.txt
-
-# Where to cut lexics
 LexicsCutInChat = 1
 LexicsCutInParty = 1
 LexicsCutInGuild = 1
@@ -421,27 +469,10 @@ LexicsCutInWhisper = 1
 LexicsCutInChannel = 1
 LexicsCutInRaid = 1
 LexicsCutInBattleGround = 1
-
-# Ignore word spaces like: W O R D
 LexicsCutterIgnoreSpaces = 1
-
-# Ignore repeats like: WWOOOORRRRRD
 LexicsCutterIgnoreRepeats = 1
-
-# --- Action:
-# ---   0: log only
-# ---   1: sheep
-# ---   2: stun
-# ---   3: kill
-# ---   4: leave 5 health
-# ---   5: disable chat
-# ---   6: stuck (works as stun + 50% health)
-# ---   7: resurrection sickness
-# ---   8: shear
 LexicsCutterAction = 0
 LexicsCutterActionDuration = 60000
-
-# Do not perform action on GM if this is enabled
 LexicsCutterNoActionOnGM = 1
 
 ###################################################################################################################
@@ -1273,7 +1304,7 @@ Visibility.Distance.Grey.Object = 10
 #        Auction rates (auction time, deposit get at auction start, auction cut from price at auction end)
 #
 #    Auction.Deposit.Min
-#        Mininumum auction deposit size in copper
+#        Minimum auction deposit size in copper
 #        Default: 100 (1 silver)
 #
 #    Rate.Honor
