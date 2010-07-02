@@ -787,7 +787,7 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recv_data)
 
 void WorldSession::HandleSetActiveMoverOpcode(WorldPacket &recv_data)
 {
-    DEBUG_LOG("WORLD: Recvd CMSG_SET_ACTIVE_MOVER");
+    sLog.outDebug("WORLD: Recvd CMSG_SET_ACTIVE_MOVER");
     recv_data.hexlike();
 
     ObjectGuid guid;
@@ -803,7 +803,7 @@ void WorldSession::HandleSetActiveMoverOpcode(WorldPacket &recv_data)
 
 void WorldSession::HandleMoveNotActiveMover(WorldPacket &recv_data)
 {
-    DEBUG_LOG("WORLD: Recvd CMSG_MOVE_NOT_ACTIVE_MOVER");
+    sLog.outDebug("WORLD: Recvd CMSG_MOVE_NOT_ACTIVE_MOVER");
     recv_data.hexlike();
 
     ObjectGuid old_mover_guid;
@@ -851,7 +851,7 @@ void WorldSession::HandleDismissControlledVehicle(WorldPacket & recv_data)
 
 void WorldSession::HandleRequestVehicleExit(WorldPacket &recv_data)
 {
-    DEBUG_LOG("WORLD: Recvd CMSG_REQUEST_VEHICLE_EXIT");
+    sLog.outDebug("WORLD: Recvd CMSG_REQUEST_VEHICLE_EXIT");
     recv_data.hexlike();
 
     uint64 vehicleGUID = _player->GetVehicleGUID();
@@ -867,7 +867,7 @@ void WorldSession::HandleRequestVehicleExit(WorldPacket &recv_data)
 
 void WorldSession::HandleRequestVehicleSwitchSeat(WorldPacket &recv_data)
 {
-    DEBUG_LOG("WORLD: Recvd CMSG_REQUEST_VEHICLE_SWITCH_SEAT");
+    sLog.outDebug("WORLD: Recvd CMSG_REQUEST_VEHICLE_SWITCH_SEAT");
     recv_data.hexlike();
 
     uint64 vehicleGUID = _player->GetVehicleGUID();
@@ -911,7 +911,7 @@ void WorldSession::HandleRequestVehicleSwitchSeat(WorldPacket &recv_data)
 
 void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket &recv_data)
 {
-    DEBUG_LOG("WORLD: Recvd CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE");
+    sLog.outDebug("WORLD: Recvd CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE");
     recv_data.hexlike();
 
     uint64 vehicleGUID = _player->GetVehicleGUID();
