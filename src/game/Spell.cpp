@@ -1793,7 +1793,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
         case TARGET_TOTEM_FIRE:
         case TARGET_SELF:
         case TARGET_SELF2:
-        case TARGET_AREAEFFECT_CUSTOM_2:		
+        case TARGET_AREAEFFECT_CUSTOM_2:
         {
             // used for targeting gameobjects
             if (m_spellInfo->EffectImplicitTargetA[effIndex] == TARGET_EFFECT_SELECT && m_spellInfo->EffectImplicitTargetB[effIndex] == TARGET_AREAEFFECT_CUSTOM)

@@ -15040,6 +15040,7 @@ void Unit::EnterVehicle(Vehicle *vehicle, int8 seat_id, bool force)
         (veSeat->m_attachmentOffsetZ + v->GetObjectBoundingRadius()) * GetFloatValue(OBJECT_FIELD_SCALE_X),
         veSeat->m_passengerYaw, v->GetCreationTime(), seat_id, veSeat->m_ID,
         sObjectMgr.GetSeatFlags(veSeat->m_ID), v->GetVehicleFlags());
+    m_movementInfo.AddMovementFlag(MOVEFLAG_ONTRANSPORT);
 
     addUnitState(UNIT_STAT_ON_VEHICLE);
     InterruptNonMeleeSpells(false);

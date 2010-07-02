@@ -4090,7 +4090,7 @@ void Aura::HandleModPossess(bool apply, bool Real)
 
         target->SetCharmerGUID(0);
 
-        if(target->GetTypeId() == TYPEID_PLAYER)
+        if(target->GetTypeId() == TYPEID_PLAYER &&  !target->GetVehicleGUID())
         {
             ((Player*)target)->setFactionForRace(target->getRace());
             ((Player*)target)->SetClientControl(target, 1);
@@ -7593,7 +7593,7 @@ void Aura::HandleModRatingFromStat(bool apply, bool Real)
 
 void Aura::HandleForceMoveForward(bool apply, bool Real)
 {
-    if(!Real)
+    if(!Real || GetTarget()->GetTypeId() != TYPEID_PLAYER)
         return;
     if(apply)
         GetTarget()->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FORCE_MOVE);
@@ -9116,8 +9116,12 @@ void Aura::HandleAuraControlVehicle(bool apply, bool Real)
      if(!Real)
          return;
 
-    Unit *caster = GetCaster();
-    Vehicle *vehicle = dynamic_cast<Vehicle*>(GetTarget());
+    Unit* target = GetTarget();
+    Unit* caster = GetCaster();
+    if (target->GetTypeId() != TYPEID_UNIT || !((Creature*)target)->isVehicle())
+        return;
+    Vehicle* vehicle = (Vehicle*)target;
+
     if(!caster || !vehicle)
         return;
 
