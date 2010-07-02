@@ -23,6 +23,7 @@
 #include "Util.h"
 #include "WorldPacket.h"
 #include "InstanceData.h"
+#include "SharedDefines.h"
 
 Vehicle::Vehicle() : Creature(CREATURE_SUBTYPE_VEHICLE), m_vehicleId(0), m_vehicleInfo(NULL), m_spawnduration(0),
                      despawn(false), m_creation_time(0), m_VehicleData(NULL)
@@ -419,7 +420,7 @@ void Vehicle::Dismiss()
     AddObjectToRemoveList();
 }
 
-void Vehicle::RellocatePassengers(Map *map)
+void Vehicle::RelocatePassengers(Map *map)
 {
     for(SeatMap::iterator itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
     {
@@ -457,7 +458,7 @@ void Vehicle::RellocatePassengers(Map *map)
             float oo = passengers->GetOrientation();
 
             map->CreatureRelocation((Creature*)passengers, xx, yy, zz, oo);
-            ((Vehicle*)passengers)->RellocatePassengers(map);
+            ((Vehicle*)passengers)->RelocatePassengers(map);
         }
     }
 }
@@ -557,6 +558,9 @@ void Vehicle::AddPassenger(Unit *unit, int8 seatId, bool force)
             SendMessageToSet(&data2,false);
         }
 
+        if(GetVehicleFlags() & VF_CAST_AURA && m_VehicleData && m_VehicleData->v_spells[0] != 0)
+            CastSpell(unit, m_VehicleData->v_spells[0], true);
+
         if(GetVehicleFlags() & VF_NON_SELECTABLE)
             SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     }
@@ -597,6 +601,8 @@ void Vehicle::RemovePassenger(Unit *unit)
             }
             if(GetVehicleFlags() & VF_NON_SELECTABLE)
                 RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            if(GetVehicleFlags() & VF_CAST_AURA && m_VehicleData && m_VehicleData->v_spells[0] != 0)
+                unit->RemoveAurasDueToSpell(m_VehicleData->v_spells[0]);
             if(seat->second.vs_flags & SF_UNATTACKABLE)
                 unit->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             // restore player control
