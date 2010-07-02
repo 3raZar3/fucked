@@ -790,7 +790,7 @@ void WorldSession::HandleSetActiveMoverOpcode(WorldPacket &recv_data)
     DEBUG_LOG("WORLD: Recvd CMSG_SET_ACTIVE_MOVER");
     recv_data.hexlike();
 
-    uint64 guid;
+    ObjectGuid guid;
     recv_data >> guid;
 
     if(_player->GetMover()->GetObjectGuid() != guid)
