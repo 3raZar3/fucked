@@ -5446,12 +5446,12 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     triggered_spell_id = 58374;
                     break;
                 }
-                break;
-
                 // Twisted Reflection (boss spell)
                 case 21063:
+                {
                     triggered_spell_id = 21064;
                     break;
+                }
                 // Unstable Power
                 case 24658:
                 {
@@ -5790,8 +5790,10 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                 }
                 // Glyph of Life Tap
                 case 63320:
+                {
                     triggered_spell_id = 63321;
                     break;
+                }
                 // Glyph of Shadowflame
                 case 63310:
                 {
