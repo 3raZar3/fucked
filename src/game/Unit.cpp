@@ -15103,6 +15103,8 @@ void Unit::ExitVehicle()
             ((Player*)this)->ResummonPetTemporaryUnSummonedIfAny();
             ((Player*)this)->m_movementInfo.RemoveMovementFlag(MOVEFLAG_ROOT);
         }
+        m_movementInfo.ClearTransportData();
+        m_movementInfo.RemoveMovementFlag(MOVEFLAG_ONTRANSPORT);
 
         float x = GetPositionX();
         float y = GetPositionY();

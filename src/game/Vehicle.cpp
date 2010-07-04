@@ -473,8 +473,6 @@ void Vehicle::AddPassenger(Unit *unit, int8 seatId, bool force)
         return;
 
     unit->SetVehicleGUID(GetGUID());
-    unit->m_movementInfo.AddMovementFlag(MOVEFLAG_ONTRANSPORT);
-    unit->m_movementInfo.AddMovementFlag(MOVEFLAG_ROOT);
 
     seat->second.passenger = unit;
     if(unit->GetTypeId() == TYPEID_UNIT && ((Creature*)unit)->isVehicle())
@@ -497,16 +495,6 @@ void Vehicle::AddPassenger(Unit *unit, int8 seatId, bool force)
         unit->SendMessageToSet(&data0,true);
     }
 
-    if(unit->GetTypeId() == TYPEID_PLAYER)
-    {
-        uint8 allowMove = 1;
-        if(GetVehicleFlags() & VF_MOVEMENT)
-            allowMove = 0;
-        ((Player*)unit)->SetMover(this);
-        ((Player*)unit)->SetClientControl(this, 1);
-        ((Player*)unit)->GetCamera().SetView(this);
-    }
-
     if(seat->second.vs_flags & SF_MAIN_RIDER)
     {
         if(!(GetVehicleFlags() & VF_MOVEMENT))
@@ -515,6 +503,12 @@ void Vehicle::AddPassenger(Unit *unit, int8 seatId, bool force)
             GetMotionMaster()->MoveIdle();
             SetCharmerGUID(unit->GetGUID());
             unit->SetUInt64Value(UNIT_FIELD_CHARM, GetGUID());
+            if(unit->GetTypeId() == TYPEID_PLAYER)
+            {
+                ((Player*)unit)->SetMover(this);
+                ((Player*)unit)->SetMoverInQueve(this);
+                ((Player*)unit)->SetClientControl(this, 1);
+            }
             if(canFly() || HasAuraType(SPELL_AURA_FLY) || HasAuraType(SPELL_AURA_MOD_FLIGHT_SPEED))
             {
                 WorldPacket data3(SMSG_MOVE_SET_CAN_FLY, 12);
@@ -543,6 +537,8 @@ void Vehicle::AddPassenger(Unit *unit, int8 seatId, bool force)
             // it should be added only on rider enter?
             if(((Player*)unit)->GetGroup())
                 ((Player*)unit)->SetGroupUpdateFlag(GROUP_UPDATE_VEHICLE);
+
+            ((Player*)unit)->GetCamera().SetView(this);
 
             BuildVehicleActionBar((Player*)unit);
         }
@@ -578,18 +574,15 @@ void Vehicle::RemovePassenger(Unit *unit)
         if((seat->second.flags & (SEAT_FULL | SEAT_VEHICLE_FREE | SEAT_VEHICLE_FULL)) && seat->second.passenger == unit)
         {
             unit->SetVehicleGUID(0);
-            if(unit->GetTypeId() == TYPEID_PLAYER)
-            {
-                ((Player*)unit)->SetMover(unit);
-                ((Player*)unit)->SetClientControl(unit, 1);
-                ((Player*)unit)->GetCamera().SetView(unit);
-            }
 
             if(seat->second.vs_flags & SF_MAIN_RIDER)
             {
                 RemoveSpellsCausingAura(SPELL_AURA_CONTROL_VEHICLE);
                 if(unit->GetTypeId() == TYPEID_PLAYER)
                 {
+                    ((Player*)unit)->SetMover(unit);
+                    ((Player*)unit)->SetClientControl(unit, 1);
+                    ((Player*)unit)->SetMoverInQueve(NULL);
                     ((Player*)unit)->RemovePetActionBar();
 
                     if(((Player*)unit)->GetGroup())
@@ -608,6 +601,8 @@ void Vehicle::RemovePassenger(Unit *unit)
             // restore player control
             if(unit->GetTypeId() == TYPEID_PLAYER)
             {
+                ((Player*)unit)->GetCamera().SetView(this);
+
                 if(seat->second.vs_flags & SF_CAN_CAST)
                 {
                     WorldPacket data0(SMSG_FORCE_MOVE_UNROOT, 10);
@@ -623,10 +618,6 @@ void Vehicle::RemovePassenger(Unit *unit)
                     unit->SendMessageToSet(&data1,true);
                 }
             }
-            unit->m_movementInfo.RemoveMovementFlag(MOVEFLAG_ONTRANSPORT);
-            unit->m_movementInfo.RemoveMovementFlag(MOVEFLAG_ROOT);
-            unit->m_movementInfo.ClearTransportData();
-
             seat->second.passenger = NULL;
             seat->second.flags = SEAT_FREE;
             EmptySeatsCountChanged();

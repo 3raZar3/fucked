@@ -21630,6 +21630,9 @@ void Player::ApplyGlyphs(bool apply)
 
 void Player::SendEnterVehicle(Vehicle *vehicle, VehicleSeatEntry const *veSeat)
 {
+    m_movementInfo.AddMovementFlag(MOVEFLAG_ONTRANSPORT);
+    m_movementInfo.AddMovementFlag(MOVEFLAG_ROOT);
+
     if(m_transport)                                         // if we were on a transport, leave
     {
         m_transport->RemovePassenger(this);
@@ -21639,29 +21642,18 @@ void Player::SendEnterVehicle(Vehicle *vehicle, VehicleSeatEntry const *veSeat)
     // with vehicle, ONLY my vehicle will be passenger on that transport
     // player ----> vehicle ----> zeppelin
 
-    WorldPacket data(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
-    GetSession()->SendPacket(&data);
+    vehicle->SetCharmerGUID(GetGUID());
+    vehicle->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+    vehicle->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
+    vehicle->setFaction(getFaction());
 
-    data.Initialize(MSG_MOVE_TELEPORT_ACK, 30);
-    data << GetPackGUID();
-    data << uint32(0);                                      // counter?
-    data << uint32(MOVEFLAG_ONTRANSPORT);                   // transport
-    data << uint16(0);                                      // special flags
-    data << uint32(getMSTime());                            // time
-    data << vehicle->GetPositionX();                        // x
-    data << vehicle->GetPositionY();                        // y
-    data << vehicle->GetPositionZ();                        // z
-    data << vehicle->GetOrientation();                      // o
-    // transport part, TODO: load/calculate seat offsets
-    data << uint64(vehicle->GetGUID());                     // transport guid
-    data << float(m_movementInfo.GetTransportPos()->x);     // transport offsetX
-    data << float(m_movementInfo.GetTransportPos()->y);     // transport offsetY
-    data << float(m_movementInfo.GetTransportPos()->z);     // transport offsetZ
-    data << float(m_movementInfo.GetTransportPos()->o);     // transport orientation
-    data << uint32(getMSTime());                            // transport time
-    data << uint8(0);                                       // seat
-    // end of transport part
-    data << uint32(0);                                      // fall time
+    SetCharm(vehicle);                                      // charm
+    m_camera.SetView(vehicle);                              // set view
+
+    SetClientControl(vehicle, 1);                           // redirect controls to vehicle
+    SetMover(vehicle);
+
+    WorldPacket data(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
     GetSession()->SendPacket(&data);
 
     /*data.Initialize(SMSG_UNKNOWN_1191, 12);
