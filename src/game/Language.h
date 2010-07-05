@@ -126,8 +126,10 @@ enum MangosStrings
     LANG_SYSTEMMESSAGE_MODERATOR        = 63,
     LANG_SYSTEMMESSAGE_GAMEMASTER       = 64,
     LANG_SYSTEMMESSAGE_ADMINISTRATOR    = 65,
-    
-    // Room for more level 0              65-99 not used
+    // New langs for .gm ingame
+    LANG_GM_ACCEPTS_WHISPER             = 66,
+    LANG_GM_NO_WHISPER                  = 67,
+    // Room for more level 0              67-99 not used
     
     // level 1 chat
     LANG_GLOBAL_NOTIFY                  = 100,
