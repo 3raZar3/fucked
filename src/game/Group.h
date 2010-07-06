@@ -200,7 +200,7 @@ class MANGOS_DLL_SPEC Group
         void   SetLootMethod(LootMethod method) { m_lootMethod = method; }
         void   SetLooterGuid(const uint64 &guid) { m_looterGuid = guid; }
         void   UpdateLooterGuid( WorldObject* object, bool ifneed = false );
-		void   SetLootThreshold(ItemQualities threshold) { m_lootThreshold = threshold; }
+        void   SetLootThreshold(ItemQualities threshold) { m_lootThreshold = threshold; }
         void   Disband(bool hideDestroy=false);
 
         // properties accessories
@@ -343,11 +343,11 @@ class MANGOS_DLL_SPEC Group
         void SendLootRoll(ObjectGuid const& targetGuid, uint8 rollNumber, uint8 rollType, const Roll &r);
         void SendLootRollWon(ObjectGuid const& targetGuid, uint8 rollNumber, RollVote rollType, const Roll &r);
         void SendLootAllPassed(const Roll &r);
-        void GroupLoot(Creature *creature, Loot *loot);
-        void NeedBeforeGreed(Creature *creature, Loot *loot);
-        void MasterLoot(Creature *creature, Loot *loot);
+        void GroupLoot(WorldObject* object, Loot *loot);
+        void NeedBeforeGreed(WorldObject* object, Loot *loot);
+        void MasterLoot(WorldObject* object, Loot *loot);
         void CountRollVote(ObjectGuid const& playerGUID, ObjectGuid const& lootedTarget, uint32 itemSlot, RollVote choise);
-        void StartLootRool(Creature* lootTarget, Loot* loot, uint8 itemSlot, bool skipIfCanNotUse);
+        void StartLootRool(WorldObject* lootTarget, Loot* loot, uint8 itemSlot, bool skipIfCanNotUse);
         void EndRoll();
 
         void LinkMember(GroupReference *pRef) { m_memberMgr.insertFirst(pRef); }
