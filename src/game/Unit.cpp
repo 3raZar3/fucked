@@ -5949,6 +5949,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                         default:
                             return false;
                     }
+                    break;
                 }	
                 // Petrified Bark
                 case 62933:
