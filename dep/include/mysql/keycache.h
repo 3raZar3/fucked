@@ -13,7 +13,10 @@
    along with this program; if not, write to the Free Software
    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA */
 
-/* Key cache variable structures */
+/**
+  @file
+  Key cache API
+*/
 
 #ifndef _keycache_h
 #define _keycache_h
@@ -34,6 +37,10 @@ typedef struct st_keycache_wqueue
   struct st_my_thread_var *last_thread;  /* circular list of waiting threads */
 } KEYCACHE_WQUEUE;
 
+/** Callback called when any block is flushed */
+typedef int (*KEYCACHE_POST_WRITE_CALLBACK)(void *arg, const uchar *buffert,
+                                            uint length, my_off_t filepos);
+
 #define CHANGED_BLOCKS_HASH 128             /* must be power of 2 */
 
 /*
@@ -44,9 +51,10 @@ typedef struct st_keycache_wqueue
 typedef struct st_key_cache
 {
   my_bool key_cache_inited;
+  my_bool in_resize;             /* true during resize operation             */
   my_bool resize_in_flush;       /* true during flush of resize operation    */
   my_bool can_be_used;           /* usage of cache for read/write is allowed */
-  size_t key_cache_mem_size;     /* specified size of the cache memory       */
+  size_t key_cache_mem_size;      /* specified size of the cache memory       */
   uint key_cache_block_size;     /* size of the page buffer of a cache block */
   ulong min_warm_blocks;         /* min number of warm blocks;               */
   ulong age_threshold;           /* age threshold for hot blocks             */
@@ -64,17 +72,23 @@ typedef struct st_key_cache
   HASH_LINK **hash_root;         /* arr. of entries into hash table buckets  */
   HASH_LINK *hash_link_root;     /* memory for hash table links              */
   HASH_LINK *free_hash_list;     /* list of free hash links                  */
-  BLOCK_LINK *free_block_list; /* list of free blocks */
+  BLOCK_LINK *free_block_list;   /* list of free blocks */
   BLOCK_LINK *block_root;        /* memory for block links                   */
-  byte HUGE_PTR *block_mem;      /* memory for block buffers                 */
+  uchar HUGE_PTR *block_mem;     /* memory for block buffers                 */
   BLOCK_LINK *used_last;         /* ptr to the last block of the LRU chain   */
   BLOCK_LINK *used_ins;          /* ptr to the insertion block in LRU chain  */
   pthread_mutex_t cache_lock;    /* to lock access to the cache structure    */
   KEYCACHE_WQUEUE resize_queue;  /* threads waiting during resize operation  */
+  /*
+    Waiting for a zero resize count. Using a queue for symmetry though
+    only one thread can wait here.
+  */
+  KEYCACHE_WQUEUE waiting_for_resize_cnt;
   KEYCACHE_WQUEUE waiting_for_hash_link; /* waiting for a free hash link     */
   KEYCACHE_WQUEUE waiting_for_block;    /* requests waiting for a free block */
   BLOCK_LINK *changed_blocks[CHANGED_BLOCKS_HASH]; /* hash for dirty file bl.*/
   BLOCK_LINK *file_blocks[CHANGED_BLOCKS_HASH];    /* hash for other file bl.*/
+  KEYCACHE_POST_WRITE_CALLBACK post_write;/**< Called when flushing any block*/
 
   /*
     The following variables are and variables used to hold parameters for
@@ -101,24 +115,25 @@ typedef struct st_key_cache
 extern KEY_CACHE dflt_key_cache_var, *dflt_key_cache;
 
 extern int init_key_cache(KEY_CACHE *keycache, uint key_cache_block_size,
-                          size_t use_mem, uint division_limit,
-                          uint age_threshold);
+			  size_t use_mem, uint division_limit,
+			  uint age_threshold);
 extern int resize_key_cache(KEY_CACHE *keycache, uint key_cache_block_size,
-                            size_t use_mem, uint division_limit,
-                            uint age_threshold);
+			    size_t use_mem, uint division_limit,
+			    uint age_threshold);
 extern void change_key_cache_param(KEY_CACHE *keycache, uint division_limit,
 				   uint age_threshold);
-extern byte *key_cache_read(KEY_CACHE *keycache,
+extern uchar *key_cache_read(KEY_CACHE *keycache,
                             File file, my_off_t filepos, int level,
-                            byte *buff, uint length,
+                            uchar *buff, uint length,
 			    uint block_length,int return_buffer);
 extern int key_cache_insert(KEY_CACHE *keycache,
                             File file, my_off_t filepos, int level,
-                            byte *buff, uint length);
+                            uchar *buff, uint length);
 extern int key_cache_write(KEY_CACHE *keycache,
                            File file, my_off_t filepos, int level,
-                           byte *buff, uint length,
-			   uint block_length,int force_write);
+                           uchar *buff, uint length,
+                           uint block_length, int force_write,
+                           void *post_write_arg);
 extern int flush_key_blocks(KEY_CACHE *keycache,
                             int file, enum flush_type type);
 extern void end_key_cache(KEY_CACHE *keycache, my_bool cleanup);
@@ -126,8 +141,9 @@ extern void end_key_cache(KEY_CACHE *keycache, my_bool cleanup);
 /* Functions to handle multiple key caches */
 extern my_bool multi_keycache_init(void);
 extern void multi_keycache_free(void);
-extern KEY_CACHE *multi_key_cache_search(byte *key, uint length);
-extern my_bool multi_key_cache_set(const byte *key, uint length,
+extern KEY_CACHE *multi_key_cache_search(uchar *key, uint length,
+                                         KEY_CACHE *def);
+extern my_bool multi_key_cache_set(const uchar *key, uint length,
 				   KEY_CACHE *key_cache);
 extern void multi_key_cache_change(KEY_CACHE *old_data,
 				   KEY_CACHE *new_data);
