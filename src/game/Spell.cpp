@@ -587,8 +587,8 @@ void Spell::FillTargetMap()
                         break;
                     case TARGET_AREAEFFECT_CUSTOM:
                     case TARGET_ALL_ENEMY_IN_AREA_INSTANT:
-                        FillCustomTargetMap(i,tmpUnitMap);
-                        break;
+                        if (FillCustomTargetMap(i,tmpUnitMap)) break;
+						
                     case TARGET_INNKEEPER_COORDINATES:
                     case TARGET_TABLE_X_Y_Z_COORDINATES:
                     case TARGET_CASTER_COORDINATES:
