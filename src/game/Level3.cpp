@@ -7162,7 +7162,8 @@ bool ChatHandler::HandleModifyGenderCommand(const char *args)
 
 bool ChatHandler::HandleFreezeCommand(const char *args)
 {
-    std::string name;
+    return false;
+	/*std::string name;
     Player* player;
     char* TargetName = strtok((char*)args, " "); //get entered #name
     if (!TargetName) //if no #name entered use target
@@ -7246,7 +7247,7 @@ bool ChatHandler::HandleFreezeCommand(const char *args)
         return true;
     }
 
-    return true;
+    return true;*/
 }
 
 bool ChatHandler::HandleUnFreezeCommand(const char *args)

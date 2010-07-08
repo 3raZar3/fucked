@@ -730,7 +730,7 @@ void ChatLog::ChatBadLexicsAction(Player* player, std::string& msg)
 
     switch (LexicsCutterAction)
     {
-        case LEXICS_ACTION_SHEEP:
+        /*case LEXICS_ACTION_SHEEP:
         {
             // sheep me, yeah, yeah, sheep me
             sl = sSpellStore.LookupEntry(118);
@@ -766,7 +766,7 @@ void ChatLog::ChatBadLexicsAction(Player* player, std::string& msg)
                 }
             }
         }
-        break;
+        break;*/
 
         case LEXICS_ACTION_DIE:
         {
