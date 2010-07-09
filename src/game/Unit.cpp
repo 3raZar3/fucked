@@ -2887,54 +2887,16 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit *pVictim, SpellEntry const *spell)
     // bonus from skills is 0.04% per skill Diff
     int32 attackerWeaponSkill = int32(GetWeaponSkillValue(attType,pVictim));
 
-    // Only for hunters/warriors, other classes do not have ranged attack that would benefit from ranged weapon skill
-    if(spell->SpellFamilyName != SPELLFAMILY_HUNTER ||
-       spell->SpellFamilyName != SPELLFAMILY_WARRIOR ||
-       spell->SpellFamilyName != SPELLFAMILY_GENERIC)
-        attackerWeaponSkill = int32(GetWeaponSkillValue(BASE_ATTACK,pVictim));
-
-    // Probably not needed after [pr456]
-    /*if ( spell->SpellFamilyName == SPELLFAMILY_PALADIN )
-    {
-        // Hammer of Wrath
-        if ( spell->SpellFamilyFlags & UI64LIT(0x0000008000000000) )
-            attackerWeaponSkill = this->GetMaxSkillValueForLevel();
-        // Shield of Righteousness
-        else if ( spell->SpellFamilyFlags & UI64LIT(0x0010000000000000) )
-            attackerWeaponSkill = this->GetMaxSkillValueForLevel();
-        // Avenger's Shield
-        else if ( spell->SpellFamilyFlags & UI64LIT(0x0000000000004000) )
-            attackerWeaponSkill = this->GetMaxSkillValueForLevel();
-        // Judgement ( seal trigger )
-        else if ( spell->Category == SPELLCATEGORY_JUDGEMENT )
-            attackerWeaponSkill = this->GetMaxSkillValueForLevel();
-        // Judgement debuff and damage
-        else if ( GetSpellSpecific( spell->Id ) == SPELL_JUDGEMENT )
-            return SPELL_MISS_NONE;
-        // some Judgement other damage
-        else
-            switch ( spell->Id )
-            {
-                case 20425: // Judgement of Command
-                case 54158: // Judgement
-                    return SPELL_MISS_NONE;
-            }
-    }*/
-
     int32 skillDiff = attackerWeaponSkill - int32(pVictim->GetMaxSkillValueForLevel(this));
     int32 fullSkillDiff = attackerWeaponSkill - int32(pVictim->GetDefenseSkillValue(this));
 
     uint32 roll = urand (0, 10000);
-    uint32 tmp = 0;
 
-    if(canMiss)
-    {
-        uint32 missChance = uint32(MeleeSpellMissChance(pVictim, attType, fullSkillDiff, spell)*100.0f);
-        // Roll miss
-        tmp += missChance;
-        if (roll < tmp)
-            return SPELL_MISS_MISS;
-    }
+    uint32 missChance = uint32(MeleeSpellMissChance(pVictim, attType, fullSkillDiff, spell)*100.0f);
+    // Roll miss
+    uint32 tmp = missChance;
+    if (roll < tmp)
+        return SPELL_MISS_MISS;
 
     // Chance resist mechanic (select max value from every mechanic spell effect)
     int32 resist_mech = 0;
@@ -3140,30 +3102,24 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit *pVictim, SpellEntry const *spell)
 //   Parry
 // For spells
 //   Resist
-SpellMissInfo Unit::SpellHitResult(Unit *pVictim, SpellEntry const *spell, bool canReflect, bool canMiss)
+SpellMissInfo Unit::SpellHitResult(Unit *pVictim, SpellEntry const *spell, bool canReflect)
 {
     // Return evade for units in evade mode
     if (pVictim->GetTypeId()==TYPEID_UNIT && ((Creature*)pVictim)->IsInEvadeMode())
         return SPELL_MISS_EVADE;
 
-    if (!(spell->Id == 64380 || spell->Id == 64382 || spell->Id == 32375 ||
-        spell->Id == 32592 || spell->Id == 39897 || spell->Attributes & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY))
-    {
-        // Check for immune
-        if (pVictim->IsImmunedToSpell(spell))
-            return SPELL_MISS_IMMUNE;
+    // Check for immune
+    if (pVictim->IsImmunedToSpell(spell))
+        return SPELL_MISS_IMMUNE;
 
-        // All positive spells can`t miss
-        // TODO: client not show miss log for this spells - so need find info for this in dbc and use it!
-        if (IsPositiveSpell(spell->Id) && IsFriendlyTo(pVictim))
-            return SPELL_MISS_NONE;
+    // Positive spells can`t miss
+    // TODO: client not show miss log for this spells - so need find info for this in dbc and use it!
+    if (IsPositiveSpell(spell->Id))
+         return SPELL_MISS_NONE;
 
-        // Check for immune
-        if (pVictim->IsImmunedToDamage(GetSpellSchoolMask(spell)))
-            return SPELL_MISS_IMMUNE;
-    }
-    else if (IsPositiveSpell(spell->Id) && IsFriendlyTo(pVictim))
-        return SPELL_MISS_NONE;
+    // Check for immune
+    if (pVictim->IsImmunedToDamage(GetSpellSchoolMask(spell)))
+        return SPELL_MISS_IMMUNE;
 
     // Try victim reflect spell
     if (canReflect)
@@ -4005,18 +3961,6 @@ bool Unit::AddAura(Aura *Aur)
                     RemoveAura(i2,AURA_REMOVE_BY_STACK);
                     break;
                 }  
-                // Judgements are always single 
-                else if (GetSpellSpecific(Aur->GetId()) == SPELL_JUDGEMENT)
-                {
-                    RemoveAura(i2,AURA_REMOVE_BY_STACK);
-                    break;
-                }
-                               // Judgements are always single
-                               else if (GetSpellSpecific(Aur->GetId()) == SPELL_JUDGEMENT)
-                               {
-                                 RemoveAura(i2,AURA_REMOVE_BY_STACK);
-                                 break;
-                               } 
 
                 bool stop = false;
 
@@ -6397,13 +6341,6 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     // triggered_spell_id in spell data
                     break;
                 }
-                // Glyph of Prayer of Healing
-                case 55680:
-                {
-                    basepoints[0] = int32(damage * 20 / 100 / 2);   // divided in two ticks
-                    triggered_spell_id = 56161;
-                    break;
-                }
                 // Item - Priest T10 Healer 4P Bonus
                 case 70799:
                 {
@@ -7684,11 +7621,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     triggered_spell_id = 47541;
                  break;
             }
-            // Hungering Cold - not break from diseases
-            if (dummySpell->SpellIconID == 2797)
-            {
-                if (procSpell && procSpell->Dispel == DISPEL_DISEASE)
-                    return false;
+            break;
         }
         case SPELLFAMILY_PET:
         {
@@ -8361,12 +8294,6 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, Aura* triggeredB
                     default:
                         return false;
                 }
-            }
-            // Glyph of Death's Embrace
-            else if (auraSpellInfo->Id == 58677)
-            {
-                if (procSpell->Id != 47633)
-                    return false;
             }
             // Item - Death Knight T10 Melee 4P Bonus
             else if (auraSpellInfo->Id == 70656)
@@ -9869,7 +9796,7 @@ uint32 Unit::SpellDamageBonusDone(Unit *pVictim, SpellEntry const *spellProto, u
             {
                 if (pVictim->GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_DEATHKNIGHT, UI64LIT(0x0200000000000000)))
                     // Using double of other effect due to missing DBC entry (coincidence match) 
-                    DoneTotalMod *= ((*i)->GetSpellProto()->CalculateSimpleValue(EFFECT_INDEX_1)*2+100.0f)/100.0f; 
+                    DoneTotalMod *= ((*i)->GetModifier()->m_amount+100.0f)/100.0f;
                 break;
             }
             // Twisted Faith
@@ -9888,22 +9815,6 @@ uint32 Unit::SpellDamageBonusDone(Unit *pVictim, SpellEntry const *spellProto, u
             {
                 if (pVictim->GetAura(SPELL_AURA_MOD_STALKED, SPELLFAMILY_HUNTER, UI64LIT(0x0000000000000400)))
                     DoneTotalMod *= ((*i)->GetModifier()->m_amount+100.0f)/100.0f;
-                break;
-            }
-        }
-    }
-
-    // custom scripted mod from dummy
-    AuraList const& mDummy = owner->GetAurasByType(SPELL_AURA_DUMMY);
-    for(AuraList::const_iterator i = mDummy.begin(); i != mDummy.end(); ++i)
-    {
-        SpellEntry const *spell = (*i)->GetSpellProto();
-        //Fire and Brimstone
-        if (spell->SpellFamilyName == SPELLFAMILY_WARLOCK && spell->SpellIconID == 3173)
-        {
-            if (pVictim->HasAuraState(AURA_STATE_CONFLAGRATE) && (spellProto->SpellFamilyName == SPELLFAMILY_WARLOCK && spellProto->SpellFamilyFlags & UI64LIT(0x0002004000000000)))
-            {
-                DoneTotalMod *= ((*i)->GetModifier()->m_amount+100.0f) / 100.0f;
                 break;
             }
         }
@@ -10212,10 +10123,6 @@ int32 Unit::GetMaxSpellBaseDamageBonusDone(SpellSchoolMask schoolMask)
 
 bool Unit::IsSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType)
 {
-    // mobs can't crit with spells at all
-    if (GetObjectGuid().IsCreature())
-        return false;
-
     // not critting spell
     if((spellProto->AttributesEx2 & SPELL_ATTR_EX2_CANT_CRIT))
         return false;
@@ -10930,8 +10837,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit *pVictim, uint32 pdamage,WeaponAttackType
                 case 7293: // Rage of Rivendare
                 {
                     if (pVictim->GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_DEATHKNIGHT, UI64LIT(0x0200000000000000)))
-                        // Using double of other effect due to missing DBC entry (coincidence match) 
-                        DonePercent *= ((*i)->GetSpellProto()->CalculateSimpleValue(EFFECT_INDEX_1)*2+100.0f)/100.0f; 
+                        DonePercent *= ((*i)->GetModifier()->m_amount+100.0f)/100.0f;
                     break;
                 }
                 // Marked for Death
@@ -12549,36 +12455,6 @@ int32 Unit::CalculateSpellDuration(SpellEntry const* spellProto, SpellEffectInde
     else
         duration = minduration;
 
-    if (unitPlayer && target == this)
-    {
-        switch(spellProto->SpellFamilyName)
-        {
-            case SPELLFAMILY_DRUID:
-                if (spellProto->SpellFamilyFlags & UI64LIT(0x100))
-                {
-                    // Glyph of Thorns
-                    if (Aura *aur = GetAura(57862, EFFECT_INDEX_0))
-                        duration += aur->GetModifier()->m_amount * MINUTE * IN_MILLISECONDS;
-                }
-                break;
-            case SPELLFAMILY_PALADIN:
-                if (spellProto->SpellIconID == 298 && spellProto->SpellFamilyFlags & UI64LIT(0x00000002))
-                {
-                    // Glyph of Blessing of Might
-                    if (Aura *aur = GetAura(57958, EFFECT_INDEX_0))
-                        duration += aur->GetModifier()->m_amount * MINUTE * IN_MILLISECONDS;
-                }
-                else if (spellProto->SpellIconID == 306 && spellProto->SpellFamilyFlags & UI64LIT(0x00010000))
-                {
-                    // Glyph of Blessing of Wisdom
-                    if (Aura *aur = GetAura(57979, EFFECT_INDEX_0))
-                        duration += aur->GetModifier()->m_amount * MINUTE * IN_MILLISECONDS;
-                }
-                break;
-            default:
-                break;
-        }
-    }
     // Duration in PvP is limited
     if (!IsFriendlyTo(target))
     {
@@ -13642,9 +13518,7 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
             case SPELL_AURA_MOD_ATTACKER_SPELL_AND_WEAPON_CRIT_CHANCE:
             case SPELL_AURA_MANA_SHIELD:
             case SPELL_AURA_OBS_MOD_MANA:
-            case SPELL_AURA_MOD_STUN:
             case SPELL_AURA_ADD_PCT_MODIFIER:
-            case SPELL_AURA_PERIODIC_DUMMY:
             case SPELL_AURA_DUMMY:
             {
                 DEBUG_FILTER_LOG(LOG_FILTER_SPELL_CAST, "ProcDamageAndSpell: casting spell id %u (triggered by %s dummy aura of spell %u)", spellInfo->Id,(isVictim?"a victim's":"an attacker's"), triggeredByAura->GetId());
@@ -14962,32 +14836,6 @@ void Unit::StopAttackFaction(uint32 faction_id)
     getHostileRefManager().deleteReferencesForFaction(faction_id);
 
     CallForAllControlledUnits(StopAttackFactionHelper(faction_id),false,true,true);
-}
-
-bool Unit::isIgnoreUnitState(SpellEntry const *spell)
-{
-    if(!HasAuraType(SPELL_AURA_IGNORE_UNIT_STATE))
-        return false;
-
-    if(spell->SpellFamilyName == SPELLFAMILY_MAGE)
-    {
-        // Ice Lance
-        if(spell->SpellIconID == 186)
-            return true;
-        // Shatter
-        if(spell->Id == 11170 || spell->Id == 12982 || spell->Id == 12983)
-            return true;
-    }
-    Unit::AuraList const& stateAuras = GetAurasByType(SPELL_AURA_IGNORE_UNIT_STATE);
-    for(Unit::AuraList::const_iterator j = stateAuras.begin();j != stateAuras.end(); ++j)
-    {
-        if((*j)->isAffectedOnSpell(spell))
-        {
-            return true;
-            break;
-        }
-    }
-    return false;
 }
 
 uint32 Unit::GetModelForForm(ShapeshiftForm form)

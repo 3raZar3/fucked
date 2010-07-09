@@ -79,8 +79,7 @@ enum WorldTimers
     WUPDATE_CORPSES       = 5,
     WUPDATE_EVENTS        = 6,
     WUPDATE_DELETECHARS   = 7,
-    WUPDATE_AUTOBROADCAST = 8,
-    WUPDATE_COUNT         = 9
+    WUPDATE_COUNT         = 8
 };
 
 /// Configuration elements
@@ -226,7 +225,6 @@ enum eConfigUInt32Values
     CONFIG_UINT32_TEAM_BG_FACTION_RED,
     CONFIG_UINT32_TEAM_BG_BUFF_BLUE,
     CONFIG_UINT32_TEAM_BG_BUFF_RED,
-    CONFIG_UINT32_RANDOM_BG_RESET_HOUR,
 
     /* Darkrulerz' customs */
     CONFIG_UINT32_PVP_ID_1,
@@ -714,11 +712,9 @@ class World
 
         void InitDailyQuestResetTime();
         void InitWeeklyQuestResetTime();
-        void InitRandomBGResetTime();
         void ResetDailyQuests();
         void ResetBGDaily();
         void ResetWeeklyQuests();
-        void ResetRandomBG();
     private:
         void setConfig(eConfigUInt32Values index, char const* fieldname, uint32 defvalue);
         void setConfig(eConfigInt32Values index, char const* fieldname, int32 defvalue);
