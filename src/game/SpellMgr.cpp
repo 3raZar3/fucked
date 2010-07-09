@@ -630,23 +630,11 @@ bool IsExplicitNegativeTarget(uint32 targetA)
 bool IsPositiveEffect(uint32 spellId, SpellEffectIndex effIndex)
 {
     SpellEntry const *spellproto = sSpellStore.LookupEntry(spellId);
-    if (!spellproto) return false;
-
-    if(spellproto->Id == 56266)
+    if (!spellproto)
         return false;
 
-    switch(spellId)
-    {
-        case 47540:                                         // Penance start dummy aura - Rank 1
-        case 53005:                                         // Penance start dummy aura - Rank 2
-        case 53006:                                         // Penance start dummy aura - Rank 3
-        case 53007:                                         // Penance start dummy aura - Rank 4
-        case 47757:                                         // Penance heal effect trigger - Rank 1
-        case 52986:                                         // Penance heal effect trigger - Rank 2
-        case 52987:                                         // Penance heal effect trigger - Rank 3
-        case 52988:                                         // Penance heal effect trigger - Rank 4
-            return true;
-    }
+    if (spellproto->Id == 56266)
+        return false;
 
     switch(spellproto->Effect[effIndex])
     {
@@ -1755,24 +1743,9 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     if (spellInfo_1->Id == 47710 || spellInfo_2->Id == 47710)
                         return false;
  
-                    // Dark Essence & Light Essence
-                    if ((spellInfo_1->Id == 65684 && spellInfo_2->Id == 65686) ||
-                        (spellInfo_2->Id == 65684 && spellInfo_1->Id == 65686))
-                        return true;
-
-                    // Potent Fungus and Mini must remove each other (Amanitar encounter, Ahn'kahet)
-                    if ((spellInfo_1->Id == 57055 && spellInfo_2->Id == 56648) ||
-                        (spellInfo_2->Id == 57055 && spellInfo_1->Id == 56648))
-                        return true;
-
                     // Thunderfury
                     if ((spellInfo_1->Id == 21992 && spellInfo_2->Id == 27648) ||
                         (spellInfo_2->Id == 21992 && spellInfo_1->Id == 27648))
-                        return false;
-
-                    // Lightning Speed (Mongoose) and Fury of the Crashing Waves (Tsunami Talisman)
-                    if ((spellInfo_1->Id == 28093 && spellInfo_2->Id == 42084) ||
-                        (spellInfo_2->Id == 28093 && spellInfo_1->Id == 42084))
                         return false;
 
                     // Soulstone Resurrection and Twisting Nether (resurrector)
@@ -1783,10 +1756,6 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
 
                     // Heart of the Wild, Agility and various Idol Triggers
                     if(spellInfo_1->SpellIconID == 240 && spellInfo_2->SpellIconID == 240)
-                        return false;
-
-                    // Personalized Weather (thunder effect should overwrite rainy aura)
-                    if(spellInfo_1->SpellIconID == 2606 && spellInfo_2->SpellIconID == 2606)
                         return false;
 
                     // Brood Affliction: Bronze
@@ -1831,11 +1800,6 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     if( (spellInfo_1->Id == 46796 && spellInfo_2->Id == 46789) ||
                         (spellInfo_2->Id == 46796 && spellInfo_1->Id == 46789) )
                          return false;
-
-                    // Blue Flame Shield and Blue Power Focus (more generic rule needed for all spells with dummy auras)
-                    if( (spellInfo_1->Id == 46796 && spellInfo_2->Id == 46789) ||
-                        (spellInfo_2->Id == 46796 && spellInfo_1->Id == 46789) )
-                        return false;
                     break;
                 }
                 case SPELLFAMILY_MAGE:
@@ -2055,10 +2019,6 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                 // Metamorphosis, diff effects
                 if (spellInfo_1->SpellIconID == 3314 && spellInfo_2->SpellIconID == 3314)
                     return false;
-
-                // Nether Protection effects
-                if( spellInfo_2->SpellIconID == 1985 && spellInfo_1->SpellIconID == 1985 && spellInfo_1->SpellVisual[0] == 9750 )
-                    return false;
             }
             // Detect Invisibility and Mana Shield (multi-family check)
             if( spellInfo_1->Id == 132 && spellInfo_2->SpellIconID == 209 && spellInfo_2->SpellVisual[0] == 968 )
@@ -2076,11 +2036,6 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                 if( (spellInfo_1->SpellIconID == 456 && spellInfo_2->SpellIconID == 2006) ||
                     (spellInfo_2->SpellIconID == 456 && spellInfo_1->SpellIconID == 2006) )
                     return false;
-
-                // Taste of Blood and Sudden Death
-                if( (spellInfo_1->Id == 52437 && spellInfo_2->Id == 60503) ||
-                    (spellInfo_2->Id == 52437 && spellInfo_1->Id == 60503) )
-                    return false;
             }
 
             // Hamstring -> Improved Hamstring (multi-family check)
@@ -2094,14 +2049,6 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
             // Bloodlust and Bloodthirst (multi-family check)
             if( spellInfo_2->Id == 2825 && spellInfo_1->SpellIconID == 38 && spellInfo_1->SpellVisual[0] == 0 )
                 return false;
-                
-            if( spellInfo_2->SpellFamilyName == SPELLFAMILY_DRUID )
-            {
-                // Rip and Flurry(Shaman)
-                if (spellInfo_1->SpellIconID == 108 && spellInfo_2->SpellIconID == 108)
-                    return false;
-            }		
-
             break;
         case SPELLFAMILY_PRIEST:
             if( spellInfo_2->SpellFamilyName == SPELLFAMILY_PRIEST )
@@ -2127,19 +2074,12 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                 if ((spellInfo_1->Id == 47585 && spellInfo_2->Id == 60069) ||
                     (spellInfo_2->Id == 47585 && spellInfo_1->Id == 60069))
                     return false;
-                // Power Word: Shield and Divine Aegis
-                if ((spellInfo_1->SpellIconID == 566 && spellInfo_2->SpellIconID == 2820) ||
-                    (spellInfo_2->SpellIconID == 566 && spellInfo_1->SpellIconID == 2820))
-                    return false;
                 // Shadowform
                 if ((spellInfo_1->Id == 15473 && spellInfo_2->Id == 49868) ||
-                    (spellInfo_2->Id == 15473 && spellInfo_1->Id == 49868))
-                    return false;
-                if ((spellInfo_1->Id == 15473 && spellInfo_2->Id == 71167) ||
-                    (spellInfo_2->Id == 15473 && spellInfo_1->Id == 71167))
-                    return false;
-
-                if ((spellInfo_1->Id == 49868 && spellInfo_2->Id == 71167) ||
+                    (spellInfo_2->Id == 15473 && spellInfo_1->Id == 49868) ||
+                    (spellInfo_1->Id == 15473 && spellInfo_2->Id == 71167) ||
+                    (spellInfo_2->Id == 15473 && spellInfo_1->Id == 71167) ||
+                    (spellInfo_1->Id == 49868 && spellInfo_2->Id == 71167) ||
                     (spellInfo_2->Id == 49868 && spellInfo_1->Id == 71167))
                     return false;
   
@@ -2258,10 +2198,6 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     (spellInfo_2->SpellFamilyFlags & UI64LIT(0x4)) && (spellInfo_1->SpellFamilyFlags & UI64LIT(0x00000004000)) )
                     return false;
                     
-                // Deterrence
-                if( spellInfo_1->SpellIconID == 83 && spellInfo_2->SpellIconID == 83 )
-                    return false;
-
                 // Deterrence
                 if( spellInfo_1->SpellIconID == 83 && spellInfo_2->SpellIconID == 83 )
                     return false;
