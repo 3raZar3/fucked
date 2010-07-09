@@ -4404,12 +4404,12 @@ void Spell::EffectSummonPossessed(SpellEffectIndex eff_idx)
         delete spawnCreature;
         return;
     }
-
-    Unit* caster = GetAffectiveCaster();	 
-    Aura* aur = CreateAura(m_spellInfo, eff_idx, &m_currentBasePoints[eff_idx], spawnCreature, caster, m_CastItem);	 
+	SpellAuraHolder *new_holder = CreateSpellAuraHolder(m_spellInfo, spawnCreature, spawnCreature);
+    Unit* caster = GetAffectiveCaster();
+    Aura* aur = CreateAura(m_spellInfo, eff_idx, &m_currentBasePoints[eff_idx], new_holder, spawnCreature, caster, m_CastItem);
     Modifier* modifier=aur->GetModifier();
     aur->SetModifier(SPELL_AURA_MOD_POSSESS,modifier->m_amount,modifier->periodictime,modifier->m_miscvalue);
-    spawnCreature->AddAura(aur);	 
+    new_holder->AddAura(aur, eff_idx);
 } 
 
 void Spell::DoSummon(SpellEffectIndex eff_idx)
@@ -6907,13 +6907,13 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                 }
                 case 62262: // Brightleaf Flux
                 {
-                    if(!unitTarget)
+//                    if(!unitTarget)
                         return;
 
                     uint32 spellId = urand(0,1) ? 62251 : 62252;
                     m_caster->CastSpell(unitTarget, spellId, true);
-                    if(Aura *pAura = unitTarget->GetAura(spellId, EFFECT_INDEX_0))
-                        pAura->SetStackAmount(urand(1,8));
+//                    if(Aura *pAura = unitTarget->GetAura(spellId, EFFECT_INDEX_0))
+//                        pAura->SetStackAmount(urand(1,8));
                 }
             }
             break;
