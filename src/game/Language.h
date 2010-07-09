@@ -901,9 +901,6 @@ enum MangosStrings
 
     // FREE IDS                           1300-9999
 
-    // Broadcaster
-    LANG_AUTO_BROADCAST                 = 1300,
-
     // Use for not-in-offcial-sources patches
     //                                    10000-10999
 
@@ -989,7 +986,6 @@ enum MangosStrings
     LANG_BG_WG_RANK2                    = 10116,
 
     // Use for custom patches             11000-11999
-    LANG_ANNOUNCE_CHEAT                 = 11000,
     LANG_YOU_RECEIVE_TOKEN        		= 11050,
 
     LANG_COMMAND_FREEZE                 = 10900,

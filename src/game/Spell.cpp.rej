@@ -1,0 +1,128 @@
+diff a/src/game/Spell.cpp b/src/game/Spell.cpp	(rejected hunks)
+@@ -819,10 +820,7 @@ void Spell::AddUnitTarget(Unit* pVictim, SpellEffectIndex effIndex)
+     target.processed  = false;                              // Effects not apply on target
+ 
+     // Calculate hit result
+-
+-    // Procs can miss, weapon enchants can miss, triggered spells and effects cannot miss (miss already calculated in triggering spell)
+-    bool canMiss = (m_triggeredByAuraSpell || !m_IsTriggeredSpell);
+-    target.missCondition = m_caster->SpellHitResult(pVictim, m_spellInfo, m_canReflect, canMiss);
++    target.missCondition = m_caster->SpellHitResult(pVictim, m_spellInfo, m_canReflect);
+ 
+     // Spell have speed - need calculate incoming time
+     if (m_spellInfo->speed > 0.0f)
+@@ -1118,8 +1116,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
+     // Recheck immune (only for delayed spells)
+     if (m_spellInfo->speed && (
+         unit->IsImmunedToDamage(GetSpellSchoolMask(m_spellInfo)) ||
+-        unit->IsImmunedToSpell(m_spellInfo)) && 
+-        !(m_spellInfo->Attributes & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY))
++        unit->IsImmunedToSpell(m_spellInfo)))
+     {
+         if (realCaster)
+             realCaster->SendSpellMiss(unit, m_spellInfo->Id, SPELL_MISS_IMMUNE);
+@@ -1906,11 +1893,11 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
+                     break;
+                 case 64844:                                 // Divine Hymn
+                     // target amount stored in parent spell dummy effect but hard to access
+-                    FillRaidOrPartyHealthPriorityTargets(targetUnitMap, m_caster, m_caster, radius, 3, true, false, true);
++                    FillRaidOrPartyHealthPriorityTargets(targetUnitMap, m_caster, m_caster, radius, 3, true, false, false);
+                     break;
+                 case 64904:                                 // Hymn of Hope
+                     // target amount stored in parent spell dummy effect but hard to access
+-                    FillRaidOrPartyManaPriorityTargets(targetUnitMap, m_caster, m_caster, radius, 3, true, false, true);
++                    FillRaidOrPartyManaPriorityTargets(targetUnitMap, m_caster, m_caster, radius, 3, true, false, false);
+                     break;
+                 default:
+                     // selected friendly units (for casting objects) around casting object
+@@ -2798,9 +2757,6 @@ void Spell::cast(bool skipCheck)
+             // Ice Block
+             if (m_spellInfo->SpellFamilyFlags & UI64LIT(0x0000008000000000))
+                 AddPrecastSpell(41425);                     // Hypothermia
+-            // Fingers of Frost
+-            else if (m_spellInfo->Id == 44544)
+-                AddPrecastSpell(74396);
+             break;
+         }
+         case SPELLFAMILY_PRIEST:
+@@ -2848,9 +2804,6 @@ void Spell::cast(bool skipCheck)
+             // Lock and Load
+             if (m_spellInfo->Id == 56453)
+                 AddPrecastSpell(67544);                     // Lock and Load Marker
+-            // Deterrence
+-            else if (m_spellInfo->Id == 19263)
+-                AddTriggeredSpell(67801);
+             break;
+         }
+         case SPELLFAMILY_PALADIN:
+@@ -2896,13 +2849,6 @@ void Spell::cast(bool skipCheck)
+                 AddTriggeredSpell(30708);                   // Totem of Wrath
+             break;
+         }
+-        case SPELLFAMILY_WARRIOR:
+-        {
+-            // Shattering Throw
+-            if (m_spellInfo->Id == 64382)
+-                AddTriggeredSpell(64380);                     // Shattering Throw
+-            break;
+-        }
+         case SPELLFAMILY_DEATHKNIGHT:
+         {
+             // Chains of Ice
+@@ -4242,11 +4145,11 @@ SpellCastResult Spell::CheckCast(bool strict)
+ {
+     // check cooldowns to prevent cheating (ignore passive spells, that client side visual only)
+     if (m_caster->GetTypeId()==TYPEID_PLAYER && !(m_spellInfo->Attributes & SPELL_ATTR_PASSIVE) &&
+-        ((Player*)m_caster)->HasSpellCooldown(m_spellInfo->Id) && !m_caster->isIgnoreUnitState(m_spellInfo))
++        ((Player*)m_caster)->HasSpellCooldown(m_spellInfo->Id))
+     {
+         if(m_triggeredByAuraSpell)
+             return SPELL_FAILED_DONT_REPORT;
+-        else if(!m_IsTriggeredSpell || m_CastItem)
++        else
+             return SPELL_FAILED_NOT_READY;
+     }
+ 
+@@ -4303,10 +4206,6 @@ SpellCastResult Spell::CheckCast(bool strict)
+         else if(m_caster->HasAura(m_spellInfo->excludeCasterAuraSpell))
+             return SPELL_FAILED_CASTER_AURASTATE;
+     }
+-    //Check Caster for combat
+-    if(m_caster->isInCombat() && IsNonCombatSpell(m_spellInfo) &&
+-        !m_IsTriggeredSpell && !m_caster->isIgnoreUnitState(m_spellInfo))
+-        return SPELL_FAILED_AFFECTING_COMBAT;
+ 
+     // cancel autorepeat spells if cast start when moving
+     // (not wand currently autorepeat cast delayed to moving stop anyway in spell update code)
+@@ -5147,13 +5037,6 @@ SpellCastResult Spell::CheckCast(bool strict)
+                     return SPELL_FAILED_BAD_TARGETS;
+                 break;
+             }
+-            case SPELL_EFFECT_LEAP_BACK:
+-            {
+-                if(m_spellInfo->Id == 781)
+-                    if(!m_caster->isInCombat()) 
+-                        return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW; 
+-                break;
+-            }
+             default:break;
+         }
+     }
+@@ -5385,7 +5268,7 @@ SpellCastResult Spell::CheckPetCast(Unit* target)
+             if(!_target->isAlive())
+                 return SPELL_FAILED_BAD_TARGETS;
+ 
+-            if(IsPositiveSpell(m_spellInfo->Id) && !IsDispelSpell(m_spellInfo))
++            if(IsPositiveSpell(m_spellInfo->Id))
+             {
+                 if(m_caster->IsHostileTo(_target))
+                     return SPELL_FAILED_BAD_TARGETS;
+@@ -5398,7 +5281,7 @@ SpellCastResult Spell::CheckPetCast(Unit* target)
+                                                             //TARGET_DUELVSPLAYER is positive AND negative
+                     duelvsplayertar |= (m_spellInfo->EffectImplicitTargetA[j] == TARGET_DUELVSPLAYER);
+                 }
+-                if(m_caster->IsFriendlyTo(target) && !duelvsplayertar && !IsDispelSpell(m_spellInfo))
++                if(m_caster->IsFriendlyTo(target) && !duelvsplayertar)
+                 {
+                     return SPELL_FAILED_BAD_TARGETS;
+                 }

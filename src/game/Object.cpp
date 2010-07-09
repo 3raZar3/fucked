@@ -553,7 +553,7 @@ void Object::BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask *
     bool IsPerCasterAuraState = false;
     if (updatetype == UPDATETYPE_CREATE_OBJECT || updatetype == UPDATETYPE_CREATE_OBJECT2)
     {
-        if (isType(TYPEMASK_GAMEOBJECT) && !((GameObject*)this)->IsDynTransport())
+        if (isType(TYPEMASK_GAMEOBJECT) && !((GameObject*)this)->IsTransport())
         {
             if ( ((GameObject*)this)->ActivateToQuest(target) || target->isGameMaster())
                 IsActivateToQuest = true;
@@ -571,7 +571,7 @@ void Object::BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask *
     }
     else                                                    // case UPDATETYPE_VALUES
     {
-        if (isType(TYPEMASK_GAMEOBJECT) && !((GameObject*)this)->IsDynTransport())
+        if (isType(TYPEMASK_GAMEOBJECT) && !((GameObject*)this)->IsTransport())
         {
             if ( ((GameObject*)this)->ActivateToQuest(target) || target->isGameMaster())
             {
@@ -1262,32 +1262,8 @@ bool WorldObject::IsWithinLOS(float ox, float oy, float oz) const
 {
     float x,y,z;
     GetPosition(x,y,z);
-    z += 2.0f;
-    oz += 2.0f;
-
-    // check for line of sight because of terrain height differences
-    Map const *map = GetBaseMap();
-    float dx = ox - x, dy = oy - y, dz = oz - z;
-    float dist = sqrt(dx*dx + dy*dy + dz*dz);
-    if (dist > ATTACK_DISTANCE && dist < MAX_VISIBILITY_DISTANCE)
-    {
-        uint32 steps = uint32(dist / TERRAIN_LOS_STEP_DISTANCE);
-        float step_dist = dist / (float)steps;  // to make sampling intervals symmetric in both directions
-        float inc_factor = step_dist / dist;
-        float incx = dx*inc_factor, incy = dy*inc_factor, incz = dz*inc_factor;
-        float px = x, py = y, pz = z;
-        for (; steps; --steps)
-        {
-            if (map->GetHeight(px, py, pz, false) > pz)
-                return false;  // found intersection with ground
-            px += incx;
-            py += incy;
-            pz += incz;
-        }
-    }
-
     VMAP::IVMapManager *vMapManager = VMAP::VMapFactory::createOrGetVMapManager();
-    return vMapManager->isInLineOfSight(GetMapId(), x, y, z, ox, oy, oz);
+    return vMapManager->isInLineOfSight(GetMapId(), x, y, z+2.0f, ox, oy, oz+2.0f);
 }
 
 bool WorldObject::GetDistanceOrder(WorldObject const* obj1, WorldObject const* obj2, bool is3D /* = true */) const
@@ -1463,23 +1439,11 @@ void WorldObject::GetRandomPoint( float x, float y, float z, float distance, flo
     UpdateGroundPositionZ(rand_x,rand_y,rand_z);            // update to LOS height if available
 }
 
-void WorldObject::UpdateGroundPositionZ(float x, float y, float &z, float maxDiff) const
+void WorldObject::UpdateGroundPositionZ(float x, float y, float &z) const
 {
-    maxDiff = maxDiff >= 100.0f ? 10.0f : sqrtf(maxDiff);
-    bool useVmaps = false;
-    if( GetBaseMap()->GetHeight(x, y, z+2.0f, false) <  GetBaseMap()->GetHeight(x, y, z+2.0f, true) ) // check use of vmaps
-        useVmaps = true;
-
-    float normalizedZ = GetBaseMap()->GetHeight(x, y, z+2.0f, useVmaps);
-    // check if its reacheable
-    if(normalizedZ <= INVALID_HEIGHT || fabs(normalizedZ-z) > maxDiff)
-    {
-        useVmaps = !useVmaps;                                // try change vmap use
-        normalizedZ = GetBaseMap()->GetHeight(x, y, z+2.0f, useVmaps);
-        if(normalizedZ <= INVALID_HEIGHT || fabs(normalizedZ-z) > maxDiff)
-            return;                                        // Do nothing in case of another bad result 
-    }
-    z = normalizedZ + 0.1f;                                // just to be sure that we are not a few pixel under the surface
+    float new_z = GetBaseMap()->GetHeight(x,y,z,true);
+    if(new_z > INVALID_HEIGHT)
+        z = new_z+ 0.05f;                                   // just to be sure that we are not a few pixel under the surface
 }
 
 bool WorldObject::IsPositionValid() const
@@ -1732,26 +1696,6 @@ Creature* WorldObject::SummonCreature(uint32 id, float x, float y, float z, floa
 
     // return the creature therewith the summoner has access to it
     return pCreature;
-}
-
-GameObject* WorldObject::SummonGameobject(uint32 id, float x, float y, float z, float angle, uint32 despwtime)
-{
-    GameObject* pGameObj = new GameObject;
-
-    Map *map = GetMap();
-
-    if(!pGameObj->Create(sObjectMgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT), id, map,
-        GetPhaseMask(), x, y, z, angle, 0.0f, 0.0f, 0.0f, 0.0f, 100, GO_STATE_READY))
-    {
-        delete pGameObj;
-        return NULL;
-    }
-
-    pGameObj->SetRespawnTime(despwtime/IN_MILLISECONDS);
-
-    map->Add(pGameObj);
-
-    return pGameObj;
 }
 
 Vehicle* WorldObject::SummonVehicle(uint32 id, float x, float y, float z, float ang, uint32 vehicleId)

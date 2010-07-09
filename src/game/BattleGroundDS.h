@@ -50,16 +50,11 @@ class BattleGroundDS : public BattleGround
         bool SetupBattleGround();
         void DespawnEvent(uint8 event1, uint8 event2);
         void DespawnBGObject(uint64 const& guid);
-    private:
-        virtual void Reset();
-        virtual void FillInitialWorldStates(WorldPacket &d, uint32& count);
         void HandleKillPlayer(Player* player, Player *killer);
-        bool HandlePlayerUnderMap(Player * plr);
         bool KnockbackCheck;
         bool KnockbackSpam;
         bool DoorsDespawned;
         bool WaterfallActivated;
-        uint32 m_uiKnockback;
         uint32 m_uiKnockSpam;
         uint32 m_uiWaterfall;
 };

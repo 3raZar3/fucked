@@ -1,0 +1,13 @@
+diff a/src/game/SpellAuras.h b/src/game/SpellAuras.h	(rejected hunks)
+@@ -217,11 +217,8 @@ class MANGOS_DLL_SPEC Aura
+         void HandleAuraIncreaseBaseHealthPercent(bool Apply, bool Real);
+         void HandleNoReagentUseAura(bool Apply, bool Real);
+         void HandlePhase(bool Apply, bool Real);
+-        void HandleIgnoreUnitState(bool Apply, bool Real);
+         void HandleModTargetArmorPct(bool Apply, bool Real);
+         void HandleAuraModAllCritChance(bool Apply, bool Real);
+-        void HandleAuraLinked(bool Apply, bool Real);
+-        void HandleAuraOpenStable(bool apply, bool Real);
+         void HandleAllowOnlyAbility(bool Apply, bool Real);
+ 
+         virtual ~Aura();

@@ -1,0 +1,213 @@
+diff a/src/game/SpellAuras.cpp b/src/game/SpellAuras.cpp	(rejected hunks)
+@@ -1157,10 +1140,6 @@ bool Aura::_RemoveAura()
+         if(m_spellProto->Dispel == DISPEL_ENRAGE)
+             m_target->ModifyAuraState(AURA_STATE_ENRAGE, false);
+ 
+-        // Mechanic bleed aura state
+-        if(GetAllSpellMechanicMask(m_spellProto) & (1 << (MECHANIC_BLEED-1)))
+-            m_target->ModifyAuraState(AURA_STATE_MECHANIC_BLEED, false);
+-
+         uint32 removeState = 0;
+         uint64 removeFamilyFlag = m_spellProto->SpellFamilyFlags;
+         uint32 removeFamilyFlag2 = m_spellProto->SpellFamilyFlags2;
+@@ -2327,42 +2271,9 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
+                             // not use ammo and not allow use
+                             ((Player*)target)->RemoveAmmo();
+                         return;
+-                    case 47977:                             // Magic Broom
+-                        Spell::SelectMountByAreaAndSkill(target, 42680, 42683, 42667, 42668, 0);
+-                        return;
+                     case 48025:                             // Headless Horseman's Mount
+                         Spell::SelectMountByAreaAndSkill(target, 51621, 48024, 51617, 48023, 0);
+                         return;
+-                    case 55328:                                 // Stoneclaw Totem I
+-                        target->CastSpell(target, 5728, true);
+-                        return;
+-                    case 55329:                                 // Stoneclaw Totem II
+-                        target->CastSpell(target, 6397, true);
+-                        return;
+-                    case 55330:                                 // Stoneclaw Totem III
+-                        target->CastSpell(target, 6398, true);
+-                        return;
+-                    case 55332:                                 // Stoneclaw Totem IV
+-                        target->CastSpell(target, 6399, true);
+-                        return;
+-                    case 55333:                                 // Stoneclaw Totem V
+-                        target->CastSpell(target, 10425, true);
+-                        return;
+-                    case 55335:                                 // Stoneclaw Totem VI
+-                        target->CastSpell(target, 10426, true);
+-                        return;
+-                    case 55278:                                 // Stoneclaw Totem VII
+-                        target->CastSpell(target, 25513, true);
+-                        return;
+-                    case 58589:                                 // Stoneclaw Totem VIII
+-                        target->CastSpell(target, 58583, true);
+-                        return;
+-                    case 58590:                                 // Stoneclaw Totem IX
+-                        target->CastSpell(target, 58584, true);
+-                        return;
+-                    case 58591:                                 // Stoneclaw Totem X
+-                        target->CastSpell(target, 58585, true);
+-                        return;
+                     case 62061:                             // Festive Holiday Mount
+                         if (target->HasAuraType(SPELL_AURA_MOUNTED))
+                             // Reindeer Transformation
+@@ -2472,19 +2370,6 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
+                 }
+                 break;
+             }
+-            case SPELLFAMILY_DEATHKNIGHT:
+-            {
+-                // Hungering Cold - disease apply
+-                if(GetId() == 51209)
+-                {
+-                    Unit *caster = GetCaster();
+-                    if(!caster)
+-                        return;
+-
+-                    caster->CastSpell(target, 55095, true);
+-                }
+-                break;
+-            }
+         }
+     }
+     // AT REMOVE
+@@ -2827,24 +2706,13 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
+                     int32 bp0 = m_modifier.m_amount;
+ 
+                     if (Unit* caster = GetCaster())
+-                        target->CastCustomSpell(caster,48210,&bp0,NULL,NULL,true,NULL,this,GetCasterGUID());
++                        target->CastCustomSpell(caster,48210,&bp0,NULL,NULL,true);
+                 }
+             }
+             break;
+         }
+         case SPELLFAMILY_PRIEST:
+         {
+-            // Penance
+-            if (GetSpellProto()->SpellIconID == 2818)
+-            {
+-                Unit* caster = GetCaster();
+-                if (!caster || caster->GetTypeId() != TYPEID_PLAYER)
+-                    return;
+-
+-                if (apply && target)
+-                    ((Player*)caster)->SetSelection(target->GetGUID());
+-                return;
+-            }
+             // Pain and Suffering
+             if (GetSpellProto()->SpellIconID == 2874 && target->GetTypeId()==TYPEID_PLAYER)
+             {
+@@ -4789,7 +4574,7 @@ void Aura::HandleModMechanicImmunity(bool apply, bool /*Real*/)
+         uint32 mechanic = 1 << (misc-1);
+ 
+         //immune movement impairment and loss of control
+-        if(GetId()==42292 || GetId()==59752 || GetId()==53490 || GetId()==65547)
++        if(GetId()==42292 || GetId()==59752)
+             mechanic=IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK;
+ 
+         target->RemoveAurasAtMechanicImmunity(mechanic,GetId());
+@@ -5053,18 +4825,6 @@ void Aura::HandlePeriodicEnergize(bool apply, bool Real)
+                 break;
+         }
+     }
+-    if (!apply && !loading)
+-    {
+-        switch (GetId())
+-        {
+-            case 5229:                                      // Druid Bear Enrage
+-                if (target->HasAura(51185))               // King of the Jungle self Enrage bonus with infinity duration
+-                    target->RemoveAurasDueToSpell(51185);
+-                break;
+-            default:
+-                break;
+-        }
+-    }
+ 
+     m_isPeriodic = apply;
+ }
+@@ -5739,7 +5474,6 @@ void Aura::HandleAuraModIncreaseHealth(bool apply, bool Real)
+         case 34511:                                         // Valor (Bulwark of Kings, Bulwark of the Ancient Kings)
+         case 44055: case 55915: case 55917: case 67596:     // Tremendous Fortitude (Battlemaster's Alacrity)
+         case 50322:                                         // Survival Instincts
+-        case 53479:                                         // Hunter pet - Last Stand
+         case 54443:                                         // Demonic Empowerment (Voidwalker)
+         case 55233:                                         // Vampiric Blood
+         case 59465:                                         // Brood Rage (Ahn'Kahet)
+@@ -6462,35 +6192,6 @@ void Aura::HandleShapeshiftBoosts(bool apply)
+                 }
+             }
+ 
+-            // Improved Barkskin - apply/remove armor bonus due to shapeshift remove
+-            if (((Player*)target)->HasSpell(63410) || ((Player*)target)->HasSpell(63411))
+-            {
+-                if (form == FORM_TRAVEL)
+-                {
+-                    target->RemoveAurasDueToSpell(66530);
+-                    target->CastSpell(target,66530,true);
+-                }
+-                else
+-                    target->RemoveAurasDueToSpell(66530);
+-            }
+-
+-            // Survival of the Fittest (Armor part)
+-            if (form == FORM_BEAR || form == FORM_DIREBEAR)
+-            {
+-                Unit::AuraList const& modAuras = target->GetAurasByType(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE);
+-                for (Unit::AuraList::const_iterator i = modAuras.begin(); i != modAuras.end(); ++i)
+-                {
+-                    if ((*i)->GetSpellProto()->SpellFamilyName==SPELLFAMILY_DRUID &&
+-                        (*i)->GetSpellProto()->SpellIconID == 961)
+-                    {
+-                        int32 bp = (*i)->GetSpellProto()->CalculateSimpleValue(EFFECT_INDEX_2);
+-                        if (bp)
+-                            target->CastCustomSpell(target, 62069, &bp, NULL, NULL, true, NULL, this);
+-                        break;
+-                    }
+-                }
+-            }
+-
+             // Heart of the Wild
+             if (HotWSpellId)
+             {
+@@ -8354,30 +8012,6 @@ void Aura::PeriodicDummyTick()
+                         case 2: target->CastSpell(target, 55739, true); break;
+                     }
+                     return;
+-                case 66118:                                 // Leeching Swarm 10 man
+-                case 68646:
+-                {
+-                    int32 damage = (m_modifier.m_amount * target->GetHealth()) / 100;
+-                    if (damage < 250)
+-                        damage = 250;
+-                    int32 heal = damage * 68 / 100;
+-                    target->CastCustomSpell(target, 66240, &damage, NULL, NULL, true, NULL, this);
+-                    if (Unit* caster = GetCaster())
+-                        target->CastCustomSpell(caster, 66125, &heal, NULL, NULL, true, NULL, this);
+-                    return;
+-                }
+-                case 67630:                                 // Leeching Swarm 25 man
+-                case 68647:
+-                {
+-                    int32 damage = (m_modifier.m_amount * target->GetHealth()) / 100;
+-                    if (damage < 250)
+-                        damage = 250;
+-                    int32 heal = damage * 155 / 100;
+-                    target->CastCustomSpell(target, 66240, &damage, NULL, NULL, true, NULL, this);
+-                    if (Unit* caster = GetCaster())
+-                        target->CastCustomSpell(caster, 66125, &heal, NULL, NULL, true, NULL, this);
+-                    return;
+-                }
+ // Exist more after, need add later
+                 default:
+                     break;
+@@ -8841,7 +8406,7 @@ void Aura::UnregisterSingleCastAura()
+         else
+         {
+             sLog.outError("Couldn't find the caster of the single target aura (SpellId %u), may crash later!", GetId());
+-            //ASSERTt(false);
++            ASSERT(false);
+         }
+         m_isSingleTargetAura = false;
+     }

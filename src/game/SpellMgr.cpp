@@ -484,7 +484,7 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
     }
 
     // Tracking spells
-    if(IsSpellHaveAura(spellInfo, SPELL_AURA_TRACK_CREATURES) || IsSpellHaveAura(spellInfo, SPELL_AURA_TRACK_RESOURCES) || IsSpellHaveAura(spellInfo, SPELL_AURA_TRACK_STEALTHED))
+    if(IsSpellHaveAura(spellInfo, SPELL_AURA_TRACK_CREATURES) || IsSpellHaveAura(spellInfo, SPELL_AURA_TRACK_RESOURCES))
         return SPELL_TRACKER;
 
     // elixirs can have different families, but potion most ofc.
@@ -1963,10 +1963,6 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     (spellInfo_2->SpellFamilyFlags & UI64LIT(0x0000000000010000)) && (spellInfo_1->SpellVisual[0] == 72 && spellInfo_1->SpellIconID == 1499) )
                     return false;
 
-                // Fingers of Frost effects
-                if( spellInfo_1->SpellIconID == 2947 && spellInfo_2->SpellIconID == 2947)
-                    return false;
-
                 // Living Bomb & Ignite (Dots)
                 if( (spellInfo_1->SpellFamilyFlags & UI64LIT(0x2000000000000)) && (spellInfo_2->SpellFamilyFlags & UI64LIT(0x8000000)) ||
                     (spellInfo_2->SpellFamilyFlags & UI64LIT(0x2000000000000)) && (spellInfo_1->SpellFamilyFlags & UI64LIT(0x8000000)) )
@@ -2193,11 +2189,6 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                 if (spellInfo_1->SpellIconID == 62 && spellInfo_2->SpellIconID == 62)
                     return false;
 
-                // Lacerate and Moonfire
-                if((spellInfo_1->SpellIconID == 225 && spellInfo_2->SpellIconID == 2246) ||
-                   (spellInfo_2->SpellIconID == 225 && spellInfo_1->SpellIconID == 2246))
-                   return false;
-
                 // Wrath of Elune and Nature's Grace
                 if( spellInfo_1->Id == 16886 && spellInfo_2->Id == 46833 || spellInfo_2->Id == 16886 && spellInfo_1->Id == 46833 )
                     return false;
@@ -2296,10 +2287,6 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
             {
                 // Paladin Seals
                 if (IsSealSpell(spellInfo_1) && IsSealSpell(spellInfo_2))
-                    return true;
-
-                // Repentance removes Righteous Vengeance
-                if (spellInfo_1->Id == 20066 && spellInfo_2->Id == 61840)
                     return true;
 
                 // Swift Retribution / Improved Devotion Aura (talents) and Paladin Auras
