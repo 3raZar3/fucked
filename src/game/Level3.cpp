@@ -6700,7 +6700,7 @@ bool ChatHandler::HandleInstanceStartCommand(const char * /*args*/)
 	BattleGround *bg = pl->GetBattleGround();
     if(!bg)
         return false;
-    if(bg->GetTypeID(true))
+    if(bg->GetTypeID())
     {
         bg->StartBattleGround();
         bg->AddPlayer(pl);

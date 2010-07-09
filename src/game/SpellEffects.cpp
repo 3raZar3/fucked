@@ -8014,18 +8014,7 @@ void Spell::EffectCharge(SpellEffectIndex /*eff_idx*/)
     //TODO: research more ContactPoint/attack distance.
     //3.666666 instead of ATTACK_DISTANCE(5.0f) in below seem to give more accurate result.
     float x, y, z;
-    unitTarget->GetContactPoint(m_caster, x, y, z, 3.6f);
-
-    // Try to normalize Z coord cuz GetContactPoint do nothing with Z axis
-    if(!m_caster->GetMap()->IsNextZcoordOK(x, y, z, 30.0f))
-    {
-        SendCastResult(SPELL_FAILED_TRY_AGAIN);
-        return;
-    }
-    m_caster->UpdateGroundPositionZ(x, y, z, 30.0f);
-
-    // Try to normalize Z coord cuz GetContactPoint do nothing with Z axis
-    unitTarget->UpdateGroundPositionZ(x, y, z, 5.0f);
+    unitTarget->GetContactPoint(m_caster, x, y, z, 3.666666f);
 
     if (unitTarget->GetTypeId() != TYPEID_PLAYER)
         ((Creature *)unitTarget)->StopMoving();
@@ -8036,10 +8025,6 @@ void Spell::EffectCharge(SpellEffectIndex /*eff_idx*/)
     // not all charge effects used in negative spells
     if (unitTarget != m_caster && !IsPositiveSpell(m_spellInfo->Id))
         m_caster->Attack(unitTarget, true);
-        
-    // Warbringer - remove movement imparing effects for Intervene
-    if(m_caster->HasAura(57499) && m_spellInfo->Id == 3411)
-        m_caster->RemoveAurasAtMechanicImmunity(IMMUNE_TO_ROOT_AND_SNARE_MASK,57499,true);
 }
 
 void Spell::EffectCharge2(SpellEffectIndex /*eff_idx*/)
@@ -8058,14 +8043,6 @@ void Spell::EffectCharge2(SpellEffectIndex /*eff_idx*/)
         unitTarget->GetContactPoint(m_caster, x, y, z, 3.666666f);
     else
         return;
-
-    // Try to normalize Z coord cuz GetContactPoint do nothing with Z axis
-    if(!m_caster->GetMap()->IsNextZcoordOK(x, y, z, 30.0f))
-    {
-        SendCastResult(SPELL_FAILED_TRY_AGAIN);
-        return;
-    }
-    m_caster->UpdateGroundPositionZ(x, y, z, 30.0f);
 
     // Only send MOVEMENTFLAG_WALK_MODE, client has strange issues with other move flags
     m_caster->MonsterMove(x, y, z, 1);

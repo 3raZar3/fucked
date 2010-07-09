@@ -3136,7 +3136,7 @@ void Spell::cast(bool skipCheck)
         case SPELLFAMILY_HUNTER:
         {
             // Lock and Load
-            else if (m_spellInfo->Id == 56453)
+            if (m_spellInfo->Id == 56453)
                 AddPrecastSpell(67544);                     // Lock and Load Marker
             break;
         }
@@ -4563,8 +4563,7 @@ SpellCastResult Spell::CheckCast(bool strict)
 
     // check cooldowns to prevent cheating (ignore passive spells, that client side visual only)
     if (m_caster->GetTypeId()==TYPEID_PLAYER && !(m_spellInfo->Attributes & SPELL_ATTR_PASSIVE) &&
-        ((Player*)m_caster)->HasSpellCooldown(m_spellInfo->Id)) ||
-         (m_caster->GetTypeId()==TYPEID_PLAYER && strict && !m_IsTriggeredSpell && ((Player*)m_caster)->HasGlobalCooldown(m_spellInfo)))
+        ((Player*)m_caster)->HasSpellCooldown(m_spellInfo->Id))
     {
         if(m_triggeredByAuraSpell)
             return SPELL_FAILED_DONT_REPORT;
