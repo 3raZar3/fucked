@@ -1490,7 +1490,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                     }
                     case 233:					// Bloodthirsty Berserker
                     {
-                        if(bg->GetTypeID(true) != BATTLEGROUND_EY)
+                        if(bg->GetTypeID() != BATTLEGROUND_EY)
                             continue;
                         if(!GetPlayer()->HasAura(23505))
                             continue;
@@ -1520,7 +1520,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 {
                     case 42:							// WS, capture a flag
                     {
-                        if(bg->GetTypeID(true) != BATTLEGROUND_WS)
+                        if(bg->GetTypeID() != BATTLEGROUND_WS)
                             continue;
 
                         if(miscvalue2 == 1)
@@ -1529,13 +1529,13 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                     }
                     case 44:                           // WS, return a flag
                     {
-                        if(bg->GetTypeID(true) != BATTLEGROUND_WS)
+                        if(bg->GetTypeID() != BATTLEGROUND_WS)
                             continue;
                         break;
                     }
                     case 183:							// EY, capture a flag
                     {
-                        if(bg->GetTypeID(true) != BATTLEGROUND_EY)
+                        if(bg->GetTypeID() != BATTLEGROUND_EY)
                             continue;
 
                         switch(achievementCriteria->referredAchievement)
@@ -1557,7 +1557,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                     }
                     case 122:                           // AB, assault a base
                     {
-                        if(bg->GetTypeID(true) != BATTLEGROUND_AB)
+                        if(bg->GetTypeID() != BATTLEGROUND_AB)
                             continue;
                         
                         if(miscvalue2 == 1)
@@ -1567,7 +1567,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                     }
                     case 123:                           // AB, defend a base
                     {
-                        if(bg->GetTypeID(true) != BATTLEGROUND_AB)
+                        if(bg->GetTypeID() != BATTLEGROUND_AB)
                             continue;
                         
                         if(miscvalue2 == 0)

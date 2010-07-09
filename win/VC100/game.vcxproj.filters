@@ -449,8 +449,6 @@
       <Filter>World/Handlers</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\game\AuctionHouseBot.cpp" />
-    <ClCompile Include="..\..\src\game\ChatLexicsCutter.cpp" />
-    <ClCompile Include="..\..\src\game\ChatLog.cpp" />
     <ClCompile Include="..\..\src\game\OutdoorPvP.cpp">
       <Filter>OutdoorPvP</Filter>
     </ClCompile>
@@ -914,8 +912,6 @@
       <Filter>World/Handlers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\game\AuctionHouseBot.h" />
-    <ClInclude Include="..\..\src\game\ChatLexicsCutter.h" />
-    <ClInclude Include="..\..\src\game\ChatLog.h" />
     <ClInclude Include="..\..\src\game\OutdoorPvP.h">
       <Filter>OutdoorPvP</Filter>
     </ClInclude>
@@ -988,5 +984,6 @@
     <ClInclude Include="..\..\src\game\Camera.h">
       <Filter>Object</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\game\MapUpdater.h" />
   </ItemGroup>
 </Project>
