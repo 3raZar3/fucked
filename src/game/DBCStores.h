@@ -143,31 +143,6 @@ extern DBCStorage <SpellDurationEntry> sSpellDurationStore;
 extern DBCStorage <SpellFocusObjectEntry> sSpellFocusObjectStore;
 extern DBCStorage <SpellItemEnchantmentEntry> sSpellItemEnchantmentStore;
 extern DBCStorage <SpellItemEnchantmentConditionEntry> sSpellItemEnchantmentConditionStore;
-<<<<<<< HEAD
-extern SpellCategoryStore sSpellCategoryStore;
-extern PetFamilySpellsStore sPetFamilySpellsStore;
-extern DBCStorage <SpellRadiusEntry> sSpellRadiusStore;
-extern DBCStorage <SpellRangeEntry> sSpellRangeStore;
-extern DBCStorage <SpellRuneCostEntry> sSpellRuneCostStore;
-extern DBCStorage <SpellShapeshiftEntry> sSpellShapeshiftStore;
-extern DBCStorage <SpellEntry> sSpellStore;
-extern DBCStorage <StableSlotPricesEntry> sStableSlotPricesStore;
-extern DBCStorage <SummonPropertiesEntry> sSummonPropertiesStore;
-extern DBCStorage <TalentEntry> sTalentStore;
-extern DBCStorage <TalentTabEntry> sTalentTabStore;
-extern DBCStorage <TaxiNodesEntry> sTaxiNodesStore;
-extern DBCStorage <TaxiPathEntry> sTaxiPathStore;
-extern TaxiMask sTaxiNodesMask;
-extern TaxiMask sOldContinentsNodesMask;
-extern TaxiPathSetBySource sTaxiPathSetBySource;
-extern TaxiPathNodesByPath sTaxiPathNodesByPath;
-extern DBCStorage <TotemCategoryEntry> sTotemCategoryStore;
-extern DBCStorage <VehicleEntry> sVehicleStore;
-extern DBCStorage <VehicleSeatEntry> sVehicleSeatStore;
-//extern DBCStorage <WorldMapAreaEntry> sWorldMapAreaStore; -- use Zone2MapCoordinates and Map2ZoneCoordinates
-extern DBCStorage <WorldMapOverlayEntry> sWorldMapOverlayStore;
-extern DBCStorage <WorldSafeLocsEntry> sWorldSafeLocsStore;
-=======
 extern SpellCategoryStore                        sSpellCategoryStore;
 extern PetFamilySpellsStore                      sPetFamilySpellsStore;
 extern DBCStorage <SpellRadiusEntry>             sSpellRadiusStore;
@@ -192,7 +167,6 @@ extern DBCStorage <WMOAreaTableEntry>            sWMOAreaTableStore;
 //extern DBCStorage <WorldMapAreaEntry>           sWorldMapAreaStore; -- use Zone2MapCoordinates and Map2ZoneCoordinates
 extern DBCStorage <WorldMapOverlayEntry>         sWorldMapOverlayStore;
 extern DBCStorage <WorldSafeLocsEntry>           sWorldSafeLocsStore;
->>>>>>> 03498ef97ed219b9af9fbf714ca938d69eb7818d
 
 void LoadDBCStores(const std::string& dataPath);
 

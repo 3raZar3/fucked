@@ -404,50 +404,6 @@ class MANGOS_DLL_SPEC Aura
                 m_periodicTick = maxticks - m_duration / m_modifier.periodictime;
         }
 
-<<<<<<< HEAD
-        uint8 GetAuraSlot() const { return m_auraSlot; }
-        void SetAuraSlot(uint8 slot) { m_auraSlot = slot; }
-        uint8 GetAuraFlags() const { return m_auraFlags; }
-        void SetAuraFlags(uint8 flags) { m_auraFlags = flags; }
-        uint8 GetAuraLevel() const { return m_auraLevel; }
-        void SetAuraLevel(uint8 level) { m_auraLevel = level; }
-        uint8 GetAuraCharges() const { return m_procCharges; }
-        void SetAuraCharges(uint8 charges)
-        {
-            if (m_procCharges == charges)
-                return;
-            m_procCharges = charges;
-            SendAuraUpdate(false);
-        }
-        bool DropAuraCharge()                               // return true if last charge dropped
-        {
-            if (m_procCharges == 0)
-                return false;
-
-            // exist spells that have maxStack > 1 and m_procCharges > 0 (==1 in fact)
-            // all like stacks have 1 value in one from this fields
-            // so return true for allow remove one aura from stacks as expired
-            if (GetStackAmount() > 1)
-                return true;
-
-            m_procCharges--;
-            SendAuraUpdate(false);
-            return m_procCharges == 0;
-        }
-
-        void UnregisterSingleCastAura();
-
-        void SetAura(bool remove) { m_target->SetVisibleAura(m_auraSlot, remove ? 0 : GetId()); }
-        void SendAuraUpdate(bool remove);
-        void SendFakeAuraUpdate(uint32 auraId, bool remove);
-
-        uint8 GetStackAmount() {return m_stackAmount;}
-        void SetStackAmount(uint8 num);
-        bool modStackAmount(int32 num); // return true if last charge dropped
-        void RefreshAura();
-
-=======
->>>>>>> 03498ef97ed219b9af9fbf714ca938d69eb7818d
         bool IsPositive() { return m_positive; }
         bool IsPersistent() const { return m_isPersistent; }
         bool IsAreaAura() const { return m_isAreaAura; }
@@ -483,18 +439,15 @@ class MANGOS_DLL_SPEC Aura
 
         uint32 const *getAuraSpellClassMask() const { return  m_spellAuraHolder->GetSpellProto()->GetEffectSpellClassMask(m_effIndex); }
         bool isAffectedOnSpell(SpellEntry const *spell) const;
-<<<<<<< HEAD
         bool isWeaponBuffCoexistableWith(Aura* ref);
 
         void ApplyHasteToPeriodic();
-=======
 
         //SpellAuraHolder const* GetHolder() const { return m_spellHolder; }
         SpellAuraHolder* GetHolder() { return m_spellAuraHolder; }
         SpellAuraHolder* const GetHolder() const { return m_spellAuraHolder; }
 
         bool IsLastAuraOnHolder();
->>>>>>> 03498ef97ed219b9af9fbf714ca938d69eb7818d
     protected:
         Aura(SpellEntry const* spellproto, SpellEffectIndex eff, int32 *currentBasePoints, SpellAuraHolder *holder, Unit *target, Unit *caster = NULL, Item* castItem = NULL);
 
