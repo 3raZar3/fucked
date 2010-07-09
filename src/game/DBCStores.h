@@ -39,6 +39,8 @@ TalentSpellPos const* GetTalentSpellPos(uint32 spellId);
 int32 GetAreaFlagByAreaID(uint32 area_id); // -1 if not found
 uint32 GetAreaFlagByMapId(uint32 mapid);
 
+WMOAreaTableEntry const* GetWMOAreaTableEntryByTripple(int32 rootid, int32 adtid, int32 groupid);
+
 MANGOS_DLL_SPEC AreaTableEntry const* GetAreaEntryByAreaID(uint32 area_id);
 MANGOS_DLL_SPEC AreaTableEntry const* GetAreaEntryByAreaFlagAndMap(uint32 area_flag,uint32 map_id);
 
@@ -141,6 +143,7 @@ extern DBCStorage <SpellDurationEntry> sSpellDurationStore;
 extern DBCStorage <SpellFocusObjectEntry> sSpellFocusObjectStore;
 extern DBCStorage <SpellItemEnchantmentEntry> sSpellItemEnchantmentStore;
 extern DBCStorage <SpellItemEnchantmentConditionEntry> sSpellItemEnchantmentConditionStore;
+<<<<<<< HEAD
 extern SpellCategoryStore sSpellCategoryStore;
 extern PetFamilySpellsStore sPetFamilySpellsStore;
 extern DBCStorage <SpellRadiusEntry> sSpellRadiusStore;
@@ -164,6 +167,32 @@ extern DBCStorage <VehicleSeatEntry> sVehicleSeatStore;
 //extern DBCStorage <WorldMapAreaEntry> sWorldMapAreaStore; -- use Zone2MapCoordinates and Map2ZoneCoordinates
 extern DBCStorage <WorldMapOverlayEntry> sWorldMapOverlayStore;
 extern DBCStorage <WorldSafeLocsEntry> sWorldSafeLocsStore;
+=======
+extern SpellCategoryStore                        sSpellCategoryStore;
+extern PetFamilySpellsStore                      sPetFamilySpellsStore;
+extern DBCStorage <SpellRadiusEntry>             sSpellRadiusStore;
+extern DBCStorage <SpellRangeEntry>              sSpellRangeStore;
+extern DBCStorage <SpellRuneCostEntry>           sSpellRuneCostStore;
+extern DBCStorage <SpellShapeshiftEntry>         sSpellShapeshiftStore;
+extern DBCStorage <SpellEntry>                   sSpellStore;
+extern DBCStorage <StableSlotPricesEntry>        sStableSlotPricesStore;
+extern DBCStorage <SummonPropertiesEntry>        sSummonPropertiesStore;
+extern DBCStorage <TalentEntry>                  sTalentStore;
+extern DBCStorage <TalentTabEntry>               sTalentTabStore;
+extern DBCStorage <TaxiNodesEntry>               sTaxiNodesStore;
+extern DBCStorage <TaxiPathEntry>                sTaxiPathStore;
+extern TaxiMask                                  sTaxiNodesMask;
+extern TaxiMask                                  sOldContinentsNodesMask;
+extern TaxiPathSetBySource                       sTaxiPathSetBySource;
+extern TaxiPathNodesByPath                       sTaxiPathNodesByPath;
+extern DBCStorage <TotemCategoryEntry>           sTotemCategoryStore;
+extern DBCStorage <VehicleEntry>                 sVehicleStore;
+extern DBCStorage <VehicleSeatEntry>             sVehicleSeatStore;
+extern DBCStorage <WMOAreaTableEntry>            sWMOAreaTableStore;
+//extern DBCStorage <WorldMapAreaEntry>           sWorldMapAreaStore; -- use Zone2MapCoordinates and Map2ZoneCoordinates
+extern DBCStorage <WorldMapOverlayEntry>         sWorldMapOverlayStore;
+extern DBCStorage <WorldSafeLocsEntry>           sWorldSafeLocsStore;
+>>>>>>> 03498ef97ed219b9af9fbf714ca938d69eb7818d
 
 void LoadDBCStores(const std::string& dataPath);
 
