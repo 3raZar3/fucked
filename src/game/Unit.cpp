@@ -6001,6 +6001,7 @@ int32 Unit::DealHeal(Unit *pVictim, uint32 addhealth, SpellEntry const *spellPro
     return gain;
 }
 
+
 Unit* Unit::SelectMagnetTarget(Unit *victim, SpellEntry const *spellInfo)
 {
     if(!victim)
@@ -6023,12 +6024,7 @@ Unit* Unit::SelectMagnetTarget(Unit *victim, SpellEntry const *spellInfo)
             if(Unit* magnet = (*i)->GetCaster())
                 if(magnet->isAlive() && magnet->IsWithinLOSInMap(this))
                     if(roll_chance_i((*i)->GetModifier()->m_amount))
-                        if ((*i)->GetAuraCharges())
-                        {
-                            if((*i)->DropAuraCharge())
-                                victim->RemoveAura((*i),AURA_REMOVE_BY_DEFAULT);
-                            return magnet;
-                        }
+                        return magnet;
     }
 
     return victim;

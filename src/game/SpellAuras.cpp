@@ -1061,35 +1061,6 @@ void Aura::HandleAddModifier(bool apply, bool Real)
     ReapplyAffectedPassiveAuras();
 }
 
-void Aura::SendFakeAuraUpdate(uint32 auraId, bool remove)
-{
-    WorldPacket data(SMSG_AURA_UPDATE);
-    data << m_target->GetPackGUID();
-    data << uint8(64);
-    data << uint32(remove ? 0 : auraId);
-    if(remove)
-    {
-        m_target->SendMessageToSet(&data, true);
-        return;
-    }
-    uint8 auraFlags = GetAuraFlags();
-    data << uint8(auraFlags);
-    data << uint8(GetAuraLevel());
-    data << uint8(m_procCharges ? m_procCharges : m_stackAmount);
-
-    if(!(auraFlags & AFLAG_NOT_CASTER))
-    {
-        data << uint8(0);                                   // pguid
-    }
-
-    if(auraFlags & AFLAG_DURATION)
-    {
-        data << uint32(GetAuraMaxDuration());
-        data << uint32(GetAuraDuration());
-    }
-    m_target->SendMessageToSet(&data, true);
-}
-
 /*********************************************************/
 /***               BASIC AURA FUNCTION                 ***/
 /*********************************************************/
