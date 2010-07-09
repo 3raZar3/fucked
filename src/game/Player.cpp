@@ -11137,6 +11137,7 @@ uint8 Player::CanUseItem( Item *pItem, bool not_loading ) const
                 for(int i = 0; i < 5; i++)
                 {
                     SpellEntry const *sEntry = sSpellStore.LookupEntry(iProto->Spells[i].SpellId);
+					SpellAuraHolder *new_holder = CreateSpellAuraHolder(sEntry, player, player);
                     if (sEntry)
                     {
                         Player* player = ((Player*)this);
@@ -11153,8 +11154,8 @@ uint8 Player::CanUseItem( Item *pItem, bool not_loading ) const
                             {
                                 for(int j = 0; j < MAX_EFFECT_INDEX; ++j)
                                 {
-                                    Aura* aur = CreateAura(sEntry, SpellEffectIndex(j), NULL, player, player, NULL);
-                                    player->AddAura(aur);
+									Aura* aur = CreateAura(sEntry, SpellEffectIndex(j), NULL, new_holder, player, player, NULL);
+                                    new_holder->AddAura(aur, SpellEffectIndex(j));
                                 }
                             }
                             return EQUIP_ERR_OK;
@@ -11172,8 +11173,8 @@ uint8 Player::CanUseItem( Item *pItem, bool not_loading ) const
                             {
                                 for(int j = 0; j < MAX_EFFECT_INDEX; ++j)
                                 {
-                                    Aura* aur = CreateAura(sEntry, SpellEffectIndex(j), NULL, player, player, NULL);
-                                    player->AddAura(aur);
+									Aura* aur = CreateAura(sEntry, SpellEffectIndex(j), NULL, new_holder, player, player, NULL);
+                                    new_holder->AddAura(aur, SpellEffectIndex(j));
                                 }
                             }
                             return EQUIP_ERR_OK;
