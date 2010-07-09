@@ -46,11 +46,7 @@
 #include "BattleGround.h"
 #include "BattleGroundEY.h"
 #include "BattleGroundWS.h"
-<<<<<<< HEAD
 #include "OutdoorPvPMgr.h"
-#include "VMapFactory.h"
-=======
->>>>>>> 03498ef97ed219b9af9fbf714ca938d69eb7818d
 #include "Language.h"
 #include "SocialMgr.h"
 #include "VMapFactory.h"

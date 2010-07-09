@@ -327,15 +327,11 @@ bool IsNoStackAuraDueToAura(uint32 spellId_1, uint32 spellId_2)
         }
     }
 
-<<<<<<< HEAD
     // Potion of Wild Magic stacks with everything
     if (spellId_1 == 53909 || spellId_2 == 53909)
-      return false;
+      return true;
 
-    return true;
-=======
     return false;
->>>>>>> 03498ef97ed219b9af9fbf714ca938d69eb7818d
 }
 
 int32 CompareAuraRanks(uint32 spellId_1, uint32 spellId_2)
