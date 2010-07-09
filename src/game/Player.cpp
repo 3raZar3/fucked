@@ -11137,10 +11137,10 @@ uint8 Player::CanUseItem( Item *pItem, bool not_loading ) const
                 for(int i = 0; i < 5; i++)
                 {
                     SpellEntry const *sEntry = sSpellStore.LookupEntry(iProto->Spells[i].SpellId);
-					SpellAuraHolder *new_holder = CreateSpellAuraHolder(sEntry, player, player);
                     if (sEntry)
                     {
                         Player* player = ((Player*)this);
+						SpellAuraHolder *new_holder = CreateSpellAuraHolder(sEntry, player, player);
                         if(isFlyingSpell(sEntry))
                         {
                             if(player->HasAuraTypeFlyingSpell())
