@@ -917,10 +917,7 @@ void Spell::AddUnitTarget(Unit* pVictim, SpellEffectIndex effIndex)
     target.deleted    = false;
 
     // Calculate hit result
-
-    // Procs can miss, weapon enchants can miss, triggered spells and effects cannot miss (miss already calculated in triggering spell)
-    bool canMiss = (m_triggeredByAuraSpell || !m_IsTriggeredSpell);
-    target.missCondition = m_caster->SpellHitResult(pVictim, m_spellInfo, m_canReflect, canMiss);
+    target.missCondition = m_caster->SpellHitResult(pVictim, m_spellInfo, m_canReflect);
 
     // Spell have speed - need calculate incoming time
     if (m_spellInfo->speed > 0.0f)
@@ -1286,9 +1283,8 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
     // Recheck immune (only for delayed spells)
     if (m_spellInfo->speed && (
         unit->IsImmunedToDamage(GetSpellSchoolMask(m_spellInfo)) ||
-        unit->IsImmunedToSpell(m_spellInfo) && !(m_spellInfo->Id == 64380 || m_spellInfo->Id == 64382 ||
-        m_spellInfo->Id == 32375 || m_spellInfo->Id == 32592 || m_spellInfo->Id == 39897 || m_spellInfo->Attributes & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY)))
-    {
+        unit->IsImmunedToSpell(m_spellInfo)))
+	{
         if (realCaster)
             realCaster->SendSpellMiss(unit, m_spellInfo->Id, SPELL_MISS_IMMUNE);
 
@@ -2146,11 +2142,11 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                     break;
                 case 64844:                                 // Divine Hymn
                     // target amount stored in parent spell dummy effect but hard to access
-                    FillRaidOrPartyHealthPriorityTargets(targetUnitMap, m_caster, m_caster, radius, 3, true, false, true);
+                    FillRaidOrPartyHealthPriorityTargets(targetUnitMap, m_caster, m_caster, radius, 3, true, false, false);
                     break;
                 case 64904:                                 // Hymn of Hope
                     // target amount stored in parent spell dummy effect but hard to access
-                    FillRaidOrPartyManaPriorityTargets(targetUnitMap, m_caster, m_caster, radius, 3, true, false, true);
+                    FillRaidOrPartyManaPriorityTargets(targetUnitMap, m_caster, m_caster, radius, 3, true, false, false);
                     break;
                 case 71447:                                 // Bloodbolt Splash 10N
                 case 71481:                                 // Bloodbolt Splash 25N
@@ -3091,31 +3087,9 @@ void Spell::cast(bool skipCheck)
             if (m_spellInfo->SpellFamilyFlags & UI64LIT(0x0000008000000000))
                 AddPrecastSpell(41425);                     // Hypothermia
 
-            // Fingers of Frost
-            else if (m_spellInfo->Id == 44544)
-                AddPrecastSpell(74396);
-
             // Mirror Image (glyph)
             if (m_spellInfo->Id == 55342 && m_caster->HasAura(63093))
                 AddPrecastSpell(65047);                     // Mirror Image (summon 4th immage)
-            break;
-        }
-        case SPELLFAMILY_WARRIOR:
-        {
-            // Item - Warrior T10 Melee 4P Bonus
-            if (m_spellInfo->Id == 46916 || m_spellInfo->Id == 52437)
-            {
-                if (Aura *aur = m_caster->GetAura(70847, EFFECT_INDEX_0))
-                {
-                    if (roll_chance_i(aur->GetModifier()->m_amount))
-                    {
-                        AddTriggeredSpell(70849);
-                    }
-                }
-            }
-            // Shattering Throw
-            else if (m_spellInfo->Id == 64382)
-                AddPrecastSpell(64380);
             break;
         }
         case SPELLFAMILY_PRIEST:
@@ -3161,9 +3135,6 @@ void Spell::cast(bool skipCheck)
         }
         case SPELLFAMILY_HUNTER:
         {
-            // Deterrence
-            if (m_spellInfo->Id == 19263)
-                AddTriggeredSpell(67801);
             // Lock and Load
             else if (m_spellInfo->Id == 56453)
                 AddPrecastSpell(67544);                     // Lock and Load Marker
@@ -4592,12 +4563,12 @@ SpellCastResult Spell::CheckCast(bool strict)
 
     // check cooldowns to prevent cheating (ignore passive spells, that client side visual only)
     if (m_caster->GetTypeId()==TYPEID_PLAYER && !(m_spellInfo->Attributes & SPELL_ATTR_PASSIVE) &&
-        ((Player*)m_caster)->HasSpellCooldown(m_spellInfo->Id) && !m_caster->isIgnoreUnitState(m_spellInfo) ||
+        ((Player*)m_caster)->HasSpellCooldown(m_spellInfo->Id)) ||
          (m_caster->GetTypeId()==TYPEID_PLAYER && strict && !m_IsTriggeredSpell && ((Player*)m_caster)->HasGlobalCooldown(m_spellInfo)))
     {
         if(m_triggeredByAuraSpell)
             return SPELL_FAILED_DONT_REPORT;
-        else if(!m_IsTriggeredSpell || m_CastItem)
+        else
             return SPELL_FAILED_NOT_READY;
     }
 
@@ -4654,10 +4625,6 @@ SpellCastResult Spell::CheckCast(bool strict)
         else if(m_caster->HasAura(m_spellInfo->excludeCasterAuraSpell))
             return SPELL_FAILED_CASTER_AURASTATE;
     }
-    //Check Caster for combat
-    if(m_caster->isInCombat() && IsNonCombatSpell(m_spellInfo) && !m_caster->isIgnoreUnitState(m_spellInfo) && !m_IsTriggeredSpell
-       && (!(m_spellInfo->SpellFamilyFlags & SPELLFAMILYFLAG_ROGUE_STEALTH)) && m_spellInfo->SpellFamilyFlags & SPELLFAMILYFLAG_ROGUE_VANISH)  // Vanish hack
-        return SPELL_FAILED_AFFECTING_COMBAT;
 
     // cancel autorepeat spells if cast start when moving
     // (not wand currently autorepeat cast delayed to moving stop anyway in spell update code)
@@ -5507,13 +5474,6 @@ SpellCastResult Spell::CheckCast(bool strict)
             {
                 if (m_targets.getUnitTarget() == m_caster)
                     return SPELL_FAILED_BAD_TARGETS;
-                break;
-            }
-            case SPELL_EFFECT_LEAP_BACK:
-            {
-                if(m_spellInfo->Id == 781)
-                    if(!m_caster->isInCombat()) 
-                        return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW; 
                 break;
             }
             case SPELL_EFFECT_TRANS_DOOR:

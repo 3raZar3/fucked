@@ -921,7 +921,6 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOADTALENTS,
     PLAYER_LOGIN_QUERY_LOADWEEKLYQUESTSTATUS,
     PLAYER_LOGIN_QUERY_LOADBGSTATUS,
-    PLAYER_LOGIN_QUERY_LOADRANDOMBG,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -2300,9 +2299,6 @@ class MANGOS_DLL_SPEC Player : public Unit
         OutdoorPvP * GetOutdoorPvP() const;
         // returns true if the player is in active state for outdoor pvp objective capturing, false otherwise
         bool IsOutdoorPvPActive();
-
-        bool GetRandomWinner() { return m_IsBGRandomWinner; }
-        void SetRandomWinner(bool isWinner);
 
         /*********************************************************/
         /***                    REST SYSTEM                    ***/

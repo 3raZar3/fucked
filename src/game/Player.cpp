@@ -8903,16 +8903,6 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
                 FillInitialWorldState(data,count,0xbba,0x0);// 9 show
             }
             break;
-        case 4378:                                          // Dalaran Sewers
-            if (bg && bg->GetTypeID(true) == BATTLEGROUND_DS)
-                bg->FillInitialWorldStates(data, count);
-            else
-            {
-                FillInitialWorldState(data,count,0xe11,0x0);// 7 gold
-                FillInitialWorldState(data,count,0xe10,0x0);// 8 green
-                FillInitialWorldState(data,count,0xe1a,0x0);// 9 show
-            }
-            break;
         case 4384:                                          // SA
             /*if (bg && bg->GetTypeID() == BATTLEGROUND_SA)
                 bg->FillInitialWorldStates(data);
@@ -8947,16 +8937,6 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
                 data << uint32(0xe2a) << uint32(0x1);       // 30 3626 Beach2 - Alliance control
                 // and many unks...
             //}
-            break;
-        case 4406:                                          // Ring of Valor
-            if (bg && bg->GetTypeID(true) == BATTLEGROUND_RV)
-                bg->FillInitialWorldStates(data, count);
-            else
-            {
-                FillInitialWorldState(data,count,0xe11,0x0);// 7 gold
-                FillInitialWorldState(data,count,0xe10,0x0);// 8 green
-                FillInitialWorldState(data,count,0xe1a,0x0);// 9 show
-            }
             break;
         case 3703:                                          // Shattrath City
             break;
@@ -18361,7 +18341,6 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
     // not save secondary permanent pet as current
     if (pet && m_temporaryUnsummonedPetNumber && m_temporaryUnsummonedPetNumber != pet->GetCharmInfo()->GetPetNumber() && mode == PET_SAVE_AS_CURRENT)
         mode = PET_SAVE_NOT_IN_SLOT;
-
     if(mode != PET_SAVE_AS_CURRENT && !InBattleGround())
     {
         //returning of reagents only for players, so best done here
@@ -23243,20 +23222,4 @@ bool Player::CanUseFlyingMounts(SpellEntry const* sEntry)
     return true;
 }
 
-void Player::SetRandomWinner(bool isWinner)
-{
-    m_IsBGRandomWinner = isWinner;
-    if(m_IsBGRandomWinner)
-        CharacterDatabase.PExecute("INSERT INTO character_battleground_random (guid) VALUES ('%u')", GetGUIDLow());
-}
 
-void Player::_LoadRandomBGStatus(QueryResult *result)
-{
-    //QueryResult *result = CharacterDatabase.PQuery("SELECT guid FROM character_battleground_random WHERE guid = '%u'", GetGUIDLow());
-
-    if (result)
-    {
-        m_IsBGRandomWinner = true;
-        delete result;
-    }
-}
