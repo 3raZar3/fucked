@@ -1073,8 +1073,8 @@ void Aura::HandleAddModifier(bool apply, bool Real)
         return;
 
     // Aura Mastery - Remove immunity effect 
-    if (!apply && m_spellProto->Id == 31821) 
-        m_target->RemoveAurasDueToSpell(64364); 
+    if (!apply && GetSpellProto()->Id == 31821) 
+        GetTarget()->RemoveAurasDueToSpell(64364); 
 
     if (apply)
     {
@@ -1092,7 +1092,7 @@ void Aura::HandleAddModifier(bool apply, bool Real)
             case 54741:                                     // Firestarter
             case 57761:                                     // Fireball!
             case 64823:                                     // Elune's Wrath (Balance druid t8 set
-                SetAuraCharges(1);
+                GetHolder()->SetAuraCharges(1);
                 break;
         }
 
@@ -1103,7 +1103,7 @@ void Aura::HandleAddModifier(bool apply, bool Real)
             this,
             // prevent expire spell mods with (charges > 0 && m_stackAmount > 1)
             // all this spell expected expire not at use but at spell proc event check
-            GetSpellProto()->StackAmount > 1 ? 0 : m_procCharges);
+            GetSpellProto()->StackAmount > 1 ? 0 : GetHolder()->GetAuraCharges());
     }
 
     ((Player*)GetTarget())->AddSpellMod(m_spellmod, apply);
@@ -1932,7 +1932,7 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                         Spell::SelectMountByAreaAndSkill(target, 51621, 48024, 51617, 48023, 0);
                         return;
                     case 52921:                             // Arc Lightning (Halls of Lighning: Loken)
-                        m_target->CastSpell(m_target, 52924, false);
+                        target->CastSpell(target, 52924, false);
                         return;
                     case 63322:
                     {
@@ -1940,8 +1940,8 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                         int32 damage = 50 * multiplier;
                         int32 energize = 100 * multiplier;
 
-                        m_target->CastCustomSpell(m_target, 63338, &damage, 0, 0 ,true);
-                        m_target->CastCustomSpell(m_target, 63337, &energize, 0, 0, true);
+                        target->CastCustomSpell(target, 63338, &damage, 0, 0 ,true);
+                        target->CastCustomSpell(target, 63337, &energize, 0, 0, true);
                         return;
                     }
                     case 63624:                             // Learn a Second Talent Specialization
@@ -1967,7 +1967,7 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                         Spell::SelectMountByAreaAndSkill(target, 75619, 75620, 75617, 75618, 76153);
                         return;
                     case 75973:                             // X-53 Touring Rocket 
-                        Spell::SelectMountByAreaAndSkill(m_target, 0, 0, 75957, 75972, 76154);
+                        Spell::SelectMountByAreaAndSkill(target, 0, 0, 75957, 75972, 76154);
                         return;
 					case 72350:                             // Fury of Frostmourne
 					     if (GetEffIndex() == EFFECT_INDEX_0)
@@ -2047,12 +2047,12 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
             {
                 if (GetId() == 52916) // Honor Among Thieves
                 {
-                    if(m_target->GetTypeId() == TYPEID_PLAYER)
+                    if(target->GetTypeId() == TYPEID_PLAYER)
                     {
-                        if (Unit * target = Unit::GetUnit(*m_target,((Player*)m_target)->GetComboTarget()))
-                            m_target->CastSpell(target, 51699, true);
-                        else if( Unit * target = m_target->getVictim() )
-                            m_target->CastSpell(target, 51699, true);
+                        if (Unit * target = Unit::GetUnit(*m_target,((Player*)target)->GetComboTarget()))
+                            target->CastSpell(target, 51699, true);
+                        else if( Unit * target = target->getVictim() )
+                            target->CastSpell(target, 51699, true);
                     }
                 }
                 break;
@@ -2216,8 +2216,8 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                 return;
 
             int32 basepoints = GetSpellProto()->EffectBasePoints[1] * 8;
-            basepoints = caster->SpellDamageBonusDone(m_target, GetSpellProto(), basepoints, DOT);
-            basepoints = m_target->SpellDamageBonusTaken(caster, GetSpellProto(), basepoints, DOT);
+            basepoints = caster->SpellDamageBonusDone(target, GetSpellProto(), basepoints, DOT);
+            basepoints = target->SpellDamageBonusTaken(caster, GetSpellProto(), basepoints, DOT);
             m_target->CastCustomSpell(m_target, 64085, &basepoints, NULL, NULL, false, NULL, this, GetCasterGUID());
             return;
         }
