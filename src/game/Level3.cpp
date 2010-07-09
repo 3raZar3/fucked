@@ -7197,6 +7197,7 @@ bool ChatHandler::HandleFreezeCommand(const char *args)
         //m_session->GetPlayer()->CastSpell(player,spellID,false);
         uint32 spellID = 9454;
         SpellEntry const *spellInfo = sSpellStore.LookupEntry( spellID );
+        SpellAuraHolder *new_holder = CreateSpellAuraHolder(spellInfo, player, player);
         if(spellInfo) //TODO: Change the duration of the aura to -1 instead of 5000000
         {
             for(uint32 i = 0;i<3;i++)
@@ -7208,8 +7209,8 @@ bool ChatHandler::HandleFreezeCommand(const char *args)
                     eff == SPELL_EFFECT_PERSISTENT_AREA_AURA || eff == SPELL_EFFECT_APPLY_AREA_AURA_FRIEND || 
                     eff == SPELL_EFFECT_APPLY_AREA_AURA_ENEMY)
                 {
-                    Aura *Aur = CreateAura(spellInfo, SpellEffectIndex(i), NULL, player);
-                    player->AddAura(Aur);
+                    Aura *Aur = CreateAura(spellInfo, SpellEffectIndex(i), NULL, new_holder, player);
+                    new_holder->AddAura(Aur, SpellEffectIndex(i));
                 }
             }
         }
