@@ -135,18 +135,18 @@ uint32 DBCFileLoader::GetFormatRecordSize(const char * format,int32* index_pos)
     return recordsize;
 }
 
-char* DBCFileLoader::AutoProduceData(const char* format, uint32& records, char**& indexTable, uint32 sqlRecordCount, uint32 sqlHighestIndex, char *& sqlDataTable)
+char* DBCFileLoader::AutoProduceData(const char* format, uint32& records, char**& indexTable)
 {
     /*
-    format STRING, NA, FLOAT,NA,INT <=>
-    struct{
-    char* field0,
-    float field1,
-    int field2
-    }entry;
+format STRING, NA, FLOAT,NA,INT <=>
+struct{
+char* field0,
+float field1,
+int field2
+}entry;
 
-    this func will generate  entry[rows] data;
-    */
+this func will generate entry[rows] data;
+*/
 
     typedef char * ptr;
     if(strlen(format)!=fieldCount)
@@ -166,10 +166,6 @@ char* DBCFileLoader::AutoProduceData(const char* format, uint32& records, char**
             if(ind>maxi)maxi=ind;
         }
 
-        // If higher index avalible from sql - use it instead of dbcs
-        if (sqlHighestIndex > maxi)
-            maxi = sqlHighestIndex;
-
         ++maxi;
         records=maxi;
         indexTable=new ptr[maxi];
@@ -177,11 +173,11 @@ char* DBCFileLoader::AutoProduceData(const char* format, uint32& records, char**
     }
     else
     {
-        records = recordCount + sqlRecordCount;
-        indexTable = new ptr[recordCount + sqlRecordCount];
+        records = recordCount;
+        indexTable = new ptr[recordCount];
     }
 
-    char* dataTable= new char[(recordCount + sqlRecordCount)*recordsize];
+    char* dataTable= new char[recordCount*recordsize];
 
     uint32 offset=0;
 
@@ -212,14 +208,12 @@ char* DBCFileLoader::AutoProduceData(const char* format, uint32& records, char**
                     offset+=1;
                     break;
                 case FT_STRING:
-                    *((char**)(&dataTable[offset]))=NULL;   // will be replaces non-empty or "" strings in AutoProduceStrings
+                    *((char**)(&dataTable[offset]))=NULL; // will be replaces non-empty or "" strings in AutoProduceStrings
                     offset+=sizeof(char*);
                     break;
             }
         }
     }
-
-    sqlDataTable = dataTable + offset;
 
     return dataTable;
 }
