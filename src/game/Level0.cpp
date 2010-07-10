@@ -211,7 +211,11 @@ bool ChatHandler::HandleAccountPasswordCommand(const char* args)
 {
     // allow use from RA, but not from console (not have associated account id)
     if (!GetAccountId())
+    {
+        SendSysMessage (LANG_RA_ONLY_COMMAND);
+        SetSentErrorMessage (true);
         return false;
+    }
 
     if(!*args)
         return false;
@@ -301,7 +305,11 @@ bool ChatHandler::HandleAccountLockCommand(const char* args)
 {
     // allow use from RA, but not from console (not have associated account id)
     if (!GetAccountId())
+    {
+        SendSysMessage (LANG_RA_ONLY_COMMAND);
+        SetSentErrorMessage (true);
         return false;
+    }
 
     if (!*args)
     {
