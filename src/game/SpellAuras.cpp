@@ -1999,11 +1999,11 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
             {
                 if (GetId() == 52916) // Honor Among Thieves
                 {
-                    if(target->GetTypeId() == TYPEID_PLAYER)
+                    if(GetTarget()->GetTypeId() == TYPEID_PLAYER)
                     {
-                        if (Unit * target = Unit::GetUnit(*GetTarget(),((Player*)target)->GetComboTarget()))
+                        if (Unit * target = Unit::GetUnit(*GetTarget(),((Player*)GetTarget())->GetComboTarget()))
                             target->CastSpell(target, 51699, true);
-                        else if( Unit * target = target->getVictim() )
+                        else if( Unit * target = GetTarget()->getVictim() )
                             target->CastSpell(target, 51699, true);
                     }
                 }
